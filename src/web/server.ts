@@ -13,6 +13,7 @@ import { createEnvironmentContext } from '../core/context.js';
 import { redactSecrets } from '../security/scrubber.js';
 import type { EnvironmentContext, SyncReport } from '../types.js';
 import { renderWebUi } from './ui.js';
+import { applyMcpEdit, mcpEditorOverview, previewMcpEdit, type McpEditorRequest } from './mcp-editor.js';
 
 const IDENTIFIER = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const SNAPSHOT = /^snapshot-\d{8}-\d{6}-[a-f0-9]{6}$/;
@@ -38,6 +39,13 @@ function object(value: unknown): value is JsonValue {
 function checkedId(value: unknown): string {
   if (typeof value !== 'string' || !IDENTIFIER.test(value) || value.length > 100) {
     throw new Error('Invalid skill or agent identifier.');
+  }
+  return value;
+}
+function checkedMcpId(value: unknown): string {
+  if (typeof value !== 'string' || value.length > 128 ||
+      !/^[A-Za-z0-9._-]+$/.test(value) || ['.','..','__proto__','constructor','prototype'].includes(value)) {
+    throw new Error('Invalid MCP server identifier.');
   }
   return value;
 }
@@ -185,6 +193,9 @@ export async function startWebServer(options: WebOptions = {}): Promise<WebInsta
       if (req.method === 'GET' && path.pathname === '/api/state') {
         json(res, 200, safeState(ctx)); return;
       }
+      if (req.method === 'GET' && path.pathname === '/api/mcp') {
+        json(res, 200, mcpEditorOverview(ctx)); return;
+      }
       if (req.method === 'GET' && path.pathname === '/api/doctor') {
         const doctor = runDoctor(ctx);
         // Do not expose native configuration paths or filesystem errors over HTTP.
@@ -260,6 +271,16 @@ export async function startWebServer(options: WebOptions = {}): Promise<WebInsta
           if (action === 'sync-all-preview') { json(res, 200, summarize(preflight, ctx)); return; }
           if (preflight.errors.length) throw new Error('Full sync preview reported errors; refusing to apply.');
           json(res, 200, summarize(runSync(ctx, { dryRun: false }), ctx)); return;
+        }
+        if (action === 'mcp-preview' || action === 'mcp-apply') {
+          if (action === 'mcp-apply') requireApproval(body);
+          const request: McpEditorRequest = { operation: body.operation as McpEditorRequest['operation'],
+            name: checkedMcpId(body.name), spec: body.spec, routing: body.routing,
+            ...(body.expectedRevision !== undefined ? { expectedRevision: String(body.expectedRevision) } : {}) };
+          if (action === 'mcp-preview') {
+            json(res, 200, {plan: previewMcpEdit(ctx, request)}); return;
+          }
+          json(res, 200, {result: applyMcpEdit(ctx, request)}); return;
         }
         if (action === 'backup') {
           requireApproval(body);

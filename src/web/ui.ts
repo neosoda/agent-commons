@@ -51,7 +51,7 @@ const HTML = String.raw`<!doctype html>
 <div class="panel"><div class="filter-row"><select class="field" id="profile-agent" aria-label="Choose agent"></select><input class="field search" id="profile-skill-search" type="search" placeholder="Filter locally installed skills…" aria-label="Filter skills"></div><div class="split"><div><h3>Individual skills</h3><p class="subtle">Only skills already present in your shared library can be linked.</p><div class="checkbox-list" id="profile-skills"></div></div><div><h3>Category profiles</h3><p class="subtle">Categories expand to installed skills at sync time.</p><div class="checkbox-list" id="profile-categories"></div></div></div>
 <div class="actions mt-19"><button class="btn primary" id="profile-save">Save profile</button><button class="btn danger" id="profile-clear">Clear saved profile</button></div></div>
 <div class="panel"><h3>Synchronization</h3><p>Preview exactly what would change. Applies saved profiles to installed agents; does not change MCP settings or automatically unlink other skills.</p><div class="actions"><button class="btn" id="sync-preview">Preview sync</button><button class="btn primary" id="sync-apply">Apply saved profiles</button></div><pre class="result-box hidden" id="sync-report"></pre></div>
-<div class="panel"><h3>Shared MCP servers</h3><p>Server names from your central manifest. Full sync updates compatible agent skill links and merges MCP entries, preserving unrelated settings. Conflicts are not overwritten automatically.</p><div id="mcp-items"></div><div class="actions mt-18"><button class="btn" id="full-sync-preview">Preview skills + MCP sync</button><button class="btn primary" id="full-sync-apply">Apply skills + MCP sync</button></div><pre class="result-box hidden mt-16" id="full-sync-report"></pre></div>
+<div class="panel"><div class="section-head"><h3>Shared MCP servers</h3><button class="btn primary small" id="mcp-add">+ Add MCP server</button></div><p>Add MCP servers, edit agent routing or remove entries. Existing commands and environment values stay private. Every change requires a preview and confirmation; synchronization remains separate.</p><div id="mcp-items"></div><div class="actions mt-18"><button class="btn" id="full-sync-preview">Preview skills + MCP sync</button><button class="btn primary" id="full-sync-apply">Apply skills + MCP sync</button></div><pre class="result-box hidden mt-16" id="full-sync-report"></pre></div>
 </section>
 <section class="page" id="page-integrity"><div class="eyebrow">READ-ONLY · OFFLINE</div><h1>Skill integrity</h1><p class="dim">Inspect local managed skills for changed Git blobs, missing files, extra files, unsafe links and invalid receipts. Matching hashes do not certify that third-party code is safe.</p><div class="panel"><div class="actions"><button class="btn" id="verify-again">Run verification</button><button class="btn" id="doctor-run">Run agent diagnostics</button></div><pre class="result-box hidden mt-16" id="doctor-report"></pre><div id="integrity-items" class="mt-15"></div></div></section>
 <section class="page" id="page-backups"><div class="eyebrow">RECOVERY</div><h1>Snapshots & recovery</h1><p class="dim">Review stored snapshots, create a backup or restore a previous state. Restoring replaces saved managed paths and requires explicit confirmation.</p><div class="panel"><h3>Backup now</h3><p>Create a full point-in-time snapshot of agent skills and MCP configurations.</p><button class="btn primary" id="backup-create">Create backup</button></div><div class="panel"><h3>Available snapshots</h3><div id="backup-items"></div></div></section>
@@ -62,7 +62,7 @@ const HTML = String.raw`<!doctype html>
 'use strict';
 const csrf=document.querySelector('meta[name="csrf-token"]').content;
 const $=id=>document.getElementById(id);
-let state=null, activePage='overview', selectedAgent='', busy=false, profileDrafts=Object.create(null);
+let state=null, mcpState=null, activePage='overview', selectedAgent='', busy=false, profileDrafts=Object.create(null);
 const short=x=>String(x||'').slice(0,10);
 const node=(tag,text,cls)=>{const e=document.createElement(tag);if(text!==undefined&&text!==null)e.textContent=String(text);if(cls)e.className=cls;return e};
 const clear=e=>e.replaceChildren();
@@ -112,7 +112,84 @@ function skillDetails(s){
 }
 async function previewSkill(op,id){if(busy)return;busy=true;showToast('Reviewing pinned skill…');try{const preview=await request('/api/preview?op='+encodeURIComponent(op)+'&id='+encodeURIComponent(id));const payload=preview.preview;const lines=op==='install'?['Commit: '+short(payload.commit),'Files: '+payload.files.length,'Bytes: '+payload.totalBytes]:op==='update'?['From: '+short(payload.previousCommit),'To: '+short(payload.proposedCommit),'Added: '+payload.added.length,'Changed: '+payload.changed.length,'Removed: '+payload.removed.length]:['Commit: '+short(payload.commit),'Files: '+payload.files.length,'Bytes: '+payload.totalBytes];const action=op==='install'?'Install':op==='update'?'Update':'Uninstall';modal(action+' '+id,lines.join('\n')+'\n\nThe operation will revalidate local files and create a recovery snapshot where supported. No third-party scripts are executed.',action,async()=>{await request('/api/action',{action:op,id,approved:true});showToast(id+' '+(op==='install'?'installed':op==='update'?'updated':'uninstalled'));await refresh()},op==='uninstall'?id:undefined)}catch(err){showToast(err.message,true)}finally{busy=false}}
 function renderAgents(){clear($('agents-grid'));const agents=state.inventory.agents;agents.forEach(a=>{const e=node('div',null,'agent-card');const h=node('div',null,'head');h.append(node('h3',a.name),labelStatus(a.installed?'installed':'not found'));e.append(h,node('p',a.linkedSkills.length+' linked · '+a.localPhysicalSkills.length+' local skills · '+a.mcpServers.length+' MCP servers'));$('agents-grid').append(e)});const select=$('profile-agent');const was=selectedAgent;clear(select);agents.filter(a=>a.installed).forEach(a=>{const op=node('option',a.name);op.value=a.id;select.append(op)});selectedAgent=agents.some(a=>a.id===was&&a.installed)?was:(select.options[0]?.value||'');select.value=selectedAgent;renderProfileEditor()}
-function renderMcp(){clear($('mcp-items'));if(!state.inventory.centralMcpServers.length){$('mcp-items').append(node('div','No shared MCP servers found. Add definitions to ~/.agents/mcp.json, then preview full synchronization.','empty'));return}state.inventory.centralMcpServers.forEach(name=>$('mcp-items').append(row(name,'Shared MCP manifest',labelStatus('available'))))}
+function renderMcp(){
+  const target=$('mcp-items');clear(target);
+  if(!mcpState){target.append(node('div','MCP editor unavailable. Check the manifest, then Refresh.','empty'));return}
+  if(!mcpState.servers.length){target.append(node('div','No shared MCP servers. Add a server to begin.','empty'));return}
+  mcpState.servers.forEach(s=>{
+    const buttons=node('div',null,'actions');
+    const edit=node('button','Routing…','btn small');edit.onclick=()=>mcpDialog('configure',s);
+    const remove=node('button','Remove…','btn danger small');remove.onclick=()=>mcpChange({operation:'delete',name:s.name});
+    buttons.append(edit,remove);
+    target.append(row(s.name,s.transport+' · '+(s.enabled?'Enabled':'Disabled')+' · '+s.argsCount+' args · '+s.envKeyCount+' env keys'+(s.hasOverrides?' · overrides preserved':''),buttons));
+  })
+}
+function mcpField(label,value=''){
+  const wrapper=node('label',null,'check'),caption=node('span',label,'subtle'),input=node('input');
+  input.className='field';input.value=value;
+  wrapper.append(caption,input);return {wrapper,input}
+}
+function mcpAgentPicker(label,selected=[]){
+  const wrap=node('div'),list=node('div',null,'checkbox-list');wrap.append(node('h3',label),list);
+  mcpState.agents.forEach(a=>{const row=node('label',null,'check'),input=node('input');
+    input.type='checkbox';input.value=a.id;input.checked=selected.includes(a.id);
+    row.append(input,node('span',a.name));list.append(row)});
+  return {wrap,get:()=>[...list.querySelectorAll('input:checked')].map(x=>x.value)}
+}
+async function mcpChange(payload){
+  try{
+    const preview=await request('/api/action',{action:'mcp-preview',...payload,expectedRevision:mcpState.revision});
+    const p=preview.plan;
+    modal('Confirm MCP '+p.operation,p.name+' · '+(p.changed?'Create a recovery snapshot and write the updated manifest.':'No changes.')+'\nAgent configuration synchronization remains a separate explicit action.','Apply change',async()=>{
+      const result=await request('/api/action',{action:'mcp-apply',...payload,expectedRevision:p.expectedRevision,approved:true});
+      showToast(p.name+' saved. Snapshot: '+(result.result.snapshotId||'not needed'));await refresh()
+    },p.operation==='delete'?p.name:undefined);
+  }catch(err){showToast(err.message,true)}
+}
+function mcpDialog(operation,server){
+  if(!mcpState)return;
+  const root=$('modal-root');clear(root);
+  const bg=node('div',null,'modal-backdrop'),box=node('section',null,'modal');
+  box.setAttribute('role','dialog');box.setAttribute('aria-modal','true');
+  box.setAttribute('aria-label',operation==='create'?'Add MCP server':'Edit MCP routing');
+  box.append(node('h2',operation==='create'?'New MCP server':'Routing: '+server.name));
+  box.append(node('p',operation==='create'?'Do not paste tokens in commands or URLs. Use environment references in the central manifest for secrets.':'Existing commands, secrets and custom options are preserved. Only agent routing can change.','copy'));
+  const name=mcpField('Server ID',server?.name||'');box.append(name.wrapper);
+  if(operation==='configure')name.input.disabled=true;
+  let transport,command,args,url;
+  if(operation==='create'){
+    const transportRow=node('label',null,'check');
+    transport=node('select');transport.className='field';
+    ['stdio','http','sse'].forEach(v=>{const opt=node('option',v);opt.value=v;transport.append(opt)});
+    transportRow.append(node('span','Transport','subtle'),transport);box.append(transportRow);
+    command=mcpField('Executable','npx');args=mcpField('Arguments (one per line)','');
+    url=mcpField('HTTP(S) endpoint','https://');
+    box.append(command.wrapper,args.wrapper,url.wrapper);
+    const toggle=()=>{const isLocal=transport.value==='stdio';command.wrapper.classList.toggle('hidden',!isLocal);args.wrapper.classList.toggle('hidden',!isLocal);url.wrapper.classList.toggle('hidden',isLocal)};
+    transport.onchange=toggle;toggle()
+  }
+  const enabledRow=node('label',null,'check'),enabled=node('input');
+  enabled.type='checkbox';enabled.checked=server?.enabled!==false;
+  enabledRow.append(enabled,node('span','Enabled'));box.append(enabledRow);
+  const include=mcpAgentPicker('Include agents (empty = all)',server?.agents||[]),
+    exclude=mcpAgentPicker('Exclude agents',server?.excludeAgents||[]);
+  box.append(include.wrap,exclude.wrap);
+  const buttons=node('div',null,'modal-buttons'),cancel=node('button','Cancel','btn'),preview=node('button','Preview change','btn primary');
+  buttons.append(cancel,preview);box.append(buttons);bg.append(box);root.append(bg);
+  cancel.onclick=()=>clear(root);bg.onclick=e=>{if(e.target===bg)clear(root)};
+  preview.onclick=()=>{
+    const route={agents:include.get(),excludeAgents:exclude.get(),enabled:enabled.checked};
+    const payload={operation,name:name.input.value.trim()};
+    if(operation==='create'){
+      const spec={type:transport.value,...route};
+      if(transport.value==='stdio'){spec.command=command.input.value.trim();spec.args=args.input.value.split('\n').map(x=>x.trim()).filter(Boolean)}
+      else spec.url=url.input.value.trim();
+      payload.spec=spec;
+    }else payload.routing=route;
+    clear(root);mcpChange(payload)
+  };
+  cancel.focus()
+}
 function readSelections(container){return [...container.querySelectorAll('input[type="checkbox"]:checked')].map(e=>e.value)}
 function choicesInto(container,items,selected){clear(container);if(!items.length){container.append(node('p','Nothing available yet.','dim'));return}items.forEach(item=>{const row=node('label',null,'check');const input=node('input');input.type='checkbox';input.value=item.id;input.checked=selected.includes(item.id);row.append(input,node('span',item.label));container.append(row)})}
 function renderProfileEditor(){if(!state)return;const saved=state.profiles.profiles[selectedAgent]||{skills:[],categories:[]};const draft=profileDrafts[selectedAgent]||(profileDrafts[selectedAgent]={skills:[...saved.skills],categories:[...saved.categories]});const query=$('profile-skill-search').value.toLowerCase().trim();choicesInto($('profile-skills'),state.inventory.centralSkills.filter(id=>!query||id.toLowerCase().includes(query)).map(id=>({id,label:id})),draft.skills);choicesInto($('profile-categories'),state.categories.map(c=>({id:c.id,label:c.label})),draft.categories);for(const [container,key] of [[$('profile-skills'),'skills'],[$('profile-categories'),'categories']]){container.querySelectorAll('input[type="checkbox"]').forEach(check=>check.addEventListener('change',()=>{const all=new Set(draft[key]);if(check.checked)all.add(check.value);else all.delete(check.value);draft[key]=[...all].sort()}))}$('profile-save').disabled=!selectedAgent;$('profile-clear').disabled=!state.profiles.profiles[selectedAgent]}
@@ -121,8 +198,9 @@ function showSync(r){const p=$('sync-report');p.classList.remove('hidden');p.tex
 function renderIntegrity(){clear($('integrity-items'));if(!state.integrity.scanned){$('integrity-items').append(node('div','No managed public-catalog skill installations found.','empty'));return}state.integrity.results.forEach(r=>{const e=row(r.skill,r.checkedFiles+' files checked · '+(r.commit?short(r.commit):'no receipt'),labelStatus(r.status));$('integrity-items').append(e);if(r.issues.length){const issues=node('div',r.issues.map(i=>i.type+': '+i.reason+(i.path?' ('+i.path+')':'')).join('\n'),'result-box');$('integrity-items').append(issues)}})}
 function renderBackups(){clear($('backup-items'));if(!state.inventory.backups.length){$('backup-items').append(node('div','No snapshots yet.','empty'));return}state.inventory.backups.forEach(b=>{const btn=node('button','Restore…','btn danger small');btn.onclick=()=>modal('Restore '+b.id,'This replaces managed paths with their historical state. Create a fresh backup first, and verify that this is the intended snapshot.','Restore',async()=>{await request('/api/action',{action:'restore',snapshot:b.id,approved:true});showToast('Snapshot restored');await refresh()},b.id);$('backup-items').append(row(b.id,b.createdAt+' · '+b.reason+' · '+b.entriesCount+' entries',btn))})}
 function renderAll(){renderOverview();renderCatalog();renderAgents();renderMcp();renderIntegrity();renderBackups()}
-async function refresh(){try{state=await request('/api/state');profileDrafts=Object.create(null);renderAll();if(state.warnings?.length)showToast(state.warnings[0],true)}catch(err){showToast(err.message,true)}}
+async function refresh(){try{state=await request('/api/state');try{mcpState=await request('/api/mcp')}catch(err){mcpState=null;showToast(err.message,true)}profileDrafts=Object.create(null);renderAll();if(state.warnings?.length)showToast(state.warnings[0],true)}catch(err){showToast(err.message,true)}}
 $('refresh').onclick=refresh;
+$('mcp-add').onclick=()=>mcpDialog('create');
 $('catalog-search').oninput=filterCatalog;$('catalog-category').onchange=filterCatalog;$('catalog-status').onchange=filterCatalog;
 $('profile-agent').onchange=e=>{selectedAgent=e.target.value;$('profile-skill-search').value='';renderProfileEditor()};
 $('profile-skill-search').oninput=renderProfileEditor;
