@@ -104,3 +104,11 @@ The public catalog accepts pinned skills from GitHub, GitLab and Codeberg, inclu
 ## Selective sync and profiles
 
 `sync --skill <id> --agent <agent>` and `sync --profile <category> --agent <agent>` limit which central skills are linked to the chosen agent. Profiles are sourced **only from the reviewed public catalog categories** (not private metadata), and match skills that are already physically installed in the shared library. Repeat a filter to select multiple skills/categories. No network access or catalog installation occurs. Filtered operations never edit MCP configurations. Empty/unknown filters fail before writes. The original unfiltered `sync` remains unchanged; no automatic removal of older agent links is performed when switching profiles. Use `--dry-run` first, especially with `--force`.
+
+## Saved per-agent skill selections (private)
+
+The `profiles set <agent-id> --skill <id> --profile <category>` command stores your preferences in a **local-only** `~/.agents/agent-profiles.json` file. `profiles list`, `profiles show <agent-id>`, and `profiles clear <agent-id>` inspect and manage that file. Clearing a preference leaves existing agent links intact.
+
+`sync --saved-profiles --dry-run` expands locally installed skills from each saved category, preflights all selected agents and skills and displays the planned changes. `sync --saved-profiles` applies only the selected skill links using one standard backup/rollback transaction. No network access, implicit installation, MCP changes or automatic unlink of previously synchronized skills. `--force`, `--adopt` and mixing with transient `--skill`/`--profile` are refused. `--agent <id>` can limit the operation to one configured agent.
+
+**Privacy:** Local saved profiles are not part of the public Skill Hub. Do not commit the user's `agent-profiles.json`; it may reveal internal skill names. The public catalog remains metadata-only.
