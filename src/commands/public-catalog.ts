@@ -101,10 +101,10 @@ export function validatePublicCatalog(input: unknown, categories: unknown): Publ
         !isSafeText(raw.author, 2) || typeof raw.category !== 'string' || !ids.has(raw.category) ||
         !verifyUrl(raw.repository) || !verifyUrl(raw.source, raw.repository) ||
         !verifyUrl(raw.licenseEvidence, raw.repository) ||
-        !isSafeRelativePath(raw.path) ||
+        !(raw.path === '.' || isSafeRelativePath(raw.path)) ||
         typeof raw.ref !== 'string' || !SHA_PATTERN.test(raw.ref) ||
         !isSafeText(raw.license, 2) ||
-        raw.source !== sourcePrefix(raw.repository as string, raw.ref) + raw.path ||
+        raw.source !== (raw.path === '.' ? sourcePrefix(raw.repository as string, raw.ref).slice(0, -1) : sourcePrefix(raw.repository as string, raw.ref) + raw.path) ||
         !(raw.licenseEvidence as string).startsWith(licensePrefix(raw.repository as string, raw.ref)) ||
         !isSafeRelativePath((raw.licenseEvidence as string).slice(licensePrefix(raw.repository as string, raw.ref).length)) ||
         !/^(?:LICENSE|COPYING)(?:\.[A-Za-z0-9_-]+)?$/i.test((raw.licenseEvidence as string).split('/').at(-1) ?? '') ||

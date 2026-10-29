@@ -23,9 +23,26 @@ describe('Public Skill Hub: source attribution, safe filtering and offline behav
     assert.equal(new Set(catalog.skills.map(x => x.source)).size, catalog.skills.length);
     for (const skill of catalog.skills) {
       assert.equal(skill.review.scope, 'source-and-license-only');
-      assert.ok(skill.source.startsWith(skill.repository + '/tree/' + skill.ref + '/' + skill.path));
+      assert.equal(skill.source, skill.repository + '/tree/' + skill.ref + (skill.path === '.' ? '' : '/' + skill.path));
       assert.ok(skill.licenseEvidence.includes(skill.ref));
     }
+  });
+
+  it('recognizes known previously inventoried upstream skills with pinned origins', () => {
+    const { catalog, categories } = readPublicCatalog();
+    for (const id of ['ui-ux-pro-max', 'impeccable', 'video-shotcraft']) {
+      const skill = catalog.skills.find(entry => entry.id === id);
+      assert.ok(skill, id + ' is missing');
+      assert.ok(skill.ref.match(/^[a-f0-9]{40}$/));
+      assert.ok(skill.licenseEvidence.includes(skill.ref));
+      assert.equal(validatePublicCatalog(catalog, categories).skills.length, catalog.skills.length);
+    }
+    const root = catalog.skills.find(entry => entry.id === 'video-shotcraft')!;
+    assert.equal(root.path, '.');
+    assert.equal(root.source, root.repository + '/tree/' + root.ref);
+    const unsafe = structuredClone(catalog);
+    unsafe.skills.find(entry => entry.id === 'video-shotcraft')!.path = '..';
+    assert.throws(() => validatePublicCatalog(unsafe, categories), /Invalid public catalog skill/);
   });
 
   it('searches the bundled public catalog offline with filters', () => {
