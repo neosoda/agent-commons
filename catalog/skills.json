@@ -49,6 +49,52 @@
       ]
     },
     {
+      "id": "banner-design",
+      "name": "Banner Design",
+      "description": "Design banners for social media, ads, website heroes, creative assets, and print. Multiple art direction options with optional generated or supplied visuals. Actions: design, create, generate banner. Platforms: Facebook, Twitter/X, LinkedIn, YouTube, Instagram, Google Display, website hero, print. Styles: minimalist, gradient, bold typography, photo-based, illustrated, geometric, retro, glassmorphism, 3D, neon, duotone, editorial, collage.",
+      "category": "design",
+      "author": "Next Level Builder",
+      "repository": "https://github.com/nextlevelbuilder/ui-ux-pro-max-skill",
+      "source": "https://github.com/nextlevelbuilder/ui-ux-pro-max-skill/tree/28b3b8dee8c976df4fa3e94aed4e092ad43fcb03/.claude/skills/banner-design",
+      "path": ".claude/skills/banner-design",
+      "ref": "28b3b8dee8c976df4fa3e94aed4e092ad43fcb03",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/nextlevelbuilder/ui-ux-pro-max-skill/blob/28b3b8dee8c976df4fa3e94aed4e092ad43fcb03/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "design",
+        "ui-ux"
+      ]
+    },
+    {
+      "id": "brand",
+      "name": "Brand",
+      "description": "Brand voice, visual identity, messaging frameworks, asset management, brand consistency. Activate for branded content, tone of voice, marketing assets, brand compliance, style guides.",
+      "category": "design",
+      "author": "Next Level Builder",
+      "repository": "https://github.com/nextlevelbuilder/ui-ux-pro-max-skill",
+      "source": "https://github.com/nextlevelbuilder/ui-ux-pro-max-skill/tree/28b3b8dee8c976df4fa3e94aed4e092ad43fcb03/.claude/skills/brand",
+      "path": ".claude/skills/brand",
+      "ref": "28b3b8dee8c976df4fa3e94aed4e092ad43fcb03",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/nextlevelbuilder/ui-ux-pro-max-skill/blob/28b3b8dee8c976df4fa3e94aed4e092ad43fcb03/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "design",
+        "ui-ux"
+      ]
+    },
+    {
       "id": "build",
       "name": "Build",
       "description": "Fully automate a coding task with make-plan, do, and babysit.",
@@ -486,6 +532,29 @@
       ]
     },
     {
+      "id": "design",
+      "name": "Design",
+      "description": "Comprehensive design skill: brand identity, design tokens, UI styling, logo generation (55 styles, Gemini, Atlas Cloud, or MuAPI AI), corporate identity program (50 deliverables, CIP mockups), HTML presentations (Chart.js), banner design (22 styles, social/ads/web/print), icon design (15 styles, SVG, Gemini 3.1 Pro), social photos (HTML→screenshot, multi-platform). Actions: design logo, create CIP, generate mockups, build slides, design banner, generate icon, create social ph",
+      "category": "design",
+      "author": "Next Level Builder",
+      "repository": "https://github.com/nextlevelbuilder/ui-ux-pro-max-skill",
+      "source": "https://github.com/nextlevelbuilder/ui-ux-pro-max-skill/tree/28b3b8dee8c976df4fa3e94aed4e092ad43fcb03/.claude/skills/design",
+      "path": ".claude/skills/design",
+      "ref": "28b3b8dee8c976df4fa3e94aed4e092ad43fcb03",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/nextlevelbuilder/ui-ux-pro-max-skill/blob/28b3b8dee8c976df4fa3e94aed4e092ad43fcb03/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "design",
+        "ui-ux"
+      ]
+    },
+    {
       "id": "design-is",
       "name": "Design Is",
       "description": "Audit a design against Dieter Rams' ten \"Good design is...\" principles, then hand off a /make-plan prompt for one of three outcomes — new design, refine design, or redesign. Use when the user says \"audit this design\", \"design review\", \"check this UI against Rams\", \"is this UI good\", \"critique this design\", \"design audit\", or asks for a critique that should lead to a plan.",
@@ -506,6 +575,29 @@
       "tags": [
         "design",
         "claude-mem"
+      ]
+    },
+    {
+      "id": "design-system",
+      "name": "Design System",
+      "description": "Token architecture, component specifications, and slide generation. Three-layer tokens (primitive→semantic→component), CSS variables, spacing/typography scales, component specs, strategic slide creation. Use for design tokens, systematic design, brand-compliant presentations.",
+      "category": "design",
+      "author": "Next Level Builder",
+      "repository": "https://github.com/nextlevelbuilder/ui-ux-pro-max-skill",
+      "source": "https://github.com/nextlevelbuilder/ui-ux-pro-max-skill/tree/28b3b8dee8c976df4fa3e94aed4e092ad43fcb03/.claude/skills/design-system",
+      "path": ".claude/skills/design-system",
+      "ref": "28b3b8dee8c976df4fa3e94aed4e092ad43fcb03",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/nextlevelbuilder/ui-ux-pro-max-skill/blob/28b3b8dee8c976df4fa3e94aed4e092ad43fcb03/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "design",
+        "ui-ux"
       ]
     },
     {
@@ -1269,6 +1361,29 @@
       ]
     },
     {
+      "id": "slides",
+      "name": "Slides",
+      "description": "Create strategic HTML presentations with Chart.js, design tokens, responsive layouts, copywriting formulas, and contextual slide strategies.",
+      "category": "design",
+      "author": "Next Level Builder",
+      "repository": "https://github.com/nextlevelbuilder/ui-ux-pro-max-skill",
+      "source": "https://github.com/nextlevelbuilder/ui-ux-pro-max-skill/tree/28b3b8dee8c976df4fa3e94aed4e092ad43fcb03/.claude/skills/slides",
+      "path": ".claude/skills/slides",
+      "ref": "28b3b8dee8c976df4fa3e94aed4e092ad43fcb03",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/nextlevelbuilder/ui-ux-pro-max-skill/blob/28b3b8dee8c976df4fa3e94aed4e092ad43fcb03/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "design",
+        "ui-ux"
+      ]
+    },
+    {
       "id": "smart-explore",
       "name": "Smart Explore",
       "description": "Token-optimized structural code search using tree-sitter AST parsing. Use instead of reading full files when you need to understand code structure, find functions, or explore a codebase efficiently.",
@@ -1358,6 +1473,29 @@
       "tags": [
         "documentation",
         "claude-mem"
+      ]
+    },
+    {
+      "id": "ui-styling",
+      "name": "Ui Styling",
+      "description": "Create beautiful, accessible user interfaces with shadcn/ui components (built on Radix UI + Tailwind), Tailwind CSS utility-first styling, and canvas-based visual designs. Use when building user interfaces, implementing design systems, creating responsive layouts, adding accessible components (dialogs, dropdowns, forms, tables), customizing themes and colors, implementing dark mode, generating visual designs and posters, or establishing consistent styling patterns across appl",
+      "category": "design",
+      "author": "Next Level Builder",
+      "repository": "https://github.com/nextlevelbuilder/ui-ux-pro-max-skill",
+      "source": "https://github.com/nextlevelbuilder/ui-ux-pro-max-skill/tree/28b3b8dee8c976df4fa3e94aed4e092ad43fcb03/.claude/skills/ui-styling",
+      "path": ".claude/skills/ui-styling",
+      "ref": "28b3b8dee8c976df4fa3e94aed4e092ad43fcb03",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/nextlevelbuilder/ui-ux-pro-max-skill/blob/28b3b8dee8c976df4fa3e94aed4e092ad43fcb03/.claude/skills/ui-styling/LICENSE.txt",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "design",
+        "ui-ux"
       ]
     },
     {
