@@ -1,0 +1,175 @@
+# One-time v0.2.0 release gate. It only acts on tested, current main commits.
+# A release made with GITHUB_TOKEN does NOT trigger release.published workflows:
+# therefore this gate uploads the tested Windows artifacts itself and explicitly
+# dispatches publish.yml through workflow_dispatch (permitted GitHub exception).
+name: Verified v0.2.0 release
+
+on:
+  workflow_run:
+    workflows:
+      - CI
+      - Skill Hub browser QA
+      - Windows portable package
+    types: [completed]
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: agent-commons-release-v0.2.0
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Release v0.2.0 only when all three workflows passed
+    if: >-
+      github.repository == 'neosoda/agent-commons' &&
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'push' &&
+      github.event.workflow_run.head_branch == 'main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: write
+      actions: write
+    steps:
+      - name: Check out exact source commit
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+          persist-credentials: false
+      - name: Set up supported Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      - name: Verify current main SHA, version and three successful workflow runs
+        id: gate
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RUN_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          set -euo pipefail
+          MAIN_SHA="$(gh api "repos/$GH_REPO/git/ref/heads/main" --jq '.object.sha')"
+          if [[ "$MAIN_SHA" != "$RUN_SHA" ]]; then
+            echo "Ignoring superseded CI run: $RUN_SHA != current main $MAIN_SHA"
+            exit 0
+          fi
+          PKG_VERSION="$(node -p "require('./package.json').version")"
+          LOCK_VERSION="$(node -p "require('./package-lock.json').version")"
+          if [[ "$PKG_VERSION" != "0.2.0" || "$LOCK_VERSION" != "0.2.0" ]]; then
+            echo "Current main is not the exact expected v0.2.0 package and lockfile."
+            exit 0
+          fi
+          if gh release view v0.2.0 --repo "$GH_REPO" >/dev/null 2>&1; then
+            # Recover from partial completion: a release may exist if the later npm dispatch failed.
+            # Never accept an existing release/tag from a different commit.
+            REF_JSON="$(gh api "repos/$GH_REPO/git/ref/tags/v0.2.0")"
+            TAG_SHA="$(jq -r '.object.sha' <<< "$REF_JSON")"
+            TAG_TYPE="$(jq -r '.object.type' <<< "$REF_JSON")"
+            if [[ "$TAG_TYPE" == "tag" ]]; then
+              TAG_SHA="$(gh api "repos/$GH_REPO/git/tags/$TAG_SHA" --jq '.object.sha')"
+            fi
+            if [[ "$TAG_SHA" != "$RUN_SHA" ]]; then
+              echo "::error::Existing v0.2.0 tag points to $TAG_SHA, not the validated $RUN_SHA."
+              exit 1
+            fi
+            echo "release_exists=true" >> "$GITHUB_OUTPUT"
+            echo "Existing release matches validated main commit; verify/repair assets and npm dispatch."
+          elif gh api "repos/$GH_REPO/git/ref/tags/v0.2.0" >/dev/null 2>&1; then
+            echo "::error::v0.2.0 tag exists but no release exists. Refusing to overwrite tag."
+            exit 1
+          fi
+          RUNS="$(gh api "repos/$GH_REPO/actions/runs?head_sha=$RUN_SHA&event=push&per_page=100")"
+          for FLOW in "CI" "Skill Hub browser QA" "Windows portable package"; do
+            STATUS="$(jq -r --arg name "$FLOW" --arg sha "$RUN_SHA" \
+              '[.workflow_runs[] | select(.name == $name and .head_sha == $sha)] | sort_by(.created_at) | last | .conclusion // ""' <<< "$RUNS")"
+            if [[ "$STATUS" != "success" ]]; then
+              echo "$FLOW not green for exact main SHA $RUN_SHA (status: $STATUS). Do not release."
+              exit 0
+            fi
+          done
+          CI_RUN="$(jq -r --arg sha "$RUN_SHA" \
+            '[.workflow_runs[] | select(.name == "CI" and .head_sha == $sha)] | sort_by(.created_at) | last | .id' <<< "$RUNS")"
+          WINDOWS_RUN="$(jq -r --arg sha "$RUN_SHA" \
+            '[.workflow_runs[] | select(.name == "Windows portable package" and .head_sha == $sha)] | sort_by(.created_at) | last | .id' <<< "$RUNS")"
+          JOBS="$(gh api "repos/$GH_REPO/actions/runs/$CI_RUN/jobs?per_page=100")"
+          if ! jq -e '.jobs | length == 6 and all(.[]; .status == "completed" and .conclusion == "success")' <<< "$JOBS" >/dev/null; then
+            echo "::error::CI matrix did not pass all 6 jobs for $RUN_SHA."
+            exit 1
+          fi
+          test -f docs/releases/v0.2.0-release-notes.md
+          echo "ready=true" >> "$GITHUB_OUTPUT"
+          echo "windows_run=$WINDOWS_RUN" >> "$GITHUB_OUTPUT"
+          echo "Release gate passed for $RUN_SHA — 6/6 jobs, browser QA and Windows portable."
+      - name: Retrieve Windows package from successful CI artifact
+        if: steps.gate.outputs.ready == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          WINDOWS_RUN: ${{ steps.gate.outputs.windows_run }}
+        run: |
+          set -euo pipefail
+          mkdir -p validated-assets
+          gh run download "$WINDOWS_RUN" --repo "$GH_REPO" --name agent-commons-win-x64-portable --dir validated-assets
+          cd validated-assets
+          test -s AgentCommons-win-x64-portable.zip
+          test -s AgentCommons-win-x64-portable.zip.sha256
+          sha256sum --check AgentCommons-win-x64-portable.zip.sha256
+          unzip -t AgentCommons-win-x64-portable.zip >/dev/null
+      - name: Create official v0.2.0 GitHub Release with checked ZIP and checksum
+        if: steps.gate.outputs.ready == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RUN_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          set -euo pipefail
+          CURRENT_SHA="$(gh api "repos/$GH_REPO/git/ref/heads/main" --jq '.object.sha')"
+          if [[ "$CURRENT_SHA" != "$RUN_SHA" ]]; then
+            echo "::error::main changed between release gate and creation."
+            exit 1
+          fi
+          if gh release view v0.2.0 --repo "$GH_REPO" >/dev/null 2>&1; then
+            # Safe retry after an interrupted asset upload or npm dispatch.
+            # The gate already verified this release tag resolves to the exact validated commit.
+            gh release upload v0.2.0 \
+              validated-assets/AgentCommons-win-x64-portable.zip \
+              validated-assets/AgentCommons-win-x64-portable.zip.sha256 \
+              --repo "$GH_REPO" --clobber
+          else
+            gh release create v0.2.0 \
+              validated-assets/AgentCommons-win-x64-portable.zip \
+              validated-assets/AgentCommons-win-x64-portable.zip.sha256 \
+              --repo "$GH_REPO" \
+              --target "$RUN_SHA" \
+              --title "Agent Commons v0.2.0 — Local Skill Hub" \
+              --notes-file docs/releases/v0.2.0-release-notes.md \
+              --latest
+          fi
+          mkdir -p remote-assets
+          gh release download v0.2.0 --repo "$GH_REPO" \
+            --dir remote-assets --pattern 'AgentCommons-win-x64-portable.zip*'
+          cd remote-assets
+          test -s AgentCommons-win-x64-portable.zip
+          test -s AgentCommons-win-x64-portable.zip.sha256
+          sha256sum --check AgentCommons-win-x64-portable.zip.sha256
+      - name: Explicitly dispatch npm OIDC publishing workflow
+        if: steps.gate.outputs.ready == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          # GITHUB_TOKEN release.published events do not launch workflows.
+          # workflow_dispatch is an explicit, supported exception.
+          PUBLISHED="$(npm view @neosoda/agent-commons@0.2.0 version 2>/dev/null || true)"
+          if [[ "$PUBLISHED" == "0.2.0" ]]; then
+            echo "npm @neosoda/agent-commons@0.2.0 already exists; no duplicate dispatch."
+            exit 0
+          fi
+          gh workflow run publish.yml --repo "$GH_REPO" --ref main -f tag=v0.2.0
+          echo "Dispatched npm workflow; package publication requires valid npm Trusted Publisher configuration."

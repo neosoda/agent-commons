@@ -30,7 +30,7 @@ Claude Code, Codex, Cursor, Gemini, OpenCode and other coding agents all want th
 **At a glance:** 17 registered agent environments · 9 with Skills + MCP adapters · 8 with Skills synchronization · Windows, macOS and Linux CI.
 
 > [!NOTE]
-> **Publication status:** Source and GitHub releases are available today. The npm package `@neosoda/agent-commons` has **not yet been published**. Use the source instructions below; `npx @neosoda/agent-commons` will work only after the first npm release. The `main` branch also includes fixes newer than the latest tagged release.
+> **Distribution:** See [GitHub Releases](https://github.com/neosoda/agent-commons/releases) for the latest published version and Windows portable assets. The optional npm package is available only after [its first verified registry publication](https://www.npmjs.com/package/@neosoda/agent-commons); if npm has not published it yet, use the source instructions below. Never assume `npx @neosoda/agent-commons` works until the registry confirms the version.
 
 ## Quick start
 
@@ -89,11 +89,11 @@ The dashboard provides:
 
 ### Windows portable package (no Node installation)
 
-The **Windows portable ZIP** is built and verified by the [Windows portable CI workflow](https://github.com/neosoda/agent-commons/actions/workflows/windows-portable.yml). While the feature is being validated, download the ZIP **only from a successful CI run's artifact**; there is no officially published portable release yet.
+The **Windows portable ZIP** is built and verified by the [Windows portable CI workflow](https://github.com/neosoda/agent-commons/actions/workflows/windows-portable.yml). Prefer the ZIP and SHA-256 checksum from the [latest published GitHub Release](https://github.com/neosoda/agent-commons/releases/latest). If there is not yet an official release with both files, use the artifact from a **successful** CI run for testing only.
 
-1. Download `agent-commons-win-x64-portable` from the successful workflow run.
+1. Download `AgentCommons-win-x64-portable.zip` and its `.sha256` checksum from GitHub Releases (or the verified workflow artifact for testing).
 2. Extract the complete archive into a folder you control.
-3. Double-click `AgentCommonsPortable\\Start-AgentCommons.cmd`.
+3. Double-click `AgentCommonsPortable\Start-AgentCommons.cmd`.
 4. The Skill Hub opens locally in your browser. Close the console with Ctrl+C to stop it.
 
 The ZIP contains the compiled npm distribution, its production dependencies, and a pinned official **Node.js 24.22.2 LTS executable**. The build checks the Node executable against the SHA-256 manifest published by nodejs.org, launches the package's CLI and verifies a real HTTP 200 response from its local dashboard before uploading it. The ZIP also includes a SHA-256 checksum; it is **not code-signed**. No administrator privileges, Docker, Node installation, Windows service or public network binding are required.
