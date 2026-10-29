@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Normalize the npm CLI `bin` path (remove leading `./`) to avoid npm 11 publish-time rewrite/warning; add regression test of compiled executable.
+- Retire the one-shot v0.2.0 release workflow after successfully publishing GitHub assets; future releases continue to use standard release workflows.
+
 ## [0.2.0] - 2026-10-29
 
 ### Added
