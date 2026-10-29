@@ -3,6 +3,190 @@
   "generatedAt": "2026-10-29",
   "skills": [
     {
+      "id": "babysit",
+      "name": "Babysit",
+      "description": "Watch a pull request or review cycle until it is ready to merge. Use when asked to babysit, monitor, or keep checking PR comments, reviews, and CI until all actionable issues are resolved.",
+      "category": "ai-automation",
+      "author": "thedotmack",
+      "repository": "https://github.com/thedotmack/claude-mem",
+      "source": "https://github.com/thedotmack/claude-mem/tree/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/plugin/skills/babysit",
+      "path": "plugin/skills/babysit",
+      "ref": "d7c2da3e5f9397b394dbc6b6966f4b261b489f7b",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/thedotmack/claude-mem/blob/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ai-automation",
+        "claude-mem"
+      ]
+    },
+    {
+      "id": "build",
+      "name": "Build",
+      "description": "Fully automate a coding task with make-plan, do, and babysit.",
+      "category": "development",
+      "author": "thedotmack",
+      "repository": "https://github.com/thedotmack/claude-mem",
+      "source": "https://github.com/thedotmack/claude-mem/tree/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/plugin/skills/build",
+      "path": "plugin/skills/build",
+      "ref": "d7c2da3e5f9397b394dbc6b6966f4b261b489f7b",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/thedotmack/claude-mem/blob/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "development",
+        "claude-mem"
+      ]
+    },
+    {
+      "id": "build-and-release",
+      "name": "Build And Release",
+      "description": "Fully automate building and releasing a coding task.",
+      "category": "development",
+      "author": "thedotmack",
+      "repository": "https://github.com/thedotmack/claude-mem",
+      "source": "https://github.com/thedotmack/claude-mem/tree/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/plugin/skills/build-and-release",
+      "path": "plugin/skills/build-and-release",
+      "ref": "d7c2da3e5f9397b394dbc6b6966f4b261b489f7b",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/thedotmack/claude-mem/blob/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "development",
+        "claude-mem"
+      ]
+    },
+    {
+      "id": "ccs-align",
+      "name": "Ccs Align",
+      "description": "Run the CCS Align seat's hourly breathing cycle — prove the local claude-mem worker is healthy, pull needle observations through search → timeline → get_observations, land them in a seat-owned middle cache via atomic grab → append → filter exclude-marks → replace, manage exclude marks, and walk house → project → seat rules to detect conflicts (SHADOW_HOUSE, DENY_ALLOW, DRIFT, CLOCK_HEADER) with an append-only rules-report.md. Use when asked to run CCS Align, breathe the align",
+      "category": "development",
+      "author": "thedotmack",
+      "repository": "https://github.com/thedotmack/claude-mem",
+      "source": "https://github.com/thedotmack/claude-mem/tree/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/plugin/skills/ccs-align",
+      "path": "plugin/skills/ccs-align",
+      "ref": "d7c2da3e5f9397b394dbc6b6966f4b261b489f7b",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/thedotmack/claude-mem/blob/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "development",
+        "claude-mem"
+      ]
+    },
+    {
+      "id": "childhood",
+      "name": "Childhood",
+      "description": "Babysit a shipped release after merge, publication, or deployment. Verify published packages, production behavior, installed plugins, and late CI or user reports until the observation window is clean; use babysit for PR readiness before release.",
+      "category": "ai-automation",
+      "author": "thedotmack",
+      "repository": "https://github.com/thedotmack/claude-mem",
+      "source": "https://github.com/thedotmack/claude-mem/tree/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/plugin/skills/childhood",
+      "path": "plugin/skills/childhood",
+      "ref": "d7c2da3e5f9397b394dbc6b6966f4b261b489f7b",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/thedotmack/claude-mem/blob/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ai-automation",
+        "claude-mem"
+      ]
+    },
+    {
+      "id": "cloud-sync",
+      "name": "Cloud Sync",
+      "description": "Set up or check claude-mem cloud sync with cmem.ai Pro. Use when the user says \"set up cloud sync\", \"sync my memories\", \"cmem pro\", \"cloud backup\", \"sync status\", or wants their memory database backed up or synced to their cmem.ai account.",
+      "category": "devops",
+      "author": "thedotmack",
+      "repository": "https://github.com/thedotmack/claude-mem",
+      "source": "https://github.com/thedotmack/claude-mem/tree/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/plugin/skills/cloud-sync",
+      "path": "plugin/skills/cloud-sync",
+      "ref": "d7c2da3e5f9397b394dbc6b6966f4b261b489f7b",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/thedotmack/claude-mem/blob/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "devops",
+        "claude-mem"
+      ]
+    },
+    {
+      "id": "design-is",
+      "name": "Design Is",
+      "description": "Audit a design against Dieter Rams' ten \"Good design is...\" principles, then hand off a /make-plan prompt for one of three outcomes — new design, refine design, or redesign. Use when the user says \"audit this design\", \"design review\", \"check this UI against Rams\", \"is this UI good\", \"critique this design\", \"design audit\", or asks for a critique that should lead to a plan.",
+      "category": "design",
+      "author": "thedotmack",
+      "repository": "https://github.com/thedotmack/claude-mem",
+      "source": "https://github.com/thedotmack/claude-mem/tree/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/plugin/skills/design-is",
+      "path": "plugin/skills/design-is",
+      "ref": "d7c2da3e5f9397b394dbc6b6966f4b261b489f7b",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/thedotmack/claude-mem/blob/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "design",
+        "claude-mem"
+      ]
+    },
+    {
+      "id": "do",
+      "name": "Do",
+      "description": "Execute a phased implementation plan using subagents. Use when asked to execute, run, or carry out a plan — especially one created by make-plan.",
+      "category": "ai-automation",
+      "author": "thedotmack",
+      "repository": "https://github.com/thedotmack/claude-mem",
+      "source": "https://github.com/thedotmack/claude-mem/tree/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/plugin/skills/do",
+      "path": "plugin/skills/do",
+      "ref": "d7c2da3e5f9397b394dbc6b6966f4b261b489f7b",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/thedotmack/claude-mem/blob/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ai-automation",
+        "claude-mem"
+      ]
+    },
+    {
       "id": "frontend-design",
       "name": "Frontend Design",
       "description": "Design distinctive frontend interfaces with intentional visual direction.",
@@ -23,6 +207,52 @@
       "tags": [
         "design",
         "anthropic"
+      ]
+    },
+    {
+      "id": "handoff",
+      "name": "Handoff",
+      "description": "Generate a HANDOFF.md that captures goal, current state, files touched, failed attempts, and next steps — so a fresh Claude session can continue exactly where this one left off. Use when sessions are getting long, Claude keeps retrying the same broken solution, or the user wants to step away and resume later.",
+      "category": "ai-automation",
+      "author": "thedotmack",
+      "repository": "https://github.com/thedotmack/claude-mem",
+      "source": "https://github.com/thedotmack/claude-mem/tree/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/plugin/skills/handoff",
+      "path": "plugin/skills/handoff",
+      "ref": "d7c2da3e5f9397b394dbc6b6966f4b261b489f7b",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/thedotmack/claude-mem/blob/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ai-automation",
+        "claude-mem"
+      ]
+    },
+    {
+      "id": "how-it-works",
+      "name": "How It Works",
+      "description": "Explain how claude-mem captures observations, when memory injection kicks in, and where data lives. Use when the user asks \"how does claude-mem work?\" or \"what is this thing doing?\".",
+      "category": "ai-automation",
+      "author": "thedotmack",
+      "repository": "https://github.com/thedotmack/claude-mem",
+      "source": "https://github.com/thedotmack/claude-mem/tree/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/plugin/skills/how-it-works",
+      "path": "plugin/skills/how-it-works",
+      "ref": "d7c2da3e5f9397b394dbc6b6966f4b261b489f7b",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/thedotmack/claude-mem/blob/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ai-automation",
+        "claude-mem"
       ]
     },
     {
@@ -50,6 +280,75 @@
       "dependencies": []
     },
     {
+      "id": "knowledge-agent",
+      "name": "Knowledge Agent",
+      "description": "Build and query AI-powered knowledge bases from claude-mem observations. Use when users want to create focused \"brains\" from their observation history, ask questions about past work patterns, or compile expertise on specific topics.",
+      "category": "ai-automation",
+      "author": "thedotmack",
+      "repository": "https://github.com/thedotmack/claude-mem",
+      "source": "https://github.com/thedotmack/claude-mem/tree/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/plugin/skills/knowledge-agent",
+      "path": "plugin/skills/knowledge-agent",
+      "ref": "d7c2da3e5f9397b394dbc6b6966f4b261b489f7b",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/thedotmack/claude-mem/blob/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ai-automation",
+        "claude-mem"
+      ]
+    },
+    {
+      "id": "learn-codebase",
+      "name": "Learn Codebase",
+      "description": "Prime a codebase by reading every source file in full. Use when starting work on a new or unfamiliar project, or when the user asks to \"learn the codebase\", \"read the codebase\", \"prime\", or \"get up to speed\".",
+      "category": "development",
+      "author": "thedotmack",
+      "repository": "https://github.com/thedotmack/claude-mem",
+      "source": "https://github.com/thedotmack/claude-mem/tree/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/plugin/skills/learn-codebase",
+      "path": "plugin/skills/learn-codebase",
+      "ref": "d7c2da3e5f9397b394dbc6b6966f4b261b489f7b",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/thedotmack/claude-mem/blob/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "development",
+        "claude-mem"
+      ]
+    },
+    {
+      "id": "make-plan",
+      "name": "Make Plan",
+      "description": "Create a detailed, phased implementation plan with documentation discovery. Use when asked to plan a feature, task, or multi-step implementation — especially before executing with do.",
+      "category": "ai-automation",
+      "author": "thedotmack",
+      "repository": "https://github.com/thedotmack/claude-mem",
+      "source": "https://github.com/thedotmack/claude-mem/tree/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/plugin/skills/make-plan",
+      "path": "plugin/skills/make-plan",
+      "ref": "d7c2da3e5f9397b394dbc6b6966f4b261b489f7b",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/thedotmack/claude-mem/blob/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ai-automation",
+        "claude-mem"
+      ]
+    },
+    {
       "id": "mcp-builder",
       "name": "MCP Builder",
       "description": "Design and build Model Context Protocol servers and tool integrations.",
@@ -70,6 +369,29 @@
       "tags": [
         "ai-automation",
         "anthropic"
+      ]
+    },
+    {
+      "id": "mem-search",
+      "name": "Mem Search",
+      "description": "Smart search (default). Search claude-mem's persistent cross-session memory database in three steps: search, timeline, then selected get_observations. Use when user asks \"did we already solve this?\", \"how did we do X last time?\", or needs work from previous sessions.",
+      "category": "ai-automation",
+      "author": "thedotmack",
+      "repository": "https://github.com/thedotmack/claude-mem",
+      "source": "https://github.com/thedotmack/claude-mem/tree/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/plugin/skills/mem-search",
+      "path": "plugin/skills/mem-search",
+      "ref": "d7c2da3e5f9397b394dbc6b6966f4b261b489f7b",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/thedotmack/claude-mem/blob/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ai-automation",
+        "claude-mem"
       ]
     },
     {
