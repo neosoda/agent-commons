@@ -2,6 +2,7 @@
 import { parseArgs } from 'node:util';
 import { runDoctor } from '../commands/doctor.js';
 import { runCatalog } from '../commands/catalog.js';
+import { searchPublicCatalog, readPublicCatalog } from '../commands/public-catalog.js';
 import { runList } from '../commands/list.js';
 import { runSync } from '../commands/sync.js';
 import { createFullBackup, listBackups, restoreBackup } from '../core/backup.js';
@@ -21,7 +22,7 @@ USAGE:
 COMMANDS:
   doctor                  Diagnose environment, link capabilities, central library, and 17 agents
   list                    List central skills, MCP servers, agent inventories, and backups
-  catalog                 Inventory skills with source attribution and license claims
+  catalog                 Inventory local skills / explore curated public skill metadata
   sync                    Synchronize skills and MCP configurations to installed agents
   backup                  Create a point-in-time snapshot of all agent skills and MCP configs
   restore [snapshot-id]   Restore state from a snapshot (defaults to latest snapshot)
@@ -45,6 +46,9 @@ EXAMPLES:
   agent-commons list
   agent-commons catalog
   agent-commons catalog --json
+  agent-commons catalog list
+  agent-commons catalog search playwright
+  agent-commons catalog info skill-creator
   agent-commons sync --dry-run
   agent-commons sync
   agent-commons backup
@@ -83,17 +87,21 @@ Options:
 `.trim();
     case 'catalog':
       return `
-Usage: agent-commons catalog [options]
+Usage: agent-commons catalog [subcommand] [options]
 
-Read-only catalog of installed central skills, with provenance from
-~/.agents/.skill-lock.json or ~/.agents/skills-lock.json when available.
-An author-declared license is NOT proof of redistribution rights.
-No network requests or changes to skill files are performed.
+Without a subcommand: inventory LOCAL skills only (existing behavior).
+  catalog [--json]                    Local inventory and source attribution
+  catalog list [--category <id>]      Curated PUBLIC metadata (offline)
+  catalog search <query>              Search public skills by name, description or tags
+  catalog info <id>                   Source, author, license and pinned ref
+  catalog install <id>                DISABLED: upstream installation requires safety review
+  catalog update <id>                 DISABLED: upstream updates require safety review
 
-Options:
-  --home <path>     Override user home directory
-  --json            Output metadata as JSON for LOCAL REVIEW only
-  -h, --help        Show this help message
+Filters for list/search: --category, --source, --author, --license
+Options: --home <path>, --json, --help
+
+Note: The public catalog contains only manually reviewed source/license references.
+It does not include private skills or authorize executing third-party code.
 `.trim();
     case 'sync':
       return `
@@ -160,7 +168,11 @@ export function runCli(argv: string[] = process.argv.slice(2)): number {
         force: { type: 'boolean', default: false },
         'skills-only': { type: 'boolean', default: false },
         'mcp-only': { type: 'boolean', default: false },
-        list: { type: 'boolean', default: false }
+        list: { type: 'boolean', default: false },
+        category: { type: 'string' },
+        source: { type: 'string' },
+        author: { type: 'string' },
+        license: { type: 'string' }
       }
     });
 
@@ -288,21 +300,88 @@ export function runCli(argv: string[] = process.argv.slice(2)): number {
     }
 
     if (command === 'catalog') {
-      const report = runCatalog(ctx);
-      if (values.json) {
-        console.log(JSON.stringify(report, null, 2));
-      } else {
-        console.log('=== Agent Commons Skill Catalog ===');
-        console.log('Skills: ' + report.count + ', sources recorded: ' + report.attributed +
-          ', sources unknown: ' + report.unattributed);
-        for (const skill of report.skills) {
-          console.log('  ' + skill.name + ' | ' + (skill.sourceUrl ?? 'SOURCE UNKNOWN') +
-            ' | license: ' + (skill.declaredLicense ?? 'UNKNOWN') + ' (unverified)');
+      const subcommand = positionals[1];
+      if (!subcommand || subcommand === 'audit') {
+        const report = runCatalog(ctx);
+        if (values.json) {
+          console.log(JSON.stringify(report, null, 2));
+        } else {
+          console.log('=== Agent Commons Local Skill Inventory ===');
+          console.log('Skills: ' + report.count + ', sources recorded: ' + report.attributed +
+            ', sources unknown: ' + report.unattributed);
+          for (const skill of report.skills) {
+            console.log('  ' + skill.name + ' | ' + (skill.sourceUrl ?? 'SOURCE UNKNOWN') +
+              ' | license: ' + (skill.declaredLicense ?? 'UNKNOWN') + ' (unverified)');
+          }
+          for (const warning of report.warnings) console.error('Warning: ' + warning);
+          console.log('Local only. Review for private data and licenses before sharing.');
         }
-        for (const warning of report.warnings) console.error('Warning: ' + warning);
-        console.log('Metadata only. Check source ownership, licenses and privacy before sharing.');
+        return 0;
       }
-      return 0;
+      if (subcommand === 'install' || subcommand === 'update') {
+        console.error('Catalog ' + subcommand + ' is disabled: no audited, reversible third-party installer is available yet.');
+        console.error('Review the upstream project and use its installation instructions only if you trust it.');
+        console.error('Agent Commons did not download, run or modify anything.');
+        return 1;
+      }
+      if (subcommand === 'list' || subcommand === 'search' || subcommand === 'info') {
+        const filter = {
+          query: subcommand === 'search' ? positionals.slice(2).join(' ').trim() : undefined,
+          category: values.category,
+          source: values.source,
+          author: values.author,
+          license: values.license
+        };
+        if (subcommand === 'search' && !filter.query) {
+          console.error('Usage: agent-commons catalog search <query>');
+          return 1;
+        }
+        const { catalog } = readPublicCatalog();
+        const matched = searchPublicCatalog(ctx, filter);
+        if (subcommand === 'info') {
+          const id = positionals[2];
+          if (!id || positionals.length !== 3) {
+            console.error('Usage: agent-commons catalog info <id>');
+            return 1;
+          }
+          const selected = matched.find(skill => skill.id === id);
+          if (!selected) {
+            console.error('Unknown public skill: ' + redactSecrets(id));
+            return 1;
+          }
+          if (values.json) console.log(JSON.stringify(selected, null, 2));
+          else {
+            console.log('=== ' + selected.name + ' ===');
+            console.log(selected.description);
+            console.log('Author: ' + selected.author + ' | Category: ' + selected.category);
+            console.log('Repository: ' + selected.repository);
+            console.log('Source: ' + selected.source);
+            console.log('Pinned ref: ' + selected.ref);
+            console.log('License: ' + selected.license + ' (source text: ' + selected.licenseEvidence + ')');
+            console.log('Locally installed: ' + (selected.installed ? 'yes' : 'no'));
+            console.log('Review: source and license only; scripts have NOT been security-audited.');
+          }
+          return 0;
+        }
+        if (values.json) console.log(JSON.stringify({
+          total: catalog.skills.length, count: matched.length, skills: matched
+        }, null, 2));
+        else {
+          console.log('=== Agent Commons Public Skill Hub (' + matched.length + ' / ' +
+            catalog.skills.length + ') ===');
+          for (const skill of matched) {
+            console.log('  ' + skill.id + ' | ' + skill.category + ' | ' + skill.author +
+              ' | ' + skill.license + (skill.installed ? ' | INSTALLED' : ''));
+            console.log('    ' + skill.description);
+            console.log('    ' + skill.source);
+          }
+          if (matched.length === 0) console.log('No public skills matched your filters.');
+          console.log('Metadata only. Installing and updating are currently disabled.');
+        }
+        return 0;
+      }
+      console.error('Unknown catalog subcommand: ' + redactSecrets(subcommand));
+      return 1;
     }
 
     if (command === 'sync') {
