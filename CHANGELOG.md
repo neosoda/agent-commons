@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **MCP manifest editor** in the local Skill Hub: guarded create, agent routing edits and removal, SHA-256 stale-state protection, JSONC-aware writes, snapshot rollback and redacted browser metadata.
+
 - Local browser **Skill Hub**: overview, curated catalog with safe install/update/remove previews, agent profiles and explicit synchronization, shared MCP visibility, read-only integrity diagnostics, and manual snapshots/restoration.
 - Real Chromium QA at five viewport sizes with sanitized screenshot artifacts.
 - Automated Windows portable ZIP build using a SHA-256-verified official Node.js 24 LTS runtime (v24.22.2), with a smoke-tested local HTTP startup and archive checksum. No published binary is claimed until a release is created.
