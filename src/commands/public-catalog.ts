@@ -7,6 +7,7 @@ export interface PublicSkill {
   id: string;
   name: string;
   description: string;
+  lifecycle?: 'active' | 'archived';
   category: string;
   author: string;
   repository: string;
@@ -95,7 +96,8 @@ export function validatePublicCatalog(input: unknown, categories: unknown): Publ
   const seenOrigins = new Set<string>();
   for (const raw of input.skills) {
     if (!isRecord(raw) ||
-        Object.keys(raw).sort().join(',') !== 'author,category,dependencies,description,id,license,licenseEvidence,name,path,ref,repository,review,source,tags' ||
+        !['author,category,dependencies,description,id,license,licenseEvidence,name,path,ref,repository,review,source,tags', 'author,category,dependencies,description,id,license,licenseEvidence,lifecycle,name,path,ref,repository,review,source,tags'].includes(Object.keys(raw).sort().join(',')) ||
+        (raw.lifecycle !== undefined && raw.lifecycle !== 'active' && raw.lifecycle !== 'archived') ||
         typeof raw.id !== 'string' || !ID_PATTERN.test(raw.id) || seen.has(raw.id) ||
         !isSafeText(raw.name, 3) || !isSafeText(raw.description, 10) ||
         !isSafeText(raw.author, 2) || typeof raw.category !== 'string' || !ids.has(raw.category) ||
@@ -145,14 +147,14 @@ export function renderPublicCatalogMarkdown(): string {
   const { catalog, categories } = readPublicCatalog();
   const escape = (s: string): string => s.replace(/\|/g, '\\|').replace(/\r?\n/g, ' ');
   const rows = catalog.skills.slice().sort((a,b) => a.id.localeCompare(b.id)).map(skill =>
-    '| [' + escape(skill.name) + '](' + skill.source + ') | ' + escape(skill.description) +
+    '| [' + escape(skill.name + (skill.lifecycle === 'archived' ? ' (archived)' : '')) + '](' + skill.source + ') | ' + escape(skill.description) +
     ' | ' + escape(categories.find(c => c.id === skill.category)?.label ?? skill.category) +
     ' | ' + escape(skill.author) + ' | [' + escape(skill.license) + '](' + skill.licenseEvidence + ') |');
   return '# Explore Agent Skills\n\n' +
     'A metadata-only catalog of **' + catalog.skills.length +
     ' upstream skills**. Sources and license texts were inspected on **' +
     catalog.generatedAt + '**; this does **not** certify code safety or grant additional redistribution rights.\n\n' +
-    '| Skill | What it does | Category | Original author | Upstream license |\n' +
+    '| Skill | What it does | Category | Upstream / maintainer | Upstream license |\n' +
     '|:--|:--|:--|:--|:--|\n' + rows.join('\n') + '\n\n' +
     'The links target upstream files pinned to a reviewed Git commit. Agent Commons does not copy the skills.\n\n' +
     'Browse locally: `agent-commons catalog list`, `agent-commons catalog search <query>`, ' +

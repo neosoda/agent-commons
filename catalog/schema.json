@@ -128,6 +128,14 @@
               "type": "string",
               "pattern": "^[a-z0-9-]+$"
             }
+          },
+          "lifecycle": {
+            "type": "string",
+            "enum": [
+              "active",
+              "archived"
+            ],
+            "description": "Optional historical lifecycle status; archived sources are preserved at a pinned commit, not actively maintained."
           }
         }
       }

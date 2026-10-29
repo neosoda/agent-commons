@@ -3,6 +3,1064 @@
   "generatedAt": "2026-10-29",
   "skills": [
     {
+      "id": "3dviz-pro-max",
+      "name": "3dviz Pro Max",
+      "description": "Design and build expressive 3D scenes, explainers and interactive models with grounded subject knowledge. Use for 3D creation or edits, including scientific visualization and spatial puzzles.",
+      "category": "design",
+      "author": "viettranx",
+      "repository": "https://github.com/viettranx/3dviz-pro-max",
+      "source": "https://github.com/viettranx/3dviz-pro-max/tree/d077e0e68915c25be8e71d74684d3144fd1c2aca/skills/3dviz-pro-max",
+      "path": "skills/3dviz-pro-max",
+      "ref": "d077e0e68915c25be8e71d74684d3144fd1c2aca",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/viettranx/3dviz-pro-max/blob/d077e0e68915c25be8e71d74684d3144fd1c2aca/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "design"
+      ]
+    },
+    {
+      "id": "agent-cost-report",
+      "name": "Agent Cost Report",
+      "description": "Believable agent cost report for any period, default the last 7 full days PT, not counting today. Measured tokens from Claude Code transcripts priced at OpenRouter list prices (ESTIMATED), measured provider spend when a sanctioned source exists, note-taker cost separate, Timing-style HTML/PDF plus report.json, line-items.csv, evidence.json. - Bash - Read - Write - AskUserQuestion - mcp__plugin_claude-mem_mcp-search__search - mcp__plugin_claude-mem_mcp-search__timeline - mcp__",
+      "category": "ai-automation",
+      "author": "thedotmack",
+      "repository": "https://github.com/thedotmack/claude-mem",
+      "source": "https://github.com/thedotmack/claude-mem/tree/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/plugin/skills/agent-cost-report",
+      "path": "plugin/skills/agent-cost-report",
+      "ref": "d7c2da3e5f9397b394dbc6b6966f4b261b489f7b",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/thedotmack/claude-mem/blob/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ai-automation",
+        "claude-mem"
+      ]
+    },
+    {
+      "id": "ai-act-compliance",
+      "name": "Ai Act Compliance",
+      "description": "Supports compliance with the EU Artificial Intelligence Act (Regulation (EU) 2024/1689). Use when the user needs to classify an AI system under the AI Act risk categories (prohibited, high-risk, limited, minimal, GPAI), check provider or deployer obligations for high-risk systems, evaluate GPAI model obligations including systemic risk thresholds, verify transparency obligations under Article 50, or run a fundamental rights impact assessment (FRIA) under Article 27. Target us",
+      "category": "security",
+      "author": "Davide Morelli",
+      "repository": "https://github.com/morellid/ai-act-skill",
+      "source": "https://github.com/morellid/ai-act-skill/tree/01e716f0b75f2cb0fafe1870bf03fd4e52b9b82b",
+      "path": ".",
+      "ref": "01e716f0b75f2cb0fafe1870bf03fd4e52b9b82b",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/morellid/ai-act-skill/blob/01e716f0b75f2cb0fafe1870bf03fd4e52b9b82b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "security"
+      ]
+    },
+    {
+      "id": "babysit",
+      "name": "Babysit",
+      "description": "Watch a pull request or review cycle until it is ready to merge. Use when asked to babysit, monitor, or keep checking PR comments, reviews, and CI until all actionable issues are resolved.",
+      "category": "ai-automation",
+      "author": "thedotmack",
+      "repository": "https://github.com/thedotmack/claude-mem",
+      "source": "https://github.com/thedotmack/claude-mem/tree/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/plugin/skills/babysit",
+      "path": "plugin/skills/babysit",
+      "ref": "d7c2da3e5f9397b394dbc6b6966f4b261b489f7b",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/thedotmack/claude-mem/blob/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ai-automation",
+        "claude-mem"
+      ]
+    },
+    {
+      "id": "banner-design",
+      "name": "Banner Design",
+      "description": "Design banners for social media, ads, website heroes, creative assets, and print. Multiple art direction options with optional generated or supplied visuals. Actions: design, create, generate banner. Platforms: Facebook, Twitter/X, LinkedIn, YouTube, Instagram, Google Display, website hero, print. Styles: minimalist, gradient, bold typography, photo-based, illustrated, geometric, retro, glassmorphism, 3D, neon, duotone, editorial, collage.",
+      "category": "design",
+      "author": "Next Level Builder",
+      "repository": "https://github.com/nextlevelbuilder/ui-ux-pro-max-skill",
+      "source": "https://github.com/nextlevelbuilder/ui-ux-pro-max-skill/tree/28b3b8dee8c976df4fa3e94aed4e092ad43fcb03/.claude/skills/banner-design",
+      "path": ".claude/skills/banner-design",
+      "ref": "28b3b8dee8c976df4fa3e94aed4e092ad43fcb03",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/nextlevelbuilder/ui-ux-pro-max-skill/blob/28b3b8dee8c976df4fa3e94aed4e092ad43fcb03/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "design",
+        "ui-ux"
+      ]
+    },
+    {
+      "id": "brag",
+      "name": "Brag",
+      "description": "Turn the current project website into a short, polished, shareable launch video using Hyperframes. Use when someone says \"/brag\", \"let's brag about this\", \"make a launch video\", \"turn this into a video\", or wants to share what they built. Reads the project code directly — no live URL or screenshots needed.",
+      "category": "productivity",
+      "author": "latent-spaces",
+      "repository": "https://github.com/latent-spaces/brag",
+      "source": "https://github.com/latent-spaces/brag/tree/669ab9286aa28b6c3ee30e75f181ee74319d012a/skills/brag",
+      "path": "skills/brag",
+      "ref": "669ab9286aa28b6c3ee30e75f181ee74319d012a",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/latent-spaces/brag/blob/669ab9286aa28b6c3ee30e75f181ee74319d012a/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "productivity"
+      ]
+    },
+    {
+      "id": "brand",
+      "name": "Brand",
+      "description": "Brand voice, visual identity, messaging frameworks, asset management, brand consistency. Activate for branded content, tone of voice, marketing assets, brand compliance, style guides.",
+      "category": "design",
+      "author": "Next Level Builder",
+      "repository": "https://github.com/nextlevelbuilder/ui-ux-pro-max-skill",
+      "source": "https://github.com/nextlevelbuilder/ui-ux-pro-max-skill/tree/28b3b8dee8c976df4fa3e94aed4e092ad43fcb03/.claude/skills/brand",
+      "path": ".claude/skills/brand",
+      "ref": "28b3b8dee8c976df4fa3e94aed4e092ad43fcb03",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/nextlevelbuilder/ui-ux-pro-max-skill/blob/28b3b8dee8c976df4fa3e94aed4e092ad43fcb03/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "design",
+        "ui-ux"
+      ]
+    },
+    {
+      "id": "build",
+      "name": "Build",
+      "description": "Fully automate a coding task with make-plan, do, and babysit.",
+      "category": "development",
+      "author": "thedotmack",
+      "repository": "https://github.com/thedotmack/claude-mem",
+      "source": "https://github.com/thedotmack/claude-mem/tree/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/plugin/skills/build",
+      "path": "plugin/skills/build",
+      "ref": "d7c2da3e5f9397b394dbc6b6966f4b261b489f7b",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/thedotmack/claude-mem/blob/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "development",
+        "claude-mem"
+      ]
+    },
+    {
+      "id": "build-and-release",
+      "name": "Build And Release",
+      "description": "Fully automate building and releasing a coding task.",
+      "category": "development",
+      "author": "thedotmack",
+      "repository": "https://github.com/thedotmack/claude-mem",
+      "source": "https://github.com/thedotmack/claude-mem/tree/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/plugin/skills/build-and-release",
+      "path": "plugin/skills/build-and-release",
+      "ref": "d7c2da3e5f9397b394dbc6b6966f4b261b489f7b",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/thedotmack/claude-mem/blob/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "development",
+        "claude-mem"
+      ]
+    },
+    {
+      "id": "cavecrew",
+      "name": "Cavecrew",
+      "description": "When to delegate to `cavecrew-investigator` (locate code), `cavecrew-builder` (1-2 file edit) or `cavecrew-reviewer` (diff review) instead of working inline or using `Explore`. Their output is compressed, so main context lasts longer.",
+      "category": "ai-automation",
+      "author": "JuliusBrussee",
+      "repository": "https://github.com/JuliusBrussee/caveman",
+      "source": "https://github.com/JuliusBrussee/caveman/tree/9b68f7ed12b05e7efaff18e65c5a3fc2849fd0a4/skills/cavecrew",
+      "path": "skills/cavecrew",
+      "ref": "9b68f7ed12b05e7efaff18e65c5a3fc2849fd0a4",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/JuliusBrussee/caveman/blob/9b68f7ed12b05e7efaff18e65c5a3fc2849fd0a4/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ai-automation",
+        "caveman"
+      ]
+    },
+    {
+      "id": "caveman",
+      "name": "Caveman",
+      "description": "Terse caveman voice: answer first, fluff gone, every technical fact kept. Use for /caveman, \"caveman mode\", \"talk like caveman\", \"be brief\", \"less tokens\". Stays on until \"stop caveman\" or \"normal mode\".",
+      "category": "ai-automation",
+      "author": "JuliusBrussee",
+      "repository": "https://github.com/JuliusBrussee/caveman",
+      "source": "https://github.com/JuliusBrussee/caveman/tree/9b68f7ed12b05e7efaff18e65c5a3fc2849fd0a4/skills/caveman",
+      "path": "skills/caveman",
+      "ref": "9b68f7ed12b05e7efaff18e65c5a3fc2849fd0a4",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/JuliusBrussee/caveman/blob/9b68f7ed12b05e7efaff18e65c5a3fc2849fd0a4/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ai-automation",
+        "caveman"
+      ]
+    },
+    {
+      "id": "caveman-commit",
+      "name": "Caveman Commit",
+      "description": "Write a Conventional Commits message compressed to intent only. Use for \"write a commit\", \"commit message\", /commit or /caveman-commit.",
+      "category": "development",
+      "author": "JuliusBrussee",
+      "repository": "https://github.com/JuliusBrussee/caveman",
+      "source": "https://github.com/JuliusBrussee/caveman/tree/9b68f7ed12b05e7efaff18e65c5a3fc2849fd0a4/skills/caveman-commit",
+      "path": "skills/caveman-commit",
+      "ref": "9b68f7ed12b05e7efaff18e65c5a3fc2849fd0a4",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/JuliusBrussee/caveman/blob/9b68f7ed12b05e7efaff18e65c5a3fc2849fd0a4/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "development",
+        "caveman"
+      ]
+    },
+    {
+      "id": "caveman-compress",
+      "name": "Caveman Compress",
+      "description": "Compress a memory file such as CLAUDE.md or a todo list into caveman format to save input tokens, keeping a readable backup. Sends the file's text to the configured model provider. Trigger: /caveman-compress.",
+      "category": "ai-automation",
+      "author": "JuliusBrussee",
+      "repository": "https://github.com/JuliusBrussee/caveman",
+      "source": "https://github.com/JuliusBrussee/caveman/tree/9b68f7ed12b05e7efaff18e65c5a3fc2849fd0a4/skills/caveman-compress",
+      "path": "skills/caveman-compress",
+      "ref": "9b68f7ed12b05e7efaff18e65c5a3fc2849fd0a4",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/JuliusBrussee/caveman/blob/9b68f7ed12b05e7efaff18e65c5a3fc2849fd0a4/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ai-automation",
+        "caveman"
+      ]
+    },
+    {
+      "id": "caveman-discover",
+      "name": "Caveman Discover",
+      "description": "Find and label every LLM workflow in the repository so Caveman Cloud groups spend by workflow instead of one bucket. Use for \"discover workflows\" or breaking LLM spend down by workflow.",
+      "category": "ai-automation",
+      "author": "JuliusBrussee",
+      "repository": "https://github.com/JuliusBrussee/caveman",
+      "source": "https://github.com/JuliusBrussee/caveman/tree/9b68f7ed12b05e7efaff18e65c5a3fc2849fd0a4/skills/caveman-discover",
+      "path": "skills/caveman-discover",
+      "ref": "9b68f7ed12b05e7efaff18e65c5a3fc2849fd0a4",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/JuliusBrussee/caveman/blob/9b68f7ed12b05e7efaff18e65c5a3fc2849fd0a4/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ai-automation",
+        "caveman"
+      ]
+    },
+    {
+      "id": "caveman-evidence-review",
+      "name": "Caveman Evidence Review",
+      "description": "Read-only review of Caveman Cloud evidence: cost, Cave Score, workflows, traces, latency, errors, routing, savings. Use when asked what Caveman found or where LLM spend goes.",
+      "category": "security",
+      "author": "JuliusBrussee",
+      "repository": "https://github.com/JuliusBrussee/caveman",
+      "source": "https://github.com/JuliusBrussee/caveman/tree/9b68f7ed12b05e7efaff18e65c5a3fc2849fd0a4/skills/caveman-evidence-review",
+      "path": "skills/caveman-evidence-review",
+      "ref": "9b68f7ed12b05e7efaff18e65c5a3fc2849fd0a4",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/JuliusBrussee/caveman/blob/9b68f7ed12b05e7efaff18e65c5a3fc2849fd0a4/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "security",
+        "caveman"
+      ]
+    },
+    {
+      "id": "caveman-explore",
+      "name": "Caveman Explore",
+      "description": "Read-only repository explorer for cold-start orientation, broad cross-file localization, or when a direct search failed. Skip it when the exact file or symbol is already named. Returns path:line citations only; its reads stay out of main context.",
+      "category": "ai-automation",
+      "author": "JuliusBrussee",
+      "repository": "https://github.com/JuliusBrussee/caveman",
+      "source": "https://github.com/JuliusBrussee/caveman/tree/9b68f7ed12b05e7efaff18e65c5a3fc2849fd0a4/skills/caveman-explore",
+      "path": "skills/caveman-explore",
+      "ref": "9b68f7ed12b05e7efaff18e65c5a3fc2849fd0a4",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/JuliusBrussee/caveman/blob/9b68f7ed12b05e7efaff18e65c5a3fc2849fd0a4/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ai-automation",
+        "caveman"
+      ]
+    },
+    {
+      "id": "caveman-help",
+      "name": "Caveman Help",
+      "description": "Quick-reference card for the three caveman skills and their commands. Trigger: /caveman-help or \"caveman help\".",
+      "category": "ai-automation",
+      "author": "JuliusBrussee",
+      "repository": "https://github.com/JuliusBrussee/caveman",
+      "source": "https://github.com/JuliusBrussee/caveman/tree/9b68f7ed12b05e7efaff18e65c5a3fc2849fd0a4/skills/caveman-help",
+      "path": "skills/caveman-help",
+      "ref": "9b68f7ed12b05e7efaff18e65c5a3fc2849fd0a4",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/JuliusBrussee/caveman/blob/9b68f7ed12b05e7efaff18e65c5a3fc2849fd0a4/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ai-automation",
+        "caveman"
+      ]
+    },
+    {
+      "id": "caveman-learn",
+      "name": "Caveman Learn",
+      "description": "Act on a Caveman learn report - review the ranked token sinks, apply cost-lowering fixes with per-edit consent, and report what those fixes returned. Use when asked to lower an agent's token cost, what caveman has saved, to trim a heavy CLAUDE.md, or to offload re-pasted context into cavemem.",
+      "category": "ai-automation",
+      "author": "JuliusBrussee",
+      "repository": "https://github.com/JuliusBrussee/caveman",
+      "source": "https://github.com/JuliusBrussee/caveman/tree/9b68f7ed12b05e7efaff18e65c5a3fc2849fd0a4/skills/caveman-learn",
+      "path": "skills/caveman-learn",
+      "ref": "9b68f7ed12b05e7efaff18e65c5a3fc2849fd0a4",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/JuliusBrussee/caveman/blob/9b68f7ed12b05e7efaff18e65c5a3fc2849fd0a4/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ai-automation",
+        "caveman"
+      ]
+    },
+    {
+      "id": "caveman-manage",
+      "name": "Caveman Manage",
+      "description": "Inspect Caveman Cloud's experiment lifecycle and block unsafe execution. Use when asked to start, approve, cancel, promote or roll back a Caveman experiment.",
+      "category": "ai-automation",
+      "author": "JuliusBrussee",
+      "repository": "https://github.com/JuliusBrussee/caveman",
+      "source": "https://github.com/JuliusBrussee/caveman/tree/9b68f7ed12b05e7efaff18e65c5a3fc2849fd0a4/skills/caveman-manage",
+      "path": "skills/caveman-manage",
+      "ref": "9b68f7ed12b05e7efaff18e65c5a3fc2849fd0a4",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/JuliusBrussee/caveman/blob/9b68f7ed12b05e7efaff18e65c5a3fc2849fd0a4/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ai-automation",
+        "caveman"
+      ]
+    },
+    {
+      "id": "caveman-optimize",
+      "name": "Caveman Optimize",
+      "description": "Turn a Caveman optimization observation into an operator-chosen candidate with a paired baseline evaluation. Use when asked to inspect or evaluate a Caveman optimization report. Needs explicit approval.",
+      "category": "ai-automation",
+      "author": "JuliusBrussee",
+      "repository": "https://github.com/JuliusBrussee/caveman",
+      "source": "https://github.com/JuliusBrussee/caveman/tree/9b68f7ed12b05e7efaff18e65c5a3fc2849fd0a4/skills/caveman-optimize",
+      "path": "skills/caveman-optimize",
+      "ref": "9b68f7ed12b05e7efaff18e65c5a3fc2849fd0a4",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/JuliusBrussee/caveman/blob/9b68f7ed12b05e7efaff18e65c5a3fc2849fd0a4/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ai-automation",
+        "caveman"
+      ]
+    },
+    {
+      "id": "caveman-review",
+      "name": "Caveman Review",
+      "description": "Compressed code review - one line per finding with location, problem and fix. Use for /caveman-review, \"review this PR\", or \"review the diff\".",
+      "category": "security",
+      "author": "JuliusBrussee",
+      "repository": "https://github.com/JuliusBrussee/caveman",
+      "source": "https://github.com/JuliusBrussee/caveman/tree/9b68f7ed12b05e7efaff18e65c5a3fc2849fd0a4/skills/caveman-review",
+      "path": "skills/caveman-review",
+      "ref": "9b68f7ed12b05e7efaff18e65c5a3fc2849fd0a4",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/JuliusBrussee/caveman/blob/9b68f7ed12b05e7efaff18e65c5a3fc2849fd0a4/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "security",
+        "caveman"
+      ]
+    },
+    {
+      "id": "caveman-setup",
+      "name": "Caveman Setup",
+      "description": "Wire a repository through the Caveman Cloud gateway so every LLM request is measured, with no behavior change. Use for \"set up caveman\" or adding LLM spend observability.",
+      "category": "ai-automation",
+      "author": "JuliusBrussee",
+      "repository": "https://github.com/JuliusBrussee/caveman",
+      "source": "https://github.com/JuliusBrussee/caveman/tree/9b68f7ed12b05e7efaff18e65c5a3fc2849fd0a4/skills/caveman-setup",
+      "path": "skills/caveman-setup",
+      "ref": "9b68f7ed12b05e7efaff18e65c5a3fc2849fd0a4",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/JuliusBrussee/caveman/blob/9b68f7ed12b05e7efaff18e65c5a3fc2849fd0a4/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ai-automation",
+        "caveman"
+      ]
+    },
+    {
+      "id": "caveman-stats",
+      "name": "Caveman Stats",
+      "description": "Show recorded output and cache-read token usage and mode attribution for the current Claude Code session, or locate the host's native usage report. Trigger: /caveman-stats.",
+      "category": "ai-automation",
+      "author": "JuliusBrussee",
+      "repository": "https://github.com/JuliusBrussee/caveman",
+      "source": "https://github.com/JuliusBrussee/caveman/tree/9b68f7ed12b05e7efaff18e65c5a3fc2849fd0a4/skills/caveman-stats",
+      "path": "skills/caveman-stats",
+      "ref": "9b68f7ed12b05e7efaff18e65c5a3fc2849fd0a4",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/JuliusBrussee/caveman/blob/9b68f7ed12b05e7efaff18e65c5a3fc2849fd0a4/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ai-automation",
+        "caveman"
+      ]
+    },
+    {
+      "id": "ccs-align",
+      "name": "Ccs Align",
+      "description": "Run the CCS Align seat's hourly breathing cycle — prove the local claude-mem worker is healthy, pull needle observations through search → timeline → get_observations, land them in a seat-owned middle cache via atomic grab → append → filter exclude-marks → replace, manage exclude marks, and walk house → project → seat rules to detect conflicts (SHADOW_HOUSE, DENY_ALLOW, DRIFT, CLOCK_HEADER) with an append-only rules-report.md. Use when asked to run CCS Align, breathe the align",
+      "category": "development",
+      "author": "thedotmack",
+      "repository": "https://github.com/thedotmack/claude-mem",
+      "source": "https://github.com/thedotmack/claude-mem/tree/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/plugin/skills/ccs-align",
+      "path": "plugin/skills/ccs-align",
+      "ref": "d7c2da3e5f9397b394dbc6b6966f4b261b489f7b",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/thedotmack/claude-mem/blob/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "development",
+        "claude-mem"
+      ]
+    },
+    {
+      "id": "childhood",
+      "name": "Childhood",
+      "description": "Babysit a shipped release after merge, publication, or deployment. Verify published packages, production behavior, installed plugins, and late CI or user reports until the observation window is clean; use babysit for PR readiness before release.",
+      "category": "ai-automation",
+      "author": "thedotmack",
+      "repository": "https://github.com/thedotmack/claude-mem",
+      "source": "https://github.com/thedotmack/claude-mem/tree/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/plugin/skills/childhood",
+      "path": "plugin/skills/childhood",
+      "ref": "d7c2da3e5f9397b394dbc6b6966f4b261b489f7b",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/thedotmack/claude-mem/blob/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ai-automation",
+        "claude-mem"
+      ]
+    },
+    {
+      "id": "cloud-sync",
+      "name": "Cloud Sync",
+      "description": "Set up or check claude-mem cloud sync with cmem.ai Pro. Use when the user says \"set up cloud sync\", \"sync my memories\", \"cmem pro\", \"cloud backup\", \"sync status\", or wants their memory database backed up or synced to their cmem.ai account.",
+      "category": "devops",
+      "author": "thedotmack",
+      "repository": "https://github.com/thedotmack/claude-mem",
+      "source": "https://github.com/thedotmack/claude-mem/tree/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/plugin/skills/cloud-sync",
+      "path": "plugin/skills/cloud-sync",
+      "ref": "d7c2da3e5f9397b394dbc6b6966f4b261b489f7b",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/thedotmack/claude-mem/blob/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "devops",
+        "claude-mem"
+      ]
+    },
+    {
+      "id": "design",
+      "name": "Design",
+      "description": "Comprehensive design skill: brand identity, design tokens, UI styling, logo generation (55 styles, Gemini, Atlas Cloud, or MuAPI AI), corporate identity program (50 deliverables, CIP mockups), HTML presentations (Chart.js), banner design (22 styles, social/ads/web/print), icon design (15 styles, SVG, Gemini 3.1 Pro), social photos (HTML→screenshot, multi-platform). Actions: design logo, create CIP, generate mockups, build slides, design banner, generate icon, create social ph",
+      "category": "design",
+      "author": "Next Level Builder",
+      "repository": "https://github.com/nextlevelbuilder/ui-ux-pro-max-skill",
+      "source": "https://github.com/nextlevelbuilder/ui-ux-pro-max-skill/tree/28b3b8dee8c976df4fa3e94aed4e092ad43fcb03/.claude/skills/design",
+      "path": ".claude/skills/design",
+      "ref": "28b3b8dee8c976df4fa3e94aed4e092ad43fcb03",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/nextlevelbuilder/ui-ux-pro-max-skill/blob/28b3b8dee8c976df4fa3e94aed4e092ad43fcb03/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "design",
+        "ui-ux"
+      ]
+    },
+    {
+      "id": "design-is",
+      "name": "Design Is",
+      "description": "Audit a design against Dieter Rams' ten \"Good design is...\" principles, then hand off a /make-plan prompt for one of three outcomes — new design, refine design, or redesign. Use when the user says \"audit this design\", \"design review\", \"check this UI against Rams\", \"is this UI good\", \"critique this design\", \"design audit\", or asks for a critique that should lead to a plan.",
+      "category": "design",
+      "author": "thedotmack",
+      "repository": "https://github.com/thedotmack/claude-mem",
+      "source": "https://github.com/thedotmack/claude-mem/tree/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/plugin/skills/design-is",
+      "path": "plugin/skills/design-is",
+      "ref": "d7c2da3e5f9397b394dbc6b6966f4b261b489f7b",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/thedotmack/claude-mem/blob/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "design",
+        "claude-mem"
+      ]
+    },
+    {
+      "id": "design-system",
+      "name": "Design System",
+      "description": "Token architecture, component specifications, and slide generation. Three-layer tokens (primitive→semantic→component), CSS variables, spacing/typography scales, component specs, strategic slide creation. Use for design tokens, systematic design, brand-compliant presentations.",
+      "category": "design",
+      "author": "Next Level Builder",
+      "repository": "https://github.com/nextlevelbuilder/ui-ux-pro-max-skill",
+      "source": "https://github.com/nextlevelbuilder/ui-ux-pro-max-skill/tree/28b3b8dee8c976df4fa3e94aed4e092ad43fcb03/.claude/skills/design-system",
+      "path": ".claude/skills/design-system",
+      "ref": "28b3b8dee8c976df4fa3e94aed4e092ad43fcb03",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/nextlevelbuilder/ui-ux-pro-max-skill/blob/28b3b8dee8c976df4fa3e94aed4e092ad43fcb03/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "design",
+        "ui-ux"
+      ]
+    },
+    {
+      "id": "diagram-design",
+      "name": "Diagram Design",
+      "description": "Create branded architecture, architecture delta, IT current-state, flowchart, sequence, state machine, ER/data model, timeline, swimlane, quadrant, radar/spider, polar chart (polar/radial lollipop), loop/flywheel, nested, tree, org chart, layer stack, exploded axonometric, axonometric plan, Venn, pyramid/funnel, treemap and marimekko, heatmap, bar and dumbbell, waterfall, line (slopegraph, ridgeline, streamgraph, bump), Gantt and scatter charts (bubble, beeswarm, box plot), h",
+      "category": "design",
+      "author": "Cathryn Lavery",
+      "repository": "https://github.com/cathrynlavery/diagram-design",
+      "source": "https://github.com/cathrynlavery/diagram-design/tree/0cf73c3fcc56667ad91a9a04c439ac6ccfabc9d1/skills/diagram-design",
+      "path": "skills/diagram-design",
+      "ref": "0cf73c3fcc56667ad91a9a04c439ac6ccfabc9d1",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/cathrynlavery/diagram-design/blob/0cf73c3fcc56667ad91a9a04c439ac6ccfabc9d1/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "design"
+      ]
+    },
+    {
+      "id": "do",
+      "name": "Do (Claude-Mem)",
+      "description": "Execute a phased implementation plan using subagents. Use when asked to execute, run, or carry out a plan — especially one created by make-plan.",
+      "category": "ai-automation",
+      "author": "thedotmack",
+      "repository": "https://github.com/thedotmack/claude-mem",
+      "source": "https://github.com/thedotmack/claude-mem/tree/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/plugin/skills/do",
+      "path": "plugin/skills/do",
+      "ref": "d7c2da3e5f9397b394dbc6b6966f4b261b489f7b",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/thedotmack/claude-mem/blob/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ai-automation",
+        "claude-mem"
+      ]
+    },
+    {
+      "id": "embedded-captions",
+      "name": "Embedded Captions",
+      "description": "Archived upstream: Add captions or subtitles to an existing single-subject talking-head video without editing the footage. Use for plain verbatim captions, cinematic captions embedded behind the subject, VFX captions, “炸/特效/酷炫字幕,” or a named identity from the 35-style catalog. Route by visual identity, not by backend engine. The quiet `anchor` rail is the default; embed every word only when the user explicitly wants a fully cinematic treatment. ",
+      "lifecycle": "archived",
+      "category": "design",
+      "author": "HeyGen",
+      "repository": "https://github.com/heygen-com/hyperframes",
+      "source": "https://github.com/heygen-com/hyperframes/tree/207c8a4daf6480d697f203784f1fd422727569e3/skills/embedded-captions",
+      "path": "skills/embedded-captions",
+      "ref": "207c8a4daf6480d697f203784f1fd422727569e3",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/heygen-com/hyperframes/blob/207c8a4daf6480d697f203784f1fd422727569e3/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "design",
+        "hyperframes",
+        "video"
+      ]
+    },
+    {
+      "id": "faceless-explainer",
+      "name": "Faceless Explainer",
+      "description": "Archived upstream: Turn arbitrary text — an article, notes, a topic, a brief — into a faceless explainer video: there is no site or footage to capture, so the visuals are invented per scene (typography, abstract graphics, diagrams, data-viz). Use for topic explainers, concept breakdowns, how-tos, listicles. Not a video built from a website (/product-launch-video — promo or tour). Unclear → /hyperframes.",
+      "lifecycle": "archived",
+      "category": "design",
+      "author": "HeyGen",
+      "repository": "https://github.com/heygen-com/hyperframes",
+      "source": "https://github.com/heygen-com/hyperframes/tree/207c8a4daf6480d697f203784f1fd422727569e3/skills/faceless-explainer",
+      "path": "skills/faceless-explainer",
+      "ref": "207c8a4daf6480d697f203784f1fd422727569e3",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/heygen-com/hyperframes/blob/207c8a4daf6480d697f203784f1fd422727569e3/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "design",
+        "hyperframes",
+        "video"
+      ]
+    },
+    {
+      "id": "figma",
+      "name": "Figma",
+      "description": "Bring Figma into a HyperFrames video - rendered assets, brand tokens, components, storyboard frames as reconstructed motion (frames read as states, not slides), shaders and connector-assisted motion. Use when the person pastes a figma.com link or asks to use a Figma design, frame, logo or brand.",
+      "category": "design",
+      "author": "HeyGen",
+      "repository": "https://github.com/heygen-com/hyperframes",
+      "source": "https://github.com/heygen-com/hyperframes/tree/22b53c011505a4b22fcfa603a1037ebd942087cf/skills/figma",
+      "path": "skills/figma",
+      "ref": "22b53c011505a4b22fcfa603a1037ebd942087cf",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/heygen-com/hyperframes/blob/22b53c011505a4b22fcfa603a1037ebd942087cf/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "design",
+        "hyperframes",
+        "video"
+      ]
+    },
+    {
+      "id": "find-skills",
+      "name": "Find Skills",
+      "description": "Helps users discover and install agent skills when they ask questions like \"how do I do X\", \"find a skill for X\", \"is there a skill that can...\", or express interest in extending capabilities. This skill should be used when the user is looking for functionality that might exist as an installable skill.",
+      "category": "ai-automation",
+      "author": "Vercel",
+      "repository": "https://github.com/vercel-labs/skills",
+      "source": "https://github.com/vercel-labs/skills/tree/92a9a34ac3bf88e695e468b90c7bf32f163d32c8/skills/find-skills",
+      "path": "skills/find-skills",
+      "ref": "92a9a34ac3bf88e695e468b90c7bf32f163d32c8",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/vercel-labs/skills/blob/92a9a34ac3bf88e695e468b90c7bf32f163d32c8/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ai-automation"
+      ]
+    },
+    {
+      "id": "founder-board",
+      "name": "Founder Board",
+      "description": "Your board of directors. Puts a business idea in front of a three-member board, each a sub-agent reading the idea through one published framework: the Offers lens (from Alex Hormozi's $100M Offers), the Monopoly lens (from Peter Thiel's Zero to One) and the Product lens (from Walter Isaacson's biography of Steve Jobs). Each member scores the idea, names the risks that would kill it and votes fund, fund with conditions, or pass. Use when the user says \"test my business idea\", ",
+      "category": "productivity",
+      "author": "Jake Schincariol",
+      "repository": "https://github.com/Jakeschincariol/founder-skill",
+      "source": "https://github.com/Jakeschincariol/founder-skill/tree/fd9385b0cfe1b96bebce3898fbd506d73eff5a9d/skills/founder-board",
+      "path": "skills/founder-board",
+      "ref": "fd9385b0cfe1b96bebce3898fbd506d73eff5a9d",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/Jakeschincariol/founder-skill/blob/fd9385b0cfe1b96bebce3898fbd506d73eff5a9d/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "productivity",
+        "founder"
+      ]
+    },
+    {
+      "id": "founder-brand",
+      "name": "Founder Brand",
+      "description": "Your brand designer. Names the business (with the trademark, domain and handle checks to run before falling in love with a name), writes the voice, a one-line promise and a tagline, and briefs the look: colours, type, logo and the first things a customer sees, so they match the positioning the marketing director chose. Use when the user says \"name my business\", \"brand this\", \"logo\", \"brand identity\", \"what should it look like\", \"tagline\", or \"brand voice\".",
+      "category": "productivity",
+      "author": "Jake Schincariol",
+      "repository": "https://github.com/Jakeschincariol/founder-skill",
+      "source": "https://github.com/Jakeschincariol/founder-skill/tree/fd9385b0cfe1b96bebce3898fbd506d73eff5a9d/skills/founder-brand",
+      "path": "skills/founder-brand",
+      "ref": "fd9385b0cfe1b96bebce3898fbd506d73eff5a9d",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/Jakeschincariol/founder-skill/blob/fd9385b0cfe1b96bebce3898fbd506d73eff5a9d/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "productivity",
+        "founder"
+      ]
+    },
+    {
+      "id": "founder-cfo",
+      "name": "Founder Cfo",
+      "description": "Your CFO. Builds the unit economics of a business before money is spent: what one unit earns after its direct costs, the real profit margin at the planned volume, the break-even point in units a day, year 1 month by month, the cash needed before it pays for itself, how long the startup spend takes to earn back, and what happens if the price drops, sales come in low or costs rise. Every number traces to an input the user can check. Use when the user says \"find the profit margi",
+      "category": "productivity",
+      "author": "Jake Schincariol",
+      "repository": "https://github.com/Jakeschincariol/founder-skill",
+      "source": "https://github.com/Jakeschincariol/founder-skill/tree/fd9385b0cfe1b96bebce3898fbd506d73eff5a9d/skills/founder-cfo",
+      "path": "skills/founder-cfo",
+      "ref": "fd9385b0cfe1b96bebce3898fbd506d73eff5a9d",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/Jakeschincariol/founder-skill/blob/fd9385b0cfe1b96bebce3898fbd506d73eff5a9d/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "productivity",
+        "founder"
+      ]
+    },
+    {
+      "id": "founder-competitors",
+      "name": "Founder Competitors",
+      "description": "Maps every competitor and the gap they leave. Finds the direct competitors, indirect ones and the substitutes a buyer would use instead, from public sources only, and records what each sells, at what price, how they position themselves and what their customers complain about in public reviews, every fact with a link. Ends with a positioning map and the gap the new business can own. Use when the user says \"who are my competitors\", \"is this market crowded\", \"what else is out th",
+      "category": "productivity",
+      "author": "Jake Schincariol",
+      "repository": "https://github.com/Jakeschincariol/founder-skill",
+      "source": "https://github.com/Jakeschincariol/founder-skill/tree/fd9385b0cfe1b96bebce3898fbd506d73eff5a9d/skills/founder-competitors",
+      "path": "skills/founder-competitors",
+      "ref": "fd9385b0cfe1b96bebce3898fbd506d73eff5a9d",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/Jakeschincariol/founder-skill/blob/fd9385b0cfe1b96bebce3898fbd506d73eff5a9d/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "productivity",
+        "founder"
+      ]
+    },
+    {
+      "id": "founder-consumer",
+      "name": "Founder Consumer",
+      "description": "The consumer panel. Spins up a swarm of buyer sub-agents (default 100, --quick for 20) trained on the user's target customer, each with a different income, age, buying behaviour and objection, shows every one the same pitch, and runs the business through 100 buyer scenarios to see who buys, who doesn't, and why. Tallies the answers into buy rates by segment, the reasons people pass in their own words, what would flip a no, and price answers for founder-pricing. Use when the u",
+      "category": "productivity",
+      "author": "Jake Schincariol",
+      "repository": "https://github.com/Jakeschincariol/founder-skill",
+      "source": "https://github.com/Jakeschincariol/founder-skill/tree/fd9385b0cfe1b96bebce3898fbd506d73eff5a9d/skills/founder-consumer",
+      "path": "skills/founder-consumer",
+      "ref": "fd9385b0cfe1b96bebce3898fbd506d73eff5a9d",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/Jakeschincariol/founder-skill/blob/fd9385b0cfe1b96bebce3898fbd506d73eff5a9d/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "productivity",
+        "founder"
+      ]
+    },
+    {
+      "id": "founder-launch",
+      "name": "Founder Launch",
+      "description": "Your launch lead. Builds a dated, step-by-step launch plan: a cheap real-world test first (a waitlist, a pre-sale or a pop-up with a real price, so real buyers confirm what the simulated panel said), then the countdown to opening day with owners and deadlines, the launch-day run sheet, and the first 30 days of what to measure and what to change. Use when the user says \"how do I launch\", \"launch plan\", \"when can I open\", \"launch checklist\", \"go live\", or \"soft open\".",
+      "category": "productivity",
+      "author": "Jake Schincariol",
+      "repository": "https://github.com/Jakeschincariol/founder-skill",
+      "source": "https://github.com/Jakeschincariol/founder-skill/tree/fd9385b0cfe1b96bebce3898fbd506d73eff5a9d/skills/founder-launch",
+      "path": "skills/founder-launch",
+      "ref": "fd9385b0cfe1b96bebce3898fbd506d73eff5a9d",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/Jakeschincariol/founder-skill/blob/fd9385b0cfe1b96bebce3898fbd506d73eff5a9d/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "productivity",
+        "founder"
+      ]
+    },
+    {
+      "id": "founder-marketing",
+      "name": "Founder Marketing",
+      "description": "Your marketing director. Turns the buyer panel and the competitor map into positioning, the channels the target customer actually uses, a 30-day launch campaign with dated posts and ads, the first ten hooks, a budget split and the numbers to watch. Every message answers an objection real or simulated buyers raised. Use when the user says \"how do I market this\", \"marketing plan\", \"launch campaign\", \"how do I get customers\", \"where do I advertise\", \"write my ads\", or \"positioni",
+      "category": "productivity",
+      "author": "Jake Schincariol",
+      "repository": "https://github.com/Jakeschincariol/founder-skill",
+      "source": "https://github.com/Jakeschincariol/founder-skill/tree/fd9385b0cfe1b96bebce3898fbd506d73eff5a9d/skills/founder-marketing",
+      "path": "skills/founder-marketing",
+      "ref": "fd9385b0cfe1b96bebce3898fbd506d73eff5a9d",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/Jakeschincariol/founder-skill/blob/fd9385b0cfe1b96bebce3898fbd506d73eff5a9d/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "productivity",
+        "founder"
+      ]
+    },
+    {
+      "id": "founder-offer",
+      "name": "Founder Offer",
+      "description": "Builds an offer too good to refuse. Lists every problem the buyer hits on the way to the result they want, turns each into a solution, trims to what is cheap to deliver and valuable to the buyer, and stacks it with honest bonuses, a guarantee the CFO can afford, real urgency and a clear name. Scores it on the value equation (outcome, likelihood, time, effort) and re-tests it on a quick buyer panel. Use when the user says \"make my offer better\", \"why won't people buy\", \"what s",
+      "category": "productivity",
+      "author": "Jake Schincariol",
+      "repository": "https://github.com/Jakeschincariol/founder-skill",
+      "source": "https://github.com/Jakeschincariol/founder-skill/tree/fd9385b0cfe1b96bebce3898fbd506d73eff5a9d/skills/founder-offer",
+      "path": "skills/founder-offer",
+      "ref": "fd9385b0cfe1b96bebce3898fbd506d73eff5a9d",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/Jakeschincariol/founder-skill/blob/fd9385b0cfe1b96bebce3898fbd506d73eff5a9d/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "productivity",
+        "founder"
+      ]
+    },
+    {
+      "id": "founder-ops",
+      "name": "Founder Ops",
+      "description": "Your operations manager. Works out how the business actually runs on day one: suppliers and what they cost, who works when, the step-by-step routines for opening, serving or shipping and closing, the tools to run it, the licences and permits to check, and a risk register with what to do when each thing goes wrong. Feeds real costs back to the CFO. Use when the user says \"how do I run this\", \"operations\", \"suppliers\", \"staffing\", \"SOPs\", \"what do I need to open\", \"permits\", or",
+      "category": "productivity",
+      "author": "Jake Schincariol",
+      "repository": "https://github.com/Jakeschincariol/founder-skill",
+      "source": "https://github.com/Jakeschincariol/founder-skill/tree/fd9385b0cfe1b96bebce3898fbd506d73eff5a9d/skills/founder-ops",
+      "path": "skills/founder-ops",
+      "ref": "fd9385b0cfe1b96bebce3898fbd506d73eff5a9d",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/Jakeschincariol/founder-skill/blob/fd9385b0cfe1b96bebce3898fbd506d73eff5a9d/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "productivity",
+        "founder"
+      ]
+    },
+    {
+      "id": "founder-plan",
+      "name": "Founder Plan",
+      "description": "Your business planner. Compiles everything the other founder skills wrote (the board's verdict, the competitors, the buyer panel, pricing, the offer, the CFO's numbers, marketing, brand, operations and the launch plan) into one business plan with a verdict at the top that is computed from the numbers, never written by hand: Profitable, Not yet (with the failing numbers) or Incomplete. Adds an executive summary and a one-page version for a partner, lender or investor. Use when",
+      "category": "productivity",
+      "author": "Jake Schincariol",
+      "repository": "https://github.com/Jakeschincariol/founder-skill",
+      "source": "https://github.com/Jakeschincariol/founder-skill/tree/fd9385b0cfe1b96bebce3898fbd506d73eff5a9d/skills/founder-plan",
+      "path": "skills/founder-plan",
+      "ref": "fd9385b0cfe1b96bebce3898fbd506d73eff5a9d",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/Jakeschincariol/founder-skill/blob/fd9385b0cfe1b96bebce3898fbd506d73eff5a9d/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "productivity",
+        "founder"
+      ]
+    },
+    {
+      "id": "founder-pricing",
+      "name": "Founder Pricing",
+      "description": "Finds the price buyers will actually pay. Reads the consumer panel's four price answers per buyer into a Van Westendorp price-sensitivity range (too cheap, a bargain, getting expensive, too expensive), sets it against what competitors really charge and against the CFO's margin, and recommends a price, a price ladder (good / better / best) and an opening offer to test. Use when the user says \"how much should I charge\", \"price this\", \"is $X too expensive\", \"pricing strategy\", \"",
+      "category": "productivity",
+      "author": "Jake Schincariol",
+      "repository": "https://github.com/Jakeschincariol/founder-skill",
+      "source": "https://github.com/Jakeschincariol/founder-skill/tree/fd9385b0cfe1b96bebce3898fbd506d73eff5a9d/skills/founder-pricing",
+      "path": "skills/founder-pricing",
+      "ref": "fd9385b0cfe1b96bebce3898fbd506d73eff5a9d",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/Jakeschincariol/founder-skill/blob/fd9385b0cfe1b96bebce3898fbd506d73eff5a9d/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "productivity",
+        "founder"
+      ]
+    },
+    {
       "id": "frontend-design",
       "name": "Frontend Design",
       "description": "Design distinctive frontend interfaces with intentional visual direction.",
@@ -23,6 +1081,321 @@
       "tags": [
         "design",
         "anthropic"
+      ]
+    },
+    {
+      "id": "general-video",
+      "name": "General Video",
+      "description": "Archived upstream: Author or edit a custom HyperFrames composition when no specialized workflow fits, or when BRIEF.md sets flow: companion. Use for longer or multi-scene pieces, brand and sizzle reels, montages, static loops, static title cards, footage remixes, and freeform builds. Use motion-graphics instead for a short unnarrated motion-first unit, including an animated title. Route fresh creation through hyperframes before using this skill.",
+      "lifecycle": "archived",
+      "category": "design",
+      "author": "HeyGen",
+      "repository": "https://github.com/heygen-com/hyperframes",
+      "source": "https://github.com/heygen-com/hyperframes/tree/207c8a4daf6480d697f203784f1fd422727569e3/skills/general-video",
+      "path": "skills/general-video",
+      "ref": "207c8a4daf6480d697f203784f1fd422727569e3",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/heygen-com/hyperframes/blob/207c8a4daf6480d697f203784f1fd422727569e3/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "design",
+        "hyperframes",
+        "video"
+      ]
+    },
+    {
+      "id": "hallmark",
+      "name": "Hallmark",
+      "description": "Design skill for websites and new pages that look designed, not generated. Use when the user asks to build or design something new, or names Hallmark. Never use it on an existing design unless the user names Hallmark, as in `/hallmark redesign path `.",
+      "category": "design",
+      "author": "nutlope",
+      "repository": "https://github.com/nutlope/hallmark",
+      "source": "https://github.com/nutlope/hallmark/tree/8f6969f8922caabde9de1784959eae11ddf68073/skills/hallmark",
+      "path": "skills/hallmark",
+      "ref": "8f6969f8922caabde9de1784959eae11ddf68073",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/nutlope/hallmark/blob/8f6969f8922caabde9de1784959eae11ddf68073/skills/hallmark/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "design"
+      ]
+    },
+    {
+      "id": "handoff",
+      "name": "Handoff",
+      "description": "Generate a HANDOFF.md that captures goal, current state, files touched, failed attempts, and next steps — so a fresh Claude session can continue exactly where this one left off. Use when sessions are getting long, Claude keeps retrying the same broken solution, or the user wants to step away and resume later.",
+      "category": "ai-automation",
+      "author": "thedotmack",
+      "repository": "https://github.com/thedotmack/claude-mem",
+      "source": "https://github.com/thedotmack/claude-mem/tree/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/plugin/skills/handoff",
+      "path": "plugin/skills/handoff",
+      "ref": "d7c2da3e5f9397b394dbc6b6966f4b261b489f7b",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/thedotmack/claude-mem/blob/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ai-automation",
+        "claude-mem"
+      ]
+    },
+    {
+      "id": "how-it-works",
+      "name": "How It Works",
+      "description": "Explain how claude-mem captures observations, when memory injection kicks in, and where data lives. Use when the user asks \"how does claude-mem work?\" or \"what is this thing doing?\".",
+      "category": "ai-automation",
+      "author": "thedotmack",
+      "repository": "https://github.com/thedotmack/claude-mem",
+      "source": "https://github.com/thedotmack/claude-mem/tree/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/plugin/skills/how-it-works",
+      "path": "plugin/skills/how-it-works",
+      "ref": "d7c2da3e5f9397b394dbc6b6966f4b261b489f7b",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/thedotmack/claude-mem/blob/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ai-automation",
+        "claude-mem"
+      ]
+    },
+    {
+      "id": "hyperframes",
+      "name": "Hyperframes",
+      "description": "Read first to make, edit, animate or render any video with HyperFrames (HTML rendered to video), including launch films, explainers, music videos, charts, maps, vertical clips, title cards, captions and overlays. Holds the render contract, the work loop and what each kind of video needs.",
+      "category": "design",
+      "author": "HeyGen",
+      "repository": "https://github.com/heygen-com/hyperframes",
+      "source": "https://github.com/heygen-com/hyperframes/tree/22b53c011505a4b22fcfa603a1037ebd942087cf/skills/hyperframes",
+      "path": "skills/hyperframes",
+      "ref": "22b53c011505a4b22fcfa603a1037ebd942087cf",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/heygen-com/hyperframes/blob/22b53c011505a4b22fcfa603a1037ebd942087cf/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "design",
+        "hyperframes",
+        "video"
+      ]
+    },
+    {
+      "id": "hyperframes-animation",
+      "name": "Hyperframes Animation",
+      "description": "Archived upstream: All animation knowledge for HyperFrames — atomic motion rules, multi-phase scene blueprints, scene transitions, broader motion-design techniques, AND the seven runtime adapters (GSAP default, plus Lottie, Three.js, Anime.js, CSS keyframes, Web Animations API, TypeGPU). Use for any motion or animation task: pick 2-4 rules and compose, or load a blueprint, or look up runtime-specific API (e.g. GSAP eases / Lottie player / Three.",
+      "lifecycle": "archived",
+      "category": "design",
+      "author": "HeyGen",
+      "repository": "https://github.com/heygen-com/hyperframes",
+      "source": "https://github.com/heygen-com/hyperframes/tree/207c8a4daf6480d697f203784f1fd422727569e3/skills/hyperframes-animation",
+      "path": "skills/hyperframes-animation",
+      "ref": "207c8a4daf6480d697f203784f1fd422727569e3",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/heygen-com/hyperframes/blob/207c8a4daf6480d697f203784f1fd422727569e3/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "design",
+        "hyperframes",
+        "video"
+      ]
+    },
+    {
+      "id": "hyperframes-audio",
+      "name": "Hyperframes Audio",
+      "description": "Archived upstream: Use when audio already placed in a HyperFrames composition needs to be mixed: fade-in/fade-out, crossfade, track gain or volume, volume automation, ducking, a music bed that fights a voiceover (voiceover carve), effects on a track (EQ, compressor, limiter, gate, saturation, delay, reverb, chorus, phaser, bitcrush), automation envelopes drawn on a track's volume or any effect parameter, or one submix bus carrying a chain, a fad",
+      "lifecycle": "archived",
+      "category": "design",
+      "author": "HeyGen",
+      "repository": "https://github.com/heygen-com/hyperframes",
+      "source": "https://github.com/heygen-com/hyperframes/tree/207c8a4daf6480d697f203784f1fd422727569e3/skills/hyperframes-audio",
+      "path": "skills/hyperframes-audio",
+      "ref": "207c8a4daf6480d697f203784f1fd422727569e3",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/heygen-com/hyperframes/blob/207c8a4daf6480d697f203784f1fd422727569e3/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "design",
+        "hyperframes",
+        "video"
+      ]
+    },
+    {
+      "id": "hyperframes-cli",
+      "name": "Hyperframes Cli",
+      "description": "The HyperFrames CLI by job - scaffold, check, look at frames, edit the timeline, preview, render locally or in the cloud, publish, project history - plus reading its JSON and recovering from build or render failures.",
+      "category": "development",
+      "author": "HeyGen",
+      "repository": "https://github.com/heygen-com/hyperframes",
+      "source": "https://github.com/heygen-com/hyperframes/tree/22b53c011505a4b22fcfa603a1037ebd942087cf/skills/hyperframes-cli",
+      "path": "skills/hyperframes-cli",
+      "ref": "22b53c011505a4b22fcfa603a1037ebd942087cf",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/heygen-com/hyperframes/blob/22b53c011505a4b22fcfa603a1037ebd942087cf/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "development",
+        "hyperframes",
+        "video"
+      ]
+    },
+    {
+      "id": "hyperframes-core",
+      "name": "Hyperframes Core",
+      "description": "Archived upstream: The HyperFrames composition contract — build one renderable project. Use for composition structure, the `data-*` timing attributes, `class=\"clip\"`, tracks, sub-compositions, variables, framework-owned media playback, deterministic-render rules, and validation. Read before writing composition HTML.",
+      "lifecycle": "archived",
+      "category": "design",
+      "author": "HeyGen",
+      "repository": "https://github.com/heygen-com/hyperframes",
+      "source": "https://github.com/heygen-com/hyperframes/tree/207c8a4daf6480d697f203784f1fd422727569e3/skills/hyperframes-core",
+      "path": "skills/hyperframes-core",
+      "ref": "207c8a4daf6480d697f203784f1fd422727569e3",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/heygen-com/hyperframes/blob/207c8a4daf6480d697f203784f1fd422727569e3/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "design",
+        "hyperframes",
+        "video"
+      ]
+    },
+    {
+      "id": "hyperframes-creative",
+      "name": "Hyperframes Creative",
+      "description": "Archived upstream: Non-animation creative direction for HyperFrames videos. Use for design spec (frame.md / design.md) handling, palettes, typography, narration, beat planning, audio-reactive visuals, composition patterns, and brand / style decisions. For atomic motion patterns and scene blueprints, use `hyperframes-animation`.",
+      "lifecycle": "archived",
+      "category": "design",
+      "author": "HeyGen",
+      "repository": "https://github.com/heygen-com/hyperframes",
+      "source": "https://github.com/heygen-com/hyperframes/tree/207c8a4daf6480d697f203784f1fd422727569e3/skills/hyperframes-creative",
+      "path": "skills/hyperframes-creative",
+      "ref": "207c8a4daf6480d697f203784f1fd422727569e3",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/heygen-com/hyperframes/blob/207c8a4daf6480d697f203784f1fd422727569e3/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "design",
+        "hyperframes",
+        "video"
+      ]
+    },
+    {
+      "id": "hyperframes-keyframes",
+      "name": "Hyperframes Keyframes",
+      "description": "Archived upstream: Use when a HyperFrames composition needs a punch-in, punch-out, zoom, reframe, Ken Burns treatment, camera move, visual match/whip handoff, or other seek-safe 2D/3D keyframes; also for GSAP, CSS keyframes, Anime.js, WAAPI, FLIP, paths, masks, SVG morph/draw, text trails, 3D depth, or `hyperframes keyframes` diagnostics. Don't use for broad scene strategy, brand design, media sourcing, captions, or general video planning.",
+      "lifecycle": "archived",
+      "category": "design",
+      "author": "HeyGen",
+      "repository": "https://github.com/heygen-com/hyperframes",
+      "source": "https://github.com/heygen-com/hyperframes/tree/207c8a4daf6480d697f203784f1fd422727569e3/skills/hyperframes-keyframes",
+      "path": "skills/hyperframes-keyframes",
+      "ref": "207c8a4daf6480d697f203784f1fd422727569e3",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/heygen-com/hyperframes/blob/207c8a4daf6480d697f203784f1fd422727569e3/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "design",
+        "hyperframes",
+        "video"
+      ]
+    },
+    {
+      "id": "hyperframes-registry",
+      "name": "Hyperframes Registry",
+      "description": "About 450 ready-made HyperFrames blocks and components installed as editable source - transitions, overlays, titles, kinetic type, captions, charts, map overlays, 3D, camera moves. Use it before hand-building any named visual (CRT scanlines, glitch, film grain, a chart); also for hyperframes add and catalog.",
+      "category": "development",
+      "author": "HeyGen",
+      "repository": "https://github.com/heygen-com/hyperframes",
+      "source": "https://github.com/heygen-com/hyperframes/tree/22b53c011505a4b22fcfa603a1037ebd942087cf/skills/hyperframes-registry",
+      "path": "skills/hyperframes-registry",
+      "ref": "22b53c011505a4b22fcfa603a1037ebd942087cf",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/heygen-com/hyperframes/blob/22b53c011505a4b22fcfa603a1037ebd942087cf/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "development",
+        "hyperframes",
+        "video"
+      ]
+    },
+    {
+      "id": "hyperframes-studio",
+      "name": "Hyperframes Studio",
+      "description": "Archived upstream: Use when working with a person on a HyperFrames project in Studio: first, whether their message asks for a change at all (questions, loose ideas and \"don't change anything\" get an answer and a plan, not an edit); for a new film, the plan, storyboard and build order that the HyperFrames launch films follow; and how the timeline should be laid out so it reads well (one caption track, one element kind per track, every scene a sub",
+      "lifecycle": "archived",
+      "category": "design",
+      "author": "HeyGen",
+      "repository": "https://github.com/heygen-com/hyperframes",
+      "source": "https://github.com/heygen-com/hyperframes/tree/207c8a4daf6480d697f203784f1fd422727569e3/skills/hyperframes-studio",
+      "path": "skills/hyperframes-studio",
+      "ref": "207c8a4daf6480d697f203784f1fd422727569e3",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/heygen-com/hyperframes/blob/207c8a4daf6480d697f203784f1fd422727569e3/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "design",
+        "hyperframes",
+        "video"
       ]
     },
     {
@@ -50,6 +1423,121 @@
       "dependencies": []
     },
     {
+      "id": "investigate-first",
+      "name": "Investigate First",
+      "description": "Diagnose ambiguous failures before editing. Use for unknown causes, intermittent behavior, performance regressions, or investigations needing evidence-ranked hypotheses.",
+      "category": "security",
+      "author": "JuliusBrussee",
+      "repository": "https://github.com/JuliusBrussee/caveman",
+      "source": "https://github.com/JuliusBrussee/caveman/tree/9b68f7ed12b05e7efaff18e65c5a3fc2849fd0a4/skills/investigate-first",
+      "path": "skills/investigate-first",
+      "ref": "9b68f7ed12b05e7efaff18e65c5a3fc2849fd0a4",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/JuliusBrussee/caveman/blob/9b68f7ed12b05e7efaff18e65c5a3fc2849fd0a4/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "security",
+        "caveman"
+      ]
+    },
+    {
+      "id": "knowledge-agent",
+      "name": "Knowledge Agent",
+      "description": "Build and query AI-powered knowledge bases from claude-mem observations. Use when users want to create focused \"brains\" from their observation history, ask questions about past work patterns, or compile expertise on specific topics.",
+      "category": "ai-automation",
+      "author": "thedotmack",
+      "repository": "https://github.com/thedotmack/claude-mem",
+      "source": "https://github.com/thedotmack/claude-mem/tree/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/plugin/skills/knowledge-agent",
+      "path": "plugin/skills/knowledge-agent",
+      "ref": "d7c2da3e5f9397b394dbc6b6966f4b261b489f7b",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/thedotmack/claude-mem/blob/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ai-automation",
+        "claude-mem"
+      ]
+    },
+    {
+      "id": "lean-build",
+      "name": "Lean Build",
+      "description": "Build feature work with high overbuilding risk. Use for new behavior, product slices, or integrations where repository reuse, strict scope, and an explicit stop condition matter.",
+      "category": "development",
+      "author": "JuliusBrussee",
+      "repository": "https://github.com/JuliusBrussee/caveman",
+      "source": "https://github.com/JuliusBrussee/caveman/tree/9b68f7ed12b05e7efaff18e65c5a3fc2849fd0a4/skills/lean-build",
+      "path": "skills/lean-build",
+      "ref": "9b68f7ed12b05e7efaff18e65c5a3fc2849fd0a4",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/JuliusBrussee/caveman/blob/9b68f7ed12b05e7efaff18e65c5a3fc2849fd0a4/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "development",
+        "caveman"
+      ]
+    },
+    {
+      "id": "learn-codebase",
+      "name": "Learn Codebase",
+      "description": "Prime a codebase by reading every source file in full. Use when starting work on a new or unfamiliar project, or when the user asks to \"learn the codebase\", \"read the codebase\", \"prime\", or \"get up to speed\".",
+      "category": "development",
+      "author": "thedotmack",
+      "repository": "https://github.com/thedotmack/claude-mem",
+      "source": "https://github.com/thedotmack/claude-mem/tree/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/plugin/skills/learn-codebase",
+      "path": "plugin/skills/learn-codebase",
+      "ref": "d7c2da3e5f9397b394dbc6b6966f4b261b489f7b",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/thedotmack/claude-mem/blob/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "development",
+        "claude-mem"
+      ]
+    },
+    {
+      "id": "make-plan",
+      "name": "Make Plan",
+      "description": "Create a detailed, phased implementation plan with documentation discovery. Use when asked to plan a feature, task, or multi-step implementation — especially before executing with do.",
+      "category": "ai-automation",
+      "author": "thedotmack",
+      "repository": "https://github.com/thedotmack/claude-mem",
+      "source": "https://github.com/thedotmack/claude-mem/tree/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/plugin/skills/make-plan",
+      "path": "plugin/skills/make-plan",
+      "ref": "d7c2da3e5f9397b394dbc6b6966f4b261b489f7b",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/thedotmack/claude-mem/blob/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ai-automation",
+        "claude-mem"
+      ]
+    },
+    {
       "id": "mcp-builder",
       "name": "MCP Builder",
       "description": "Design and build Model Context Protocol servers and tool integrations.",
@@ -70,6 +1558,428 @@
       "tags": [
         "ai-automation",
         "anthropic"
+      ]
+    },
+    {
+      "id": "media-use",
+      "name": "Media Use",
+      "description": "Get or make any media for a HyperFrames video - music, sound effects, images, icons, logos, voiceover, avatar and generated video, transcripts, cutouts, colour grades and looks - with HeyGen or free local tools, and mix placed audio. Also for footage that looks dark, flat or dull, or should be stylized or hidden.",
+      "category": "design",
+      "author": "HeyGen",
+      "repository": "https://github.com/heygen-com/hyperframes",
+      "source": "https://github.com/heygen-com/hyperframes/tree/22b53c011505a4b22fcfa603a1037ebd942087cf/skills/media-use",
+      "path": "skills/media-use",
+      "ref": "22b53c011505a4b22fcfa603a1037ebd942087cf",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/heygen-com/hyperframes/blob/22b53c011505a4b22fcfa603a1037ebd942087cf/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "design",
+        "hyperframes",
+        "video"
+      ]
+    },
+    {
+      "id": "megacave",
+      "name": "Megacave",
+      "description": "Caveman in Classical Chinese: 文言文 register, far fewer characters, technical terms verbatim. Invoke only with /megacave or /caveman wenyan. Stays on until \"stop caveman\" or \"normal mode\".",
+      "category": "ai-automation",
+      "author": "JuliusBrussee",
+      "repository": "https://github.com/JuliusBrussee/caveman",
+      "source": "https://github.com/JuliusBrussee/caveman/tree/9b68f7ed12b05e7efaff18e65c5a3fc2849fd0a4/skills/megacave",
+      "path": "skills/megacave",
+      "ref": "9b68f7ed12b05e7efaff18e65c5a3fc2849fd0a4",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/JuliusBrussee/caveman/blob/9b68f7ed12b05e7efaff18e65c5a3fc2849fd0a4/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ai-automation",
+        "caveman"
+      ]
+    },
+    {
+      "id": "mem-search",
+      "name": "Mem Search",
+      "description": "Smart search (default). Search claude-mem's persistent cross-session memory database in three steps: search, timeline, then selected get_observations. Use when user asks \"did we already solve this?\", \"how did we do X last time?\", or needs work from previous sessions.",
+      "category": "ai-automation",
+      "author": "thedotmack",
+      "repository": "https://github.com/thedotmack/claude-mem",
+      "source": "https://github.com/thedotmack/claude-mem/tree/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/plugin/skills/mem-search",
+      "path": "plugin/skills/mem-search",
+      "ref": "d7c2da3e5f9397b394dbc6b6966f4b261b489f7b",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/thedotmack/claude-mem/blob/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ai-automation",
+        "claude-mem"
+      ]
+    },
+    {
+      "id": "mem-setup",
+      "name": "Mem Setup",
+      "description": "This skill should be used when the user asks to \"set up claude-mem\", \"pair claude-mem\", \"connect cmem\", \"add my cmem key\", \"set up cloud sync in Cowork\", or provides cmem.ai Connect values (sync token, user id, SyncHub URL) for this plugin. Configures the claude-mem-cowork plugin credentials. version: \"0.1.0",
+      "category": "ai-automation",
+      "author": "thedotmack",
+      "repository": "https://github.com/thedotmack/claude-mem",
+      "source": "https://github.com/thedotmack/claude-mem/tree/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/cowork/skills/mem-setup",
+      "path": "cowork/skills/mem-setup",
+      "ref": "d7c2da3e5f9397b394dbc6b6966f4b261b489f7b",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/thedotmack/claude-mem/blob/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ai-automation",
+        "claude-mem"
+      ]
+    },
+    {
+      "id": "migration",
+      "name": "Migration",
+      "description": "Implement reversible compatibility-safe transitions. Use for schema, data, API, protocol, configuration, or dependency migrations requiring rollback and preservation proof.",
+      "category": "development",
+      "author": "JuliusBrussee",
+      "repository": "https://github.com/JuliusBrussee/caveman",
+      "source": "https://github.com/JuliusBrussee/caveman/tree/9b68f7ed12b05e7efaff18e65c5a3fc2849fd0a4/skills/migration",
+      "path": "skills/migration",
+      "ref": "9b68f7ed12b05e7efaff18e65c5a3fc2849fd0a4",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/JuliusBrussee/caveman/blob/9b68f7ed12b05e7efaff18e65c5a3fc2849fd0a4/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "development",
+        "caveman"
+      ]
+    },
+    {
+      "id": "mode-creator",
+      "name": "Mode Creator",
+      "description": "Interactively create, install, activate, and verify custom claude-mem modes, including domain-specific observation types, concept tags, optional Telegram alerts, bot setup, worker restart, and startup-context verification. Use this whenever someone asks to customize what claude-mem remembers, create or change a mode, track domain-specific notes, add observation types or tags, or send Telegram notifications for particular memories—even if they do not use the word \"mode.",
+      "category": "ai-automation",
+      "author": "thedotmack",
+      "repository": "https://github.com/thedotmack/claude-mem",
+      "source": "https://github.com/thedotmack/claude-mem/tree/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/plugin/skills/mode-creator",
+      "path": "plugin/skills/mode-creator",
+      "ref": "d7c2da3e5f9397b394dbc6b6966f4b261b489f7b",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/thedotmack/claude-mem/blob/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ai-automation",
+        "claude-mem"
+      ]
+    },
+    {
+      "id": "motion-graphics",
+      "name": "Motion Graphics",
+      "description": "Archived upstream: Use when creating a short, design-led motion graphic where motion is the message — kinetic typography, stat count-up, chart/data-viz hit, logo sting / brand lockup, lower-third / callout / social overlay, animated map (highlight regions, connect places, zoom to a location), animated tweet / news-article / headline, webpage / UI animation (scroll, cursor, callouts), or fusing a real image's geometry into a chart. Usually under ",
+      "lifecycle": "archived",
+      "category": "design",
+      "author": "HeyGen",
+      "repository": "https://github.com/heygen-com/hyperframes",
+      "source": "https://github.com/heygen-com/hyperframes/tree/207c8a4daf6480d697f203784f1fd422727569e3/skills/motion-graphics",
+      "path": "skills/motion-graphics",
+      "ref": "207c8a4daf6480d697f203784f1fd422727569e3",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/heygen-com/hyperframes/blob/207c8a4daf6480d697f203784f1fd422727569e3/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "design",
+        "hyperframes",
+        "video"
+      ]
+    },
+    {
+      "id": "music-to-video",
+      "name": "Music To Video",
+      "description": "Archived upstream: Turn a music track (an audio file, a video to pull audio from, or a track generated from a mood brief) into a beat-synced video — lyric video, slideshow, or kinetic promo. The music drives all pacing; any user-supplied images/videos are cut onto the same beat grid, and a complete video needs zero assets. Narrated pieces → the input-matched workflow (see /hyperframes). Unclear → /hyperframes.",
+      "lifecycle": "archived",
+      "category": "design",
+      "author": "HeyGen",
+      "repository": "https://github.com/heygen-com/hyperframes",
+      "source": "https://github.com/heygen-com/hyperframes/tree/207c8a4daf6480d697f203784f1fd422727569e3/skills/music-to-video",
+      "path": "skills/music-to-video",
+      "ref": "207c8a4daf6480d697f203784f1fd422727569e3",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/heygen-com/hyperframes/blob/207c8a4daf6480d697f203784f1fd422727569e3/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "design",
+        "hyperframes",
+        "video"
+      ]
+    },
+    {
+      "id": "oh-my-issues",
+      "name": "Oh My Issues",
+      "description": "Cluster a GitHub issue backlog by root cause into a small set of plan-master issues, redirect children with a standardized comment, and bundle architectural-fix PRs that close clusters atomically. Use when an issue tracker has accumulated dozens of reports that share underlying defects, when asked to triage / consolidate / cluster / dedupe issues, when asked to build a plan series or roadmap from open issues, or when routing a new incoming bug into an existing plan.",
+      "category": "development",
+      "author": "thedotmack",
+      "repository": "https://github.com/thedotmack/claude-mem",
+      "source": "https://github.com/thedotmack/claude-mem/tree/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/plugin/skills/oh-my-issues",
+      "path": "plugin/skills/oh-my-issues",
+      "ref": "d7c2da3e5f9397b394dbc6b6966f4b261b489f7b",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/thedotmack/claude-mem/blob/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "development",
+        "claude-mem"
+      ]
+    },
+    {
+      "id": "pathfinder",
+      "name": "Pathfinder",
+      "description": "Map a codebase into feature-grouped flowcharts, identify duplicated concerns across features, and propose a unified architecture. Use when asked to \"find the ideal path,\" unify duplicated systems, or audit architecture before a refactor. Emits a proposed unified flowchart plus per-system /make-plan prompts.",
+      "category": "ai-automation",
+      "author": "thedotmack",
+      "repository": "https://github.com/thedotmack/claude-mem",
+      "source": "https://github.com/thedotmack/claude-mem/tree/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/plugin/skills/pathfinder",
+      "path": "plugin/skills/pathfinder",
+      "ref": "d7c2da3e5f9397b394dbc6b6966f4b261b489f7b",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/thedotmack/claude-mem/blob/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ai-automation",
+        "claude-mem"
+      ]
+    },
+    {
+      "id": "pr-to-video",
+      "name": "Pr To Video",
+      "description": "Archived upstream: Turn a GitHub pull request (a PR URL, owner/repo#N, or 'this PR' in a checked-out repo) into a code-change explainer video — changelog, feature reveal, fix, or refactor walkthrough built from the diff, commits, and files: the input is a code change, not a website. Not a product promo (/product-launch-video) or a no-PR topic explainer (/faceless-explainer). Unclear → /hyperframes.",
+      "lifecycle": "archived",
+      "category": "design",
+      "author": "HeyGen",
+      "repository": "https://github.com/heygen-com/hyperframes",
+      "source": "https://github.com/heygen-com/hyperframes/tree/207c8a4daf6480d697f203784f1fd422727569e3/skills/pr-to-video",
+      "path": "skills/pr-to-video",
+      "ref": "207c8a4daf6480d697f203784f1fd422727569e3",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/heygen-com/hyperframes/blob/207c8a4daf6480d697f203784f1fd422727569e3/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "design",
+        "hyperframes",
+        "video"
+      ]
+    },
+    {
+      "id": "product-launch-video",
+      "name": "Product Launch Video",
+      "description": "Archived upstream: Turn a product or marketing URL, pasted script, or brief into a product launch / promo video — SaaS promos, feature reveals, product demos, app and company launches. Use when the user wants to market, launch, promote, or reveal a product; the default for any commercial URL. Site tours / showcases of a website route here too — the brief carries the show-it-as-is intent. Unclear → /hyperframes.",
+      "lifecycle": "archived",
+      "category": "design",
+      "author": "HeyGen",
+      "repository": "https://github.com/heygen-com/hyperframes",
+      "source": "https://github.com/heygen-com/hyperframes/tree/207c8a4daf6480d697f203784f1fd422727569e3/skills/product-launch-video",
+      "path": "skills/product-launch-video",
+      "ref": "207c8a4daf6480d697f203784f1fd422727569e3",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/heygen-com/hyperframes/blob/207c8a4daf6480d697f203784f1fd422727569e3/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "design",
+        "hyperframes",
+        "video"
+      ]
+    },
+    {
+      "id": "release",
+      "name": "Release",
+      "description": "Fully automate a release with version-bump and childhood.",
+      "category": "development",
+      "author": "thedotmack",
+      "repository": "https://github.com/thedotmack/claude-mem",
+      "source": "https://github.com/thedotmack/claude-mem/tree/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/plugin/skills/release",
+      "path": "plugin/skills/release",
+      "ref": "d7c2da3e5f9397b394dbc6b6966f4b261b489f7b",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/thedotmack/claude-mem/blob/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "development",
+        "claude-mem"
+      ]
+    },
+    {
+      "id": "remotion-to-hyperframes",
+      "name": "Remotion To Hyperframes",
+      "description": "Bring existing video code or footage into HyperFrames and verify it frame by frame against the original - Remotion first, also Motion Canvas, Lottie, Three.js, p5.js, canvas or plain HTML/CSS animation, or renders from Manim, After Effects or Blender. Use to port, convert, migrate or reuse work made with another tool.",
+      "category": "design",
+      "author": "HeyGen",
+      "repository": "https://github.com/heygen-com/hyperframes",
+      "source": "https://github.com/heygen-com/hyperframes/tree/22b53c011505a4b22fcfa603a1037ebd942087cf/skills/remotion-to-hyperframes",
+      "path": "skills/remotion-to-hyperframes",
+      "ref": "22b53c011505a4b22fcfa603a1037ebd942087cf",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/heygen-com/hyperframes/blob/22b53c011505a4b22fcfa603a1037ebd942087cf/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "design",
+        "hyperframes",
+        "video"
+      ]
+    },
+    {
+      "id": "saas-product-demo-video",
+      "name": "Saas Product Demo Video",
+      "description": "Build, refine or reskin a short SaaS product film in Remotion, cut to the beat of its soundtrack, from the product's real screens, brand and copy. Use when the user wants a product demo, launch video, explainer or social reel of their software made in code; wants an existing product film changed, reskinned or critiqued; or has a product with no interface to record and needs schematic UI. Covers 16:9 and 9:16, b-roll under motion graphics, sound effects and checked renders. No",
+      "category": "design",
+      "author": "Noam Dorr",
+      "repository": "https://github.com/noamdorr/saas-product-demo-video",
+      "source": "https://github.com/noamdorr/saas-product-demo-video/tree/74f4f7150810b1bb5bf9160c4a2742c5dce69b62/skills/saas-product-demo-video",
+      "path": "skills/saas-product-demo-video",
+      "ref": "74f4f7150810b1bb5bf9160c4a2742c5dce69b62",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/noamdorr/saas-product-demo-video/blob/74f4f7150810b1bb5bf9160c4a2742c5dce69b62/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "design"
+      ]
+    },
+    {
+      "id": "safe-refactor",
+      "name": "Safe Refactor",
+      "description": "Restructure code while preserving behavior. Use for extraction, consolidation, ownership moves, or cleanup where verification must bracket structural edits.",
+      "category": "development",
+      "author": "JuliusBrussee",
+      "repository": "https://github.com/JuliusBrussee/caveman",
+      "source": "https://github.com/JuliusBrussee/caveman/tree/9b68f7ed12b05e7efaff18e65c5a3fc2849fd0a4/skills/safe-refactor",
+      "path": "skills/safe-refactor",
+      "ref": "9b68f7ed12b05e7efaff18e65c5a3fc2849fd0a4",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/JuliusBrussee/caveman/blob/9b68f7ed12b05e7efaff18e65c5a3fc2849fd0a4/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "development",
+        "caveman"
+      ]
+    },
+    {
+      "id": "screenpipe",
+      "name": "Screenpipe",
+      "description": "Search screen and audio history recorded by Screenpipe and optionally save selected context into claude-mem. Use when the user asks to recall desktop activity, a meeting, or something seen in another app through Screenpipe.",
+      "category": "productivity",
+      "author": "thedotmack",
+      "repository": "https://github.com/thedotmack/claude-mem",
+      "source": "https://github.com/thedotmack/claude-mem/tree/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/plugin/skills/screenpipe",
+      "path": "plugin/skills/screenpipe",
+      "ref": "d7c2da3e5f9397b394dbc6b6966f4b261b489f7b",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/thedotmack/claude-mem/blob/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "productivity",
+        "claude-mem"
+      ]
+    },
+    {
+      "id": "security-audit",
+      "name": "Security Audit",
+      "description": "Security guidance and vulnerability review for codebases, APIs, services, CLI tools, libraries, and daemons. Use for security questions, focused reviews, vulnerability research, security audits, or pen tests. Run the complete workflow only for explicit codebase audit or pen-test requests, full/comprehensive/end-to-end reviews, or requested report artifacts.",
+      "category": "security",
+      "author": "Cloudflare",
+      "repository": "https://github.com/cloudflare/security-audit-skill",
+      "source": "https://github.com/cloudflare/security-audit-skill/tree/c1c8a8c1471069fb0e188eeaff69b8e8db6564a8/skills/security-audit",
+      "path": "skills/security-audit",
+      "ref": "c1c8a8c1471069fb0e188eeaff69b8e8db6564a8",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/cloudflare/security-audit-skill/blob/c1c8a8c1471069fb0e188eeaff69b8e8db6564a8/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "security"
       ]
     },
     {
@@ -96,6 +2006,193 @@
       ]
     },
     {
+      "id": "slides",
+      "name": "Slides",
+      "description": "Create strategic HTML presentations with Chart.js, design tokens, responsive layouts, copywriting formulas, and contextual slide strategies.",
+      "category": "design",
+      "author": "Next Level Builder",
+      "repository": "https://github.com/nextlevelbuilder/ui-ux-pro-max-skill",
+      "source": "https://github.com/nextlevelbuilder/ui-ux-pro-max-skill/tree/28b3b8dee8c976df4fa3e94aed4e092ad43fcb03/.claude/skills/slides",
+      "path": ".claude/skills/slides",
+      "ref": "28b3b8dee8c976df4fa3e94aed4e092ad43fcb03",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/nextlevelbuilder/ui-ux-pro-max-skill/blob/28b3b8dee8c976df4fa3e94aed4e092ad43fcb03/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "design",
+        "ui-ux"
+      ]
+    },
+    {
+      "id": "slideshow",
+      "name": "Slideshow",
+      "description": "Build a HyperFrames slideshow to present live - slides, fragment reveals, branching hotspots and presenter mode with speaker notes, served by `hyperframes present` - or turn an existing page into one. Use when the person wants a deck or presentation rather than a rendered video.",
+      "category": "design",
+      "author": "HeyGen",
+      "repository": "https://github.com/heygen-com/hyperframes",
+      "source": "https://github.com/heygen-com/hyperframes/tree/22b53c011505a4b22fcfa603a1037ebd942087cf/skills/slideshow",
+      "path": "skills/slideshow",
+      "ref": "22b53c011505a4b22fcfa603a1037ebd942087cf",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/heygen-com/hyperframes/blob/22b53c011505a4b22fcfa603a1037ebd942087cf/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "design",
+        "hyperframes",
+        "video"
+      ]
+    },
+    {
+      "id": "smart-explore",
+      "name": "Smart Explore",
+      "description": "Token-optimized structural code search using tree-sitter AST parsing. Use instead of reading full files when you need to understand code structure, find functions, or explore a codebase efficiently.",
+      "category": "ai-automation",
+      "author": "thedotmack",
+      "repository": "https://github.com/thedotmack/claude-mem",
+      "source": "https://github.com/thedotmack/claude-mem/tree/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/plugin/skills/smart-explore",
+      "path": "plugin/skills/smart-explore",
+      "ref": "d7c2da3e5f9397b394dbc6b6966f4b261b489f7b",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/thedotmack/claude-mem/blob/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ai-automation",
+        "claude-mem"
+      ]
+    },
+    {
+      "id": "standup",
+      "name": "Standup",
+      "description": "Facilitate a read-only standup across git worktrees, branches, or PRs to compare changes and produce one consolidation plan.",
+      "category": "documentation",
+      "author": "thedotmack",
+      "repository": "https://github.com/thedotmack/claude-mem",
+      "source": "https://github.com/thedotmack/claude-mem/tree/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/plugin/skills/standup",
+      "path": "plugin/skills/standup",
+      "ref": "d7c2da3e5f9397b394dbc6b6966f4b261b489f7b",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/thedotmack/claude-mem/blob/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "documentation",
+        "claude-mem"
+      ]
+    },
+    {
+      "id": "surgical-patch",
+      "name": "Surgical Patch",
+      "description": "Fix bugs and small behavior changes at the narrowest responsible layer. Use when regression proof, preserved surrounding behavior, and task-relevant tests matter.",
+      "category": "development",
+      "author": "JuliusBrussee",
+      "repository": "https://github.com/JuliusBrussee/caveman",
+      "source": "https://github.com/JuliusBrussee/caveman/tree/9b68f7ed12b05e7efaff18e65c5a3fc2849fd0a4/skills/surgical-patch",
+      "path": "skills/surgical-patch",
+      "ref": "9b68f7ed12b05e7efaff18e65c5a3fc2849fd0a4",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/JuliusBrussee/caveman/blob/9b68f7ed12b05e7efaff18e65c5a3fc2849fd0a4/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "development",
+        "caveman"
+      ]
+    },
+    {
+      "id": "talking-head-recut",
+      "name": "Talking Head Recut",
+      "description": "Archived upstream: Package an existing talking-head / interview / podcast video with timed, designed GRAPHIC OVERLAY cards — kinetic titles, lower-thirds, data callouts, quotes, side panels, picture-in-picture — synced to the transcript, on a 16:9 / 9:16 / 4:5 canvas of your choice; the clip plays untouched underneath. Trigger on \"graphic overlays\", \"on-screen graphics\", \"package / dress up my video\". Not plain subtitles (/embedded-captions). Un",
+      "lifecycle": "archived",
+      "category": "design",
+      "author": "HeyGen",
+      "repository": "https://github.com/heygen-com/hyperframes",
+      "source": "https://github.com/heygen-com/hyperframes/tree/207c8a4daf6480d697f203784f1fd422727569e3/skills/talking-head-recut",
+      "path": "skills/talking-head-recut",
+      "ref": "207c8a4daf6480d697f203784f1fd422727569e3",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/heygen-com/hyperframes/blob/207c8a4daf6480d697f203784f1fd422727569e3/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "design",
+        "hyperframes",
+        "video"
+      ]
+    },
+    {
+      "id": "timeline-report",
+      "name": "Timeline Report",
+      "description": "Generate a \"Journey Into [Project]\" narrative report analyzing a project's entire development history from claude-mem's timeline. Use when asked for a timeline report, project history analysis, development journey, or full project report.",
+      "category": "documentation",
+      "author": "thedotmack",
+      "repository": "https://github.com/thedotmack/claude-mem",
+      "source": "https://github.com/thedotmack/claude-mem/tree/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/plugin/skills/timeline-report",
+      "path": "plugin/skills/timeline-report",
+      "ref": "d7c2da3e5f9397b394dbc6b6966f4b261b489f7b",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/thedotmack/claude-mem/blob/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "documentation",
+        "claude-mem"
+      ]
+    },
+    {
+      "id": "ui-styling",
+      "name": "Ui Styling",
+      "description": "Create beautiful, accessible user interfaces with shadcn/ui components (built on Radix UI + Tailwind), Tailwind CSS utility-first styling, and canvas-based visual designs. Use when building user interfaces, implementing design systems, creating responsive layouts, adding accessible components (dialogs, dropdowns, forms, tables), customizing themes and colors, implementing dark mode, generating visual designs and posters, or establishing consistent styling patterns across appl",
+      "category": "design",
+      "author": "Next Level Builder",
+      "repository": "https://github.com/nextlevelbuilder/ui-ux-pro-max-skill",
+      "source": "https://github.com/nextlevelbuilder/ui-ux-pro-max-skill/tree/28b3b8dee8c976df4fa3e94aed4e092ad43fcb03/.claude/skills/ui-styling",
+      "path": ".claude/skills/ui-styling",
+      "ref": "28b3b8dee8c976df4fa3e94aed4e092ad43fcb03",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/nextlevelbuilder/ui-ux-pro-max-skill/blob/28b3b8dee8c976df4fa3e94aed4e092ad43fcb03/.claude/skills/ui-styling/LICENSE.txt",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "design",
+        "ui-ux"
+      ]
+    },
+    {
       "id": "ui-ux-pro-max",
       "name": "UI/UX Pro Max",
       "description": "Searchable design intelligence for web, mobile and desktop interfaces, including UI patterns, palettes, typography and UX guidance.",
@@ -118,6 +2215,75 @@
         "scope": "source-and-license-only"
       },
       "dependencies": []
+    },
+    {
+      "id": "ultracave",
+      "name": "Ultracave",
+      "description": "Caveman at maximum compression: fragments, one word when one word is enough, each fact once. Invoke only with /ultracave or /caveman ultra. Stays on until \"stop caveman\" or \"normal mode\".",
+      "category": "ai-automation",
+      "author": "JuliusBrussee",
+      "repository": "https://github.com/JuliusBrussee/caveman",
+      "source": "https://github.com/JuliusBrussee/caveman/tree/9b68f7ed12b05e7efaff18e65c5a3fc2849fd0a4/skills/ultracave",
+      "path": "skills/ultracave",
+      "ref": "9b68f7ed12b05e7efaff18e65c5a3fc2849fd0a4",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/JuliusBrussee/caveman/blob/9b68f7ed12b05e7efaff18e65c5a3fc2849fd0a4/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ai-automation",
+        "caveman"
+      ]
+    },
+    {
+      "id": "verify-and-stop",
+      "name": "Verify And Stop",
+      "description": "Prove existing work meets acceptance conditions without expanding scope. Use for validation-only tasks, completion checks, focused gate runs, and last-mile proof.",
+      "category": "security",
+      "author": "JuliusBrussee",
+      "repository": "https://github.com/JuliusBrussee/caveman",
+      "source": "https://github.com/JuliusBrussee/caveman/tree/9b68f7ed12b05e7efaff18e65c5a3fc2849fd0a4/skills/verify-and-stop",
+      "path": "skills/verify-and-stop",
+      "ref": "9b68f7ed12b05e7efaff18e65c5a3fc2849fd0a4",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/JuliusBrussee/caveman/blob/9b68f7ed12b05e7efaff18e65c5a3fc2849fd0a4/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "security",
+        "caveman"
+      ]
+    },
+    {
+      "id": "version-bump",
+      "name": "Version Bump",
+      "description": "Automated semantic versioning and release workflow for Claude Code plugins. Handles version increments across package.json, marketplace.json, plugin.json manifests, build verification, git tagging, GitHub releases, and changelog generation. npm publishing is done by the tag-triggered GitHub Actions workflow through npm trusted publishing.",
+      "category": "development",
+      "author": "thedotmack",
+      "repository": "https://github.com/thedotmack/claude-mem",
+      "source": "https://github.com/thedotmack/claude-mem/tree/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/plugin/skills/version-bump",
+      "path": "plugin/skills/version-bump",
+      "ref": "d7c2da3e5f9397b394dbc6b6966f4b261b489f7b",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/thedotmack/claude-mem/blob/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "development",
+        "claude-mem"
+      ]
     },
     {
       "id": "video-shotcraft",
@@ -164,6 +2330,75 @@
       "tags": [
         "development",
         "anthropic"
+      ]
+    },
+    {
+      "id": "weekly-digests",
+      "name": "Weekly Digests",
+      "description": "Generate a serial week-by-week narrative digest of a project's full claude-mem timeline. Splits the timeline into per-ISO-week files, then runs one consecutive subagent per week — each receiving the prior week's carry-forward block — to produce one chapter per ISO week of data. Use when asked for \"weekly digests\", \"week-by-week story\", \"serial timeline\", or \"narrative chapters\" of a project's history.",
+      "category": "documentation",
+      "author": "thedotmack",
+      "repository": "https://github.com/thedotmack/claude-mem",
+      "source": "https://github.com/thedotmack/claude-mem/tree/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/plugin/skills/weekly-digests",
+      "path": "plugin/skills/weekly-digests",
+      "ref": "d7c2da3e5f9397b394dbc6b6966f4b261b489f7b",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/thedotmack/claude-mem/blob/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "documentation",
+        "claude-mem"
+      ]
+    },
+    {
+      "id": "what-the",
+      "name": "What The",
+      "description": "What the? Use when the user wants a plain-English breakdown of something technical — the who, what, where, why, and when.",
+      "category": "ai-automation",
+      "author": "thedotmack",
+      "repository": "https://github.com/thedotmack/claude-mem",
+      "source": "https://github.com/thedotmack/claude-mem/tree/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/plugin/skills/what-the",
+      "path": "plugin/skills/what-the",
+      "ref": "d7c2da3e5f9397b394dbc6b6966f4b261b489f7b",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/thedotmack/claude-mem/blob/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ai-automation",
+        "claude-mem"
+      ]
+    },
+    {
+      "id": "wowerpoint",
+      "name": "Wowerpoint",
+      "description": "Turn one document into a kawaii NotebookLM slide deck. Use for \"wowerpoint this\", \"make a deck about file \", \"turn this report into slides\", or any request to render a single document as shareable narrative slides.",
+      "category": "documentation",
+      "author": "thedotmack",
+      "repository": "https://github.com/thedotmack/claude-mem",
+      "source": "https://github.com/thedotmack/claude-mem/tree/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/plugin/skills/wowerpoint",
+      "path": "plugin/skills/wowerpoint",
+      "ref": "d7c2da3e5f9397b394dbc6b6966f4b261b489f7b",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/thedotmack/claude-mem/blob/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "documentation",
+        "claude-mem"
       ]
     }
   ]

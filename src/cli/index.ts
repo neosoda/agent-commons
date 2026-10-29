@@ -386,6 +386,7 @@ export function runCli(argv: string[] = process.argv.slice(2)): number {
             console.log('Source: ' + selected.source);
             console.log('Pinned ref: ' + selected.ref);
             console.log('License: ' + selected.license + ' (source text: ' + selected.licenseEvidence + ')');
+            console.log('Upstream status: ' + (selected.lifecycle === 'archived' ? 'ARCHIVED (historical)' : 'active at reviewed commit'));
             console.log('Locally installed: ' + (selected.installed ? 'yes' : 'no'));
             console.log('Review: source and license only; scripts have NOT been security-audited.');
           }
@@ -399,7 +400,7 @@ export function runCli(argv: string[] = process.argv.slice(2)): number {
             catalog.skills.length + ') ===');
           for (const skill of matched) {
             console.log('  ' + skill.id + ' | ' + skill.category + ' | ' + skill.author +
-              ' | ' + skill.license + (skill.installed ? ' | INSTALLED' : ''));
+              ' | ' + skill.license + (skill.lifecycle === 'archived' ? ' | ARCHIVED' : '') + (skill.installed ? ' | INSTALLED' : ''));
             console.log('    ' + skill.description);
             console.log('    ' + skill.source);
           }
