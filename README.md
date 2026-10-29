@@ -184,6 +184,27 @@ node dist/cli/index.js catalog uninstall skill-creator --yes
 
 `catalog update` and `catalog outdated` remain disabled pending safe updates and freshness checks. No release is published automatically. The package has not been published on npm.
 
+### Sync only the skills your agent needs
+
+You **do not** have to load your entire shared library into every agent. Select individual central skills or one or more categories:
+
+```bash
+# Preview a single skill for Codex, without touching MCP settings
+node dist/cli/index.js sync --skill skill-creator --agent codex --dry-run
+
+# Sync a selected skill to Codex
+node dist/cli/index.js sync --skill skill-creator --agent codex
+
+# Sync all locally installed skills tagged "design" in the public catalog
+node dist/cli/index.js sync --profile design --agent claude-code --dry-run
+```
+
+The category IDs are `development`, `devops`, `security`, `design`, `ai-automation`, `documentation` and `productivity`. Repeating `--skill` or `--profile` selects multiple entries.
+
+Filters affect **only skills**, never MCP configurations. Unknown skill IDs and categories fail before any writes; an empty matched profile refuses to run. Skills not present in the public catalog are **not automatically included in category profiles**, but remain selectable by explicit `--skill`. Mixing `--skill` with `--profile` is not supported, and `--adopt` cannot be used with a filtered sync.
+
+Without a filter, `sync` behaves exactly as before. No agent configuration is permanently changed by browsing the catalog.
+
 ## Local skill provenance inventory
 
 Agent Commons can now **inventory the actual skills installed in your shared library** and look up their origins in the existing Vercel Skills lockfile (`~/.agents/.skill-lock.json`; legacy `skills-lock.json` is also inspected).
@@ -237,6 +258,8 @@ Nothing is downloaded, installed, synchronized or published by `catalog`. See [t
 | `list` | Inventory skills, MCP servers, agents and snapshots |
 | `sync --dry-run` | Show planned changes without modifying agent configurations |
 | `sync` | Synchronize compatible installed agents |
+| `sync --skill <id> --agent <id>` | Link selected central skill(s) to selected agent(s) |
+| `sync --profile design --agent <id>` | Link locally installed, catalog-classified design skills |
 | `sync --adopt` | Import unique local skills into the shared library |
 | `sync --force` | Resolve differing copies/conflicting servers by replacing them **with backups** |
 | `sync --agent codex` | Synchronize only the named agent (repeat `--agent` for more) |
