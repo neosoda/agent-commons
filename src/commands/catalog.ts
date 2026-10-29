@@ -30,6 +30,17 @@ function safeString(value: unknown): string | null {
   return typeof value === 'string' && value.trim().length > 0 && value.length < 1024 ? value.trim() : null;
 }
 
+function safeRef(value: unknown): string | null {
+  const ref = safeString(value);
+  return ref && /^[A-Za-z0-9._/-]+$/.test(ref) && !ref.includes('..') ? ref : null;
+}
+
+function safeRepoSubpath(value: unknown): string | null {
+  const valueString = safeString(value);
+  return valueString && !valueString.startsWith('/') && !valueString.includes('..') &&
+    /^[A-Za-z0-9._/-]+$/.test(valueString) ? valueString : null;
+}
+
 /** Reject credentials, query tokens, local paths and unrecognized hosts. No remote calls. */
 function sourceUrlFromLock(entry: LockEntry): string | null {
   const raw = safeString(entry.sourceUrl);
@@ -97,9 +108,9 @@ export function runCatalog(ctx: EnvironmentContext): SkillCatalogReport {
     return {
       name: skill.name,
       sourceUrl,
-      sourceType: sourceUrl && locked ? safeString(locked.sourceType) : null,
-      ref: sourceUrl && locked ? safeString(locked.ref) : null,
-      skillPath: sourceUrl && locked ? safeString(locked.skillPath) : null,
+      sourceType: sourceUrl && locked && ['github','gitlab','codeberg','bitbucket'].includes(String(locked.sourceType)) ? String(locked.sourceType) : null,
+      ref: sourceUrl && locked ? safeRef(locked.ref) : null,
+      skillPath: sourceUrl && locked ? safeRepoSubpath(locked.skillPath) : null,
       declaredLicense: declaredLicense(skill.path),
       provenance: sourceUrl ? 'recorded' : 'unknown',
       reviewStatus: 'unverified'
