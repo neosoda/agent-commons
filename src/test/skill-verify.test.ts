@@ -112,12 +112,12 @@ describe('catalog verify: strictly offline read-only integrity audit', () => {
         process.platform === 'win32' ? 'junction' : 'dir');
       assert.equal(verifyCatalogSkills(ctx).results[0]!.status, 'unsafe');
       assert.equal(fs.existsSync(outside), true);
+      fs.rmSync(target, { recursive: true, force: true });
+      fs.symlinkSync(outside, target, process.platform === 'win32' ? 'junction' : 'dir');
+      assert.equal(verifyCatalogSkills(ctx, 'skill-creator').results[0]!.status, 'unsafe');
     } finally {
       fs.rmSync(outside, { recursive: true, force: true });
     }
-    fs.rmSync(target, { recursive: true, force: true });
-    fs.symlinkSync(outside, target, process.platform === 'win32' ? 'junction' : 'dir');
-    assert.equal(verifyCatalogSkills(ctx, 'skill-creator').results[0]!.status, 'unsafe');
   });
 
   it('rejects write-inducing and unrelated CLI flags', async () => {
