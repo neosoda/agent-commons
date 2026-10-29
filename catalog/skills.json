@@ -3,17 +3,17 @@
   "generatedAt": "2026-10-29",
   "skills": [
     {
-      "id": "skill-creator",
-      "name": "Skill Creator",
-      "description": "Create, test, benchmark and improve reusable agent skills.",
-      "category": "ai-automation",
+      "id": "frontend-design",
+      "name": "Frontend Design",
+      "description": "Design distinctive frontend interfaces with intentional visual direction.",
+      "category": "design",
       "author": "Anthropic",
       "repository": "https://github.com/anthropics/skills",
-      "source": "https://github.com/anthropics/skills/tree/ca45fc496a3436251f191354091d557da31c15b5/skills/skill-creator",
-      "path": "skills/skill-creator",
+      "source": "https://github.com/anthropics/skills/tree/ca45fc496a3436251f191354091d557da31c15b5/skills/frontend-design",
+      "path": "skills/frontend-design",
       "ref": "ca45fc496a3436251f191354091d557da31c15b5",
       "license": "Apache-2.0",
-      "licenseEvidence": "https://github.com/anthropics/skills/blob/ca45fc496a3436251f191354091d557da31c15b5/skills/skill-creator/LICENSE.txt",
+      "licenseEvidence": "https://github.com/anthropics/skills/blob/ca45fc496a3436251f191354091d557da31c15b5/skills/frontend-design/LICENSE.txt",
       "review": {
         "sourceChecked": "2026-10-29",
         "licenseChecked": "2026-10-29",
@@ -21,9 +21,33 @@
       },
       "dependencies": [],
       "tags": [
-        "ai-automation",
+        "design",
         "anthropic"
       ]
+    },
+    {
+      "id": "impeccable",
+      "name": "Impeccable",
+      "description": "Design critique and frontend polish for interfaces, accessibility, visual hierarchy, motion and design systems.",
+      "category": "design",
+      "author": "pbakaus",
+      "repository": "https://github.com/pbakaus/impeccable",
+      "path": ".agents/skills/impeccable",
+      "ref": "5e745ace7e151feb2a93d360d0281fe39448b857",
+      "license": "Apache-2.0",
+      "tags": [
+        "design",
+        "frontend",
+        "ui-ux"
+      ],
+      "source": "https://github.com/pbakaus/impeccable/tree/5e745ace7e151feb2a93d360d0281fe39448b857/.agents/skills/impeccable",
+      "licenseEvidence": "https://github.com/pbakaus/impeccable/blob/5e745ace7e151feb2a93d360d0281fe39448b857/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": []
     },
     {
       "id": "mcp-builder",
@@ -49,17 +73,17 @@
       ]
     },
     {
-      "id": "frontend-design",
-      "name": "Frontend Design",
-      "description": "Design distinctive frontend interfaces with intentional visual direction.",
-      "category": "design",
+      "id": "skill-creator",
+      "name": "Skill Creator",
+      "description": "Create, test, benchmark and improve reusable agent skills.",
+      "category": "ai-automation",
       "author": "Anthropic",
       "repository": "https://github.com/anthropics/skills",
-      "source": "https://github.com/anthropics/skills/tree/ca45fc496a3436251f191354091d557da31c15b5/skills/frontend-design",
-      "path": "skills/frontend-design",
+      "source": "https://github.com/anthropics/skills/tree/ca45fc496a3436251f191354091d557da31c15b5/skills/skill-creator",
+      "path": "skills/skill-creator",
       "ref": "ca45fc496a3436251f191354091d557da31c15b5",
       "license": "Apache-2.0",
-      "licenseEvidence": "https://github.com/anthropics/skills/blob/ca45fc496a3436251f191354091d557da31c15b5/skills/frontend-design/LICENSE.txt",
+      "licenseEvidence": "https://github.com/anthropics/skills/blob/ca45fc496a3436251f191354091d557da31c15b5/skills/skill-creator/LICENSE.txt",
       "review": {
         "sourceChecked": "2026-10-29",
         "licenseChecked": "2026-10-29",
@@ -67,9 +91,57 @@
       },
       "dependencies": [],
       "tags": [
-        "design",
+        "ai-automation",
         "anthropic"
       ]
+    },
+    {
+      "id": "ui-ux-pro-max",
+      "name": "UI/UX Pro Max",
+      "description": "Searchable design intelligence for web, mobile and desktop interfaces, including UI patterns, palettes, typography and UX guidance.",
+      "category": "design",
+      "author": "Next Level Builder",
+      "repository": "https://github.com/nextlevelbuilder/ui-ux-pro-max-skill",
+      "path": ".claude/skills/ui-ux-pro-max",
+      "ref": "28b3b8dee8c976df4fa3e94aed4e092ad43fcb03",
+      "license": "MIT",
+      "tags": [
+        "design",
+        "frontend",
+        "ui-ux"
+      ],
+      "source": "https://github.com/nextlevelbuilder/ui-ux-pro-max-skill/tree/28b3b8dee8c976df4fa3e94aed4e092ad43fcb03/.claude/skills/ui-ux-pro-max",
+      "licenseEvidence": "https://github.com/nextlevelbuilder/ui-ux-pro-max-skill/blob/28b3b8dee8c976df4fa3e94aed4e092ad43fcb03/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": []
+    },
+    {
+      "id": "video-shotcraft",
+      "name": "Video Shotcraft",
+      "description": "Create cinematic product videos from shot recipes using Remotion, screenshots, camera motion, sound and beat-synced cuts.",
+      "category": "design",
+      "author": "Vincentwei1021",
+      "repository": "https://github.com/Vincentwei1021/video-shotcraft",
+      "path": ".",
+      "ref": "5a2e98daade313c4f376120f38427eb19a108e8c",
+      "license": "Apache-2.0",
+      "tags": [
+        "video",
+        "remotion",
+        "design"
+      ],
+      "source": "https://github.com/Vincentwei1021/video-shotcraft/tree/5a2e98daade313c4f376120f38427eb19a108e8c",
+      "licenseEvidence": "https://github.com/Vincentwei1021/video-shotcraft/blob/5a2e98daade313c4f376120f38427eb19a108e8c/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": []
     },
     {
       "id": "webapp-testing",
