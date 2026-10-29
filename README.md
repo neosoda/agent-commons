@@ -155,7 +155,7 @@ node dist/cli/index.js catalog list --source github --license Apache-2.0
 
 All browsing is **offline** using [catalog/skills.json](catalog/skills.json); `--json` also works. An `INSTALLED` marker indicates a matching local skill in your shared library.
 
-**Safety boundary:** The public catalog still contains only metadata and pinned references. `catalog install` supports a **limited, explicit opt-in GitHub installer** for non-archived skills: the default is a file-list preview, and `--yes` is required before any changes. It verifies Git blob hashes, stages the new skill and refuses to overwrite an existing one. **No third-party scripts are executed.** GitLab/Codeberg installation, updates and uninstall remain disabled; source/license checks are not security audits.
+**Safety boundary:** The public catalog still contains only metadata and pinned references. `catalog install` supports a **limited, explicit opt-in GitHub installer** for non-archived skills: the default is a file-list preview, and `--yes` is required before any changes. It verifies Git blob hashes, stages the new skill and refuses to overwrite an existing one. **No third-party scripts are executed.** GitLab/Codeberg installation and updates remain disabled; removal is limited to intact managed skills; source/license checks are not security audits.
 
 The separate `catalog` / `catalog --json` commands still inventory your **local private library**, using lockfile provenance if available. Do **not** commit those local reports without review. Private/local skill reports are never bundled or published; public upstream references are verified individually. **14 historical HyperFrames skills are marked archived** and link to the last verified pre-retirement commit. Not every installed local skill is available in this public catalog.
 
@@ -175,7 +175,14 @@ node dist/cli/index.js catalog install skill-creator --yes
 
 This experimental path supports **public GitHub repositories only**, is limited to **150 files / 8 MiB** per skill and refuses links, unsafe names, existing targets and archived sources. It creates a snapshot before installing, verifies each Git blob hash, then atomically moves the staged files into the shared library. It does **not** run scripts, overwrite custom skills or synchronize agents automatically. Review the upstream scripts and provenance yourself before installing.
 
-`catalog update`, `catalog uninstall` and `catalog outdated` are intentionally unavailable while safe update/removal and freshness checks are not yet implemented. The package has not been published on npm.
+`catalog uninstall <id>` now provides a **fully offline verification and removal preview**. It refuses any untracked/changed files or folders, links inside the skill, and any skill linked to an installed agent. Only a directory with an intact Agent Commons management receipt can be removed with `--yes`. A focused snapshot of the skill is created before removal; run `agent-commons restore <snapshot-id>` to put it back.
+
+```bash
+node dist/cli/index.js catalog uninstall skill-creator
+node dist/cli/index.js catalog uninstall skill-creator --yes
+```
+
+`catalog update` and `catalog outdated` remain disabled pending safe updates and freshness checks. No release is published automatically. The package has not been published on npm.
 
 ## Local skill provenance inventory
 
@@ -223,6 +230,8 @@ Nothing is downloaded, installed, synchronized or published by `catalog`. See [t
 | `catalog info <id>` | View upstream source, license and installed status |
 | `catalog install <id>` | Preview GitHub pinned skill files without changes |
 | `catalog install <id> --yes` | Explicitly approve installation of a new, non-archived GitHub skill |
+| `catalog uninstall <id>` | Preview removal of an intact, managed and unlinked skill (offline) |
+| `catalog uninstall <id> --yes` | Back up and safely remove that managed skill; restore by snapshot |
 | `catalog` / `catalog --json` | Inspect the local private skill inventory (read-only) |
 | `catalog review [--json]` | Find missing provenance, license claims, unpinned versions and possible duplicates locally |
 | `list` | Inventory skills, MCP servers, agents and snapshots |
