@@ -141,6 +141,24 @@ node dist/cli/index.js restore snapshot-<id>
 
 `restore` replaces the currently managed paths with their saved state. Review the target snapshot before running it: **restoration is a mutating operation**.
 
+## Skill provenance catalog (new)
+
+Agent Commons can now **inventory the actual skills installed in your shared library** and look up their origins in the existing Vercel Skills lockfile (`~/.agents/.skill-lock.json`; legacy `skills-lock.json` is also inspected).
+
+```bash
+node dist/cli/index.js catalog
+node dist/cli/index.js catalog --json
+```
+
+The report lists skill names, source URLs (where recorded), repository subpaths, pinned refs and **author-declared** license strings. Unknown sources and licenses are explicitly marked **unknown**. Every entry remains **unverified** until a person reviews the original repository and its license.
+
+> [!WARNING]
+> **Catalog output is local inventory, not an approved public skill pack.** Lockfile source URLs may reference private repositories. Do not commit the output to GitHub without reviewing every entry. Cataloging a third-party skill does **not** grant permission to redistribute its files or prove that it is safe to execute.
+
+Nothing is downloaded, installed, synchronized or published by `catalog`. See [the catalog policy](docs/SKILL_CATALOG.md) for the intended workflow for a future opt-in public collection.
+
+---
+
 ## CLI reference
 
 | Command | Purpose |

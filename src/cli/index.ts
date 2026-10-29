@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { parseArgs } from 'node:util';
 import { runDoctor } from '../commands/doctor.js';
+import { runCatalog } from '../commands/catalog.js';
 import { runList } from '../commands/list.js';
 import { runSync } from '../commands/sync.js';
 import { createFullBackup, listBackups, restoreBackup } from '../core/backup.js';
@@ -20,6 +21,7 @@ USAGE:
 COMMANDS:
   doctor                  Diagnose environment, link capabilities, central library, and 17 agents
   list                    List central skills, MCP servers, agent inventories, and backups
+  catalog                 Inventory skills with source attribution and license claims
   sync                    Synchronize skills and MCP configurations to installed agents
   backup                  Create a point-in-time snapshot of all agent skills and MCP configs
   restore [snapshot-id]   Restore state from a snapshot (defaults to latest snapshot)
@@ -41,6 +43,8 @@ SYNC OPTIONS:
 EXAMPLES:
   agent-commons doctor
   agent-commons list
+  agent-commons catalog
+  agent-commons catalog --json
   agent-commons sync --dry-run
   agent-commons sync
   agent-commons backup
@@ -75,6 +79,20 @@ Options:
   --home <path>     Override user home directory
   --agent <id>      Filter specific agent(s)
   --json            Emit JSON output
+  -h, --help        Show this help message
+`.trim();
+    case 'catalog':
+      return `
+Usage: agent-commons catalog [options]
+
+Read-only catalog of installed central skills, with provenance from
+~/.agents/.skill-lock.json or ~/.agents/skills-lock.json when available.
+An author-declared license is NOT proof of redistribution rights.
+No network requests or changes to skill files are performed.
+
+Options:
+  --home <path>     Override user home directory
+  --json            Output metadata as JSON for LOCAL REVIEW only
   -h, --help        Show this help message
 `.trim();
     case 'sync':
@@ -266,6 +284,24 @@ export function runCli(argv: string[] = process.argv.slice(2)): number {
         }
       }
 
+      return 0;
+    }
+
+    if (command === 'catalog') {
+      const report = runCatalog(ctx);
+      if (values.json) {
+        console.log(JSON.stringify(report, null, 2));
+      } else {
+        console.log('=== Agent Commons Skill Catalog ===');
+        console.log('Skills: ' + report.count + ', sources recorded: ' + report.attributed +
+          ', sources unknown: ' + report.unattributed);
+        for (const skill of report.skills) {
+          console.log('  ' + skill.name + ' | ' + (skill.sourceUrl ?? 'SOURCE UNKNOWN') +
+            ' | license: ' + (skill.declaredLicense ?? 'UNKNOWN') + ' (unverified)');
+        }
+        for (const warning of report.warnings) console.error('Warning: ' + warning);
+        console.log('Metadata only. Check source ownership, licenses and privacy before sharing.');
+      }
       return 0;
     }
 

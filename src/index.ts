@@ -49,5 +49,7 @@ export {
 } from './sync/mcp.js';
 export { discoverCentralSkills, syncSkillsForAgents } from './sync/skills.js';
 export { runDoctor } from './commands/doctor.js';
+export { runCatalog } from './commands/catalog.js';
+export type { SkillCatalogEntry, SkillCatalogReport } from './commands/catalog.js';
 export { runList } from './commands/list.js';
 export { runSync } from './commands/sync.js';
