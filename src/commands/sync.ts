@@ -40,12 +40,28 @@ export function runSync(ctx: EnvironmentContext, options: SyncOptions = {}): Syn
         throw new Error('Selected skills are not in the physical central library: ' + missing.join(', '));
       }
     }
+    if (options.skillFilterByAgent !== undefined) {
+      if (options.skillFilter !== undefined || options.adopt || options.mcpOnly) {
+        throw new Error('Per-agent profiles cannot combine with skill filters, --adopt or --mcp-only.');
+      }
+      const selectedAgents = new Set(agents.filter(a => a.installed).map(a => a.definition.id));
+      const entries = Object.entries(options.skillFilterByAgent);
+      if (!entries.length || entries.some(([agent, skills]) =>
+        !selectedAgents.has(agent) || !Array.isArray(skills) || skills.length === 0)) {
+        throw new Error('Invalid per-agent selection: only installed agents with non-empty profiles are supported.');
+      }
+      const physical = new Set(discoverCentralSkills(ctx).map(s => s.name));
+      for (const [agent, skills] of entries) {
+        const missing = skills.filter(id => !physical.has(id));
+        if (missing.length) throw new Error('Missing central skills for ' + agent + ': ' + missing.join(', '));
+      }
+    }
     if (!options.mcpOnly) {
       skillResults = syncSkillsForAgents(ctx, agents, options, snapshot);
     }
 
     // When a skill subset is selected, MCP configs are never touched implicitly.
-    if (!options.skillsOnly && options.skillFilter === undefined) {
+    if (!options.skillsOnly && options.skillFilter === undefined && options.skillFilterByAgent === undefined) {
       mcpResults = syncMcpForAgents(ctx, agents, options, snapshot);
     }
 
