@@ -4,6 +4,7 @@ import { runDoctor } from '../commands/doctor.js';
 import { runCatalog } from '../commands/catalog.js';
 import { reviewLocalCatalog } from '../commands/catalog-review.js';
 import { searchPublicCatalog, readPublicCatalog } from '../commands/public-catalog.js';
+import { installCatalogSkill } from '../commands/skill-install.js';
 import { runList } from '../commands/list.js';
 import { runSync } from '../commands/sync.js';
 import { createFullBackup, listBackups, restoreBackup } from '../core/backup.js';
@@ -97,8 +98,12 @@ Without a subcommand: inventory LOCAL skills only (existing behavior).
   catalog list [--category <id>]      Curated PUBLIC metadata (offline)
   catalog search <query>              Search public skills by name, description or tags
   catalog info <id>                   Source, author, license and pinned ref
-  catalog install <id>                DISABLED: upstream installation requires safety review
-  catalog update <id>                 DISABLED: upstream updates require safety review
+  catalog install <id>                Preview exact pinned GitHub files (no writes)
+  catalog install <id> --yes          Explicitly approve staged installation
+  catalog install <id> --dry-run      Preview only (never write)
+  catalog update <id>                 DISABLED until safe update and rollback are validated
+  catalog uninstall <id>              DISABLED until safe managed-file removal is validated
+  catalog outdated                    DISABLED: upstream freshness is not verified
 
 Filters for list/search: --category, --source, --author, --license
 Options: --home <path>, --json, --help
@@ -346,8 +351,8 @@ export function runCli(argv: string[] = process.argv.slice(2)): number {
         }
         return 0;
       }
-      if (subcommand === 'install' || subcommand === 'update') {
-        console.error('Catalog ' + subcommand + ' is disabled: no audited, reversible third-party installer is available yet.');
+      if (subcommand === 'install' || subcommand === 'update' || subcommand === 'uninstall' || subcommand === 'outdated') {
+        console.error('Catalog ' + subcommand + ' requires the async CLI entry point or is not yet supported.');
         console.error('Review the upstream project and use its installation instructions only if you trust it.');
         console.error('Agent Commons did not download, run or modify anything.');
         return 1;
@@ -536,6 +541,60 @@ export function runCli(argv: string[] = process.argv.slice(2)): number {
   }
 }
 
+
+/**
+ * Only the explicit install command requires network access and asynchronous work.
+ * The existing synchronous runCli API is preserved for all other commands.
+ */
+export async function runCliAsync(argv: string[] = process.argv.slice(2)): Promise<number> {
+  if (argv[0] !== 'catalog' || argv[1] !== 'install' ||
+      argv.includes('--help') || argv.includes('-h')) return runCli(argv);
+  try {
+    const parsed = parseArgs({
+      args: argv,
+      allowPositionals: true,
+      strict: true,
+      options: {
+        home: { type: 'string' }, json: { type: 'boolean', default: false },
+        yes: { type: 'boolean', default: false },
+        'dry-run': { type: 'boolean', default: false }
+      }
+    });
+    if (parsed.positionals.length !== 3 || !parsed.positionals[2]) {
+      console.error('Usage: agent-commons catalog install <id> [--dry-run | --yes] [--home <path>]');
+      return 1;
+    }
+    const { values } = parsed;
+    const ctx = createEnvironmentContext({ homeDir: values.home });
+    const result = await installCatalogSkill(ctx, parsed.positionals[2], {
+      yes: Boolean(values.yes) && !values['dry-run']
+    });
+    if (values.json) {
+      console.log(JSON.stringify(result, null, 2));
+    } else {
+      console.log('=== Agent Commons Pinned Skill ' + (result.installed ? 'Installation' : 'Preview') + ' ===');
+      console.log('Skill: ' + result.preview.skill);
+      console.log('Source: ' + result.preview.source);
+      console.log('Commit: ' + result.preview.commit);
+      console.log('Declared upstream license: ' + result.preview.license);
+      console.log('Destination: ' + result.preview.target);
+      console.log('Files: ' + result.preview.files.length + ', bytes: ' + result.preview.totalBytes);
+      for (const file of result.preview.files) console.log('  + ' + file.relativePath + ' (' + file.size + ' bytes)');
+      if (result.installed) {
+        console.log('Installed without executing third-party scripts. Backup: ' + result.snapshotId);
+      } else {
+        console.log('Preview only; no files changed. Inspect the files and run with --yes to approve.');
+        console.log('Installation is restricted to reviewed non-archived GitHub sources;');
+        console.log('new skill only, with no overwrites or automatic agent synchronization.');
+      }
+    }
+    return 0;
+  } catch (err) {
+    console.error('Error: ' + redactSecrets((err as Error).message));
+    return 1;
+  }
+}
+
 const isMain =
   process.argv[1] &&
   (process.argv[1].endsWith('index.js') ||
@@ -543,6 +602,10 @@ const isMain =
     process.argv[1].endsWith('index.ts'));
 
 if (isMain) {
-  const code = runCli(process.argv.slice(2));
-  process.exitCode = code;
+  void runCliAsync(process.argv.slice(2)).then(code => {
+    process.exitCode = code;
+  }).catch(err => {
+    console.error('Error: ' + redactSecrets((err as Error).message));
+    process.exitCode = 1;
+  });
 }

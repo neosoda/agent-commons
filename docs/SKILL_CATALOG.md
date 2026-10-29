@@ -50,11 +50,22 @@ The generator reads the validated public metadata, overwrites **only** `docs/ski
 
 No automatic upstream updates or external network calls are performed. Propose changes through a PR, inspect the diff, then review before merging. Never publish a raw local inventory directly.
 
-## Installation and updates
+## Pinned GitHub installation (limited)
 
-`catalog install` and `catalog update` currently fail closed with clear messages. A future release may integrate the existing [Vercel Skills manager](https://github.com/vercel-labs/skills) with explicit user confirmation, pinned revisions, safe destination handling and rollback. **No third-party code executes during catalog browsing or tests.** Users who choose to install upstream skills should review the upstream repository themselves.
+The `catalog install <id>` command **previews only**, by fetching a GitHub tree at the 40-character commit recorded in the curated catalog. Browsing, search and local inventory remain completely offline.
 
-Agent Commons is a synchronizer, not a replacement for the original author's package manager.
+```bash
+node dist/cli/index.js catalog install skill-creator
+node dist/cli/index.js catalog install skill-creator --yes
+```
+
+The second command is **explicit user approval**. It retrieves only the files from the pinned skill folder, verifies their Git SHA-1 blob hashes, writes into a temporary staging folder, creates a baseline Agent Commons snapshot and atomically moves the staged skill into the central library. It refuses an existing folder or junction, archived entries, symlinks, git submodules, unsafe paths, suspicious names, truncated Git trees, over 150 files, individual files over 1 MiB and total payloads over 8 MiB. It does not execute fetched scripts, modify agent configurations, or automatically synchronize.
+
+**Limitations:** Only public GitHub sources are supported for installation. A checked upstream license is not a code safety guarantee; users must still inspect the actual files. Snapshot creation can reject an existing environment with unsupported linked content (fail closed). The baseline snapshot does not automatically uninstall a newly added skill; rollback for a failed stage cleans up the temporary directory. There is no network request in CI tests: all GitHub responses are faked locally.
+
+`catalog update`, `catalog uninstall` and `catalog outdated` remain **disabled** until safe modification tracking, rollback and upstream freshness verification are implemented. Avoid manual removal of managed files without an independent backup.
+
+We evaluated the existing [Vercel Skills manager](https://github.com/vercel-labs/skills), which is useful for interactive installations across many agents. Agent Commons intentionally uses a narrower pinned-commit, staging-only workflow initially so it can reject unsupported transformations and avoid implicit changes outside its central library.
 
 ## Security and licensing
 
