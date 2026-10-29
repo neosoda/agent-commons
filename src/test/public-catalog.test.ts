@@ -23,7 +23,7 @@ describe('Public Skill Hub: source attribution, safe filtering and offline behav
     assert.equal(new Set(catalog.skills.map(x => x.source)).size, catalog.skills.length);
     for (const skill of catalog.skills) {
       assert.equal(skill.review.scope, 'source-and-license-only');
-      assert.ok(skill.source.startsWith(skill.repository + '/tree/' + skill.ref + '/' + skill.path));
+      assert.equal(skill.source, skill.repository + '/tree/' + skill.ref + (skill.path === '.' ? '' : '/' + skill.path));
       assert.ok(skill.licenseEvidence.includes(skill.ref));
     }
   });
