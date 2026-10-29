@@ -102,6 +102,20 @@ describe('local Skill Hub HTTP security and user workflows', () => {
     assert.equal(restore.status,200);
   });
 
+  it('exposes on-demand health diagnostics and keeps full sync explicit', async () => {
+    const doctor = await fetch(instance.url + '/api/doctor');
+    assert.equal(doctor.status, 200);
+    const report = await doctor.json() as { agents: unknown[]; issues: string[] };
+    assert.equal(Array.isArray(report.agents), true);
+    assert.equal(JSON.stringify(report).includes(home), false);
+    const preview = await post({action:'sync-all-preview'});
+    assert.equal(preview.status, 200);
+    assert.equal((await preview.json() as {dryRun: boolean}).dryRun, true);
+    assert.equal((await post({action:'sync-all-apply'})).status, 400);
+    const apply = await post({action:'sync-all-apply',approved:true});
+    assert.equal(apply.status, 200);
+  });
+
   it('rejects unsafe ids, oversized and wrong-type JSON and write attempts disguised as preview', async () => {
     assert.equal((await fetch(instance.url+'/api/preview?id=..%2Fprivate&op=uninstall')).status,400);
     assert.equal((await fetch(instance.url+'/api/preview?id=skill-creator&op=unknown')).status,400);
