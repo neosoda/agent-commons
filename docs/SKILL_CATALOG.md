@@ -63,7 +63,19 @@ The second command is **explicit user approval**. It retrieves only the files fr
 
 **Limitations:** Only public GitHub sources are supported for installation. A checked upstream license is not a code safety guarantee; users must still inspect the actual files. Snapshot creation can reject an existing environment with unsupported linked content (fail closed). The baseline snapshot does not automatically uninstall a newly added skill; rollback for a failed stage cleans up the temporary directory. There is no network request in CI tests: all GitHub responses are faked locally.
 
-`catalog update`, `catalog uninstall` and `catalog outdated` remain **disabled** until safe modification tracking, rollback and upstream freshness verification are implemented. Avoid manual removal of managed files without an independent backup.
+### Offline uninstall of a managed skill
+
+```bash
+node dist/cli/index.js catalog uninstall skill-creator
+node dist/cli/index.js catalog uninstall skill-creator --yes
+node dist/cli/index.js restore <snapshot-id>
+```
+
+The default command is an **offline preview with no writes**. It validates the install receipt, all recorded Git blob hashes, exact file/directory inventory and source provenance, and refuses unknown files, modified files, nested links/junctions, or skills currently linked to an agent. **No untracked files are ever deleted.** Only `--yes` backs up that single skill through the existing snapshot mechanism and then removes the intact physical directory. The returned snapshot ID is used for a reversible `restore`. A failed deletion attempts restoration from that snapshot.
+
+Uninstall does not automatically unlink agent configurations: the user must first detach any links through an independently verified safe workflow.
+
+`catalog update` and `catalog outdated` remain **disabled** pending safe updates and upstream freshness verification. Installed third-party scripts are still untrusted; no script execution is part of uninstall.
 
 We evaluated the existing [Vercel Skills manager](https://github.com/vercel-labs/skills), which is useful for interactive installations across many agents. Agent Commons intentionally uses a narrower pinned-commit, staging-only workflow initially so it can reject unsupported transformations and avoid implicit changes outside its central library.
 
