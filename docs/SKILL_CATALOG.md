@@ -86,3 +86,7 @@ An open-source repository or license notice does not make its scripts trustworth
 ## Community contributions
 
 The public catalog accepts pinned skills from GitHub, GitLab and Codeberg, including nested directories and repository-level LICENSE files. The schema validates URL structure and commit pins, **not** whether a license actually applies. Submit [a Skill Hub proposal](../.github/ISSUE_TEMPLATE/submit_skill.yml) or a PR containing metadata and links to upstream evidence. An actual reviewer must confirm the source, author, license and content before merging. Avoid attaching personal/local review reports to public issues.
+
+## Selective sync and profiles
+
+`sync --skill <id> --agent <agent>` and `sync --profile <category> --agent <agent>` limit which central skills are linked to the chosen agent. Profiles are sourced **only from the reviewed public catalog categories** (not private metadata), and match skills that are already physically installed in the shared library. Repeat a filter to select multiple skills/categories. No network access or catalog installation occurs. Filtered operations never edit MCP configurations. Empty/unknown filters fail before writes. The original unfiltered `sync` remains unchanged; no automatic removal of older agent links is performed when switching profiles. Use `--dry-run` first, especially with `--force`.
