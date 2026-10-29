@@ -53,3 +53,6 @@ export { runCatalog } from './commands/catalog.js';
 export type { SkillCatalogEntry, SkillCatalogReport } from './commands/catalog.js';
 export { runList } from './commands/list.js';
 export { runSync } from './commands/sync.js';
+
+export { readPublicCatalog, searchPublicCatalog, validatePublicCatalog, renderPublicCatalogMarkdown } from './commands/public-catalog.js';
+export type { PublicSkill, PublicCatalog, PublicSkillResult, PublicSearchOptions, Category } from './commands/public-catalog.js';
