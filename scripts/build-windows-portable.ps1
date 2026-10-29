@@ -2,7 +2,7 @@
 param([string]$OutDirectory = 'artifacts/portable')
 $ErrorActionPreference = 'Stop'
 $ProgressPreference = 'SilentlyContinue'
-$nodeVersion = 'v24.22.1'
+$nodeVersion = 'v24.22.2'
 $official = 'https://nodejs.org/dist/' + $nodeVersion
 $root = (Get-Location).Path
 $out = Join-Path $root $OutDirectory
