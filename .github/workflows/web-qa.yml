@@ -16,7 +16,8 @@ concurrency:
 jobs:
   chromium:
     name: Browser QA (Chromium)
-    runs-on: ubuntu-latest
+    # Pin the OS supported by the browser test runner; ubuntu-latest currently resolves to 26.04.
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
       - name: Checkout
