@@ -4,7 +4,7 @@ import { runDoctor } from '../commands/doctor.js';
 import { runCatalog } from '../commands/catalog.js';
 import { reviewLocalCatalog } from '../commands/catalog-review.js';
 import { searchPublicCatalog, readPublicCatalog } from '../commands/public-catalog.js';
-import { installCatalogSkill } from '../commands/skill-install.js';
+import { installCatalogSkill, uninstallCatalogSkill } from '../commands/skill-install.js';
 import { runList } from '../commands/list.js';
 import { runSync } from '../commands/sync.js';
 import { createFullBackup, listBackups, restoreBackup } from '../core/backup.js';
@@ -102,7 +102,8 @@ Without a subcommand: inventory LOCAL skills only (existing behavior).
   catalog install <id> --yes          Explicitly approve staged installation
   catalog install <id> --dry-run      Preview only (never write)
   catalog update <id>                 DISABLED until safe update and rollback are validated
-  catalog uninstall <id>              DISABLED until safe managed-file removal is validated
+  catalog uninstall <id>              Verify receipt and preview removal (offline)
+  catalog uninstall <id> --yes        Remove intact managed skill after backup
   catalog outdated                    DISABLED: upstream freshness is not verified
 
 Filters for list/search: --category, --source, --author, --license
@@ -180,7 +181,8 @@ export function runCli(argv: string[] = process.argv.slice(2)): number {
         category: { type: 'string' },
         source: { type: 'string' },
         author: { type: 'string' },
-        license: { type: 'string' }
+        license: { type: 'string' },
+        yes: { type: 'boolean', default: false }
       }
     });
 
@@ -351,7 +353,32 @@ export function runCli(argv: string[] = process.argv.slice(2)): number {
         }
         return 0;
       }
-      if (subcommand === 'install' || subcommand === 'update' || subcommand === 'uninstall' || subcommand === 'outdated') {
+      if (subcommand === 'uninstall') {
+        if (positionals.length !== 3 || !positionals[2]) {
+          console.error('Usage: agent-commons catalog uninstall <id> [--yes | --dry-run]');
+          return 1;
+        }
+        const result = uninstallCatalogSkill(ctx, positionals[2], {
+          yes: values.yes && !values['dry-run']
+        });
+        if (values.json) console.log(JSON.stringify(result, null, 2));
+        else {
+          console.log('=== Agent Commons Managed Skill ' +
+            (result.removed ? 'Removal' : 'Removal Preview') + ' ===');
+          console.log('Skill: ' + result.preview.skill);
+          console.log('Source: ' + result.preview.source);
+          console.log('Commit: ' + result.preview.commit);
+          console.log('Directory: ' + result.preview.target);
+          console.log('Verified files: ' + result.preview.files.length);
+          if (result.removed) {
+            console.log('Skill removed after backup. Restore: agent-commons restore ' + result.snapshotId);
+          } else {
+            console.log('Preview only: no files changed. Use --yes to remove this intact, unlinked managed skill.');
+          }
+        }
+        return 0;
+      }
+      if (subcommand === 'install' || subcommand === 'update' || subcommand === 'outdated') {
         console.error('Catalog ' + subcommand + ' requires the async CLI entry point or is not yet supported.');
         console.error('Review the upstream project and use its installation instructions only if you trust it.');
         console.error('Agent Commons did not download, run or modify anything.');
