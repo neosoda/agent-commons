@@ -43,6 +43,7 @@
     "dist/core",
     "dist/security",
     "dist/sync",
+    "dist/web",
     "dist/index.js",
     "dist/index.d.ts",
     "dist/index.js.map",
@@ -65,7 +66,8 @@
     "prepack": "npm run build",
     "prepublishOnly": "npm test",
     "catalog:generate": "npm run build && node scripts/build-catalog.mjs",
-    "catalog:check": "node scripts/build-catalog.mjs --check"
+    "catalog:check": "node scripts/build-catalog.mjs --check",
+    "web": "npm run build && node dist/cli/index.js web"
   },
   "devDependencies": {
     "@types/node": "^22.10.0",

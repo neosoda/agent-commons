@@ -9,6 +9,12 @@ on:
 permissions:
   contents: read
 
+# Do not burn six runners on every superseded revision of the same PR.
+# Main-branch builds retain their own group, separate from pull-request builds.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   test:
     name: Test (${{ matrix.os }}, Node ${{ matrix.node }})
@@ -16,15 +22,15 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        os: [ubuntu-latest, windows-latest, macos-15-intel]
         node: [22, 24]
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Setup Node.js ${{ matrix.node }}
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: ${{ matrix.node }}
           cache: 'npm'
@@ -37,3 +43,9 @@ jobs:
 
       - name: Build, test and validate generated catalog documentation
         run: npm test
+
+      - name: Audit dependencies and verify npm package contents
+        if: matrix.os == 'ubuntu-latest' && matrix.node == 24
+        run: |
+          npm audit --audit-level=high
+          npm pack --dry-run

@@ -59,6 +59,47 @@ node dist/cli/index.js sync
 
 **New to Agent Commons?** Start with only one agent, using `sync --dry-run --agent codex` (replace `codex` with your agent's ID). The `--home <path>` flag lets you test against a separate home directory first.
 
+## Local Skill Hub — browser dashboard
+
+**New:** a responsive, dependency-free local interface to manage Agent Commons without memorizing commands.
+
+After cloning and building the project, run:
+
+```bash
+node dist/cli/index.js web
+# or npm run web (builds first)
+```
+
+Your browser opens at **http://127.0.0.1:4173**. Override the port with `web --port 5050`, use `--no-open` on headless machines, or `--home /temporary/test-home` to test safely against a separate environment. Stop with **Ctrl+C**.
+
+The dashboard provides:
+
+- **Overview:** local skills, installed agent environments, MCP server names, backups and quick integrity status.
+- **Skill catalog:** searchable, category-filtered references; inspect pinned upstream source/license; preview and explicitly approve install/update/uninstall where supported.
+- **Agents & profiles:** view installed agents, assign shared skills and catalog categories per agent, save selections privately, preview synchronized changes and apply deliberately (skills only; unrelated settings untouched).
+- **MCP synchronization:** view shared MCP server names, preview a full skills + MCP synchronization, and apply it only after typing an explicit confirmation.
+- **Integrity & diagnostics:** strictly offline Git-hash audit, plus on-demand agent diagnostics for broken links and MCP configuration health.
+- **Backups:** create snapshots and restore a known snapshot after typing its exact ID to confirm.
+
+**Safety defaults:** the server listens only on `127.0.0.1`; it refuses cross-origin and foreign-Host requests, requires a random per-process CSRF token for changes, and never loads code, fonts or assets from third-party CDNs. There is **no login and no public network access**. Do not expose this local administrative UI with a proxy, port-forward or tunnel; it is intentionally **not hardened for remote multiuser access**. The dashboard does not start a daemon, install skills automatically, upload private reports or synchronize agents in the background. Skill source/license metadata does not certify script safety.
+
+### Windows portable package (no Node installation)
+
+The **Windows portable ZIP** is built and verified by the [Windows portable CI workflow](https://github.com/neosoda/agent-commons/actions/workflows/windows-portable.yml). While the feature is being validated, download the ZIP **only from a successful CI run's artifact**; there is no officially published portable release yet.
+
+1. Download `agent-commons-win-x64-portable` from the successful workflow run.
+2. Extract the complete archive into a folder you control.
+3. Double-click `AgentCommonsPortable\\Start-AgentCommons.cmd`.
+4. The Skill Hub opens locally in your browser. Close the console with Ctrl+C to stop it.
+
+The ZIP contains the compiled npm distribution, its production dependencies, and a pinned official **Node.js 24.22.2 LTS executable**. The build checks the Node executable against the SHA-256 manifest published by nodejs.org, launches the package's CLI and verifies a real HTTP 200 response from its local dashboard before uploading it. The ZIP also includes a SHA-256 checksum; it is **not code-signed**. No administrator privileges, Docker, Node installation, Windows service or public network binding are required.
+
+For operators who already have Node.js 22+, `npm run web` remains available from the checked-out source.
+
+### Browser-tested quality gates
+
+The [Chromium browser QA workflow](https://github.com/neosoda/agent-commons/actions/workflows/web-qa.yml) opens five dashboard views across five viewport sizes (1920×1080, 1440×900, 1280×720, 768×1024 and 390×844), checks navigation, filtering, dialogs, JavaScript errors, CSP rejections, and horizontal overflow, and uploads screenshots from a synthetic empty user environment. Screenshots never contain personal agent configuration data.
+
 ## How it works
 
 ~~~mermaid
@@ -294,6 +335,7 @@ Nothing is downloaded, installed, synchronized or published by `catalog`. See [t
 | Command | Purpose |
 |---|---|
 | `doctor` | Diagnose detected agents, links and MCP configurations |
+| `web [--port 4173] [--no-open]` | Open the local Skill Hub dashboard and manage skills, profiles and snapshots |
 | `catalog list` / `catalog search <term>` | Browse the offline public Skill Hub |
 | `catalog info <id>` | View upstream source, license and installed status |
 | `catalog install <id>` | Preview GitHub pinned skill files without changes |

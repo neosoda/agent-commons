@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import { parseArgs } from 'node:util';
+import { startWebServer } from '../web/server.js';
 import { runDoctor } from '../commands/doctor.js';
 import { runCatalog } from '../commands/catalog.js';
 import { reviewLocalCatalog } from '../commands/catalog-review.js';
@@ -29,6 +30,7 @@ COMMANDS:
   list                    List central skills, MCP servers, agent inventories, and backups
   catalog                 Inventory local skills / explore curated public skill metadata
   profiles                Save per-agent skill choices locally (never auto-applied)
+  web                     Open local browser dashboard for skills, profiles and backups
   sync                    Synchronize skills and MCP configurations to installed agents
   backup                  Create a point-in-time snapshot of all agent skills and MCP configs
   restore [snapshot-id]   Restore state from a snapshot (defaults to latest snapshot)
@@ -60,6 +62,7 @@ EXAMPLES:
   agent-commons catalog info skill-creator
   agent-commons catalog review --json
   agent-commons catalog verify --json
+  agent-commons web
   agent-commons sync --dry-run
   agent-commons sync --profile design --agent codex --dry-run
   agent-commons sync --skill skill-creator --agent codex
@@ -139,6 +142,20 @@ Usage: agent-commons profiles <list|show|set|clear> [agent-id] [options]
 Profiles are stored in ~/.agents/agent-profiles.json. Saving does NOT sync.
 Use sync --saved-profiles --dry-run to inspect and sync --saved-profiles to apply.
 No MCP changes, no automatic removal of old links, no network access.
+`.trim();
+    case 'web':
+      return `
+Usage: agent-commons web [--port <number>] [--home <path>] [--no-open]
+
+Starts the local Skill Hub dashboard on 127.0.0.1 only.
+Opens your browser by default. No login, telemetry, CORS, or public network listener.
+Mutating actions require explicit preview/confirmation in the dashboard.
+
+Options:
+  --port <number>  Listening port (default: 4173)
+  --home <path>    Use an isolated home directory
+  --no-open        Do not open a browser window automatically
+  -h, --help       Show this message
 `.trim();
     case 'sync':
       return `
@@ -719,6 +736,27 @@ export function runCli(argv: string[] = process.argv.slice(2)): number {
  * The existing synchronous runCli API is preserved for all other commands.
  */
 export async function runCliAsync(argv: string[] = process.argv.slice(2)): Promise<number> {
+  if (argv[0] === 'web') {
+    try {
+      const parsed = parseArgs({ args: argv, strict: true, allowPositionals: true,
+        options: { help: { type: 'boolean', short: 'h', default: false },
+          home: { type: 'string' }, port: { type: 'string' },
+          'no-open': { type: 'boolean', default: false } } });
+      if (parsed.values.help) { console.log(getCommandHelp('web')); return 0; }
+      if (parsed.positionals.length !== 1) throw new Error('Usage: agent-commons web [--port <number>] [--home <path>] [--no-open]');
+      const requested = parsed.values.port;
+      if (requested !== undefined && !/^[0-9]{1,5}$/.test(requested)) throw new Error('Invalid web port.');
+      const port = requested === undefined ? 4173 : Number(requested);
+      if (port < 1 || port > 65535) throw new Error('Port must be between 1 and 65535.');
+      const instance = await startWebServer({ context: createEnvironmentContext({ homeDir: parsed.values.home }),
+        port, openBrowser: !parsed.values['no-open'] });
+      console.log('Agent Commons Skill Hub running at ' + instance.url + '\nPress Ctrl+C to stop.');
+      return 0;
+    } catch (err) {
+      console.error('Error: ' + redactSecrets((err as Error).message));
+      return 1;
+    }
+  }
   if (argv[0] !== 'catalog' || !['install', 'update'].includes(argv[1] ?? '') ||
       argv.includes('--help') || argv.includes('-h')) return runCli(argv);
   try {
