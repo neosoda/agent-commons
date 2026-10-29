@@ -43,3 +43,9 @@ jobs:
 
       - name: Build, test and validate generated catalog documentation
         run: npm test
+
+      - name: Audit dependencies and verify npm package contents
+        if: matrix.os == 'ubuntu-latest' && matrix.node == 24
+        run: |
+          npm audit --audit-level=high
+          npm pack --dry-run
