@@ -182,7 +182,22 @@ node dist/cli/index.js catalog uninstall skill-creator
 node dist/cli/index.js catalog uninstall skill-creator --yes
 ```
 
-`catalog update` and `catalog outdated` remain disabled pending safe updates and freshness checks. No release is published automatically. The package has not been published on npm.
+`catalog outdated` now compares the installed Agent Commons management receipts to **the immutable commits pinned in the bundled public catalog**, entirely offline. This is not a check for the latest upstream changes.
+
+```bash
+# Offline: compare installed managed skills against catalog revisions
+node dist/cli/index.js catalog outdated
+
+# Online: preview exact changes from old pinned commit to the catalog's pinned commit
+node dist/cli/index.js catalog update skill-creator
+
+# Explicitly approve after inspecting the upstream changes
+node dist/cli/index.js catalog update skill-creator --yes
+```
+
+Updates only work when a skill was **previously installed by Agent Commons**, is **unmodified**, has **no unknown files or directories**, has a **different pinned commit** in the curated catalog, and is **not linked to an agent**. The updater checks every downloaded Git blob, creates a focused restore snapshot, and uses a staged directory replacement. If the swap fails it attempts to put the previous directory back. No code is executed and there are no silent or automatic updates.
+
+The project never decides that a mutable GitHub branch is a safe update. No release is published automatically. The package has not been published on npm.
 
 ### Sync only the skills your agent needs
 
