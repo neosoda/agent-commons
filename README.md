@@ -92,7 +92,7 @@ The **Windows portable ZIP** is built and verified by the [Windows portable CI w
 3. Double-click `AgentCommonsPortable\\Start-AgentCommons.cmd`.
 4. The Skill Hub opens locally in your browser. Close the console with Ctrl+C to stop it.
 
-The ZIP contains the compiled npm distribution, its production dependencies, and a pinned official **Node.js 22 executable**. The build checks the Node executable against the SHA-256 manifest published by nodejs.org, launches the package's CLI and verifies a real HTTP 200 response from its local dashboard before uploading it. The ZIP also includes a SHA-256 checksum; it is **not code-signed**. No administrator privileges, Docker, Node installation, Windows service or public network binding are required.
+The ZIP contains the compiled npm distribution, its production dependencies, and a pinned official **Node.js 24 LTS executable**. The build checks the Node executable against the SHA-256 manifest published by nodejs.org, launches the package's CLI and verifies a real HTTP 200 response from its local dashboard before uploading it. The ZIP also includes a SHA-256 checksum; it is **not code-signed**. No administrator privileges, Docker, Node installation, Windows service or public network binding are required.
 
 For operators who already have Node.js 22+, `npm run web` remains available from the checked-out source.
 
