@@ -1,6 +1,8 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import http from 'node:http';
+import vm from 'node:vm';
+import { renderWebUi } from '../web/ui.js';
 import os from 'node:os';
 import path from 'node:path';
 import { afterEach, beforeEach, describe, it } from 'node:test';
@@ -42,6 +44,22 @@ describe('local Skill Hub HTTP security and user workflows', () => {
     assert.equal(response.headers.get('x-frame-options'), 'DENY');
     assert.equal(response.headers.get('cache-control'), 'no-store');
     assert.doesNotMatch(page, /<script src=|fonts\.googleapis\.com|unpkg\.com/);
+  });
+
+  it('renders all five navigation views and ships syntactically valid client JavaScript', () => {
+    const page = renderWebUi('sample-nonce', 'test-csrf');
+    const scripts = [...page.matchAll(/<script nonce="sample-nonce">([\s\S]*?)<\/script>/g)];
+    assert.equal(scripts.length, 1, 'exactly one inline application script');
+    assert.doesNotThrow(() => new vm.Script(scripts[0]![1]!));
+    for (const section of ['overview', 'catalog', 'agents', 'integrity', 'backups']) {
+      assert.ok(page.includes('id="page-' + section + '"'), 'missing page ' + section);
+      assert.ok(page.includes('data-page="' + section + '"'), 'missing navigation ' + section);
+    }
+    for (const control of ['full-sync-preview', 'full-sync-apply', 'doctor-run',
+      'profile-save', 'profile-clear', 'backup-create', 'verify-again']) {
+      assert.ok(page.includes('id="' + control + '"'), 'missing action ' + control);
+    }
+    assert.ok(!page.includes('onerror='), 'no inline event handler execution');
   });
 
   it('returns a safe catalog and agent inventory without absolute local paths or secrets', async () => {
