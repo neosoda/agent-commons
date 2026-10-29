@@ -182,7 +182,7 @@ node dist/cli/index.js catalog uninstall skill-creator
 node dist/cli/index.js catalog uninstall skill-creator --yes
 ```
 
-**Audit d'intégrité local** : `catalog verify [id]` contrôle les reçus de gestion, les empreintes Git de chaque fichier, les ajouts inconnus et les liens/jonctions, sans téléchargement ni modification. Sans identifiant, seuls les skills du catalogue public présents localement sont inspectés ; les skills privés hors catalogue ne sont pas parcourus. Les résultats signalent `intact`, `modified`, `untracked`, `missing`, `unmanaged` ou `unsafe`. Tout résultat non intact donne un code retour non nul ; `--json` fournit un rapport exploitable par script. Un résultat intact n'est **pas** un audit de sécurité du code tiers.
+**Offline integrity audit:** `catalog verify [id]` checks management receipts, tracked Git blob hashes, unexpected files and nested symlinks/junctions without downloads or filesystem changes. Without an ID, only locally present skills from the reviewed public catalog are audited; unrelated private skills are not scanned or disclosed. Results distinguish `intact`, `modified`, `untracked`, `missing`, `unmanaged` and `unsafe`. Any non-intact result produces a nonzero exit status; `--json` provides a machine-readable report. Matching hashes **do not** imply that upstream code has been security-audited.
 
 ```bash
 node dist/cli/index.js catalog verify
