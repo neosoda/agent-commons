@@ -26,7 +26,7 @@ node dist/cli/index.js catalog --json > skill-catalog-private.json
 
 ## Scope of verification
 
-The public catalog currently includes **89 metadata-only references**, checked against public upstream SKILL.md files, pinned commits and applicable license texts on 2026-10-29.
+The public catalog currently includes **103 metadata-only references**, checked against public upstream SKILL.md files, pinned commits and applicable license texts on 2026-10-29.
 
 New contributions must provide:
 
