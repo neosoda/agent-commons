@@ -119,6 +119,8 @@ export interface BackupManifest {
 }
 
 export interface SyncOptions {
+  /** Explicit subset of central skills; empty/undefined keeps existing full-sync behavior. */
+  skillFilter?: string[];
   dryRun?: boolean;
   force?: boolean;
   adopt?: boolean;
