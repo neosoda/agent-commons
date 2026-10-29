@@ -5,7 +5,7 @@ import { readPublicCatalog, validatePublicCatalog } from '../index.js';
 describe('Reviewed upstream source catalog', () => {
   it('validates the expanded public source set and keeps all origins pinned', () => {
     const { catalog, categories } = readPublicCatalog();
-    assert.ok(catalog.skills.length >= 89);
+    assert.ok(catalog.skills.length >= 103);
     const ids = new Set();
     const sources = new Set();
     for (const item of catalog.skills) {
@@ -32,12 +32,15 @@ describe('Reviewed upstream source catalog', () => {
     assert.equal(other?.license, 'MIT');
   });
 
-  it('only catalogues HyperFrames paths observed in current upstream and excludes a missing license', () => {
+  it('labels preserved historical HyperFrames references as archived and excludes unknown licenses', () => {
     const { catalog } = readPublicCatalog();
     for (const id of ['hyperframes', 'figma', 'slideshow']) {
       assert.ok(catalog.skills.some(skill => skill.id === id), id);
     }
-    assert.equal(catalog.skills.some(skill => skill.id === 'hyperframes-animation'), false);
+    const historical = catalog.skills.find(skill => skill.id === 'hyperframes-animation');
+    assert.equal(historical?.lifecycle, 'archived');
+    assert.match(historical?.description ?? '', /^Archived upstream:/);
+    assert.ok(historical?.licenseEvidence.includes(historical.ref));
     assert.equal(catalog.skills.some(skill => skill.id === 'apple-design'), false);
   });
 });
