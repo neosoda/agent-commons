@@ -65,7 +65,32 @@ try {
     assert.ok(await page.getByRole('dialog').isVisible());
     await page.getByRole('dialog').getByRole('button', { name: 'Close' }).click();
   }
+  // Exercise the actual browser-to-HTTP MCP editor, not merely rendered controls.
+  await page.setViewportSize({width: 1280, height: 720});
+  await page.locator('[data-page="agents"]').click();
+  await page.locator('#mcp-add').click();
+  let dialog=page.getByRole('dialog');
+  assert.ok(await dialog.isVisible());
+  await dialog.locator('input.field').nth(0).fill('browser-sample');
+  await dialog.locator('input.field').nth(1).fill('npx');
+  await dialog.locator('input.field').nth(2).fill('-y\nsafe-package');
+  await dialog.getByRole('button',{name:'Preview change'}).click();
+  dialog=page.getByRole('dialog');
+  await dialog.getByRole('button',{name:'Apply change'}).click();
+  await page.locator('#mcp-items').getByText('browser-sample').waitFor();
+  await page.locator('#mcp-items .row-item').first().getByRole('button',{name:'Routing…'}).click();
+  dialog=page.getByRole('dialog');
+  await dialog.getByRole('button',{name:'Preview change'}).click();
+  dialog=page.getByRole('dialog');
+  await dialog.getByRole('button',{name:'Apply change'}).click();
+  await page.locator('#mcp-items').getByText('browser-sample').waitFor();
+  await page.locator('#mcp-items .row-item').first().getByRole('button',{name:'Remove…'}).click();
+  dialog=page.getByRole('dialog');
+  await dialog.locator('input.field').fill('browser-sample');
+  await dialog.getByRole('button',{name:'Apply change'}).click();
+  await page.locator('#mcp-items .empty').waitFor();
   assert.deepEqual(errors, []);
+
   console.log('PASS: 5 viewports × 5 sections + catalog filters/modal, no JS errors or CSP violations.');
   console.log('Screenshots: ' + artifacts);
 } finally {
