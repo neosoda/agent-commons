@@ -3,7 +3,8 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { afterEach, beforeEach, describe, it } from 'node:test';
-import { createEnvironmentContext, runCatalog, runCli } from '../index.js';
+import { createEnvironmentContext, runCatalog } from '../index.js';
+import { runCli } from '../cli/index.js';
 
 describe('Source-attributed skill catalog (read-only)', () => {
   let home: string;
