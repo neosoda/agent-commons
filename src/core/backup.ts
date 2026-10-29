@@ -291,7 +291,8 @@ function preflightRestore(
       }
     } else if (entry.stateBefore === 'file' || entry.stateBefore === 'directory') {
       if (typeof entry.backupRelativePath !== 'string' ||
-          !new RegExp('^payload/[A-Za-z0-9._-]+
+          !entry.backupRelativePath.startsWith('payload/') ||
+          !/^[A-Za-z0-9._-]+$/.test(entry.backupRelativePath.slice('payload/'.length))) {
         throw new Error('Invalid or missing snapshot payload path.');
       }
       const sourcePath = path.resolve(snapshotDir, entry.backupRelativePath);
