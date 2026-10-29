@@ -69,7 +69,7 @@ describe('Public Skill Hub: source attribution, safe filtering and offline behav
   it('generates a deterministic markdown document matching the public index', () => {
     const expected = renderPublicCatalogMarkdown();
     const file = path.join(process.cwd(), 'docs', 'skills', 'README.md');
-    assert.equal(fs.readFileSync(file, 'utf8'), expected);
+    assert.equal(fs.readFileSync(file, 'utf8').replace(/\r\n/g, '\n'), expected);
     assert.ok(expected.includes('The links target upstream files'));
   });
 
