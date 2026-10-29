@@ -532,6 +532,259 @@
       ]
     },
     {
+      "id": "founder-board",
+      "name": "Founder Board",
+      "description": "Your board of directors. Puts a business idea in front of a three-member board, each a sub-agent reading the idea through one published framework: the Offers lens (from Alex Hormozi's $100M Offers), the Monopoly lens (from Peter Thiel's Zero to One) and the Product lens (from Walter Isaacson's biography of Steve Jobs). Each member scores the idea, names the risks that would kill it and votes fund, fund with conditions, or pass. Use when the user says \"test my business idea\", ",
+      "category": "productivity",
+      "author": "Jake Schincariol",
+      "repository": "https://github.com/Jakeschincariol/founder-skill",
+      "source": "https://github.com/Jakeschincariol/founder-skill/tree/fd9385b0cfe1b96bebce3898fbd506d73eff5a9d/skills/founder-board",
+      "path": "skills/founder-board",
+      "ref": "fd9385b0cfe1b96bebce3898fbd506d73eff5a9d",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/Jakeschincariol/founder-skill/blob/fd9385b0cfe1b96bebce3898fbd506d73eff5a9d/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "productivity",
+        "founder"
+      ]
+    },
+    {
+      "id": "founder-brand",
+      "name": "Founder Brand",
+      "description": "Your brand designer. Names the business (with the trademark, domain and handle checks to run before falling in love with a name), writes the voice, a one-line promise and a tagline, and briefs the look: colours, type, logo and the first things a customer sees, so they match the positioning the marketing director chose. Use when the user says \"name my business\", \"brand this\", \"logo\", \"brand identity\", \"what should it look like\", \"tagline\", or \"brand voice\".",
+      "category": "productivity",
+      "author": "Jake Schincariol",
+      "repository": "https://github.com/Jakeschincariol/founder-skill",
+      "source": "https://github.com/Jakeschincariol/founder-skill/tree/fd9385b0cfe1b96bebce3898fbd506d73eff5a9d/skills/founder-brand",
+      "path": "skills/founder-brand",
+      "ref": "fd9385b0cfe1b96bebce3898fbd506d73eff5a9d",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/Jakeschincariol/founder-skill/blob/fd9385b0cfe1b96bebce3898fbd506d73eff5a9d/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "productivity",
+        "founder"
+      ]
+    },
+    {
+      "id": "founder-cfo",
+      "name": "Founder Cfo",
+      "description": "Your CFO. Builds the unit economics of a business before money is spent: what one unit earns after its direct costs, the real profit margin at the planned volume, the break-even point in units a day, year 1 month by month, the cash needed before it pays for itself, how long the startup spend takes to earn back, and what happens if the price drops, sales come in low or costs rise. Every number traces to an input the user can check. Use when the user says \"find the profit margi",
+      "category": "productivity",
+      "author": "Jake Schincariol",
+      "repository": "https://github.com/Jakeschincariol/founder-skill",
+      "source": "https://github.com/Jakeschincariol/founder-skill/tree/fd9385b0cfe1b96bebce3898fbd506d73eff5a9d/skills/founder-cfo",
+      "path": "skills/founder-cfo",
+      "ref": "fd9385b0cfe1b96bebce3898fbd506d73eff5a9d",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/Jakeschincariol/founder-skill/blob/fd9385b0cfe1b96bebce3898fbd506d73eff5a9d/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "productivity",
+        "founder"
+      ]
+    },
+    {
+      "id": "founder-competitors",
+      "name": "Founder Competitors",
+      "description": "Maps every competitor and the gap they leave. Finds the direct competitors, indirect ones and the substitutes a buyer would use instead, from public sources only, and records what each sells, at what price, how they position themselves and what their customers complain about in public reviews, every fact with a link. Ends with a positioning map and the gap the new business can own. Use when the user says \"who are my competitors\", \"is this market crowded\", \"what else is out th",
+      "category": "productivity",
+      "author": "Jake Schincariol",
+      "repository": "https://github.com/Jakeschincariol/founder-skill",
+      "source": "https://github.com/Jakeschincariol/founder-skill/tree/fd9385b0cfe1b96bebce3898fbd506d73eff5a9d/skills/founder-competitors",
+      "path": "skills/founder-competitors",
+      "ref": "fd9385b0cfe1b96bebce3898fbd506d73eff5a9d",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/Jakeschincariol/founder-skill/blob/fd9385b0cfe1b96bebce3898fbd506d73eff5a9d/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "productivity",
+        "founder"
+      ]
+    },
+    {
+      "id": "founder-consumer",
+      "name": "Founder Consumer",
+      "description": "The consumer panel. Spins up a swarm of buyer sub-agents (default 100, --quick for 20) trained on the user's target customer, each with a different income, age, buying behaviour and objection, shows every one the same pitch, and runs the business through 100 buyer scenarios to see who buys, who doesn't, and why. Tallies the answers into buy rates by segment, the reasons people pass in their own words, what would flip a no, and price answers for founder-pricing. Use when the u",
+      "category": "productivity",
+      "author": "Jake Schincariol",
+      "repository": "https://github.com/Jakeschincariol/founder-skill",
+      "source": "https://github.com/Jakeschincariol/founder-skill/tree/fd9385b0cfe1b96bebce3898fbd506d73eff5a9d/skills/founder-consumer",
+      "path": "skills/founder-consumer",
+      "ref": "fd9385b0cfe1b96bebce3898fbd506d73eff5a9d",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/Jakeschincariol/founder-skill/blob/fd9385b0cfe1b96bebce3898fbd506d73eff5a9d/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "productivity",
+        "founder"
+      ]
+    },
+    {
+      "id": "founder-launch",
+      "name": "Founder Launch",
+      "description": "Your launch lead. Builds a dated, step-by-step launch plan: a cheap real-world test first (a waitlist, a pre-sale or a pop-up with a real price, so real buyers confirm what the simulated panel said), then the countdown to opening day with owners and deadlines, the launch-day run sheet, and the first 30 days of what to measure and what to change. Use when the user says \"how do I launch\", \"launch plan\", \"when can I open\", \"launch checklist\", \"go live\", or \"soft open\".",
+      "category": "productivity",
+      "author": "Jake Schincariol",
+      "repository": "https://github.com/Jakeschincariol/founder-skill",
+      "source": "https://github.com/Jakeschincariol/founder-skill/tree/fd9385b0cfe1b96bebce3898fbd506d73eff5a9d/skills/founder-launch",
+      "path": "skills/founder-launch",
+      "ref": "fd9385b0cfe1b96bebce3898fbd506d73eff5a9d",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/Jakeschincariol/founder-skill/blob/fd9385b0cfe1b96bebce3898fbd506d73eff5a9d/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "productivity",
+        "founder"
+      ]
+    },
+    {
+      "id": "founder-marketing",
+      "name": "Founder Marketing",
+      "description": "Your marketing director. Turns the buyer panel and the competitor map into positioning, the channels the target customer actually uses, a 30-day launch campaign with dated posts and ads, the first ten hooks, a budget split and the numbers to watch. Every message answers an objection real or simulated buyers raised. Use when the user says \"how do I market this\", \"marketing plan\", \"launch campaign\", \"how do I get customers\", \"where do I advertise\", \"write my ads\", or \"positioni",
+      "category": "productivity",
+      "author": "Jake Schincariol",
+      "repository": "https://github.com/Jakeschincariol/founder-skill",
+      "source": "https://github.com/Jakeschincariol/founder-skill/tree/fd9385b0cfe1b96bebce3898fbd506d73eff5a9d/skills/founder-marketing",
+      "path": "skills/founder-marketing",
+      "ref": "fd9385b0cfe1b96bebce3898fbd506d73eff5a9d",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/Jakeschincariol/founder-skill/blob/fd9385b0cfe1b96bebce3898fbd506d73eff5a9d/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "productivity",
+        "founder"
+      ]
+    },
+    {
+      "id": "founder-offer",
+      "name": "Founder Offer",
+      "description": "Builds an offer too good to refuse. Lists every problem the buyer hits on the way to the result they want, turns each into a solution, trims to what is cheap to deliver and valuable to the buyer, and stacks it with honest bonuses, a guarantee the CFO can afford, real urgency and a clear name. Scores it on the value equation (outcome, likelihood, time, effort) and re-tests it on a quick buyer panel. Use when the user says \"make my offer better\", \"why won't people buy\", \"what s",
+      "category": "productivity",
+      "author": "Jake Schincariol",
+      "repository": "https://github.com/Jakeschincariol/founder-skill",
+      "source": "https://github.com/Jakeschincariol/founder-skill/tree/fd9385b0cfe1b96bebce3898fbd506d73eff5a9d/skills/founder-offer",
+      "path": "skills/founder-offer",
+      "ref": "fd9385b0cfe1b96bebce3898fbd506d73eff5a9d",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/Jakeschincariol/founder-skill/blob/fd9385b0cfe1b96bebce3898fbd506d73eff5a9d/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "productivity",
+        "founder"
+      ]
+    },
+    {
+      "id": "founder-ops",
+      "name": "Founder Ops",
+      "description": "Your operations manager. Works out how the business actually runs on day one: suppliers and what they cost, who works when, the step-by-step routines for opening, serving or shipping and closing, the tools to run it, the licences and permits to check, and a risk register with what to do when each thing goes wrong. Feeds real costs back to the CFO. Use when the user says \"how do I run this\", \"operations\", \"suppliers\", \"staffing\", \"SOPs\", \"what do I need to open\", \"permits\", or",
+      "category": "productivity",
+      "author": "Jake Schincariol",
+      "repository": "https://github.com/Jakeschincariol/founder-skill",
+      "source": "https://github.com/Jakeschincariol/founder-skill/tree/fd9385b0cfe1b96bebce3898fbd506d73eff5a9d/skills/founder-ops",
+      "path": "skills/founder-ops",
+      "ref": "fd9385b0cfe1b96bebce3898fbd506d73eff5a9d",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/Jakeschincariol/founder-skill/blob/fd9385b0cfe1b96bebce3898fbd506d73eff5a9d/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "productivity",
+        "founder"
+      ]
+    },
+    {
+      "id": "founder-plan",
+      "name": "Founder Plan",
+      "description": "Your business planner. Compiles everything the other founder skills wrote (the board's verdict, the competitors, the buyer panel, pricing, the offer, the CFO's numbers, marketing, brand, operations and the launch plan) into one business plan with a verdict at the top that is computed from the numbers, never written by hand: Profitable, Not yet (with the failing numbers) or Incomplete. Adds an executive summary and a one-page version for a partner, lender or investor. Use when",
+      "category": "productivity",
+      "author": "Jake Schincariol",
+      "repository": "https://github.com/Jakeschincariol/founder-skill",
+      "source": "https://github.com/Jakeschincariol/founder-skill/tree/fd9385b0cfe1b96bebce3898fbd506d73eff5a9d/skills/founder-plan",
+      "path": "skills/founder-plan",
+      "ref": "fd9385b0cfe1b96bebce3898fbd506d73eff5a9d",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/Jakeschincariol/founder-skill/blob/fd9385b0cfe1b96bebce3898fbd506d73eff5a9d/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "productivity",
+        "founder"
+      ]
+    },
+    {
+      "id": "founder-pricing",
+      "name": "Founder Pricing",
+      "description": "Finds the price buyers will actually pay. Reads the consumer panel's four price answers per buyer into a Van Westendorp price-sensitivity range (too cheap, a bargain, getting expensive, too expensive), sets it against what competitors really charge and against the CFO's margin, and recommends a price, a price ladder (good / better / best) and an opening offer to test. Use when the user says \"how much should I charge\", \"price this\", \"is $X too expensive\", \"pricing strategy\", \"",
+      "category": "productivity",
+      "author": "Jake Schincariol",
+      "repository": "https://github.com/Jakeschincariol/founder-skill",
+      "source": "https://github.com/Jakeschincariol/founder-skill/tree/fd9385b0cfe1b96bebce3898fbd506d73eff5a9d/skills/founder-pricing",
+      "path": "skills/founder-pricing",
+      "ref": "fd9385b0cfe1b96bebce3898fbd506d73eff5a9d",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/Jakeschincariol/founder-skill/blob/fd9385b0cfe1b96bebce3898fbd506d73eff5a9d/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "productivity",
+        "founder"
+      ]
+    },
+    {
       "id": "frontend-design",
       "name": "Frontend Design",
       "description": "Design distinctive frontend interfaces with intentional visual direction.",
