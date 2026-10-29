@@ -83,6 +83,23 @@ The dashboard provides:
 
 **Safety defaults:** the server listens only on `127.0.0.1`; it refuses cross-origin and foreign-Host requests, requires a random per-process CSRF token for changes, and never loads code, fonts or assets from third-party CDNs. There is **no login and no public network access**. Do not expose this local administrative UI with a proxy, port-forward or tunnel; it is intentionally **not hardened for remote multiuser access**. The dashboard does not start a daemon, install skills automatically, upload private reports or synchronize agents in the background. Skill source/license metadata does not certify script safety.
 
+### Windows portable package (no Node installation)
+
+The **Windows portable ZIP** is built and verified by the [Windows portable CI workflow](https://github.com/neosoda/agent-commons/actions/workflows/windows-portable.yml). While the feature is being validated, download the ZIP **only from a successful CI run's artifact**; there is no officially published portable release yet.
+
+1. Download `agent-commons-win-x64-portable` from the successful workflow run.
+2. Extract the complete archive into a folder you control.
+3. Double-click `AgentCommonsPortable\\Start-AgentCommons.cmd`.
+4. The Skill Hub opens locally in your browser. Close the console with Ctrl+C to stop it.
+
+The ZIP contains the compiled npm distribution, its production dependencies, and a pinned official **Node.js 22 executable**. The build checks the Node executable against the SHA-256 manifest published by nodejs.org, launches the package's CLI and verifies a real HTTP 200 response from its local dashboard before uploading it. The ZIP also includes a SHA-256 checksum; it is **not code-signed**. No administrator privileges, Docker, Node installation, Windows service or public network binding are required.
+
+For operators who already have Node.js 22+, `npm run web` remains available from the checked-out source.
+
+### Browser-tested quality gates
+
+The [Chromium browser QA workflow](https://github.com/neosoda/agent-commons/actions/workflows/web-qa.yml) opens five dashboard views across five viewport sizes (1920×1080, 1440×900, 1280×720, 768×1024 and 390×844), checks navigation, filtering, dialogs, JavaScript errors, CSP rejections, and horizontal overflow, and uploads screenshots from a synthetic empty user environment. Screenshots never contain personal agent configuration data.
+
 ## How it works
 
 ~~~mermaid
