@@ -5,6 +5,7 @@ import { runCatalog } from '../commands/catalog.js';
 import { reviewLocalCatalog } from '../commands/catalog-review.js';
 import { searchPublicCatalog, readPublicCatalog } from '../commands/public-catalog.js';
 import { installCatalogSkill, uninstallCatalogSkill, updateCatalogSkill, listCatalogOutdated } from '../commands/skill-install.js';
+import { verifyCatalogSkills } from '../commands/skill-verify.js';
 import { runList } from '../commands/list.js';
 import { runSync } from '../commands/sync.js';
 import { discoverCentralSkills } from '../sync/skills.js';
@@ -58,6 +59,7 @@ EXAMPLES:
   agent-commons catalog search playwright
   agent-commons catalog info skill-creator
   agent-commons catalog review --json
+  agent-commons catalog verify --json
   agent-commons sync --dry-run
   agent-commons sync --profile design --agent codex --dry-run
   agent-commons sync --skill skill-creator --agent codex
@@ -116,6 +118,7 @@ Without a subcommand: inventory LOCAL skills only (existing behavior).
   catalog uninstall <id>              Verify receipt and preview removal (offline)
   catalog uninstall <id> --yes        Remove intact managed skill after backup
   catalog outdated                    Offline comparison against reviewed catalog commits
+  catalog verify [id]                 Offline read-only integrity audit of installed catalog skills
 
 Filters for list/search: --category, --source, --author, --license
 Options: --home <path>, --json, --help
@@ -408,6 +411,31 @@ export function runCli(argv: string[] = process.argv.slice(2)): number {
           }
         }
         return 0;
+      }
+      if (subcommand === 'verify') {
+        if (positionals.length > 3 || values.yes || values.force || values.adopt ||
+            values['mcp-only'] || values['skills-only'] || values['saved-profiles'] ||
+            values.agent?.length || values.profile?.length || values.skill?.length ||
+            values.category || values.source || values.author || values.license || values.list) {
+          throw new Error('Usage: agent-commons catalog verify [id] [--json] [--home <path>]');
+        }
+        const report = verifyCatalogSkills(ctx, positionals[2]);
+        if (values.json) console.log(JSON.stringify(report, null, 2));
+        else {
+          console.log('=== Agent Commons Local Catalog Integrity ===');
+          for (const result of report.results) {
+            console.log('  ' + result.skill + ' | ' + result.status +
+              ' | checked: ' + result.checkedFiles +
+              ' | commit: ' + (result.commit ?? 'unknown'));
+            for (const issue of result.issues) {
+              console.log('    ! ' + issue.type + ': ' + issue.reason +
+                (issue.path ? ' [' + issue.path + ']' : ''));
+            }
+          }
+          if (!report.scanned) console.log('No installed reviewed-catalog skills found.');
+          console.log('Offline and read-only. Hash verification does not establish that upstream code is safe.');
+        }
+        return report.healthy ? 0 : 1;
       }
       if (subcommand === 'outdated') {
         if (positionals.length !== 2) {
