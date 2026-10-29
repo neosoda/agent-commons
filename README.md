@@ -59,6 +59,29 @@ node dist/cli/index.js sync
 
 **New to Agent Commons?** Start with only one agent, using `sync --dry-run --agent codex` (replace `codex` with your agent's ID). The `--home <path>` flag lets you test against a separate home directory first.
 
+## Local Skill Hub — browser dashboard
+
+**New:** a responsive, dependency-free local interface to manage Agent Commons without memorizing commands.
+
+After cloning and building the project, run:
+
+```bash
+node dist/cli/index.js web
+# or npm run web (builds first)
+```
+
+Your browser opens at **http://127.0.0.1:4173**. Override the port with `web --port 5050`, use `--no-open` on headless machines, or `--home /temporary/test-home` to test safely against a separate environment. Stop with **Ctrl+C**.
+
+The dashboard provides:
+
+- **Overview:** local skills, installed agent environments, MCP server names, backups and quick integrity status.
+- **Skill catalog:** searchable, category-filtered references; inspect pinned upstream source/license; preview and explicitly approve install/update/uninstall where supported.
+- **Agents & profiles:** view installed agents, assign shared skills and catalog categories per agent, save selections privately, preview synchronized changes and apply deliberately (skills only; unrelated settings untouched).
+- **Integrity:** strictly offline audit for Git-hash drift, invalid receipts, extra/missing files and unsafe links.
+- **Backups:** create snapshots and restore a known snapshot after typing its exact ID to confirm.
+
+**Safety defaults:** the server listens only on `127.0.0.1`; it refuses cross-origin and foreign-Host requests, requires a random per-process CSRF token for changes, and never loads code, fonts or assets from third-party CDNs. There is **no login and no public network access**. Do not expose this local administrative UI with a proxy, port-forward or tunnel; it is intentionally **not hardened for remote multiuser access**. The dashboard does not start a daemon, install skills automatically, upload private reports or synchronize agents in the background. Skill source/license metadata does not certify script safety.
+
 ## How it works
 
 ~~~mermaid
@@ -294,6 +317,7 @@ Nothing is downloaded, installed, synchronized or published by `catalog`. See [t
 | Command | Purpose |
 |---|---|
 | `doctor` | Diagnose detected agents, links and MCP configurations |
+| `web [--port 4173] [--no-open]` | Open the local Skill Hub dashboard and manage skills, profiles and snapshots |
 | `catalog list` / `catalog search <term>` | Browse the offline public Skill Hub |
 | `catalog info <id>` | View upstream source, license and installed status |
 | `catalog install <id>` | Preview GitHub pinned skill files without changes |
