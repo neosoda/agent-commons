@@ -1,364 +1,225 @@
-# Agent Commons (`@neosoda/agent-commons`)
+<div align="center">
+
+<img src="docs/assets/agent-commons-hero.svg" alt="Agent Commons — one home for skills, one manifest for tools, every coding agent in sync" width="100%" />
+
+<br />
 
 [![CI](https://github.com/neosoda/agent-commons/actions/workflows/ci.yml/badge.svg)](https://github.com/neosoda/agent-commons/actions/workflows/ci.yml)
-[![Version](https://img.shields.io/badge/version-0.1.1-blue.svg)](https://github.com/neosoda/agent-commons/releases)
-[![Node](https://img.shields.io/badge/node-%3E%3D22.0.0-brightgreen.svg)](https://nodejs.org)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
+[![Latest release](https://img.shields.io/github/v/release/neosoda/agent-commons?label=release&color=7c83ff)](https://github.com/neosoda/agent-commons/releases)
+[![Node 22+](https://img.shields.io/badge/node-22%2B-75D7C9?logo=nodedotjs&logoColor=white)](https://nodejs.org)
+[![MIT license](https://img.shields.io/github/license/neosoda/agent-commons?color=91A0FF)](LICENSE)
+[![Windows · macOS · Linux](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-263550)](#compatibility)
 
-**Agent Commons** (`@neosoda/agent-commons`, CLI binary `agent-commons`) is a lightweight, local-first CLI that centralizes and synchronizes AI agent **Skills** (`~/.agents/skills/`) and **Model Context Protocol (MCP)** configurations (`~/.agents/mcp.json`) across **17 AI coding environments** on Windows, Linux, and macOS.
+**The local-first home for your AI coding agents.**  
+Share skills, keep MCP configurations in sync, and protect existing setups.
 
----
+[**Get started**](#quick-start) · [How it works](#how-it-works) · [Compatibility](#compatibility) · [Safety](#designed-to-be-safe) · [Contribute](CONTRIBUTING.md)
 
-## Key Features
-
-1. **Privilege-Free Windows Support via NTFS Junctions**  
-   Standard directory symlinks on Windows require Administrator elevation or Windows Developer Mode. Agent Commons uses native **NTFS Junctions** (`'junction'`) on Windows, working out of the box on standard user accounts while using standard directory symlinks on Linux and macOS.
-2. **Non-Destructive Multi-Dialect MCP Merging (JSON, JSONC, TOML)**  
-   Maintains a single `~/.agents/mcp.json` manifest and performs surgical in-place edits in each agent's native configuration format (**Standard JSON**, **JSONC with comments**, and **OpenAI Codex TOML**), preserving `//` and `/* */` comments, inline comments, trailing commas, custom indentation, UTF-8 BOM, CRLF/LF line endings, existing servers, and unrelated settings.
-3. **Conflict-Aware & Safe by Construction**  
-   - Physical skill folders in an agent directory are compared byte-for-byte (SHA-256) against `~/.agents/skills/`. Identical copies are cleanly replaced with links; diverged folders are preserved and reported as conflicts unless `--force` is passed.
-   - Corrupted JSON/JSONC/TOML configuration files are detected and never overwritten.
-   - Link removal uses `lstat` inspection and detaches the reparse point without ever traversing or deleting target files.
-   - Atomic file writes (`write + fsync + rename`) prevent half-written MCP configurations on interruption.
-4. **Automatic Pre-Sync Snapshots & Transactional Rollback**  
-   Every mutating `sync` records a point-in-time snapshot in `~/.agents/backups/` and automatically rolls back if an unexpected filesystem error occurs mid-sync.
-5. **100% Offline & Minimal Footprint**  
-   Built on Node.js 22+ standard library modules with a single zero-dependency AST parser (`jsonc-parser`). Zero telemetry, zero external network calls, and automatic secret scrubbing in CLI logs.
+</div>
 
 ---
 
-## Installation & Quick Start
+## Stop configuring the same thing seventeen times.
 
-### Requirements
+Claude Code, Codex, Cursor, Gemini, OpenCode and other coding agents all want their own skills and tools. Agent Commons gives them **a shared source of truth**—without forcing you to abandon their native configurations.
 
-- **Node.js 22.0.0** or newer
-- Windows, Linux, or macOS
+| 🧩 **One skills library** | 🔌 **One MCP manifest** | 🛟 **A way back** |
+|:--|:--|:--|
+| Reuse the same `SKILL.md` folders through filesystem links—no needless copies. | Add shared servers to each supported agent's native JSON, JSONC or TOML configuration. | Preview changes, keep conflicts intact, capture snapshots and restore previous state. |
 
-### Run Instantly via `npx`
+**At a glance:** 17 registered agent environments · 9 with Skills + MCP adapters · 8 with Skills synchronization · Windows, macOS and Linux CI.
 
-```bash
-npx @neosoda/agent-commons doctor
-npx @neosoda/agent-commons list
-npx @neosoda/agent-commons sync --dry-run
-```
+> [!NOTE]
+> **Publication status:** Source and GitHub releases are available today. The npm package `@neosoda/agent-commons` has **not yet been published**. Use the source instructions below; `npx @neosoda/agent-commons` will work only after the first npm release. The `main` branch also includes fixes newer than the latest tagged release.
 
-### Install Globally
+## Quick start
 
-```bash
-npm install -g @neosoda/agent-commons
+**Requirements:** Node.js **22+**, npm, and Git.
 
-# Once installed globally, use the `agent-commons` command directly:
-agent-commons doctor
-agent-commons list
-agent-commons sync --dry-run
-```
-
-### Build from Source
-
-```bash
+~~~bash
 git clone https://github.com/neosoda/agent-commons.git
 cd agent-commons
 npm ci
 npm run build
+
+# Inspect your environment — no agent configuration changes
 node dist/cli/index.js doctor
-```
+node dist/cli/index.js list
 
----
+# Preview every planned synchronization
+node dist/cli/index.js sync --dry-run
+~~~
 
-## Initial Setup (`~/.agents/`)
+When the preview looks right, take a baseline backup and apply:
 
-Agent Commons uses `~/.agents/` in your user home directory as your single source of truth:
+~~~bash
+node dist/cli/index.js backup
+node dist/cli/index.js sync
+~~~
 
-```text
+**New to Agent Commons?** Start with only one agent, using `sync --dry-run --agent codex` (replace `codex` with your agent's ID). The `--home <path>` flag lets you test against a separate home directory first.
+
+## How it works
+
+~~~mermaid
+flowchart TB
+    A["~/.agents/skills/<br/>Shared SKILL.md folders"] --> C["Agent Commons"]
+    B["~/.agents/mcp.json<br/>Shared MCP definitions"] --> C
+    C --> D["Claude Code"]
+    C --> E["Codex"]
+    C --> F["Cursor"]
+    C --> G["Gemini / Antigravity"]
+    C --> H["OpenCode + others"]
+    C -. "Backups before changes" .-> I["~/.agents/backups/"]
+~~~
+
+**Skills** use NTFS directory junctions on Windows and directory symlinks on macOS/Linux. Agent Commons compares physical copies before replacing them with links. If a local copy differs, it is left untouched unless you explicitly use `--force`.
+
+**MCP** is different: Agent Commons **merges individual servers** into native config files rather than linking whole files together. It preserves unrelated settings and existing server definitions; conflicts require an explicit `--force`.
+
+### 1. Create your shared library
+
+Each skill is a physical directory containing a `SKILL.md` file.
+
+~~~text
 ~/.agents/
 ├── skills/
-│   ├── frontend-nextjs/
+│   ├── code-review/
 │   │   └── SKILL.md
-│   └── security-review/
+│   └── security-check/
 │       └── SKILL.md
 ├── mcp.json
 └── backups/
-    └── snapshot-20261029-114500-a1b2c3/
-        ├── manifest.json
-        └── payload/
-```
+~~~
 
-### 1. Centralizing Skills (`~/.agents/skills/`)
+Already have unique local skills scattered between agents? `sync --adopt` can copy them into the common library and replace those original folders with links. **Preview it first** with `sync --adopt --dry-run`.
 
-Create `~/.agents/skills/` and place each reusable skill in its own folder containing a `SKILL.md` file:
+### 2. Declare MCP servers once
 
-```bash
-mkdir -p ~/.agents/skills/my-skill
-```
+Create `~/.agents/mcp.json`:
 
-If your installed agents already have local skill folders that do not exist yet in `~/.agents/skills/`, you can import them automatically into the central library using:
-
-```bash
-npx @neosoda/agent-commons sync --adopt
-```
-
-### 2. Centralizing MCP Servers (`~/.agents/mcp.json`)
-
-Create `~/.agents/mcp.json` to declare your shared MCP servers once. You can use environment variable placeholders (`${ENV_VAR}`), restrict target agents via `agents` / `excludeAgents`, and define per-agent argument overrides via `agentOverrides`:
-
-```json
+~~~json
 {
   "mcpServers": {
-    "serena": {
+    "my-local-tools": {
       "type": "stdio",
-      "command": "uvx",
-      "args": [
-        "--from",
-        "git+https://github.com/oraios/serena",
-        "serena",
-        "start-mcp-server",
-        "--context",
-        "ide"
-      ],
-      "startupTimeoutSec": 120,
-      "toolTimeoutSec": 180,
-      "agentOverrides": {
-        "claude-code": {
-          "args": [
-            "--from",
-            "git+https://github.com/oraios/serena",
-            "serena",
-            "start-mcp-server",
-            "--context",
-            "claude-code"
-          ]
-        },
-        "codex": {
-          "args": [
-            "--from",
-            "git+https://github.com/oraios/serena",
-            "serena",
-            "start-mcp-server",
-            "--context",
-            "codex"
-          ]
-        }
-      }
-    },
-    "context-mode": {
-      "type": "stdio",
-      "command": "context-mode",
-      "args": []
-    },
-    "github": {
-      "type": "stdio",
-      "command": "docker",
-      "args": [
-        "run",
-        "-i",
-        "--rm",
-        "-e",
-        "GITHUB_PERSONAL_ACCESS_TOKEN",
-        "ghcr.io/github/github-mcp-server"
-      ],
-      "env": {
-        "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_PERSONAL_ACCESS_TOKEN}"
-      }
+      "command": "node",
+      "args": ["/absolute/path/to/my-mcp-server.js"],
+      "agents": ["claude-code", "codex", "cursor"]
     }
   }
 }
-```
+~~~
 
-### How Agent Commons Translates MCP Formats
+This is an **example**, not a bundled server. Replace the path with an MCP server you already have installed.
 
-- **Standard JSON (`mcpServers`)** — Claude Code, Cursor, Gemini CLI, Gemini Config, Gemini Antigravity, Kiro, MiniMax:
-  Surgically updates only target entries inside the `"mcpServers"` object while preserving existing keys (`permissions`, `hooks`, `theme`, etc.), indentation, BOM, and line endings.
-- **OpenCode JSON / JSONC (`mcp`)** — OpenCode (`~/.config/opencode/opencode.json` or `opencode.jsonc`):
-  Uses AST-guided in-place editing (`jsonc-parser`) to translate each server to `{ "type": "local", "command": ["cmd", ...args], "enabled": true, "environment": { ... } }` (or `"type": "remote"` for URL servers) while preserving `//` and `/* */` comments, inline comments, trailing commas, custom indentation, BOM, and CRLF/LF line endings.
-- **Codex TOML (`[mcp_servers.<name>]`)** — OpenAI Codex (`~/.codex/config.toml`):
-  Inserts or updates `[mcp_servers.<name>]` and `[mcp_servers.<name>.env]` sections in-place without disturbing `#` comments, `[projects.*]` sections, or top-level TOML settings.
+Agent Commons handles the destination dialect:
 
----
+| Agent format | Example destination | Behavior |
+|---|---|---|
+| **JSON** | `~/.claude.json`, `~/.gemini/settings.json` | Merge into `mcpServers` |
+| **JSONC** | `~/.config/opencode/opencode.jsonc` | Merge into `mcp`, preserving comments and formatting |
+| **TOML** | `~/.codex/config.toml` | Merge `[mcp_servers.<name>]` sections |
 
-## Precautions Before Running a Real Synchronization
+You can also use `excludeAgents`, `agentOverrides` and environment placeholders such as `\${MY_API_TOKEN}`. **Placeholders are preserved, not a secret vault**—configure credentials securely in the target environment and never commit real credentials to your shared manifest.
 
-Before running `sync` without `--dry-run` for the first time, follow this 3-step workflow:
+### 3. Preview, sync, recover
 
-1. **Diagnose your environment (`doctor`)**:
-   ```bash
-   npx @neosoda/agent-commons doctor
-   ```
-   Verify that link creation (`ntfs-junction` on Windows or `symlink` on Linux/macOS) is healthy and check whether any existing agent configurations or skill links report issues.
-2. **Preview every planned change (`sync --dry-run`)**:
-   ```bash
-   npx @neosoda/agent-commons sync --dry-run
-   ```
-   `--dry-run` is strictly read-only. It computes and displays every link creation (`created-link`), identical duplicate replacement (`replaced-identical-copy`), broken link repair (`repaired-link`), conflict skip (`conflict-skipped` / `conflict-preserved`), and MCP addition without touching the disk.
-3. **Create an explicit baseline backup (`backup`)**:
-   ```bash
-   npx @neosoda/agent-commons backup
-   ```
-   Although `sync` automatically creates a pre-sync snapshot before modifying any path, creating a baseline snapshot gives you a named restore point you can return to at any time via `npx @neosoda/agent-commons restore <snapshot-id>`.
+~~~bash
+# Inspect
+node dist/cli/index.js doctor
+node dist/cli/index.js sync --dry-run
 
----
+# Make a baseline snapshot, then synchronize
+node dist/cli/index.js backup
+node dist/cli/index.js sync
 
-## Essential CLI Commands
+# Inspect or restore snapshots
+node dist/cli/index.js restore --list
+node dist/cli/index.js restore snapshot-<id>
+~~~
 
-### 1. `doctor` — Environment & Health Diagnostic
+`restore` replaces the currently managed paths with their saved state. Review the target snapshot before running it: **restoration is a mutating operation**.
 
-Runs a read-only check of OS link capabilities, `~/.agents/`, and all 17 agents (broken links, diverged skill copies, and corrupted MCP files).
+## CLI reference
 
-```text
-$ npx @neosoda/agent-commons doctor
-=== Agent Commons Doctor (v0.1.1) ===
-Platform       : win32 (v24.22.1)
-Link Strategy  : ntfs-junction (OK)
-Commons Root   : C:\Users\alice\.agents
-Central Skills : 2 (C:\Users\alice\.agents\skills)
-Central MCP    : 3 servers [status: valid]
+| Command | Purpose |
+|---|---|
+| `doctor` | Diagnose detected agents, links and MCP configurations |
+| `list` | Inventory skills, MCP servers, agents and snapshots |
+| `sync --dry-run` | Show planned changes without modifying agent configurations |
+| `sync` | Synchronize compatible installed agents |
+| `sync --adopt` | Import unique local skills into the shared library |
+| `sync --force` | Resolve differing copies/conflicting servers by replacing them **with backups** |
+| `sync --agent codex` | Synchronize only the named agent (repeat `--agent` for more) |
+| `sync --skills-only` / `sync --mcp-only` | Restrict the operation to one feature |
+| `backup` | Make a manual snapshot |
+| `restore --list` | List available snapshots |
+| `restore <snapshot-id>` | Restore a selected snapshot |
+| `list --json` / `doctor --json` | Machine-readable reports |
+| `--home <path>` | Operate against an alternative user home |
 
-Agents (3/17 installed):
-  * [claude-code       ] Skills: 2 linked, 0 physical (0 conflicts), 0 broken | MCP: valid (3 servers, standard-json)
-  * [codex             ] Skills: 2 linked, 0 physical (0 conflicts), 0 broken | MCP: valid (3 servers, codex-toml)
-  * [cursor            ] Skills: 2 linked, 0 physical (0 conflicts), 0 broken | MCP: valid (3 servers, standard-json)
-```
+Use `node dist/cli/index.js --help` for the full help, or `node dist/cli/index.js sync --help` for command-specific options. Once npm publishing is enabled, these commands will also be available through the `agent-commons` executable.
 
-### 2. `list` — Inventory of Skills, MCP Servers, Agents & Snapshots
+## Compatibility
 
-```bash
-npx @neosoda/agent-commons list
-npx @neosoda/agent-commons list --json
-```
+**17 registered environments** in the source registry. This means their paths and file formats have automated coverage—not that their proprietary applications are launched and end-to-end verified in CI.
 
-### 3. `sync --dry-run` — Read-Only Simulation
+### Skills + MCP (9)
 
-```text
-$ npx @neosoda/agent-commons sync --dry-run
-=== [DRY-RUN] Agent Commons Sync ===
-Detected Agents : 1
-Central Skills  : 2
-Central MCP     : 3
+| Environment | Skills | MCP |
+|---|:---:|---|
+| Claude Code | ✓ | JSON |
+| OpenAI Codex | ✓ | TOML |
+| Cursor | ✓ | JSON |
+| Gemini CLI | ✓ | JSON |
+| Gemini Config | ✓ | JSON |
+| Gemini Antigravity | ✓ | JSON |
+| OpenCode | ✓ | JSON/JSONC |
+| MiniMax | ✓ | JSON |
+| Kiro | ✓ | JSON |
 
-Skills Summary  : 0 already synced, 2 action(s)
-  [claude-code] frontend-nextjs: created-link - [DRY-RUN] Would create NTFS junction -> C:\Users\alice\.agents\skills\frontend-nextjs
-  [claude-code] security-review: created-link - [DRY-RUN] Would create NTFS junction -> C:\Users\alice\.agents\skills\security-review
+### Skills only (8)
 
-MCP Summary     : 0 unchanged, 3 action(s)
-  [claude-code] serena: added - [DRY-RUN] Would add "serena" to mcpServers.
-  [claude-code] context-mode: added - [DRY-RUN] Would add "context-mode" to mcpServers.
-  [claude-code] github: added - [DRY-RUN] Would add "github" to mcpServers.
+| Environment | Support |
+|---|---|
+| Cline · Roo Code · Continue · Kimi | Skills |
+| Hermes (home and AppData installations) | Skills |
+| Aider Desk · Grok | Skills |
 
-Dry-run complete. No files were modified. Run "agent-commons sync" to apply.
-```
+MCP for skills-only environments is **not yet implemented**. Actual agent directory layouts can change between vendor versions; please [open an issue](https://github.com/neosoda/agent-commons/issues) if detection or integration needs updating.
 
-### 4. `sync` — Apply Synchronization
+## Designed to be safe
 
-```bash
-# Safe synchronization (never overwrites diverged skills or conflicting MCP servers)
-npx @neosoda/agent-commons sync
+- **Local-first.** No account, background daemon, telemetry or network routing is required for synchronization. Building from source and installing npm packages still use their usual package registries.
+- **Non-destructive defaults.** Existing divergent skill folders and conflicting MCP definitions are preserved until you opt into `--force`.
+- **Careful config editing.** JSONC comments, indentation and line endings are preserved during supported edits. Corrupted configurations are reported instead of overwritten.
+- **Recoverable changes.** Mutating sync operations record per-path snapshots and attempt rollback after errors. Restore now preflights entries and expected backup payloads before destructive changes in the current source.
+- **Windows-friendly.** Junctions avoid requiring Developer Mode or Administrator rights on compatible local filesystems. Some network filesystems cannot create them.
+- **No bundled third-party skills.** Agent Commons distributes the sync engine, **not** someone else's skill library.
 
-# Adopt local-only physical skills from agents into ~/.agents/skills/
-npx @neosoda/agent-commons sync --adopt
+> [!CAUTION]
+> A filesystem synchronizer can replace files. Always inspect `sync --dry-run`, keep an independent backup of important agent configurations, and treat `--force` and `restore` as deliberate changes. This project is pre-1.0 software.
 
-# Snapshot and overwrite diverged physical skills or conflicting MCP entries
-npx @neosoda/agent-commons sync --force
+## Development
 
-# Target specific agent(s) or scope
-npx @neosoda/agent-commons sync --skills-only --agent cursor
-npx @neosoda/agent-commons sync --mcp-only --agent codex
-```
-
-### 5. `backup` & `restore` — Snapshot Management
-
-```bash
-# Create an explicit point-in-time snapshot
-npx @neosoda/agent-commons backup
-
-# List available snapshots
-npx @neosoda/agent-commons restore --list
-
-# Restore the most recent snapshot
-npx @neosoda/agent-commons restore
-
-# Restore a specific snapshot by ID
-npx @neosoda/agent-commons restore snapshot-20261029-114500-a1b2c3
-```
-
----
-
-## Compatibility Matrix (17 Registered Agents)
-
-| Agent ID | Agent Name | Detection Path | Skills Path | Skills Sync | MCP Config Path | MCP Format |
-| :--- | :--- | :--- | :--- | :---: | :--- | :--- |
-| `claude-code` | Claude Code | `~/.claude` or `~/.claude.json` | `~/.claude/skills` | Yes | `~/.claude.json` | `standard-json` (`mcpServers`) |
-| `codex` | OpenAI Codex | `~/.codex` | `~/.codex/skills` | Yes | `~/.codex/config.toml` | `codex-toml` (`[mcp_servers.*]`) |
-| `cursor` | Cursor | `~/.cursor` | `~/.cursor/skills` | Yes | `~/.cursor/mcp.json` | `standard-json` (`mcpServers`) |
-| `gemini-cli` | Gemini CLI | `~/.gemini` | `~/.gemini/skills` | Yes | `~/.gemini/settings.json` | `standard-json` (`mcpServers`) |
-| `gemini-config` | Gemini Config | `~/.gemini/config` | `~/.gemini/config/skills` | Yes | `~/.gemini/config/mcp_config.json` | `standard-json` (`mcpServers`) |
-| `gemini-antigravity` | Gemini Antigravity | `~/.gemini/antigravity` | `~/.gemini/antigravity/skills` | Yes | `~/.gemini/antigravity/mcp_config.json` | `standard-json` (`mcpServers`) |
-| `opencode` | OpenCode | `~/.opencode` or `~/.config/opencode` | `~/.opencode/skills` | Yes | `~/.config/opencode/opencode.json(c)` | `opencode-jsonc` (`mcp`) |
-| `minimax` | MiniMax | `~/.minimax` | `~/.minimax/skills` | Yes | `~/.minimax/mcp.json` | `standard-json` (`mcpServers`) |
-| `kiro` | Kiro | `~/.kiro` | `~/.kiro/skills` | Yes | `~/.kiro/settings/mcp.json` | `standard-json` (`mcpServers`) |
-| `cline` | Cline | `~/.cline` | `~/.cline/skills` | Yes | *Not managed (Skills-only)* | — |
-| `roo-code` | Roo Code | `~/.roo` | `~/.roo/skills` | Yes | *Not managed (Skills-only)* | — |
-| `continue` | Continue | `~/.continue` | `~/.continue/skills` | Yes | *Not managed (Skills-only)* | — |
-| `hermes-home` | Hermes (`~/.hermes`) | `~/.hermes` | `~/.hermes/skills` | Yes | *Not managed (Skills-only)* | — |
-| `hermes-appdata` | Hermes (AppData / Share) | `<AppData>/hermes` | `<AppData>/hermes/skills` | Yes | *Not managed (Skills-only)* | — |
-| `kimi` | Kimi | `~/.kimi-work` | `~/.kimi-work/skills` | Yes | *Not managed (Skills-only)* | — |
-| `aider-desk` | Aider Desk | `~/.aider-desk` | `~/.aider-desk/skills` | Yes | *Not managed (Skills-only)* | — |
-| `grok` | Grok | `~/.grok` | `~/.grok/skills` | Yes | *Not managed (Skills-only)* | — |
-
-> Note: On Windows, `<AppData>` resolves to `%LOCALAPPDATA%` (`~\AppData\Local`). On macOS, it resolves to `~/Library/Application Support`. On Linux, it resolves to `~/.local/share`.
-
----
-
-## Cross-Platform Link & Backup Architecture
-
-### Windows, Linux, and macOS Link Mechanics
-
-- **Windows (`win32`)**: Creates directory links using Node's `'junction'` type (`fs.symlinkSync(target, linkPath, 'junction')`). NTFS junctions do not require Administrator privileges or Developer Mode.
-- **Linux & macOS (`linux`, `darwin`)**: Creates standard POSIX directory symbolic links (`fs.symlinkSync(target, linkPath, 'dir')`).
-- **Safe Link Detachment**: When updating or removing a link, Agent Commons inspects `fs.lstatSync(path)` first and detaches only the link entry itself, never recursing into the target directory.
-
-### Transactional Backup & Restore
-
-- Before `agent-commons sync` mutates any file or directory, a `SnapshotSession` is initialized under `~/.agents/backups/snapshot-<timestamp>-<id>/`.
-- Every modified MCP configuration file, replaced physical directory, or re-pointed link is recorded in `manifest.json` along with its original payload.
-- If an unhandled exception occurs mid-sync, Agent Commons automatically invokes `session.restore()` to roll back all changes made during that session.
-- Snapshots validate all target paths against the active home directory during restore to prevent path-traversal attacks from tampered manifests.
-
----
-
-## Comparison with Existing Tools
-
-| Feature | **Agent Commons** (`v0.1.1`) | `agent-sync` | `skills-sync` | `skill-buddy` | `agentbridge` |
-| :--- | :---: | :---: | :---: | :---: | :---: |
-| **Primary Scope** | Local CLI (Skills + MCP) | Git/Cloud config sync | Skills sync | Skills manager | Multi-agent bridge |
-| **Supported Agents** | **17 registered (sandbox-tested)** | ~4–6 | ~4–6 | ~3–5 | ~4–6 |
-| **Windows Junctions (No Admin)** | **Yes (`junction`)** | Partial / Symlinks | Symlinks / Copy | Copy / Symlinks | Partial |
-| **MCP Multi-Dialect Merge** | **JSON + JSONC (comments kept) + TOML** | JSON only | No | No | JSON only |
-| **SHA-256 Skill Conflict Detection** | **Yes** | No | Basic | Basic | No |
-| **Automatic Rollback & Snapshots** | **Yes** | Git-based | No | No | No |
-| **Runtime Dependencies** | **1 (`jsonc-parser`, 0 transitive)** | Multiple npm pkgs | Multiple npm pkgs | Multiple npm pkgs | Multiple npm pkgs |
-
----
-
-## Known Limitations (`v0.1.1`)
-
-1. **Skills-Only Agents**: 8 of the 17 registered agents (`cline`, `roo-code`, `continue`, `hermes-home`, `hermes-appdata`, `kimi`, `aider-desk`, `grok`) are currently managed for Skills synchronization only; their internal or extension-managed MCP settings are not modified by `v0.1.1`.
-2. **Validation Scope**: All 17 agent directory layouts and configuration dialects are verified via automated cross-platform sandbox tests (Windows, Linux, macOS) and real-world configuration structures inspected during audit (`claude-code`, `codex`, `cursor`, `gemini-cli`, `gemini-config`, `gemini-antigravity`, `opencode`, `minimax`, `kiro`); Agent Commons does not spawn or invoke third-party proprietary agent binaries during CI.
-3. **Same-Volume NTFS Junctions / Network Shares**: NTFS junctions on Windows require a filesystem that supports reparse points. If `~/.agents/skills/` is hosted on a non-NTFS network share (SMB/WebDAV) that does not support reparse points, link creation will report an explicit error in `doctor` and `sync`.
-
----
-
-## Development & Testing
-
-All automated tests run in isolated temporary sandboxes (`os.tmpdir()`) and never touch your real home directory:
-
-```bash
+~~~bash
+npm ci
 npm run typecheck
 npm test
-```
+npm pack --dry-run
+~~~
 
-See [CONTRIBUTING.md](./CONTRIBUTING.md) for development guidelines and [SECURITY.md](./SECURITY.md) for our security policy.
+CI runs on **Windows, macOS and Ubuntu** with **Node.js 22 and 24**. Tests use isolated temporary homes; the registered agent adapters are tested without starting proprietary agents.
+
+Want to help? See [CONTRIBUTING.md](CONTRIBUTING.md), [SECURITY.md](SECURITY.md), the [changelog](CHANGELOG.md), or [open an issue](https://github.com/neosoda/agent-commons/issues). We welcome reproducible bug reports, additional adapter tests and documentation fixes.
 
 ---
 
-## License
+<div align="center">
 
-Released under the [MIT License](./LICENSE).
+**One source of truth. Less configuration drift. More time building.**
+
+Made by [@neosoda](https://github.com/neosoda) · [MIT licensed](LICENSE) · [Releases](https://github.com/neosoda/agent-commons/releases)
+
+</div>
