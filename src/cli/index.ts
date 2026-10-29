@@ -8,6 +8,7 @@ import { installCatalogSkill, uninstallCatalogSkill, updateCatalogSkill, listCat
 import { runList } from '../commands/list.js';
 import { runSync } from '../commands/sync.js';
 import { discoverCentralSkills } from '../sync/skills.js';
+import { readSavedProfiles, saveAgentProfile, clearAgentProfile, runSavedProfilesSync } from '../commands/saved-profiles.js';
 import { createFullBackup, listBackups, restoreBackup } from '../core/backup.js';
 import { createEnvironmentContext } from '../core/context.js';
 import { redactSecrets } from '../security/scrubber.js';
@@ -26,6 +27,7 @@ COMMANDS:
   doctor                  Diagnose environment, link capabilities, central library, and 17 agents
   list                    List central skills, MCP servers, agent inventories, and backups
   catalog                 Inventory local skills / explore curated public skill metadata
+  profiles                Save per-agent skill choices locally (never auto-applied)
   sync                    Synchronize skills and MCP configurations to installed agents
   backup                  Create a point-in-time snapshot of all agent skills and MCP configs
   restore [snapshot-id]   Restore state from a snapshot (defaults to latest snapshot)
@@ -45,6 +47,7 @@ SYNC OPTIONS:
   --mcp-only              Synchronize only MCP servers (skip skills)
   --skill <id>             Link only this central skill (repeatable; excludes MCP)
   --profile <category>     Link only catalog skills in this category (repeatable; excludes MCP)
+  --saved-profiles         Sync only locally saved per-agent selections; no MCP writes
 
 EXAMPLES:
   agent-commons doctor
@@ -58,6 +61,8 @@ EXAMPLES:
   agent-commons sync --dry-run
   agent-commons sync --profile design --agent codex --dry-run
   agent-commons sync --skill skill-creator --agent codex
+  agent-commons profiles set codex --skill skill-creator --profile design
+  agent-commons sync --saved-profiles --dry-run
   agent-commons sync
   agent-commons backup
   agent-commons restore
@@ -118,6 +123,20 @@ Options: --home <path>, --json, --help
 Note: The public catalog contains only manually reviewed source/license references.
 It does not include private skills or authorize executing third-party code.
 `.trim();
+    case 'profiles':
+      return `
+Usage: agent-commons profiles <list|show|set|clear> [agent-id] [options]
+
+  profiles list                         Read saved per-agent skills and categories
+  profiles show <agent-id>              Show one agent's saved preferences
+  profiles set <agent-id> --skill <id>  Store selected skill(s); repeatable
+  profiles set <agent-id> --profile <category>  Store category choices; repeatable
+  profiles clear <agent-id>             Remove saved preference (not installed skills)
+
+Profiles are stored in ~/.agents/agent-profiles.json. Saving does NOT sync.
+Use sync --saved-profiles --dry-run to inspect and sync --saved-profiles to apply.
+No MCP changes, no automatic removal of old links, no network access.
+`.trim();
     case 'sync':
       return `
 Usage: agent-commons sync [options]
@@ -134,6 +153,7 @@ Options:
   --agent <id>      Target specific agent(s) only
   --skill <id>      Sync only named central skill(s); repeatable
   --profile <id>    Sync central skills matching public catalog category; repeatable
+  --saved-profiles  Apply stored per-agent selections only (no MCP changes)
   --home <path>     Override user home directory
   --json            Emit JSON output
   -h, --help        Show this help message
@@ -192,7 +212,8 @@ export function runCli(argv: string[] = process.argv.slice(2)): number {
         license: { type: 'string' },
         yes: { type: 'boolean', default: false },
         skill: { type: 'string', multiple: true },
-        profile: { type: 'string', multiple: true }
+        profile: { type: 'string', multiple: true },
+        'saved-profiles': { type: 'boolean', default: false }
       }
     });
 
@@ -474,7 +495,53 @@ export function runCli(argv: string[] = process.argv.slice(2)): number {
       return 1;
     }
 
+    if (command === 'profiles') {
+      const action = positionals[1];
+      if (action === 'list') {
+        if (positionals.length !== 2) throw new Error('Usage: profiles list');
+        const manifest = readSavedProfiles(ctx);
+        if (values.json) console.log(JSON.stringify(manifest, null, 2));
+        else {
+          console.log('=== Saved Agent Skill Profiles (local only) ===');
+          for (const [agent, profile] of Object.entries(manifest.profiles)) {
+            console.log('  ' + agent + ': skills=' + (profile.skills.join(', ') || '(none)') +
+              ' | categories=' + (profile.categories.join(', ') || '(none)'));
+          }
+          if (!Object.keys(manifest.profiles).length) console.log('No saved profiles yet.');
+        }
+        return 0;
+      }
+      const agent = positionals[2];
+      if (!agent || positionals.length !== 3) throw new Error('Usage: profiles <show|set|clear> <agent-id>');
+      if (action === 'set') {
+        const manifest = saveAgentProfile(ctx, agent, {
+          skills: values.skill, categories: values.profile
+        });
+        if (values.json) console.log(JSON.stringify(manifest.profiles[agent], null, 2));
+        else console.log('Saved local profile for ' + agent + '. Preview using sync --saved-profiles --dry-run.');
+        return 0;
+      }
+      if (action === 'show') {
+        const profile = readSavedProfiles(ctx).profiles[agent];
+        if (!profile) throw new Error('No saved profile for agent: ' + agent);
+        if (values.json) console.log(JSON.stringify(profile, null, 2));
+        else console.log(agent + ': skills=' + (profile.skills.join(', ') || '(none)') +
+          ', categories=' + (profile.categories.join(', ') || '(none)'));
+        return 0;
+      }
+      if (action === 'clear') {
+        clearAgentProfile(ctx, agent);
+        console.log('Cleared saved selection for ' + agent + '; existing agent links were not modified.');
+        return 0;
+      }
+      throw new Error('Usage: profiles <list|show|set|clear> [agent-id]');
+    }
+
     if (command === 'sync') {
+      if (values['saved-profiles'] && (values.profile?.length || values.skill?.length ||
+          values.adopt || values.force || values['mcp-only'])) {
+        throw new Error('--saved-profiles cannot combine with --skill, --profile, --adopt, --force or --mcp-only.');
+      }
       if (values.profile?.length && values.skill?.length) {
         throw new Error('Use either --profile or --skill, not both.');
       }
@@ -493,7 +560,9 @@ export function runCli(argv: string[] = process.argv.slice(2)): number {
           .filter(s => chosen.has(s.category) && installedCentral.has(s.id))
           .map(s => s.id);
       }
-      const report = runSync(ctx, {
+      const report = values['saved-profiles'] ? runSavedProfilesSync(ctx, {
+        agentFilter: values.agent, dryRun: values['dry-run']
+      }) : runSync(ctx, {
         skillFilter,
         dryRun: values['dry-run'],
         adopt: values.adopt,
@@ -554,7 +623,7 @@ export function runCli(argv: string[] = process.argv.slice(2)): number {
       }
 
       if (report.dryRun) {
-        console.log(`\nDry-run complete. No files were modified. Run "agent-commons sync" to apply.`);
+        console.log(`\nDry-run complete. No files were modified. Run "agent-commons sync${values['saved-profiles'] ? ' --saved-profiles' : ''}" to apply.`);
       } else {
         console.log(`\nSynchronization complete.`);
       }

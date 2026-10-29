@@ -62,3 +62,6 @@ export type { LocalCatalogReview, LocalSkillReview, ReviewReason } from './comma
 
 export { previewCatalogInstall, installCatalogSkill, previewCatalogUninstall, uninstallCatalogSkill, previewCatalogUpdate, updateCatalogSkill, listCatalogOutdated } from './commands/skill-install.js';
 export type { InstallFile, InstallPreview, InstallOutcome, UninstallPreview, UninstallOutcome, UpdatePreview, UpdateOutcome, OutdatedSkill, FetchJson } from './commands/skill-install.js';
+
+export { readSavedProfiles, saveAgentProfile, clearAgentProfile, runSavedProfilesSync } from './commands/saved-profiles.js';
+export type { SavedAgentProfile, SavedProfileManifest, SavedProfileSyncOptions } from './commands/saved-profiles.js';
