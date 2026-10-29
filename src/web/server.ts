@@ -57,6 +57,20 @@ function checkedList(value: unknown): string[] {
 function requireApproval(body: JsonValue): void {
   if (body.approved !== true) throw new Error('Explicit approval is required.');
 }
+/**
+ * The CLI may print diagnostic paths for its local operator. HTTP responses do not:
+ * a web page must not accidentally expose a home path, API token, or arbitrary FS error.
+ */
+function publicError(error: unknown, ctx: EnvironmentContext): string {
+  const raw = redactSecrets(error instanceof Error ? error.message : 'Local operation failed.');
+  const privateRoots = [ctx.homeDir, ctx.localAppDataDir, ctx.commonsDir]
+    .filter(root => root.length > 1);
+  if (privateRoots.some(root => raw.toLowerCase().includes(root.toLowerCase())) ||
+      /(?:[a-z]:[\\/]|\/(?:home|users|root|tmp|var|etc)\/)/i.test(raw)) {
+    return 'Local filesystem operation failed. Check Agent Commons CLI diagnostics for details.';
+  }
+  return raw.length <= 350 ? raw : 'Operation failed. Check local CLI diagnostics for details.';
+}
 async function readJson(req: IncomingMessage): Promise<JsonValue> {
   if (!(req.headers['content-type'] ?? '').startsWith('application/json')) {
     throw new Error('Only application/json is accepted.');
@@ -77,7 +91,7 @@ async function readJson(req: IncomingMessage): Promise<JsonValue> {
   if (!object(data)) throw new Error('Expected a JSON object.');
   return data;
 }
-function summarize(report: SyncReport): object {
+function summarize(report: SyncReport, ctx: EnvironmentContext): object {
   return {
     dryRun: report.dryRun, snapshotId: report.snapshotId, rolledBack: report.rolledBack,
     detectedAgentsCount: report.detectedAgentsCount,
@@ -87,7 +101,7 @@ function summarize(report: SyncReport): object {
     mcpResults: report.mcpResults.map(x => ({
       agentId: x.agentId, serverName: x.serverName, action: x.action
     })),
-    errors: report.errors.map(redactSecrets)
+    errors: report.errors.map(error => publicError(error, ctx))
   };
 }
 function safeState(ctx: EnvironmentContext): unknown {
@@ -95,9 +109,9 @@ function safeState(ctx: EnvironmentContext): unknown {
   let profiles: ReturnType<typeof readSavedProfiles> = { version: 1, profiles: {} };
   let integrity: ReturnType<typeof verifyCatalogSkills> = { healthy: false, scanned: 0, results: [] };
   try { profiles = readSavedProfiles(ctx); }
-  catch (err) { warnings.push('Profiles unavailable: ' + redactSecrets((err as Error).message)); }
+  catch (err) { warnings.push('Profiles unavailable: ' + publicError(err, ctx)); }
   try { integrity = verifyCatalogSkills(ctx); }
-  catch (err) { warnings.push('Integrity unavailable: ' + redactSecrets((err as Error).message)); }
+  catch (err) { warnings.push('Integrity unavailable: ' + publicError(err, ctx)); }
   const inventory = runList(ctx);
   // Intentionally omit local filesystem paths, MCP credentials and complete native configs.
   return {
@@ -235,17 +249,17 @@ export async function startWebServer(options: WebOptions = {}): Promise<WebInsta
         if (action === 'sync-preview' || action === 'sync-apply') {
           if (action === 'sync-apply') requireApproval(body);
           const preflight = runSavedProfilesSync(ctx, { dryRun: true });
-          if (action === 'sync-preview') { json(res, 200, summarize(preflight)); return; }
+          if (action === 'sync-preview') { json(res, 200, summarize(preflight, ctx)); return; }
           if (preflight.errors.length) throw new Error('Sync preview reported errors; refusing to apply.');
-          json(res, 200, summarize(runSavedProfilesSync(ctx, { dryRun: false })));
+          json(res, 200, summarize(runSavedProfilesSync(ctx, { dryRun: false }), ctx));
           return;
         }
         if (action === 'sync-all-preview' || action === 'sync-all-apply') {
           if (action === 'sync-all-apply') requireApproval(body);
           const preflight = runSync(ctx, { dryRun: true });
-          if (action === 'sync-all-preview') { json(res, 200, summarize(preflight)); return; }
+          if (action === 'sync-all-preview') { json(res, 200, summarize(preflight, ctx)); return; }
           if (preflight.errors.length) throw new Error('Full sync preview reported errors; refusing to apply.');
-          json(res, 200, summarize(runSync(ctx, { dryRun: false }))); return;
+          json(res, 200, summarize(runSync(ctx, { dryRun: false }), ctx)); return;
         }
         if (action === 'backup') {
           requireApproval(body);
@@ -265,7 +279,7 @@ export async function startWebServer(options: WebOptions = {}): Promise<WebInsta
       } finally { mutating = false; }
     } catch (err) {
       // No paths, tokens or user data are logged by the web server.
-      const reason = redactSecrets((err as Error).message);
+      const reason = publicError(err, ctx);
       if (!res.headersSent) json(res, 400, { error: reason });
       else res.end();
     }
