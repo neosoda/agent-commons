@@ -690,7 +690,7 @@
     },
     {
       "id": "do",
-      "name": "Do",
+      "name": "Do (Claude-Mem)",
       "description": "Execute a phased implementation plan using subagents. Use when asked to execute, run, or carry out a plan — especially one created by make-plan.",
       "category": "ai-automation",
       "author": "thedotmack",
