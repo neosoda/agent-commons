@@ -140,8 +140,10 @@ describe('Pinned managed updates: offline status, preview, integrity and recover
     const { ctx, target } = await installStale();
     const corrupted: FetchJson = async url => {
       if (url.includes('/git/trees/')) return upgradedFetch(url);
-      if (url.includes('/git/blobs/')) return { sha: newHash, size: newContent.length,
-        encoding: 'base64', content: Buffer.from('bad').toString('base64') };
+      if (url.includes('/git/blobs/')) {
+        const expected = await upgradedFetch(url) as Record<string, unknown>;
+        return { ...expected, content: Buffer.from('bad').toString('base64') };
+      }
       throw new Error('Bad mock');
     };
     const baseline = listBackups(ctx).length;
