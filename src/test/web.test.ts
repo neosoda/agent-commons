@@ -60,6 +60,8 @@ describe('local Skill Hub HTTP security and user workflows', () => {
       assert.ok(page.includes('id="' + control + '"'), 'missing action ' + control);
     }
     assert.ok(!page.includes('onerror='), 'no inline event handler execution');
+    assert.doesNotMatch(page, /\sstyle="/, 'CSP forbids inline style attributes');
+    assert.doesNotMatch(page, /<[^>]+\sclass="[^"]*"[^>]+\sclass="/, 'no duplicate class attributes');
   });
 
   it('returns a safe catalog and agent inventory without absolute local paths or secrets', async () => {
