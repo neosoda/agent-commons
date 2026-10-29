@@ -2,6 +2,8 @@ import crypto from 'node:crypto';
 import http, { type IncomingMessage, type ServerResponse } from 'node:http';
 import { spawn } from 'node:child_process';
 import { runList } from '../commands/list.js';
+import { runDoctor } from '../commands/doctor.js';
+import { runSync } from '../commands/sync.js';
 import { readPublicCatalog, searchPublicCatalog } from '../commands/public-catalog.js';
 import { verifyCatalogSkills } from '../commands/skill-verify.js';
 import { installCatalogSkill, updateCatalogSkill, uninstallCatalogSkill, previewCatalogInstall, previewCatalogUpdate, previewCatalogUninstall } from '../commands/skill-install.js';
@@ -169,6 +171,16 @@ export async function startWebServer(options: WebOptions = {}): Promise<WebInsta
       if (req.method === 'GET' && path.pathname === '/api/state') {
         json(res, 200, safeState(ctx)); return;
       }
+      if (req.method === 'GET' && path.pathname === '/api/doctor') {
+        const doctor = runDoctor(ctx);
+        json(res, 200, { healthy: doctor.healthy, linkStrategy: doctor.linkStrategy,
+          linkCapabilityVerified: doctor.linkCapabilityVerified,
+          centralMcpStatus: doctor.centralMcpStatus,
+          agents: doctor.agents.map(agent => ({ id: agent.id, name: agent.name,
+            installed: agent.installed, brokenLinksCount: agent.brokenLinksCount,
+            conflictSkillsCount: agent.conflictSkillsCount, mcpStatus: agent.mcpStatus })),
+          issues: doctor.issues.map(redactSecrets) }); return;
+      }
       if (req.method === 'GET' && path.pathname === '/api/preview') {
         const id = checkedId(path.searchParams.get('id'));
         const op = path.searchParams.get('op');
@@ -218,6 +230,13 @@ export async function startWebServer(options: WebOptions = {}): Promise<WebInsta
           if (preflight.errors.length) throw new Error('Sync preview reported errors; refusing to apply.');
           json(res, 200, summarize(runSavedProfilesSync(ctx, { dryRun: false })));
           return;
+        }
+        if (action === 'sync-all-preview' || action === 'sync-all-apply') {
+          if (action === 'sync-all-apply') requireApproval(body);
+          const preflight = runSync(ctx, { dryRun: true });
+          if (action === 'sync-all-preview') { json(res, 200, summarize(preflight)); return; }
+          if (preflight.errors.length) throw new Error('Full sync preview reported errors; refusing to apply.');
+          json(res, 200, summarize(runSync(ctx, { dryRun: false }))); return;
         }
         if (action === 'backup') {
           requireApproval(body);
