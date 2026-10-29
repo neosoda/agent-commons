@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
+import http from 'node:http';
 import os from 'node:os';
 import path from 'node:path';
 import { afterEach, beforeEach, describe, it } from 'node:test';
@@ -54,8 +55,15 @@ describe('local Skill Hub HTTP security and user workflows', () => {
   });
 
   it('refuses foreign hosts, cross-origin requests, missing token and GET mutations', async () => {
-    const badHost = await fetch(instance.url + '/api/state', { headers: { host: 'evil.example' } });
-    assert.equal(badHost.status, 403);
+    const badHostStatus = await new Promise<number>((resolve, reject) => {
+      const url = new URL(instance.url);
+      const req = http.request({ hostname: '127.0.0.1', port: Number(url.port),
+        path: '/api/state', headers: { Host: 'evil.example' } }, response => {
+        response.resume(); response.on('end', () => resolve(response.statusCode ?? 0));
+      });
+      req.on('error', reject); req.end();
+    });
+    assert.equal(badHostStatus, 403);
     const badOrigin = await fetch(instance.url + '/api/state', { headers: { origin: 'http://evil.example' } });
     assert.equal(badOrigin.status, 403);
     const noToken = await post({ action: 'backup', approved: true }, {'x-agent-commons-csrf': 'bad'});
