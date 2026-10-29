@@ -98,6 +98,13 @@ export async function previewCatalogInstall(
   if (inspectPath(target).state !== 'missing') {
     throw new Error('Skill already exists locally; refusing overwrite (including links).');
   }
+  return previewPinnedFiles(ctx, skill, fetchJson);
+}
+
+async function previewPinnedFiles(
+  ctx: EnvironmentContext, skill: PublicSkill, fetchJson: FetchJson
+): Promise<InstallPreview> {
+  const target = path.join(ctx.centralSkillsDir, skill.id);
   const { owner, name } = canonicalGitHubRepository(skill.repository);
   const url = 'https://api.github.com/repos/' + owner + '/' + name +
     '/git/trees/' + skill.ref + '?recursive=1';
@@ -269,8 +276,10 @@ function inspectManagedInstall(ctx: EnvironmentContext, id: string): UninstallPr
   }
   const catalog = readPublicCatalog().catalog;
   const known = catalog.skills.find(s => s.id === id);
+  const expectedSource = known && known.repository + '/tree/' + raw.commit +
+    (known.path === '.' ? '' : '/' + known.path);
   if (!known || known.repository !== raw.repository ||
-      !raw.source.startsWith(known.repository + '/tree/' + raw.commit)) {
+      raw.source !== expectedSource) {
     throw new Error('Receipt provenance does not match reviewed catalog origins.');
   }
 
