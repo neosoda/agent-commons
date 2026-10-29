@@ -27,11 +27,25 @@ export function runSync(ctx: EnvironmentContext, options: SyncOptions = {}): Syn
   let rolledBack = false;
 
   try {
+    if (options.skillFilter !== undefined) {
+      if (options.skillFilter.length === 0) {
+        throw new Error('No skills selected; refusing an empty filtered sync.');
+      }
+      if (options.adopt || options.mcpOnly) {
+        throw new Error('Selective skills sync cannot be combined with --adopt or --mcp-only.');
+      }
+      const present = new Set(discoverCentralSkills(ctx).map(skill => skill.name));
+      const missing = options.skillFilter.filter(name => !present.has(name));
+      if (missing.length > 0) {
+        throw new Error('Selected skills are not in the physical central library: ' + missing.join(', '));
+      }
+    }
     if (!options.mcpOnly) {
       skillResults = syncSkillsForAgents(ctx, agents, options, snapshot);
     }
 
-    if (!options.skillsOnly) {
+    // When a skill subset is selected, MCP configs are never touched implicitly.
+    if (!options.skillsOnly && options.skillFilter === undefined) {
       mcpResults = syncMcpForAgents(ctx, agents, options, snapshot);
     }
 

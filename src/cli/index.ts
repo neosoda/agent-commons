@@ -7,6 +7,7 @@ import { searchPublicCatalog, readPublicCatalog } from '../commands/public-catal
 import { installCatalogSkill, uninstallCatalogSkill } from '../commands/skill-install.js';
 import { runList } from '../commands/list.js';
 import { runSync } from '../commands/sync.js';
+import { discoverCentralSkills } from '../sync/skills.js';
 import { createFullBackup, listBackups, restoreBackup } from '../core/backup.js';
 import { createEnvironmentContext } from '../core/context.js';
 import { redactSecrets } from '../security/scrubber.js';
@@ -42,6 +43,8 @@ SYNC OPTIONS:
   --force                 Backup and replace diverged skill folders or conflicting MCP entries
   --skills-only           Synchronize only skills (skip MCP manifest)
   --mcp-only              Synchronize only MCP servers (skip skills)
+  --skill <id>             Link only this central skill (repeatable; excludes MCP)
+  --profile <category>     Link only catalog skills in this category (repeatable; excludes MCP)
 
 EXAMPLES:
   agent-commons doctor
@@ -53,6 +56,8 @@ EXAMPLES:
   agent-commons catalog info skill-creator
   agent-commons catalog review --json
   agent-commons sync --dry-run
+  agent-commons sync --profile design --agent codex --dry-run
+  agent-commons sync --skill skill-creator --agent codex
   agent-commons sync
   agent-commons backup
   agent-commons restore
@@ -126,6 +131,8 @@ Options:
   --skills-only     Sync skills only
   --mcp-only        Sync MCP servers only
   --agent <id>      Target specific agent(s) only
+  --skill <id>      Sync only named central skill(s); repeatable
+  --profile <id>    Sync central skills matching public catalog category; repeatable
   --home <path>     Override user home directory
   --json            Emit JSON output
   -h, --help        Show this help message
@@ -182,7 +189,9 @@ export function runCli(argv: string[] = process.argv.slice(2)): number {
         source: { type: 'string' },
         author: { type: 'string' },
         license: { type: 'string' },
-        yes: { type: 'boolean', default: false }
+        yes: { type: 'boolean', default: false },
+        skill: { type: 'string', multiple: true },
+        profile: { type: 'string', multiple: true }
       }
     });
 
@@ -446,7 +455,26 @@ export function runCli(argv: string[] = process.argv.slice(2)): number {
     }
 
     if (command === 'sync') {
+      if (values.profile?.length && values.skill?.length) {
+        throw new Error('Use either --profile or --skill, not both.');
+      }
+      let skillFilter = values.skill;
+      if (values.profile?.length) {
+        const { catalog, categories } = readPublicCatalog();
+        const allowed = new Set(categories.map(c => c.id));
+        const unknown = values.profile.filter(p => !allowed.has(p));
+        if (unknown.length > 0) {
+          throw new Error('Unknown profile: ' + unknown.join(', ') +
+            ' (see catalog/categories.json for valid categories).');
+        }
+        const chosen = new Set(values.profile);
+        const installedCentral = new Set(discoverCentralSkills(ctx).map(s => s.name));
+        skillFilter = catalog.skills
+          .filter(s => chosen.has(s.category) && installedCentral.has(s.id))
+          .map(s => s.id);
+      }
       const report = runSync(ctx, {
+        skillFilter,
         dryRun: values['dry-run'],
         adopt: values.adopt,
         force: values.force,
