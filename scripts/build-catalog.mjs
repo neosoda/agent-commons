@@ -8,7 +8,7 @@ const target = path.join(root, 'docs', 'skills', 'README.md');
 const expected = renderPublicCatalogMarkdown();
 
 if (process.argv.includes('--check')) {
-  if (!fs.existsSync(target) || fs.readFileSync(target, 'utf8') !== expected) {
+  if (!fs.existsSync(target) || fs.readFileSync(target, 'utf8').replace(/\r\n/g, '\n') !== expected) {
     console.error('Skill Hub documentation is stale. Run npm run catalog:generate and commit the index.');
     process.exitCode = 1;
   } else {
