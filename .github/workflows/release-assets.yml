@@ -13,11 +13,11 @@ concurrency:
 
 jobs:
   package:
-    name: Verify tag and attach portable Windows assets
+    name: Verify tag and build portable Windows assets
     runs-on: windows-latest
     timeout-minutes: 30
     permissions:
-      contents: write
+      contents: read
     steps:
       - name: Check out exact published tag
         uses: actions/checkout@v7
@@ -51,14 +51,6 @@ jobs:
       - name: Package and smoke-test portable Windows bundle
         shell: pwsh
         run: ./scripts/build-windows-portable.ps1
-      - name: Attach ZIP and SHA256 checksum to the official release
-        shell: pwsh
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          RELEASE_TAG: ${{ github.event.release.tag_name }}
-        run: |
-          gh release upload $env:RELEASE_TAG artifacts/portable/AgentCommons-win-x64-portable.zip artifacts/portable/AgentCommons-win-x64-portable.zip.sha256 --clobber
-          if ($LASTEXITCODE -ne 0) { throw 'GitHub Release asset upload failed.' }
       - name: Retain build artifacts for troubleshooting
         if: always()
         uses: actions/upload-artifact@v6
@@ -69,3 +61,22 @@ jobs:
             artifacts/portable/AgentCommons-win-x64-portable.zip.sha256
           if-no-files-found: ignore
           retention-days: 14
+  publish:
+    name: Publish checksum-verified Windows assets
+    needs: package
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download validated portable files
+        uses: actions/download-artifact@v6
+        with:
+          name: validated-windows-portable-release
+          path: artifacts/portable
+      - name: Attach ZIP and SHA256 checksum to GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          gh release upload "$RELEASE_TAG" artifacts/portable/AgentCommons-win-x64-portable.zip artifacts/portable/AgentCommons-win-x64-portable.zip.sha256 --clobber
