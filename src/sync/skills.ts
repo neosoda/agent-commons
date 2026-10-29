@@ -89,7 +89,7 @@ export function syncSkillsForAgents(
   // Step 1: Optional adoption of local-only physical skills into central ~/.agents/skills/
   const initialCentral = new Set(discoverCentralSkills(ctx).map((s) => s.name));
 
-  for (const agent of installedAgents) {
+  for (const agent of options.skillFilterByAgent ? [] : installedAgents) {
     const skillsDirInfo = inspectPath(agent.skillsDirPath);
     if (skillsDirInfo.state === 'link' || skillsDirInfo.state === 'file') {
       results.push({
@@ -176,7 +176,11 @@ export function syncSkillsForAgents(
       continue;
     }
 
+    const perAgent = options.skillFilterByAgent
+      ? new Set(options.skillFilterByAgent[agent.definition.id] ?? [])
+      : null;
     for (const cs of centralSkills) {
+      if (perAgent && !perAgent.has(cs.name)) continue;
       const alreadyHandled = results.some(
         (r) =>
           r.agentId === agent.definition.id &&
