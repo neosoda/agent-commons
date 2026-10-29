@@ -3,6 +3,28 @@
   "generatedAt": "2026-10-29",
   "skills": [
     {
+      "id": "3dviz-pro-max",
+      "name": "3dviz Pro Max",
+      "description": "Design and build expressive 3D scenes, explainers and interactive models with grounded subject knowledge. Use for 3D creation or edits, including scientific visualization and spatial puzzles.",
+      "category": "design",
+      "author": "viettranx",
+      "repository": "https://github.com/viettranx/3dviz-pro-max",
+      "source": "https://github.com/viettranx/3dviz-pro-max/tree/d077e0e68915c25be8e71d74684d3144fd1c2aca/skills/3dviz-pro-max",
+      "path": "skills/3dviz-pro-max",
+      "ref": "d077e0e68915c25be8e71d74684d3144fd1c2aca",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/viettranx/3dviz-pro-max/blob/d077e0e68915c25be8e71d74684d3144fd1c2aca/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "design"
+      ]
+    },
+    {
       "id": "agent-cost-report",
       "name": "Agent Cost Report",
       "description": "Believable agent cost report for any period, default the last 7 full days PT, not counting today. Measured tokens from Claude Code transcripts priced at OpenRouter list prices (ESTIMATED), measured provider spend when a sanctioned source exists, note-taker cost separate, Timing-style HTML/PDF plus report.json, line-items.csv, evidence.json. - Bash - Read - Write - AskUserQuestion - mcp__plugin_claude-mem_mcp-search__search - mcp__plugin_claude-mem_mcp-search__timeline - mcp__",
@@ -23,6 +45,28 @@
       "tags": [
         "ai-automation",
         "claude-mem"
+      ]
+    },
+    {
+      "id": "ai-act-compliance",
+      "name": "Ai Act Compliance",
+      "description": "Supports compliance with the EU Artificial Intelligence Act (Regulation (EU) 2024/1689). Use when the user needs to classify an AI system under the AI Act risk categories (prohibited, high-risk, limited, minimal, GPAI), check provider or deployer obligations for high-risk systems, evaluate GPAI model obligations including systemic risk thresholds, verify transparency obligations under Article 50, or run a fundamental rights impact assessment (FRIA) under Article 27. Target us",
+      "category": "security",
+      "author": "Davide Morelli",
+      "repository": "https://github.com/morellid/ai-act-skill",
+      "source": "https://github.com/morellid/ai-act-skill/tree/01e716f0b75f2cb0fafe1870bf03fd4e52b9b82b",
+      "path": ".",
+      "ref": "01e716f0b75f2cb0fafe1870bf03fd4e52b9b82b",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/morellid/ai-act-skill/blob/01e716f0b75f2cb0fafe1870bf03fd4e52b9b82b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "security"
       ]
     },
     {
@@ -69,6 +113,28 @@
       "tags": [
         "design",
         "ui-ux"
+      ]
+    },
+    {
+      "id": "brag",
+      "name": "Brag",
+      "description": "Turn the current project website into a short, polished, shareable launch video using Hyperframes. Use when someone says \"/brag\", \"let's brag about this\", \"make a launch video\", \"turn this into a video\", or wants to share what they built. Reads the project code directly — no live URL or screenshots needed.",
+      "category": "productivity",
+      "author": "latent-spaces",
+      "repository": "https://github.com/latent-spaces/brag",
+      "source": "https://github.com/latent-spaces/brag/tree/669ab9286aa28b6c3ee30e75f181ee74319d012a/skills/brag",
+      "path": "skills/brag",
+      "ref": "669ab9286aa28b6c3ee30e75f181ee74319d012a",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/latent-spaces/brag/blob/669ab9286aa28b6c3ee30e75f181ee74319d012a/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "productivity"
       ]
     },
     {
@@ -601,6 +667,28 @@
       ]
     },
     {
+      "id": "diagram-design",
+      "name": "Diagram Design",
+      "description": "Create branded architecture, architecture delta, IT current-state, flowchart, sequence, state machine, ER/data model, timeline, swimlane, quadrant, radar/spider, polar chart (polar/radial lollipop), loop/flywheel, nested, tree, org chart, layer stack, exploded axonometric, axonometric plan, Venn, pyramid/funnel, treemap and marimekko, heatmap, bar and dumbbell, waterfall, line (slopegraph, ridgeline, streamgraph, bump), Gantt and scatter charts (bubble, beeswarm, box plot), h",
+      "category": "design",
+      "author": "Cathryn Lavery",
+      "repository": "https://github.com/cathrynlavery/diagram-design",
+      "source": "https://github.com/cathrynlavery/diagram-design/tree/0cf73c3fcc56667ad91a9a04c439ac6ccfabc9d1/skills/diagram-design",
+      "path": "skills/diagram-design",
+      "ref": "0cf73c3fcc56667ad91a9a04c439ac6ccfabc9d1",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/cathrynlavery/diagram-design/blob/0cf73c3fcc56667ad91a9a04c439ac6ccfabc9d1/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "design"
+      ]
+    },
+    {
       "id": "do",
       "name": "Do",
       "description": "Execute a phased implementation plan using subagents. Use when asked to execute, run, or carry out a plan — especially one created by make-plan.",
@@ -645,6 +733,28 @@
         "design",
         "hyperframes",
         "video"
+      ]
+    },
+    {
+      "id": "find-skills",
+      "name": "Find Skills",
+      "description": "Helps users discover and install agent skills when they ask questions like \"how do I do X\", \"find a skill for X\", \"is there a skill that can...\", or express interest in extending capabilities. This skill should be used when the user is looking for functionality that might exist as an installable skill.",
+      "category": "ai-automation",
+      "author": "Vercel",
+      "repository": "https://github.com/vercel-labs/skills",
+      "source": "https://github.com/vercel-labs/skills/tree/92a9a34ac3bf88e695e468b90c7bf32f163d32c8/skills/find-skills",
+      "path": "skills/find-skills",
+      "ref": "92a9a34ac3bf88e695e468b90c7bf32f163d32c8",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/vercel-labs/skills/blob/92a9a34ac3bf88e695e468b90c7bf32f163d32c8/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ai-automation"
       ]
     },
     {
@@ -921,6 +1031,28 @@
       "tags": [
         "design",
         "anthropic"
+      ]
+    },
+    {
+      "id": "hallmark",
+      "name": "Hallmark",
+      "description": "Design skill for websites and new pages that look designed, not generated. Use when the user asks to build or design something new, or names Hallmark. Never use it on an existing design unless the user names Hallmark, as in `/hallmark redesign path `.",
+      "category": "design",
+      "author": "nutlope",
+      "repository": "https://github.com/nutlope/hallmark",
+      "source": "https://github.com/nutlope/hallmark/tree/8f6969f8922caabde9de1784959eae11ddf68073/skills/hallmark",
+      "path": "skills/hallmark",
+      "ref": "8f6969f8922caabde9de1784959eae11ddf68073",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/nutlope/hallmark/blob/8f6969f8922caabde9de1784959eae11ddf68073/skills/hallmark/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "design"
       ]
     },
     {
@@ -1436,6 +1568,28 @@
       ]
     },
     {
+      "id": "saas-product-demo-video",
+      "name": "Saas Product Demo Video",
+      "description": "Build, refine or reskin a short SaaS product film in Remotion, cut to the beat of its soundtrack, from the product's real screens, brand and copy. Use when the user wants a product demo, launch video, explainer or social reel of their software made in code; wants an existing product film changed, reskinned or critiqued; or has a product with no interface to record and needs schematic UI. Covers 16:9 and 9:16, b-roll under motion graphics, sound effects and checked renders. No",
+      "category": "design",
+      "author": "Noam Dorr",
+      "repository": "https://github.com/noamdorr/saas-product-demo-video",
+      "source": "https://github.com/noamdorr/saas-product-demo-video/tree/74f4f7150810b1bb5bf9160c4a2742c5dce69b62/skills/saas-product-demo-video",
+      "path": "skills/saas-product-demo-video",
+      "ref": "74f4f7150810b1bb5bf9160c4a2742c5dce69b62",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/noamdorr/saas-product-demo-video/blob/74f4f7150810b1bb5bf9160c4a2742c5dce69b62/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "design"
+      ]
+    },
+    {
       "id": "safe-refactor",
       "name": "Safe Refactor",
       "description": "Restructure code while preserving behavior. Use for extraction, consolidation, ownership moves, or cleanup where verification must bracket structural edits.",
@@ -1479,6 +1633,28 @@
       "tags": [
         "productivity",
         "claude-mem"
+      ]
+    },
+    {
+      "id": "security-audit",
+      "name": "Security Audit",
+      "description": "Security guidance and vulnerability review for codebases, APIs, services, CLI tools, libraries, and daemons. Use for security questions, focused reviews, vulnerability research, security audits, or pen tests. Run the complete workflow only for explicit codebase audit or pen-test requests, full/comprehensive/end-to-end reviews, or requested report artifacts.",
+      "category": "security",
+      "author": "Cloudflare",
+      "repository": "https://github.com/cloudflare/security-audit-skill",
+      "source": "https://github.com/cloudflare/security-audit-skill/tree/c1c8a8c1471069fb0e188eeaff69b8e8db6564a8/skills/security-audit",
+      "path": "skills/security-audit",
+      "ref": "c1c8a8c1471069fb0e188eeaff69b8e8db6564a8",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/cloudflare/security-audit-skill/blob/c1c8a8c1471069fb0e188eeaff69b8e8db6564a8/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "security"
       ]
     },
     {
