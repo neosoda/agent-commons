@@ -2,7 +2,7 @@
 
 A metadata-only catalog of **89 upstream skills**. Sources and license texts were inspected on **2026-10-29**; this does **not** certify code safety or grant additional redistribution rights.
 
-| Skill | What it does | Category | Original author | Upstream license |
+| Skill | What it does | Category | Upstream / maintainer | Upstream license |
 |:--|:--|:--|:--|:--|
 | [3dviz Pro Max](https://github.com/viettranx/3dviz-pro-max/tree/d077e0e68915c25be8e71d74684d3144fd1c2aca/skills/3dviz-pro-max) | Design and build expressive 3D scenes, explainers and interactive models with grounded subject knowledge. Use for 3D creation or edits, including scientific visualization and spatial puzzles. | UI / UX | viettranx | [MIT](https://github.com/viettranx/3dviz-pro-max/blob/d077e0e68915c25be8e71d74684d3144fd1c2aca/LICENSE) |
 | [Agent Cost Report](https://github.com/thedotmack/claude-mem/tree/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/plugin/skills/agent-cost-report) | Believable agent cost report for any period, default the last 7 full days PT, not counting today. Measured tokens from Claude Code transcripts priced at OpenRouter list prices (ESTIMATED), measured provider spend when a sanctioned source exists, note-taker cost separate, Timing-style HTML/PDF plus report.json, line-items.csv, evidence.json. - Bash - Read - Write - AskUserQuestion - mcp__plugin_claude-mem_mcp-search__search - mcp__plugin_claude-mem_mcp-search__timeline - mcp__ | AI / Automation | thedotmack | [Apache-2.0](https://github.com/thedotmack/claude-mem/blob/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/LICENSE) |
