@@ -110,10 +110,13 @@ jobs:
           set -euo pipefail
           TARBALL="$(npm pack --silent)"
           trap 'rm -f "$TARBALL"' EXIT
-          tar -tzf "$TARBALL" | grep -qx 'package/dist/web/server.js'
-          tar -tzf "$TARBALL" | grep -qx 'package/dist/cli/index.js'
-          tar -tzf "$TARBALL" | grep -qx 'package/catalog/skills.json'
-          tar -tzf "$TARBALL" | grep -qx 'package/LICENSE'
+          CONTENTS="$(tar -tzf "$TARBALL")"
+          for REQUIRED in package/dist/web/server.js package/dist/cli/index.js package/catalog/skills.json package/LICENSE; do
+            if ! grep -Fqx "$REQUIRED" <<< "$CONTENTS"; then
+              echo "::error::Missing required published file: $REQUIRED"
+              exit 1
+            fi
+          done
           echo "Verified shipped UI, CLI, catalog and license in $TARBALL"
 
       - name: Publish to npm via OIDC Trusted Publishing with Provenance
