@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="330" viewBox="0 0 1200 330" role="img" aria-labelledby="title desc">
+<title id="title">Agent Commons</title>
+<desc id="desc">A dark gradient banner with the Agent Commons title and a connected hub of skills and AI agents.</desc>
+<defs>
+  <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#0B1123"/><stop offset=".54" stop-color="#131B37"/><stop offset="1" stop-color="#10192D"/></linearGradient>
+  <linearGradient id="brand" x1="0" x2="1" y1="0" y2="0"><stop stop-color="#70E7D6"/><stop offset="1" stop-color="#91A0FF"/></linearGradient>
+  <linearGradient id="node" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#25365A"/><stop offset="1" stop-color="#172540"/></linearGradient>
+  <radialGradient id="glow"><stop stop-color="#587CF2" stop-opacity=".25"/><stop offset="1" stop-color="#587CF2" stop-opacity="0"/></radialGradient>
+  <filter id="shadow"><feDropShadow dx="0" dy="6" stdDeviation="14" flood-color="#000" flood-opacity=".27"/></filter>
+</defs>
+<rect x="1" y="1" width="1198" height="328" rx="26" fill="url(#bg)" stroke="#2A3D5B" stroke-width="2"/>
+<circle cx="978" cy="165" r="260" fill="url(#glow)"/>
+<g stroke="#283759" stroke-width="1" opacity=".48">
+  <path d="M0 60 H1200 M0 120 H1200 M0 180 H1200 M0 240 H1200 M0 300 H1200"/>
+  <path d="M60 0 V330 M120 0 V330 M180 0 V330 M240 0 V330 M300 0 V330 M360 0 V330 M420 0 V330 M480 0 V330 M540 0 V330 M600 0 V330 M660 0 V330 M720 0 V330 M780 0 V330 M840 0 V330 M900 0 V330 M960 0 V330 M1020 0 V330 M1080 0 V330 M1140 0 V330"/>
+</g>
+<g font-family="Inter,Segoe UI,Arial,sans-serif">
+  <rect x="62" y="51" width="164" height="31" rx="15.5" fill="#172E3B" stroke="#2C726F"/>
+  <circle cx="81" cy="66.5" r="4" fill="#6EF0CA"/>
+  <text x="95" y="72" font-size="13" font-weight="700" fill="#9AE9D8" letter-spacing="2">LOCAL FIRST</text>
+  <text x="60" y="165" font-weight="800" font-size="67" letter-spacing="-2.5" fill="#F6FAFF">Agent <tspan fill="url(#brand)">Commons</tspan></text>
+  <text x="64" y="205" font-size="21" fill="#B5C6DD">One home for skills. One manifest for tools.</text>
+  <text x="64" y="235" font-size="21" fill="#B5C6DD">Every coding agent, in sync.</text>
+  <g font-size="12" font-weight="700" letter-spacing="1.5">
+    <rect x="62" y="267" width="92" height="28" rx="8" fill="#1A3D3D" stroke="#326F68"/><text x="84" y="285" fill="#91EAD6">SKILLS</text>
+    <rect x="166" y="267" width="75" height="28" rx="8" fill="#25284D" stroke="#4A5496"/><text x="188" y="285" fill="#C7CDFF">MCP</text>
+    <rect x="253" y="267" width="120" height="28" rx="8" fill="#243347" stroke="#405A79"/><text x="273" y="285" fill="#CFDBEF">SAFE SYNC</text>
+  </g>
+</g>
+<g stroke-linecap="round" stroke-linejoin="round">
+  <path d="M940 164 L817 88 M940 164 L1060 77 M940 164 L1100 183 M940 164 L1036 274 M940 164 L813 260" fill="none" stroke="#669AAB" stroke-width="3" opacity=".72"/>
+  <g fill="#5FD8C7"><circle cx="870" cy="120" r="4"/><circle cx="1000" cy="121" r="4"/><circle cx="1027" cy="174" r="4"/><circle cx="987" cy="218" r="4"/><circle cx="864" cy="228" r="4"/></g>
+  <g filter="url(#shadow)">
+    <rect x="874" y="104" width="132" height="119" rx="25" fill="#213253" stroke="#78E2D7" stroke-width="2"/>
+    <rect x="889" y="120" width="102" height="88" rx="19" fill="#152840" stroke="#375B79"/>
+    <path d="M920 155 l-13 10 13 10 M960 155 l13 10 -13 10 M952 146 l-20 38" stroke="url(#brand)" stroke-width="6" fill="none"/>
+  </g>
+  <g fill="url(#node)" stroke="#496584" stroke-width="1.6" filter="url(#shadow)">
+    <rect x="759" y="52" width="113" height="62" rx="16"/><rect x="1004" y="42" width="118" height="63" rx="16"/>
+    <rect x="1050" y="156" width="116" height="63" rx="16"/><rect x="977" y="240" width="124" height="62" rx="16"/>
+    <rect x="754" y="235" width="119" height="63" rx="16"/>
+  </g>
+  <g font-family="Inter,Segoe UI,Arial,sans-serif" text-anchor="middle" font-weight="700" font-size="15" fill="#E3ECFF">
+    <text x="815" y="89">CLAUDE</text>
+    <text x="1063" y="80">CODEX</text>
+    <text x="1108" y="194">GEMINI</text>
+    <text x="1039" y="278">CURSOR</text>
+    <text x="814" y="274">+ MORE</text>
+  </g>
+</g>
+</svg>
