@@ -1,0 +1,136 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Agent Commons public skill catalog",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "generatedAt",
+    "skills"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": 1
+    },
+    "generatedAt": {
+      "type": "string",
+      "format": "date"
+    },
+    "skills": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "name",
+          "description",
+          "category",
+          "author",
+          "repository",
+          "source",
+          "path",
+          "ref",
+          "license",
+          "licenseEvidence",
+          "review",
+          "dependencies",
+          "tags"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 3
+          },
+          "description": {
+            "type": "string",
+            "minLength": 10
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "development",
+              "devops",
+              "security",
+              "design",
+              "ai-automation",
+              "documentation",
+              "productivity"
+            ]
+          },
+          "author": {
+            "type": "string",
+            "minLength": 2
+          },
+          "repository": {
+            "type": "string",
+            "format": "uri",
+            "pattern": "^https://"
+          },
+          "source": {
+            "type": "string",
+            "format": "uri",
+            "pattern": "^https://"
+          },
+          "path": {
+            "type": "string",
+            "pattern": "^skills/[a-z0-9-]+$"
+          },
+          "ref": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{40}$"
+          },
+          "license": {
+            "type": "string",
+            "minLength": 2
+          },
+          "licenseEvidence": {
+            "type": "string",
+            "format": "uri",
+            "pattern": "^https://"
+          },
+          "review": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "sourceChecked",
+              "licenseChecked",
+              "scope"
+            ],
+            "properties": {
+              "sourceChecked": {
+                "type": "string",
+                "format": "date"
+              },
+              "licenseChecked": {
+                "type": "string",
+                "format": "date"
+              },
+              "scope": {
+                "const": "source-and-license-only"
+              }
+            }
+          },
+          "dependencies": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[a-z0-9-]+$"
+            }
+          }
+        }
+      }
+    }
+  }
+}
