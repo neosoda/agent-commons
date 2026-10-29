@@ -56,3 +56,6 @@ export { runSync } from './commands/sync.js';
 
 export { readPublicCatalog, searchPublicCatalog, validatePublicCatalog, renderPublicCatalogMarkdown } from './commands/public-catalog.js';
 export type { PublicSkill, PublicCatalog, PublicSkillResult, PublicSearchOptions, Category } from './commands/public-catalog.js';
+
+export { reviewLocalCatalog } from './commands/catalog-review.js';
+export type { LocalCatalogReview, LocalSkillReview, ReviewReason } from './commands/catalog-review.js';
