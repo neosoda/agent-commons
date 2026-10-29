@@ -4,7 +4,7 @@ import { runDoctor } from '../commands/doctor.js';
 import { runCatalog } from '../commands/catalog.js';
 import { reviewLocalCatalog } from '../commands/catalog-review.js';
 import { searchPublicCatalog, readPublicCatalog } from '../commands/public-catalog.js';
-import { installCatalogSkill, uninstallCatalogSkill } from '../commands/skill-install.js';
+import { installCatalogSkill, uninstallCatalogSkill, updateCatalogSkill, listCatalogOutdated } from '../commands/skill-install.js';
 import { runList } from '../commands/list.js';
 import { runSync } from '../commands/sync.js';
 import { discoverCentralSkills } from '../sync/skills.js';
@@ -106,10 +106,11 @@ Without a subcommand: inventory LOCAL skills only (existing behavior).
   catalog install <id>                Preview exact pinned GitHub files (no writes)
   catalog install <id> --yes          Explicitly approve staged installation
   catalog install <id> --dry-run      Preview only (never write)
-  catalog update <id>                 DISABLED until safe update and rollback are validated
+  catalog update <id>                 Preview pinned catalog changes (no writes)
+  catalog update <id> --yes           Approve update of intact, unlinked managed skill
   catalog uninstall <id>              Verify receipt and preview removal (offline)
   catalog uninstall <id> --yes        Remove intact managed skill after backup
-  catalog outdated                    DISABLED: upstream freshness is not verified
+  catalog outdated                    Offline comparison against reviewed catalog commits
 
 Filters for list/search: --category, --source, --author, --license
 Options: --home <path>, --json, --help
@@ -387,7 +388,26 @@ export function runCli(argv: string[] = process.argv.slice(2)): number {
         }
         return 0;
       }
-      if (subcommand === 'install' || subcommand === 'update' || subcommand === 'outdated') {
+      if (subcommand === 'outdated') {
+        if (positionals.length !== 2) {
+          console.error('Usage: agent-commons catalog outdated [--json]');
+          return 1;
+        }
+        const results = listCatalogOutdated(ctx);
+        if (values.json) console.log(JSON.stringify(results, null, 2));
+        else {
+          console.log('=== Agent Commons Managed Skill Catalog Status ===');
+          for (const item of results) {
+            console.log('  ' + item.skill + ' | ' + item.status +
+              ' | installed: ' + (item.installedCommit ?? 'unknown') +
+              ' | catalog: ' + item.catalogCommit);
+          }
+          if (results.length === 0) console.log('No Agent Commons-managed catalog skills found.');
+          console.log('Offline check against reviewed catalog pins, NOT a check for latest upstream revisions.');
+        }
+        return 0;
+      }
+      if (subcommand === 'install' || subcommand === 'update') {
         console.error('Catalog ' + subcommand + ' requires the async CLI entry point or is not yet supported.');
         console.error('Review the upstream project and use its installation instructions only if you trust it.');
         console.error('Agent Commons did not download, run or modify anything.');
@@ -602,7 +622,7 @@ export function runCli(argv: string[] = process.argv.slice(2)): number {
  * The existing synchronous runCli API is preserved for all other commands.
  */
 export async function runCliAsync(argv: string[] = process.argv.slice(2)): Promise<number> {
-  if (argv[0] !== 'catalog' || argv[1] !== 'install' ||
+  if (argv[0] !== 'catalog' || !['install', 'update'].includes(argv[1] ?? '') ||
       argv.includes('--help') || argv.includes('-h')) return runCli(argv);
   try {
     const parsed = parseArgs({
@@ -616,31 +636,45 @@ export async function runCliAsync(argv: string[] = process.argv.slice(2)): Promi
       }
     });
     if (parsed.positionals.length !== 3 || !parsed.positionals[2]) {
-      console.error('Usage: agent-commons catalog install <id> [--dry-run | --yes] [--home <path>]');
+      console.error('Usage: agent-commons catalog ' + parsed.positionals[1] + ' <id> [--dry-run | --yes] [--home <path>]');
       return 1;
     }
     const { values } = parsed;
     const ctx = createEnvironmentContext({ homeDir: values.home });
-    const result = await installCatalogSkill(ctx, parsed.positionals[2], {
-      yes: Boolean(values.yes) && !values['dry-run']
-    });
-    if (values.json) {
-      console.log(JSON.stringify(result, null, 2));
+    const approved = Boolean(values.yes) && !values['dry-run'];
+    if (parsed.positionals[1] === 'update') {
+      const result = await updateCatalogSkill(ctx, parsed.positionals[2], { yes: approved });
+      if (values.json) console.log(JSON.stringify(result, null, 2));
+      else {
+        console.log('=== Agent Commons Pinned Skill ' + (result.updated ? 'Update' : 'Update Preview') + ' ===');
+        console.log('Skill: ' + result.preview.skill);
+        console.log('Before: ' + result.preview.previousCommit);
+        console.log('After:  ' + result.preview.proposedCommit);
+        console.log('Source: ' + result.preview.source);
+        console.log('Destination: ' + result.preview.target);
+        console.log('Added: ' + result.preview.added.join(', '));
+        console.log('Changed: ' + result.preview.changed.join(', '));
+        console.log('Removed: ' + result.preview.removed.join(', '));
+        if (result.updated) {
+          console.log('Updated without running third-party scripts. Restore snapshot: ' + result.snapshotId);
+        } else {
+          console.log('Preview only; no files changed. Inspect upstream and pass --yes to approve.');
+        }
+      }
     } else {
-      console.log('=== Agent Commons Pinned Skill ' + (result.installed ? 'Installation' : 'Preview') + ' ===');
-      console.log('Skill: ' + result.preview.skill);
-      console.log('Source: ' + result.preview.source);
-      console.log('Commit: ' + result.preview.commit);
-      console.log('Declared upstream license: ' + result.preview.license);
-      console.log('Destination: ' + result.preview.target);
-      console.log('Files: ' + result.preview.files.length + ', bytes: ' + result.preview.totalBytes);
-      for (const file of result.preview.files) console.log('  + ' + file.relativePath + ' (' + file.size + ' bytes)');
-      if (result.installed) {
-        console.log('Installed without executing third-party scripts. Backup: ' + result.snapshotId);
-      } else {
-        console.log('Preview only; no files changed. Inspect the files and run with --yes to approve.');
-        console.log('Installation is restricted to reviewed non-archived GitHub sources;');
-        console.log('new skill only, with no overwrites or automatic agent synchronization.');
+      const result = await installCatalogSkill(ctx, parsed.positionals[2], { yes: approved });
+      if (values.json) console.log(JSON.stringify(result, null, 2));
+      else {
+        console.log('=== Agent Commons Pinned Skill ' + (result.installed ? 'Installation' : 'Preview') + ' ===');
+        console.log('Skill: ' + result.preview.skill);
+        console.log('Source: ' + result.preview.source);
+        console.log('Commit: ' + result.preview.commit);
+        console.log('Declared upstream license: ' + result.preview.license);
+        console.log('Destination: ' + result.preview.target);
+        console.log('Files: ' + result.preview.files.length + ', bytes: ' + result.preview.totalBytes);
+        for (const file of result.preview.files) console.log('  + ' + file.relativePath + ' (' + file.size + ' bytes)');
+        if (result.installed) console.log('Installed without executing third-party scripts. Backup: ' + result.snapshotId);
+        else console.log('Preview only; no files changed. Review upstream and use --yes to approve.');
       }
     }
     return 0;

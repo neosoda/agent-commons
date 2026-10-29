@@ -112,4 +112,4 @@ The links target upstream files pinned to a reviewed Git commit. Agent Commons d
 
 Browse locally: `agent-commons catalog list`, `agent-commons catalog search <query>`, `agent-commons catalog info <id>`.
 
-> Source and license metadata have been checked, but individual executable scripts have not been security-audited. Installation is opt-in and limited to pinned, non-archived GitHub skill trees with explicit --yes approval; updates and removals remain disabled.
+> Source and license metadata have been checked, but individual executable scripts have not been security-audited. Installation, updates and removal of intact managed GitHub skills require explicit --yes approval; catalog outdated checks bundled commit pins offline, not the latest upstream branch.

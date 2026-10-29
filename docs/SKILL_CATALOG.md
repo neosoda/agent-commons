@@ -75,7 +75,21 @@ The default command is an **offline preview with no writes**. It validates the i
 
 Uninstall does not automatically unlink agent configurations: the user must first detach any links through an independently verified safe workflow.
 
-`catalog update` and `catalog outdated` remain **disabled** pending safe updates and upstream freshness verification. Installed third-party scripts are still untrusted; no script execution is part of uninstall.
+### Controlled updates and offline revision status
+
+```bash
+node dist/cli/index.js catalog outdated
+node dist/cli/index.js catalog update skill-creator
+node dist/cli/index.js catalog update skill-creator --yes
+```
+
+`catalog outdated` is an offline, local comparison of **managed receipts** against **immutable commits in this version of the public catalog**. It does **not** reach GitHub or claim to identify the latest upstream commit. Unmanaged installations are not automatically changed.
+
+`catalog update <id>` requires an intact, Agent Commons-managed **public GitHub skill**, an unmodified tracked file inventory, no unknown local files or directories, no links from registered agents, and a different commit already approved in the bundled public catalog. It fetches tree metadata and previews added, changed and removed files. Only `--yes` downloads Git blobs, verifies their hashes, writes a temporary staged copy, takes a focused snapshot of the old directory, then swaps folders with an attempted rename rollback on error. `restore <snapshot-id>` restores the old version.
+
+**Important limitation:** Installing the current catalog revision and immediately running update does nothing. A subsequent *reviewed catalog change* must first introduce a new pinned commit. No arbitrary branch or HEAD updates are allowed. Updates cannot execute skill scripts. Simultaneous processes manipulating the same skill are not currently supported; do not run two installers at once. Only managed and unlinked skills can be replaced.
+
+Installed third-party scripts remain untrusted; no script execution is part of install, update or uninstall.
 
 We evaluated the existing [Vercel Skills manager](https://github.com/vercel-labs/skills), which is useful for interactive installations across many agents. Agent Commons intentionally uses a narrower pinned-commit, staging-only workflow initially so it can reject unsupported transformations and avoid implicit changes outside its central library.
 

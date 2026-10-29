@@ -98,6 +98,13 @@ export async function previewCatalogInstall(
   if (inspectPath(target).state !== 'missing') {
     throw new Error('Skill already exists locally; refusing overwrite (including links).');
   }
+  return previewPinnedFiles(ctx, skill, fetchJson);
+}
+
+async function previewPinnedFiles(
+  ctx: EnvironmentContext, skill: PublicSkill, fetchJson: FetchJson
+): Promise<InstallPreview> {
+  const target = path.join(ctx.centralSkillsDir, skill.id);
   const { owner, name } = canonicalGitHubRepository(skill.repository);
   const url = 'https://api.github.com/repos/' + owner + '/' + name +
     '/git/trees/' + skill.ref + '?recursive=1';
@@ -269,8 +276,10 @@ function inspectManagedInstall(ctx: EnvironmentContext, id: string): UninstallPr
   }
   const catalog = readPublicCatalog().catalog;
   const known = catalog.skills.find(s => s.id === id);
+  const expectedSource = known && known.repository + '/tree/' + raw.commit +
+    (known.path === '.' ? '' : '/' + known.path);
   if (!known || known.repository !== raw.repository ||
-      !raw.source.startsWith(known.repository + '/tree/' + raw.commit)) {
+      raw.source !== expectedSource) {
     throw new Error('Receipt provenance does not match reviewed catalog origins.');
   }
 
@@ -392,4 +401,170 @@ export function uninstallCatalogSkill(
     throw err;
   }
   return { preview, removed: true, snapshotId: snapshot.id };
+}
+
+
+export interface UpdatePreview {
+  skill: string;
+  source: string;
+  previousCommit: string;
+  proposedCommit: string;
+  target: string;
+  added: string[];
+  changed: string[];
+  removed: string[];
+  files: InstallFile[];
+  totalBytes: number;
+}
+export interface UpdateOutcome {
+  preview: UpdatePreview;
+  updated: boolean;
+  snapshotId: string | null;
+}
+export interface OutdatedSkill {
+  skill: string;
+  installedCommit: string | null;
+  catalogCommit: string;
+  status: 'current' | 'outdated' | 'blocked';
+  message?: string;
+}
+
+/** Completely offline: compare an intact managed receipt to the bundled pinned catalog. */
+export function listCatalogOutdated(ctx: EnvironmentContext): OutdatedSkill[] {
+  assertPhysicalRoots(ctx);
+  const { catalog } = readPublicCatalog();
+  const results: OutdatedSkill[] = [];
+  for (const skill of catalog.skills) {
+    const target = path.join(ctx.centralSkillsDir, skill.id);
+    if (inspectPath(path.join(target, RECEIPT_NAME)).state !== 'file') continue;
+    try {
+      const installed = inspectManagedInstall(ctx, skill.id);
+      results.push({
+        skill: skill.id,
+        installedCommit: installed.commit,
+        catalogCommit: skill.ref,
+        status: skill.lifecycle === 'archived' ? 'blocked' :
+          installed.commit === skill.ref ? 'current' : 'outdated',
+        ...(skill.lifecycle === 'archived' ? { message: 'Archived upstream reference' } : {})
+      });
+    } catch (err) {
+      results.push({
+        skill: skill.id, installedCommit: null, catalogCommit: skill.ref,
+        status: 'blocked', message: (err as Error).message
+      });
+    }
+  }
+  return results;
+}
+
+/** A source pinned in the reviewed public catalog is the only accepted update target. */
+export async function previewCatalogUpdate(
+  ctx: EnvironmentContext, id: string, fetchJson: FetchJson = githubJson
+): Promise<UpdatePreview> {
+  const installed = inspectManagedInstall(ctx, id);
+  const skill = currentSkill(ctx, id);
+  canonicalGitHubRepository(skill.repository);
+  if (installed.commit === skill.ref) {
+    throw new Error('Skill already matches the pinned catalog revision.');
+  }
+  const proposed = await previewPinnedFiles(ctx, skill, fetchJson);
+  const oldFiles = new Map<string, string>();
+  for (const file of installed.files) {
+    const data = fs.readFileSync(path.join(installed.target, ...file.split('/')));
+    oldFiles.set(file, crypto.createHash('sha1')
+      .update('blob ' + data.length + '\0').update(data).digest('hex'));
+  }
+  const newFiles = new Map(proposed.files.map(file => [file.relativePath, file.sha]));
+  const added = proposed.files.filter(file => !oldFiles.has(file.relativePath)).map(file => file.relativePath);
+  const changed = proposed.files.filter(file => oldFiles.has(file.relativePath) &&
+    oldFiles.get(file.relativePath) !== file.sha).map(file => file.relativePath);
+  const removed = [...oldFiles.keys()].filter(name => !newFiles.has(name)).sort();
+  return {
+    skill: id, source: skill.source, previousCommit: installed.commit,
+    proposedCommit: skill.ref, target: installed.target,
+    added, changed, removed,
+    files: proposed.files, totalBytes: proposed.totalBytes
+  };
+}
+
+/**
+ * Update only a clean, unlinked Agent Commons-managed GitHub skill.
+ * A focused snapshot is made before a two-rename swap. On failure, try to
+ * put the original directory back; snapshot restore stays available.
+ */
+export async function updateCatalogSkill(
+  ctx: EnvironmentContext, id: string,
+  options: { yes?: boolean; fetchJson?: FetchJson } = {}
+): Promise<UpdateOutcome> {
+  const fetchJson = options.fetchJson ?? githubJson;
+  const preview = await previewCatalogUpdate(ctx, id, fetchJson);
+  if (!options.yes) return { preview, updated: false, snapshotId: null };
+  const skill = currentSkill(ctx, id);
+  const { owner, name } = canonicalGitHubRepository(skill.repository);
+  assertPhysicalRoots(ctx);
+  const staging = fs.mkdtempSync(path.join(ctx.commonsDir, '.agent-commons-stage-'));
+  let staged = true;
+  try {
+    for (const file of preview.files) {
+      const remote = 'https://api.github.com/repos/' + owner + '/' + name +
+        '/git/blobs/' + file.sha;
+      const bytes = decodeVerifiedBlob(await fetchJson(remote), file);
+      const destination = path.join(staging, ...file.relativePath.split('/'));
+      fs.mkdirSync(path.dirname(destination), { recursive: true });
+      fs.writeFileSync(destination, bytes, { flag: 'wx', mode: 0o600 });
+    }
+    const receipt = {
+      schemaVersion: 1, skill: id, repository: skill.repository,
+      source: skill.source, commit: skill.ref, managedBy: 'agent-commons',
+      files: preview.files.map(file => ({ path: file.relativePath, gitBlobSha1: file.sha }))
+    };
+    writeFileAtomicSync(path.join(staging, RECEIPT_NAME), JSON.stringify(receipt, null, 2));
+
+    // Revalidate after network activity, before any local original can be moved.
+    const before = inspectManagedInstall(ctx, id);
+    if (before.commit !== preview.previousCommit ||
+        before.source !== skill.repository + '/tree/' + before.commit +
+          (skill.path === '.' ? '' : '/' + skill.path)) {
+      throw new Error('Local managed skill changed during update; refusing replacement.');
+    }
+
+    const session = new SnapshotSession(ctx, 'manual');
+    session.recordPathBeforeModify('commons', 'central-skill', preview.target);
+    const snapshot = session.commitManifest();
+
+    const quarantine = fs.mkdtempSync(path.join(ctx.commonsDir, '.agent-commons-prev-'));
+    // mkdtemp produces an empty destination; rename requires it absent.
+    fs.rmdirSync(quarantine);
+    let oldMoved = false;
+    let newMoved = false;
+    try {
+      // No user files are deleted until after a verified backup exists.
+      fs.renameSync(preview.target, quarantine);
+      oldMoved = true;
+      fs.renameSync(staging, preview.target);
+      staged = false;
+      newMoved = true;
+    } catch (err) {
+      try {
+        if (newMoved && inspectPath(preview.target).state === 'directory') {
+          removePhysicalDirectorySafe(preview.target);
+        }
+        if (oldMoved && inspectPath(quarantine).state === 'directory') {
+          fs.renameSync(quarantine, preview.target);
+        }
+      } catch (rollback) {
+        throw new Error('Update failed and directory rollback failed. Restore snapshot ' +
+          snapshot.id + ': ' + (rollback as Error).message, { cause: err });
+      }
+      throw err;
+    }
+    // The snapshot is the durable rollback. Failure to clean the previous
+    // directory must not risk removing the newly installed version.
+    try { removePhysicalDirectorySafe(quarantine); } catch { /* preserve old copy */ }
+    return { preview, updated: true, snapshotId: snapshot.id };
+  } finally {
+    if (staged && inspectPath(staging).state === 'directory') {
+      removePhysicalDirectorySafe(staging);
+    }
+  }
 }
