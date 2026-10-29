@@ -28,7 +28,7 @@
   "license": "MIT",
   "type": "module",
   "bin": {
-    "agent-commons": "./dist/cli/index.js"
+    "agent-commons": "dist/cli/index.js"
   },
   "publishConfig": {
     "access": "public"
