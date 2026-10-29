@@ -1325,6 +1325,31 @@
       ]
     },
     {
+      "id": "hyperframes-keyframes",
+      "name": "Hyperframes Keyframes",
+      "description": "Archived upstream: Use when a HyperFrames composition needs a punch-in, punch-out, zoom, reframe, Ken Burns treatment, camera move, visual match/whip handoff, or other seek-safe 2D/3D keyframes; also for GSAP, CSS keyframes, Anime.js, WAAPI, FLIP, paths, masks, SVG morph/draw, text trails, 3D depth, or `hyperframes keyframes` diagnostics. Don't use for broad scene strategy, brand design, media sourcing, captions, or general video planning.",
+      "lifecycle": "archived",
+      "category": "design",
+      "author": "HeyGen",
+      "repository": "https://github.com/heygen-com/hyperframes",
+      "source": "https://github.com/heygen-com/hyperframes/tree/207c8a4daf6480d697f203784f1fd422727569e3/skills/hyperframes-keyframes",
+      "path": "skills/hyperframes-keyframes",
+      "ref": "207c8a4daf6480d697f203784f1fd422727569e3",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/heygen-com/hyperframes/blob/207c8a4daf6480d697f203784f1fd422727569e3/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "design",
+        "hyperframes",
+        "video"
+      ]
+    },
+    {
       "id": "hyperframes-registry",
       "name": "Hyperframes Registry",
       "description": "About 450 ready-made HyperFrames blocks and components installed as editable source - transitions, overlays, titles, kinetic type, captions, charts, map overlays, 3D, camera moves. Use it before hand-building any named visual (CRT scanlines, glitch, film grain, a chart); also for hyperframes add and catalog.",
@@ -1344,6 +1369,31 @@
       "dependencies": [],
       "tags": [
         "development",
+        "hyperframes",
+        "video"
+      ]
+    },
+    {
+      "id": "hyperframes-studio",
+      "name": "Hyperframes Studio",
+      "description": "Archived upstream: Use when working with a person on a HyperFrames project in Studio: first, whether their message asks for a change at all (questions, loose ideas and \"don't change anything\" get an answer and a plan, not an edit); for a new film, the plan, storyboard and build order that the HyperFrames launch films follow; and how the timeline should be laid out so it reads well (one caption track, one element kind per track, every scene a sub",
+      "lifecycle": "archived",
+      "category": "design",
+      "author": "HeyGen",
+      "repository": "https://github.com/heygen-com/hyperframes",
+      "source": "https://github.com/heygen-com/hyperframes/tree/207c8a4daf6480d697f203784f1fd422727569e3/skills/hyperframes-studio",
+      "path": "skills/hyperframes-studio",
+      "ref": "207c8a4daf6480d697f203784f1fd422727569e3",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/heygen-com/hyperframes/blob/207c8a4daf6480d697f203784f1fd422727569e3/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "design",
         "hyperframes",
         "video"
       ]
@@ -1650,6 +1700,56 @@
       ]
     },
     {
+      "id": "motion-graphics",
+      "name": "Motion Graphics",
+      "description": "Archived upstream: Use when creating a short, design-led motion graphic where motion is the message — kinetic typography, stat count-up, chart/data-viz hit, logo sting / brand lockup, lower-third / callout / social overlay, animated map (highlight regions, connect places, zoom to a location), animated tweet / news-article / headline, webpage / UI animation (scroll, cursor, callouts), or fusing a real image's geometry into a chart. Usually under ",
+      "lifecycle": "archived",
+      "category": "design",
+      "author": "HeyGen",
+      "repository": "https://github.com/heygen-com/hyperframes",
+      "source": "https://github.com/heygen-com/hyperframes/tree/207c8a4daf6480d697f203784f1fd422727569e3/skills/motion-graphics",
+      "path": "skills/motion-graphics",
+      "ref": "207c8a4daf6480d697f203784f1fd422727569e3",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/heygen-com/hyperframes/blob/207c8a4daf6480d697f203784f1fd422727569e3/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "design",
+        "hyperframes",
+        "video"
+      ]
+    },
+    {
+      "id": "music-to-video",
+      "name": "Music To Video",
+      "description": "Archived upstream: Turn a music track (an audio file, a video to pull audio from, or a track generated from a mood brief) into a beat-synced video — lyric video, slideshow, or kinetic promo. The music drives all pacing; any user-supplied images/videos are cut onto the same beat grid, and a complete video needs zero assets. Narrated pieces → the input-matched workflow (see /hyperframes). Unclear → /hyperframes.",
+      "lifecycle": "archived",
+      "category": "design",
+      "author": "HeyGen",
+      "repository": "https://github.com/heygen-com/hyperframes",
+      "source": "https://github.com/heygen-com/hyperframes/tree/207c8a4daf6480d697f203784f1fd422727569e3/skills/music-to-video",
+      "path": "skills/music-to-video",
+      "ref": "207c8a4daf6480d697f203784f1fd422727569e3",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/heygen-com/hyperframes/blob/207c8a4daf6480d697f203784f1fd422727569e3/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "design",
+        "hyperframes",
+        "video"
+      ]
+    },
+    {
       "id": "oh-my-issues",
       "name": "Oh My Issues",
       "description": "Cluster a GitHub issue backlog by root cause into a small set of plan-master issues, redirect children with a standardized comment, and bundle architectural-fix PRs that close clusters atomically. Use when an issue tracker has accumulated dozens of reports that share underlying defects, when asked to triage / consolidate / cluster / dedupe issues, when asked to build a plan series or roadmap from open issues, or when routing a new incoming bug into an existing plan.",
@@ -1693,6 +1793,56 @@
       "tags": [
         "ai-automation",
         "claude-mem"
+      ]
+    },
+    {
+      "id": "pr-to-video",
+      "name": "Pr To Video",
+      "description": "Archived upstream: Turn a GitHub pull request (a PR URL, owner/repo#N, or 'this PR' in a checked-out repo) into a code-change explainer video — changelog, feature reveal, fix, or refactor walkthrough built from the diff, commits, and files: the input is a code change, not a website. Not a product promo (/product-launch-video) or a no-PR topic explainer (/faceless-explainer). Unclear → /hyperframes.",
+      "lifecycle": "archived",
+      "category": "design",
+      "author": "HeyGen",
+      "repository": "https://github.com/heygen-com/hyperframes",
+      "source": "https://github.com/heygen-com/hyperframes/tree/207c8a4daf6480d697f203784f1fd422727569e3/skills/pr-to-video",
+      "path": "skills/pr-to-video",
+      "ref": "207c8a4daf6480d697f203784f1fd422727569e3",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/heygen-com/hyperframes/blob/207c8a4daf6480d697f203784f1fd422727569e3/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "design",
+        "hyperframes",
+        "video"
+      ]
+    },
+    {
+      "id": "product-launch-video",
+      "name": "Product Launch Video",
+      "description": "Archived upstream: Turn a product or marketing URL, pasted script, or brief into a product launch / promo video — SaaS promos, feature reveals, product demos, app and company launches. Use when the user wants to market, launch, promote, or reveal a product; the default for any commercial URL. Site tours / showcases of a website route here too — the brief carries the show-it-as-is intent. Unclear → /hyperframes.",
+      "lifecycle": "archived",
+      "category": "design",
+      "author": "HeyGen",
+      "repository": "https://github.com/heygen-com/hyperframes",
+      "source": "https://github.com/heygen-com/hyperframes/tree/207c8a4daf6480d697f203784f1fd422727569e3/skills/product-launch-video",
+      "path": "skills/product-launch-video",
+      "ref": "207c8a4daf6480d697f203784f1fd422727569e3",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/heygen-com/hyperframes/blob/207c8a4daf6480d697f203784f1fd422727569e3/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "design",
+        "hyperframes",
+        "video"
       ]
     },
     {
@@ -1969,6 +2119,31 @@
       "tags": [
         "development",
         "caveman"
+      ]
+    },
+    {
+      "id": "talking-head-recut",
+      "name": "Talking Head Recut",
+      "description": "Archived upstream: Package an existing talking-head / interview / podcast video with timed, designed GRAPHIC OVERLAY cards — kinetic titles, lower-thirds, data callouts, quotes, side panels, picture-in-picture — synced to the transcript, on a 16:9 / 9:16 / 4:5 canvas of your choice; the clip plays untouched underneath. Trigger on \"graphic overlays\", \"on-screen graphics\", \"package / dress up my video\". Not plain subtitles (/embedded-captions). Un",
+      "lifecycle": "archived",
+      "category": "design",
+      "author": "HeyGen",
+      "repository": "https://github.com/heygen-com/hyperframes",
+      "source": "https://github.com/heygen-com/hyperframes/tree/207c8a4daf6480d697f203784f1fd422727569e3/skills/talking-head-recut",
+      "path": "skills/talking-head-recut",
+      "ref": "207c8a4daf6480d697f203784f1fd422727569e3",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/heygen-com/hyperframes/blob/207c8a4daf6480d697f203784f1fd422727569e3/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "design",
+        "hyperframes",
+        "video"
       ]
     },
     {
