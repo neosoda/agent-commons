@@ -4,6 +4,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { beforeEach, afterEach, describe, it } from 'node:test';
 import { createEnvironmentContext } from '../core/context.js';
+import { parseJsoncObject } from '../sync/parsers.js';
 import { applyMcpEdit, mcpEditorOverview, previewMcpEdit } from '../web/mcp-editor.js';
 
 describe('Safe central MCP editor', () => {
@@ -41,7 +42,15 @@ describe('Safe central MCP editor', () => {
     const result=applyMcpEdit(ctx,{...request,expectedRevision:preview.expectedRevision});
     assert.ok(result.snapshotId);
     const updated=fs.readFileSync(ctx.centralMcpPath,'utf8');
-    for(const expected of ['comment to preserve','"API_KEY":"protected"','"custom":{"x":12}','"unrelated": {"keep":true}','codex','gemini-cli'])assert.ok(updated.includes(expected),expected);
+    assert.ok(updated.includes('comment to preserve'));
+    const parsed=parseJsoncObject(updated);
+    const server=(parsed['mcpServers'] as Record<string,Record<string,unknown>>)['demo']!;
+    assert.deepEqual(server['args'],['run']);
+    assert.deepEqual(server['env'],{API_KEY:'protected'});
+    assert.deepEqual(server['custom'],{x:12});
+    assert.deepEqual(parsed['unrelated'],{keep:true});
+    assert.deepEqual(server['agents'],['codex']);
+    assert.deepEqual(server['excludeAgents'],['gemini-cli']);
     assert.equal(updated.includes('\r\n'),true);
     assert.equal(mcpEditorOverview(ctx).servers[0]?.enabled,false);
   });
@@ -74,6 +83,6 @@ describe('Safe central MCP editor', () => {
     const result=applyMcpEdit(ctx,{...request,expectedRevision:preview.expectedRevision});
     assert.ok(result.snapshotId);
     const updated=fs.readFileSync(ctx.centralMcpPath,'utf8');
-    assert.doesNotMatch(updated,/"remove"/);assert.match(updated,/"keep"/);assert.match(updated,/"value":99/);
+    assert.doesNotMatch(updated,/"remove"/);assert.match(updated,/"keep"/);assert.deepEqual(parseJsoncObject(updated)['other'],{value:99});
   });
 });
