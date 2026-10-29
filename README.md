@@ -121,7 +121,7 @@ Agent Commons handles the destination dialect:
 | **JSONC** | `~/.config/opencode/opencode.jsonc` | Merge into `mcp`, preserving comments and formatting |
 | **TOML** | `~/.codex/config.toml` | Merge `[mcp_servers.<name>]` sections |
 
-You can also use `excludeAgents`, `agentOverrides` and environment placeholders such as `\${MY_API_TOKEN}`. **Placeholders are preserved, not a secret vault**—configure credentials securely in the target environment and never commit real credentials to your shared manifest.
+You can also use `excludeAgents`, `agentOverrides` and environment placeholders such as `${MY_API_TOKEN}`. **Placeholders are preserved, not a secret vault**—configure credentials securely in the target environment and never commit real credentials to your shared manifest.
 
 ### 3. Preview, sync, recover
 
