@@ -7,6 +7,15 @@ Agent Commons now maintains a **metadata-only public catalog** in [`catalog/skil
 - **Public:** `agent-commons catalog list`, `catalog search <term>` and `catalog info <id>` read the bundled, curated metadata entirely offline. No network access and no third-party skill files are bundled.
 - **Private local inventory:** `agent-commons catalog` and `catalog --json` read your local `~/.agents/skills` and Vercel-style lockfiles. This is *never* published or included in public catalog builds.
 
+**Recommended starting point for a large local library:**
+
+```bash
+node dist/cli/index.js catalog review
+node dist/cli/index.js catalog review --json
+```
+
+The review reports missing sources, missing author-declared licenses, unpinned refs and duplicate upstream skill paths. It suggests a category based on the directory name, but it does **not** verify license rights, repository publicity or code safety. A detected duplicate is not deleted or automatically merged.
+
 You may redirect private local inventory to a file on your own computer for manual review:
 
 ```bash
@@ -50,3 +59,7 @@ Agent Commons is a synchronizer, not a replacement for the original author's pac
 ## Security and licensing
 
 An open-source repository or license notice does not make its scripts trustworthy. Attribution is mandatory, and a public catalog entry does not grant extra rights to redistribute the underlying files. Always review scripts for unexpected execution, prompt injection, credential access, network actions and file operations before adding skills to an AI agent.
+
+## Community contributions
+
+The public catalog accepts pinned skills from GitHub, GitLab and Codeberg, including nested directories and repository-level LICENSE files. The schema validates URL structure and commit pins, **not** whether a license actually applies. Submit [a Skill Hub proposal](../.github/ISSUE_TEMPLATE/submit_skill.yml) or a PR containing metadata and links to upstream evidence. An actual reviewer must confirm the source, author, license and content before merging. Avoid attaching personal/local review reports to public issues.
