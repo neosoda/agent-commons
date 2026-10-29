@@ -143,7 +143,7 @@ node dist/cli/index.js restore snapshot-<id>
 
 ## Explore Skills — public Skill Hub
 
-**7 upstream skills** currently have verified source and license references. Browse them directly on GitHub in the [public Skills index](docs/skills/README.md).
+**89 upstream skills** currently have verified source and license references. Browse them directly on GitHub in the [public Skills index](docs/skills/README.md).
 
 ```bash
 node dist/cli/index.js catalog list
@@ -157,7 +157,7 @@ All browsing is **offline** using [catalog/skills.json](catalog/skills.json); `-
 
 **Safety boundary:** Only metadata and pinned upstream references are published—not copies of authors' skills. Source and license references have been inspected; executable scripts **have not** been security-audited. `catalog install` and `catalog update` deliberately **refuse to run** until a safe installer/rollback design is validated.
 
-The separate `catalog` / `catalog --json` commands still inventory your **local private library**, using lockfile provenance if available. Do **not** commit those local reports without review. The personal 136-skill library is not bundled or published by this project; upstream source references are reviewed individually.
+The separate `catalog` / `catalog --json` commands still inventory your **local private library**, using lockfile provenance if available. Do **not** commit those local reports without review. Private/local skill reports are never bundled or published; public upstream references are verified individually. Not every installed local skill is available in this public catalog.
 
 See [catalog policy](docs/SKILL_CATALOG.md) and [categories](catalog/categories.json).
 
