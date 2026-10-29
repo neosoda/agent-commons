@@ -1,0 +1,44 @@
+name: Windows portable package
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: portable-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  portable:
+    name: Build and smoke-test Windows portable
+    runs-on: windows-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Install and validate package
+        run: |
+          npm ci
+          npm run typecheck
+          npm test
+          npm pack --dry-run
+      - name: Package verified embedded Node runtime and verify local HTTP boot
+        shell: pwsh
+        run: ./scripts/build-windows-portable.ps1
+      - name: Upload Windows portable ZIP and SHA256
+        uses: actions/upload-artifact@v6
+        with:
+          name: agent-commons-win-x64-portable
+          path: |
+            artifacts/portable/AgentCommons-win-x64-portable.zip
+            artifacts/portable/AgentCommons-win-x64-portable.zip.sha256
+          if-no-files-found: error
+          retention-days: 14
