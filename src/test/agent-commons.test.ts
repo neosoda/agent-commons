@@ -783,4 +783,312 @@ trust_level = "trusted"
       assert.equal(restoreCode, 0);
     });
   });
+
+  describe('10. Structural Preservation Non-Regression (JSONC, JSON & TOML)', () => {
+    it('preserves JSONC comments (before, after, inline), trailing commas, custom 4-space indentation, CRLF, and UTF-8 BOM without modifying outside properties', () => {
+      const ctx = createEnvironmentContext({ homeDir: sandboxDir });
+      fs.mkdirSync(ctx.commonsDir, { recursive: true });
+      fs.writeFileSync(
+        ctx.centralMcpPath,
+        JSON.stringify(
+          {
+            mcpServers: {
+              serena: {
+                type: 'stdio',
+                command: 'uvx',
+                args: ['serena', 'start-mcp-server']
+              }
+            }
+          },
+          null,
+          2
+        ),
+        'utf8'
+      );
+
+      const opencodeConfigDir = path.join(sandboxDir, '.config', 'opencode');
+      fs.mkdirSync(opencodeConfigDir, { recursive: true });
+      const opencodePath = path.join(opencodeConfigDir, 'opencode.jsonc');
+
+      const prefixBeforeMcp = [
+        '\uFEFF// Global header comment',
+        '{',
+        '    /* Block comment before mcp */',
+        '    "$schema": "https://opencode.ai/config.json", // inline schema comment',
+        '    "theme": "tokyonight", // inline theme comment',
+        '    // Comment directly above mcp property',
+        '    "mcp": {'
+      ].join('\r\n');
+
+      const suffixAfterMcp = [
+        '        /* Trailing comment inside mcp object */',
+        '    }, // inline comment after mcp closing brace',
+        '    // Comment after mcp property',
+        '    "autoupdate": false, // inline footer comment',
+        '    /* Final block comment */',
+        '}',
+        ''
+      ].join('\r\n');
+
+      const initialJsonc = [
+        prefixBeforeMcp,
+        '        // Comment above existing server',
+        '        "existing-local": {',
+        '            "type": "local",',
+        '            "command": ["npx", "existing-mcp"], // inline command comment',
+        '            "enabled": true,',
+        '        }, // inline after existing-local',
+        suffixAfterMcp
+      ].join('\r\n');
+
+      fs.writeFileSync(opencodePath, initialJsonc, 'utf8');
+
+      const sync1 = runSync(ctx);
+      assert.equal(sync1.errors.length, 0);
+      assert.equal(sync1.mcpResults.find((r) => r.serverName === 'serena')?.action, 'added');
+
+      const afterSync1 = fs.readFileSync(opencodePath, 'utf8');
+
+      // 1. UTF-8 BOM preserved
+      assert.ok(afterSync1.startsWith('\uFEFF'), 'UTF-8 BOM must be preserved');
+
+      // 2. CRLF preserved everywhere (no bare LF)
+      assert.ok(afterSync1.includes('\r\n'), 'CRLF must be preserved');
+      assert.equal(
+        afterSync1.replace(/\r\n/g, '').includes('\n'),
+        false,
+        'No bare LF should be introduced in CRLF file'
+      );
+
+      // 3. Exact prefix before mcp and suffix after mcp are 100% unmodified
+      assert.ok(
+        afterSync1.startsWith(prefixBeforeMcp),
+        'Content before mcp entries must remain byte-for-byte identical'
+      );
+      assert.ok(
+        afterSync1.endsWith(suffixAfterMcp),
+        'Content after mcp entries must remain byte-for-byte identical'
+      );
+
+      // 4. All comments and trailing commas inside mcp are preserved
+      assert.ok(afterSync1.includes('// Comment above existing server'));
+      assert.ok(afterSync1.includes('// inline command comment'));
+      assert.ok(afterSync1.includes('}, // inline after existing-local'));
+      assert.ok(afterSync1.includes('/* Trailing comment inside mcp object */'));
+
+      // 5. Custom 4-space indentation respected for inserted server
+      assert.ok(afterSync1.includes('\r\n        "serena": {\r\n            "type": "local"'));
+
+      // 6. Valid JSONC parse result
+      const parsed = parseJsoncObject(afterSync1);
+      const mcpObj = parsed['mcp'] as Record<string, unknown>;
+      assert.ok(mcpObj['existing-local']);
+      assert.deepEqual(mcpObj['serena'], {
+        type: 'local',
+        command: ['uvx', 'serena', 'start-mcp-server'],
+        enabled: true
+      });
+
+      // 7. Strict idempotence on repeated sync: no file rewrite
+      const pastTime = new Date(Date.now() - 60_000);
+      fs.utimesSync(opencodePath, pastTime, pastTime);
+      const mtimeBefore = fs.statSync(opencodePath).mtimeMs;
+
+      const sync2 = runSync(ctx);
+      assert.equal(sync2.mcpResults.find((r) => r.serverName === 'serena')?.action, 'unchanged');
+      const afterSync2 = fs.readFileSync(opencodePath, 'utf8');
+      const mtimeAfter = fs.statSync(opencodePath).mtimeMs;
+
+      assert.equal(afterSync2, afterSync1);
+      assert.equal(mtimeAfter, mtimeBefore, 'File must not be rewritten when nothing changed');
+    });
+
+    it('preserves tab indentation, inline comments, and surrounding properties on MCP conflict and --force update', () => {
+      const ctx = createEnvironmentContext({ homeDir: sandboxDir });
+      fs.mkdirSync(ctx.commonsDir, { recursive: true });
+      fs.writeFileSync(
+        ctx.centralMcpPath,
+        JSON.stringify({
+          mcpServers: {
+            'tab-server': {
+              type: 'stdio',
+              command: 'updated-bin',
+              args: ['--v2']
+            }
+          }
+        }),
+        'utf8'
+      );
+
+      const cursorDir = path.join(sandboxDir, '.cursor');
+      fs.mkdirSync(cursorDir, { recursive: true });
+      const cursorMcpPath = path.join(cursorDir, 'mcp.json');
+
+      const initialTabConfig = [
+        '{',
+        '\t// Global cursor comment',
+        '\t"customSetting": "keep-me", // inline setting comment',
+        '\t"mcpServers": {',
+        '\t\t// Comment above tab-server',
+        '\t\t"tab-server": {',
+        '\t\t\t"type": "stdio",',
+        '\t\t\t"command": "old-bin",',
+        '\t\t\t"args": ["--v1"]',
+        '\t\t}, // inline after tab-server',
+        '\t\t"other-server": {',
+        '\t\t\t"command": "untouched"',
+        '\t\t}',
+        '\t}',
+        '}',
+        ''
+      ].join('\n');
+
+      fs.writeFileSync(cursorMcpPath, initialTabConfig, 'utf8');
+
+      // Without --force: conflict preserved, file untouched byte-for-byte
+      const r1 = runSync(ctx);
+      assert.equal(r1.mcpResults[0]?.action, 'conflict-preserved');
+      assert.equal(fs.readFileSync(cursorMcpPath, 'utf8'), initialTabConfig);
+
+      // With --force: updated in-place preserving tab indentation and comments
+      const r2 = runSync(ctx, { force: true });
+      assert.equal(r2.mcpResults[0]?.action, 'updated-forced');
+      const updated = fs.readFileSync(cursorMcpPath, 'utf8');
+
+      assert.ok(updated.includes('\t// Global cursor comment'));
+      assert.ok(updated.includes('\t"customSetting": "keep-me", // inline setting comment'));
+      assert.ok(updated.includes('\t\t// Comment above tab-server'));
+      assert.ok(updated.includes('}, // inline after tab-server'));
+      assert.ok(updated.includes('\t\t"tab-server": {\n\t\t\t"type": "stdio",\n\t\t\t"command": "updated-bin"'));
+      assert.ok(updated.includes('\t\t"other-server": {\n\t\t\t"command": "untouched"\n\t\t}'));
+    });
+
+    it('preserves UTF-8 BOM, CRLF, comments, and unrelated sections on Codex TOML additions, updates, and repeated syncs', () => {
+      const ctx = createEnvironmentContext({ homeDir: sandboxDir });
+      fs.mkdirSync(ctx.commonsDir, { recursive: true });
+      fs.writeFileSync(
+        ctx.centralMcpPath,
+        JSON.stringify({
+          mcpServers: {
+            existing_srv: {
+              command: 'npx',
+              args: ['-y', 'new-pkg']
+            },
+            added_srv: {
+              command: 'uvx',
+              args: ['serena'],
+              env: { API_TOKEN: '${MY_TOKEN}' }
+            }
+          }
+        }),
+        'utf8'
+      );
+
+      const codexDir = path.join(sandboxDir, '.codex');
+      fs.mkdirSync(codexDir, { recursive: true });
+      const codexPath = path.join(codexDir, 'config.toml');
+
+      const initialToml = [
+        '\uFEFF# Codex header comment',
+        'model = "o3" # inline model comment',
+        '',
+        '# Comment above existing_srv',
+        '[mcp_servers.existing_srv]',
+        'command = "npx"',
+        'args = ["-y", "old-pkg"]',
+        '',
+        '# Comment before projects section',
+        '[projects."C:\\\\workspace"]',
+        'trust_level = "trusted" # inline trust comment',
+        '# Footer comment',
+        ''
+      ].join('\r\n');
+
+      fs.writeFileSync(codexPath, initialToml, 'utf8');
+
+      // 1. Sync without --force: adds added_srv, preserves existing_srv conflict
+      const sync1 = runSync(ctx);
+      assert.equal(
+        sync1.mcpResults.find((r) => r.serverName === 'existing_srv')?.action,
+        'conflict-preserved'
+      );
+      assert.equal(sync1.mcpResults.find((r) => r.serverName === 'added_srv')?.action, 'added');
+
+      // 2. Sync with --force: updates existing_srv in-place
+      const sync2 = runSync(ctx, { force: true });
+      assert.equal(
+        sync2.mcpResults.find((r) => r.serverName === 'existing_srv')?.action,
+        'updated-forced'
+      );
+
+      const afterForce = fs.readFileSync(codexPath, 'utf8');
+      assert.ok(afterForce.startsWith('\uFEFF# Codex header comment\r\nmodel = "o3" # inline model comment'));
+      assert.equal(afterForce.replace(/\r\n/g, '').includes('\n'), false);
+      assert.ok(afterForce.includes('# Comment above existing_srv\r\n[mcp_servers.existing_srv]'));
+      assert.ok(afterForce.includes('# Comment before projects section\r\n[projects."C:\\\\workspace"]'));
+      assert.ok(afterForce.endsWith('# Footer comment\r\n'));
+
+      // 3. Repeated sync is strictly idempotent
+      const sync3 = runSync(ctx);
+      assert.ok(sync3.mcpResults.every((r) => r.action === 'unchanged'));
+      assert.equal(fs.readFileSync(codexPath, 'utf8'), afterForce);
+    });
+
+    it('rolls back modified JSONC files preserving BOM, CRLF, and comments upon mid-sync failure and scrubs secrets', () => {
+      const ctx = createEnvironmentContext({ homeDir: sandboxDir });
+      fs.mkdirSync(ctx.commonsDir, { recursive: true });
+      const dummySecret = 'sk-proj-' + 'SecretTokenValue1234567890';
+
+      fs.writeFileSync(
+        ctx.centralMcpPath,
+        JSON.stringify({
+          mcpServers: {
+            secret_srv: {
+              command: 'node',
+              args: ['server.js'],
+              env: {
+                OPENAI_API_KEY: dummySecret
+              }
+            }
+          }
+        }),
+        'utf8'
+      );
+
+      const opencodeDir = path.join(sandboxDir, '.config', 'opencode');
+      fs.mkdirSync(opencodeDir, { recursive: true });
+      const opencodePath = path.join(opencodeDir, 'opencode.jsonc');
+      const originalJsonc = '\uFEFF// Keep my comment\r\n{\r\n  "theme": "dark",\r\n}\r\n';
+      fs.writeFileSync(opencodePath, originalJsonc, 'utf8');
+
+      // Also install cursor so it runs after or before opencode, and trigger a mid-sync failure
+      const cursorDir = path.join(sandboxDir, '.cursor');
+      fs.mkdirSync(cursorDir, { recursive: true });
+
+      const origRename = fs.renameSync;
+      let renameCalls = 0;
+      fs.renameSync = ((oldPath: fs.PathLike, newPath: fs.PathLike) => {
+        renameCalls++;
+        if (renameCalls === 2) {
+          throw new Error(`Disk write failed with key OPENAI_API_KEY=${dummySecret}`);
+        }
+        return origRename(oldPath, newPath);
+      }) as typeof fs.renameSync;
+
+      try {
+        const report = runSync(ctx);
+        assert.equal(report.rolledBack, true);
+        assert.ok(report.errors.length > 0);
+        // Secret must be scrubbed from error messages
+        for (const errMsg of report.errors) {
+          assert.equal(containsRawSecret(errMsg), false);
+          assert.ok(!errMsg.includes(dummySecret));
+        }
+        // opencode.jsonc must be restored byte-for-byte including BOM, CRLF, and comments
+        assert.equal(fs.readFileSync(opencodePath, 'utf8'), originalJsonc);
+      } finally {
+        fs.renameSync = origRename;
+      }
+    });
+  });
 });

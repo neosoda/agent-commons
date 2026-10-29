@@ -58,10 +58,14 @@
     "build": "tsc",
     "typecheck": "tsc --noEmit",
     "test": "npm run build && node --test dist/test/**/*.test.js",
+    "prepack": "npm run build",
     "prepublishOnly": "npm test"
   },
   "devDependencies": {
     "@types/node": "^22.10.0",
     "typescript": "^5.7.0"
+  },
+  "dependencies": {
+    "jsonc-parser": "^3.3.1"
   }
 }

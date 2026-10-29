@@ -5,7 +5,7 @@
 [![Node](https://img.shields.io/badge/node-%3E%3D22.0.0-brightgreen.svg)](https://nodejs.org)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
 
-**Agent Commons** (`agent-commons`) is a lightweight, zero-dependency, local-first CLI that centralizes and synchronizes AI agent **Skills** (`~/.agents/skills/`) and **Model Context Protocol (MCP)** configurations (`~/.agents/mcp.json`) across **17 AI coding environments** on Windows, Linux, and macOS.
+**Agent Commons** (`agent-commons`) is a lightweight, local-first CLI that centralizes and synchronizes AI agent **Skills** (`~/.agents/skills/`) and **Model Context Protocol (MCP)** configurations (`~/.agents/mcp.json`) across **17 AI coding environments** on Windows, Linux, and macOS.
 
 ---
 
@@ -13,17 +13,17 @@
 
 1. **Privilege-Free Windows Support via NTFS Junctions**  
    Standard directory symlinks on Windows require Administrator elevation or Windows Developer Mode. Agent Commons uses native **NTFS Junctions** (`'junction'`) on Windows, working out of the box on standard user accounts while using standard directory symlinks on Linux and macOS.
-2. **Non-Destructive Multi-Dialect MCP Merging**  
-   Maintains a single `~/.agents/mcp.json` manifest and merges servers into each agent's native configuration format (**Standard JSON**, **JSONC with comments**, and **OpenAI Codex TOML**) without erasing existing servers, unrelated settings, or custom keys.
+2. **Non-Destructive Multi-Dialect MCP Merging (JSON, JSONC, TOML)**  
+   Maintains a single `~/.agents/mcp.json` manifest and performs surgical in-place edits in each agent's native configuration format (**Standard JSON**, **JSONC with comments**, and **OpenAI Codex TOML**), preserving `//` and `/* */` comments, inline comments, trailing commas, custom indentation, UTF-8 BOM, CRLF/LF line endings, existing servers, and unrelated settings.
 3. **Conflict-Aware & Safe by Construction**  
    - Physical skill folders in an agent directory are compared byte-for-byte (SHA-256) against `~/.agents/skills/`. Identical copies are cleanly replaced with links; diverged folders are preserved and reported as conflicts unless `--force` is passed.
-   - Corrupted JSON/TOML configuration files are detected and never overwritten.
+   - Corrupted JSON/JSONC/TOML configuration files are detected and never overwritten.
    - Link removal uses `lstat` inspection and detaches the reparse point without ever traversing or deleting target files.
    - Atomic file writes (`write + fsync + rename`) prevent half-written MCP configurations on interruption.
 4. **Automatic Pre-Sync Snapshots & Transactional Rollback**  
    Every mutating `sync` records a point-in-time snapshot in `~/.agents/backups/` and automatically rolls back if an unexpected filesystem error occurs mid-sync.
-5. **100% Offline & Zero Runtime Dependencies**  
-   Built strictly on Node.js 22+ standard library modules (`node:fs`, `node:path`, `node:crypto`, `node:os`). Zero telemetry, zero external network calls, and automatic secret scrubbing in CLI logs.
+5. **100% Offline & Minimal Footprint**  
+   Built on Node.js 22+ standard library modules with a single zero-dependency AST parser (`jsonc-parser`). Zero telemetry, zero external network calls, and automatic secret scrubbing in CLI logs.
 
 ---
 
@@ -33,6 +33,14 @@
 
 - **Node.js 22.0.0** or newer
 - Windows, Linux, or macOS
+
+### Run via `npx` (Once Published to npm) or Local Package
+
+```bash
+npx agent-commons doctor
+npx agent-commons list
+npx agent-commons sync --dry-run
+```
 
 ### Build and Run from Source
 
@@ -146,11 +154,11 @@ Define your MCP servers once in `~/.agents/mcp.json`. You can use environment va
 ### How Agent Commons Translates MCP Formats
 
 - **Standard JSON (`mcpServers`)** — Claude Code, Cursor, Gemini CLI, Gemini Config, Gemini Antigravity, Kiro, MiniMax:
-  Merges entries into the `"mcpServers"` object while keeping all other keys (`permissions`, `hooks`, `theme`, etc.) intact.
+  Surgically updates only target entries inside the `"mcpServers"` object while preserving existing keys (`permissions`, `hooks`, `theme`, etc.), indentation, BOM, and line endings.
 - **OpenCode JSON / JSONC (`mcp`)** — OpenCode (`~/.config/opencode/opencode.json` or `opencode.jsonc`):
-  Strips comments/trailing commas safely and translates each server to `{ "type": "local", "command": ["cmd", ...args], "enabled": true, "environment": { ... } }` (or `"type": "remote"` for URL servers).
+  Uses AST-guided in-place editing (`jsonc-parser`) to translate each server to `{ "type": "local", "command": ["cmd", ...args], "enabled": true, "environment": { ... } }` (or `"type": "remote"` for URL servers) while preserving `//` and `/* */` comments, inline comments, trailing commas, custom indentation, BOM, and CRLF/LF line endings.
 - **Codex TOML (`[mcp_servers.<name>]`)** — OpenAI Codex (`~/.codex/config.toml`):
-  Inserts or updates `[mcp_servers.<name>]` and `[mcp_servers.<name>.env]` sections cleanly without disturbing `[projects.*]` or top-level TOML settings.
+  Inserts or updates `[mcp_servers.<name>]` and `[mcp_servers.<name>.env]` sections in-place without disturbing `#` comments, `[projects.*]` sections, or top-level TOML settings.
 
 ---
 
@@ -321,20 +329,20 @@ Agent Commons only declares support for integrations that are implemented and ve
 | Feature | **Agent Commons** (`v0.1.0`) | `agent-sync` | `skills-sync` | `skill-buddy` | `agentbridge` |
 | :--- | :---: | :---: | :---: | :---: | :---: |
 | **Primary Scope** | Local CLI (Skills + MCP) | Git/Cloud config sync | Skills sync | Skills manager | Multi-agent bridge |
-| **Supported Agents** | **17 verified** | ~4–6 | ~4–6 | ~3–5 | ~4–6 |
+| **Supported Agents** | **17 registered (sandbox-tested)** | ~4–6 | ~4–6 | ~3–5 | ~4–6 |
 | **Windows Junctions (No Admin)** | **Yes (`junction`)** | Partial / Symlinks | Symlinks / Copy | Copy / Symlinks | Partial |
-| **MCP Multi-Dialect Merge** | **JSON + JSONC + Codex TOML** | JSON only | No | No | JSON only |
+| **MCP Multi-Dialect Merge** | **JSON + JSONC (comments kept) + TOML** | JSON only | No | No | JSON only |
 | **SHA-256 Skill Conflict Detection** | **Yes** | No | Basic | Basic | No |
 | **Automatic Rollback & Snapshots** | **Yes** | Git-based | No | No | No |
-| **Runtime Dependencies** | **0 (Node.js stdlib)** | Multiple npm pkgs | Multiple npm pkgs | Multiple npm pkgs | Multiple npm pkgs |
+| **Runtime Dependencies** | **1 (`jsonc-parser`, 0 transitive)** | Multiple npm pkgs | Multiple npm pkgs | Multiple npm pkgs | Multiple npm pkgs |
 
 ---
 
 ## Known Limitations (`v0.1.0`)
 
-1. **JSONC Comment Stripping on Write**: While Agent Commons reads `.jsonc` files (such as `~/.config/opencode/opencode.jsonc`) with single-line (`//`) and block (`/* */`) comments and preserves all existing JSON keys, writing the merged result outputs standard formatted JSON (comments inside the modified `.jsonc` file are not preserved on write).
-2. **Skills-Only Agents**: 8 of the 17 supported agents (`cline`, `roo-code`, `continue`, `hermes-home`, `hermes-appdata`, `kimi`, `aider-desk`, `grok`) are currently managed for Skills synchronization only; their internal or extension-managed MCP settings are not modified by `v0.1.0`.
-3. **Same-Volume NTFS Junctions / Network Shares**: NTFS junctions on Windows point to local NTFS volumes. If `~/.agents/skills/` is hosted on a non-NTFS network share (SMB/WebDAV) that does not support reparse points, link creation will report an explicit error in `doctor` and `sync`.
+1. **Skills-Only Agents**: 8 of the 17 registered agents (`cline`, `roo-code`, `continue`, `hermes-home`, `hermes-appdata`, `kimi`, `aider-desk`, `grok`) are currently managed for Skills synchronization only; their internal or extension-managed MCP settings are not modified by `v0.1.0`.
+2. **Validation Scope**: All 17 agent directory layouts and configuration dialects are verified via automated cross-platform sandbox tests (Windows, Linux, macOS) and real-world configuration structures inspected during audit (`claude-code`, `codex`, `cursor`, `gemini-cli`, `gemini-config`, `gemini-antigravity`, `opencode`, `minimax`, `kiro`); Agent Commons does not spawn or invoke third-party proprietary agent binaries during CI.
+3. **Same-Volume NTFS Junctions / Network Shares**: NTFS junctions on Windows require a filesystem that supports reparse points. If `~/.agents/skills/` is hosted on a non-NTFS network share (SMB/WebDAV) that does not support reparse points, link creation will report an explicit error in `doctor` and `sync`.
 
 ---
 
