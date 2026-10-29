@@ -28,19 +28,21 @@ jobs:
 
     steps:
       - name: Checkout repository at release tag
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           ref: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref }}
           fetch-depth: 0
 
       - name: Setup Node.js 24
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: '24'
+          registry-url: 'https://registry.npmjs.org'
+          package-manager-cache: false
 
       - name: Upgrade npm CLI for OIDC Trusted Publishing (>= 11.5.1)
         run: |
-          npm install -g npm@latest
+          npm install -g npm@11.15.0
           echo "Using Node $(node -v) and npm $(npm -v)"
 
       - name: Verify Git tag, commit ancestry on main, and package.json version
@@ -101,6 +103,18 @@ jobs:
 
       - name: Security audit
         run: npm audit --audit-level=high
+
+      - name: Inspect the actual npm tarball before publication
+        shell: bash
+        run: |
+          set -euo pipefail
+          TARBALL="$(npm pack --silent)"
+          trap 'rm -f "$TARBALL"' EXIT
+          tar -tzf "$TARBALL" | grep -qx 'package/dist/web/server.js'
+          tar -tzf "$TARBALL" | grep -qx 'package/dist/cli/index.js'
+          tar -tzf "$TARBALL" | grep -qx 'package/catalog/skills.json'
+          tar -tzf "$TARBALL" | grep -qx 'package/LICENSE'
+          echo "Verified shipped UI, CLI, catalog and license in $TARBALL"
 
       - name: Publish to npm via OIDC Trusted Publishing with Provenance
         run: |
