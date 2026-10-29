@@ -68,6 +68,7 @@ export function syncSkillsForAgents(
   const dryRun = Boolean(options.dryRun);
   const force = Boolean(options.force);
   const adopt = Boolean(options.adopt);
+  const selected = options.skillFilter === undefined ? null : new Set(options.skillFilter);
 
   const installedAgents = agents.filter((a) => a.installed);
 
@@ -107,6 +108,7 @@ export function syncSkillsForAgents(
 
     for (const entryName of entries) {
       if (!isValidIdentifier(entryName)) continue;
+      if (selected && !selected.has(entryName)) continue;
       if (initialCentral.has(entryName)) continue;
 
       const agentSkillPath = path.join(agent.skillsDirPath, entryName);
@@ -165,7 +167,8 @@ export function syncSkillsForAgents(
   }
 
   // Step 2: Synchronize central skills to all installed agents
-  const centralSkills = discoverCentralSkills(ctx);
+  const centralSkills = discoverCentralSkills(ctx)
+    .filter(skill => !selected || selected.has(skill.name));
 
   for (const agent of installedAgents) {
     const skillsDirInfo = inspectPath(agent.skillsDirPath);
