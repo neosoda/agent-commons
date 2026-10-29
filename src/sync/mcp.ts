@@ -16,7 +16,8 @@ import {
   doesCodexTomlServerMatch,
   parseCodexTomlMcpServers,
   parseJsoncObject,
-  upsertCodexTomlServer
+  upsertCodexTomlServer,
+  upsertJsoncMcpServer
 } from './parsers.js';
 
 export interface LoadedMcpManifest {
@@ -168,31 +169,41 @@ function toOpenCodeEntry(spec: McpServerOverride): Record<string, unknown> {
   return entry;
 }
 
+function areStringMapsEqual(a: unknown, b: unknown): boolean {
+  const mapA =
+    a && typeof a === 'object' && !Array.isArray(a) ? (a as Record<string, unknown>) : {};
+  const mapB =
+    b && typeof b === 'object' && !Array.isArray(b) ? (b as Record<string, unknown>) : {};
+  const keysA = Object.keys(mapA).sort();
+  const keysB = Object.keys(mapB).sort();
+  if (keysA.length !== keysB.length) return false;
+  for (let i = 0; i < keysA.length; i++) {
+    const k = keysA[i]!;
+    if (k !== keysB[i] || mapA[k] !== mapB[k]) return false;
+  }
+  return true;
+}
+
 function areJsonEntriesEqual(existing: unknown, desired: Record<string, unknown>): boolean {
   if (!existing || typeof existing !== 'object' || Array.isArray(existing)) {
     return false;
   }
   const ex = existing as Record<string, unknown>;
 
-  for (const [k, desiredVal] of Object.entries(desired)) {
-    const exVal = ex[k];
-    if (JSON.stringify(exVal) !== JSON.stringify(desiredVal)) {
-      if (
-        (k === 'args' &&
-          Array.isArray(desiredVal) &&
-          desiredVal.length === 0 &&
-          exVal === undefined) ||
-        (k === 'env' &&
-          typeof desiredVal === 'object' &&
-          desiredVal !== null &&
-          Object.keys(desiredVal).length === 0 &&
-          exVal === undefined)
-      ) {
-        continue;
-      }
-      return false;
-    }
+  if ((ex['type'] ?? undefined) !== (desired['type'] ?? undefined)) return false;
+  if (JSON.stringify(ex['command'] ?? undefined) !== JSON.stringify(desired['command'] ?? undefined)) {
+    return false;
   }
+  if ((ex['url'] ?? undefined) !== (desired['url'] ?? undefined)) return false;
+  if ((ex['enabled'] ?? undefined) !== (desired['enabled'] ?? undefined)) return false;
+
+  const exArgs = Array.isArray(ex['args']) ? ex['args'] : [];
+  const desiredArgs = Array.isArray(desired['args']) ? desired['args'] : [];
+  if (JSON.stringify(exArgs) !== JSON.stringify(desiredArgs)) return false;
+
+  if (!areStringMapsEqual(ex['env'], desired['env'])) return false;
+  if (!areStringMapsEqual(ex['environment'], desired['environment'])) return false;
+
   return true;
 }
 
@@ -250,7 +261,7 @@ export function inspectAgentMcpConfig(agent: DetectedAgent): {
 
 /**
  * Synchronizes MCP servers from `~/.agents/mcp.json` into all compatible installed agents
- * without destroying existing configurations or exposing secrets.
+ * without destroying existing configurations, comments, formatting, or exposing secrets.
  */
 export function syncMcpForAgents(
   ctx: EnvironmentContext,
@@ -395,7 +406,7 @@ export function syncMcpForAgents(
         }
       }
 
-      if (dirty && !dryRun) {
+      if (dirty && !dryRun && modifiedToml !== rawToml) {
         try {
           snapshot?.recordPathBeforeModify(agent.definition.id, 'mcp-config', configPath);
           writeFileAtomicSync(configPath, modifiedToml);
@@ -415,11 +426,12 @@ export function syncMcpForAgents(
 
     // Handle JSON / JSONC dialects ('standard-json' and 'opencode-jsonc')
     const rootKey = format === 'opencode-jsonc' ? 'mcp' : 'mcpServers';
+    let rawJson = '';
     let parsedRoot: Record<string, unknown> = {};
 
     if (configInfo.state === 'file') {
       try {
-        const rawJson = fs.readFileSync(configPath, 'utf8');
+        rawJson = fs.readFileSync(configPath, 'utf8');
         parsedRoot = parseJsoncObject(rawJson);
       } catch (err) {
         results.push({
@@ -455,6 +467,7 @@ export function syncMcpForAgents(
     const serversContainer: Record<string, unknown> = existingContainer
       ? { ...(existingContainer as Record<string, unknown>) }
       : {};
+    let modifiedJson = rawJson || '{\n}\n';
     let dirty = false;
 
     for (const [serverName, resolvedSpec] of desiredForAgent) {
@@ -467,6 +480,7 @@ export function syncMcpForAgents(
 
       if (currentEntry === undefined) {
         serversContainer[serverName] = formattedEntry;
+        modifiedJson = upsertJsoncMcpServer(modifiedJson, rootKey, serverName, formattedEntry);
         dirty = true;
         results.push({
           agentId: agent.definition.id,
@@ -489,6 +503,7 @@ export function syncMcpForAgents(
         });
       } else if (force) {
         serversContainer[serverName] = formattedEntry;
+        modifiedJson = upsertJsoncMcpServer(modifiedJson, rootKey, serverName, formattedEntry);
         dirty = true;
         results.push({
           agentId: agent.definition.id,
@@ -512,11 +527,10 @@ export function syncMcpForAgents(
       }
     }
 
-    if (dirty && !dryRun) {
+    if (dirty && !dryRun && modifiedJson !== rawJson) {
       try {
-        parsedRoot[rootKey] = serversContainer;
         snapshot?.recordPathBeforeModify(agent.definition.id, 'mcp-config', configPath);
-        writeFileAtomicSync(configPath, `${JSON.stringify(parsedRoot, null, 2)}\n`);
+        writeFileAtomicSync(configPath, modifiedJson);
       } catch (err) {
         results.push({
           agentId: agent.definition.id,

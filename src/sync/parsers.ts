@@ -1,3 +1,4 @@
+import * as jsonc from 'jsonc-parser';
 import type { McpServerOverride } from '../types.js';
 
 /**
@@ -111,18 +112,221 @@ export function stripJsonCommentsAndTrailingCommas(raw: string): string {
 }
 
 /**
- * Parses a JSON or JSONC string into an object. Throws if malformed or not a JSON object.
+ * Parses a JSON or JSONC string into an object using both `jsonc-parser` AST validation
+ * and strict stripped-JSON verification. Throws if malformed or not a JSON object.
  */
 export function parseJsoncObject(raw: string): Record<string, unknown> {
   if (!raw || !raw.trim()) {
     throw new Error('Configuration file is empty');
   }
-  const stripped = stripJsonCommentsAndTrailingCommas(raw);
+  const body = raw.replace(/^\uFEFF/, '');
+  const stripped = stripJsonCommentsAndTrailingCommas(body);
   const parsed: unknown = JSON.parse(stripped);
   if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
     throw new Error('Configuration root must be a JSON object');
   }
+
+  const errors: jsonc.ParseError[] = [];
+  const rootNode = jsonc.parseTree(body, errors, {
+    allowTrailingComma: true,
+    disallowComments: false
+  });
+  if (errors.length > 0 || !rootNode || rootNode.type !== 'object') {
+    const firstErr = errors[0];
+    const codeMsg = firstErr ? jsonc.printParseErrorCode(firstErr.error) : 'invalid syntax';
+    throw new Error(`Malformed JSONC syntax (${codeMsg})`);
+  }
+
   return parsed as Record<string, unknown>;
+}
+
+export interface DetectedJsoncStyle {
+  hasBom: boolean;
+  body: string;
+  eol: '\r\n' | '\n';
+  indentUnit: string;
+}
+
+/**
+ * Detects BOM, line endings (CRLF vs LF), and indentation unit from an existing JSON/JSONC string.
+ */
+export function detectJsoncStyle(raw: string): DetectedJsoncStyle {
+  const hasBom = raw.startsWith('\uFEFF');
+  const body = hasBom ? raw.slice(1) : raw;
+  const eol: '\r\n' | '\n' = body.includes('\r\n') ? '\r\n' : '\n';
+  const lines = body.split(/\r?\n/);
+  let indentUnit = '  ';
+  for (const line of lines) {
+    const m = /^([ \t]+)(?=["/*}])/.exec(line);
+    if (m && m[1]) {
+      indentUnit = m[1];
+      break;
+    }
+  }
+  return { hasBom, body, eol, indentUnit };
+}
+
+function getLineIndent(body: string, offset: number): string {
+  const lineStart = body.lastIndexOf('\n', offset - 1) + 1;
+  const m = /^[ \t]*/.exec(body.slice(lineStart, offset));
+  return m ? m[0] : '';
+}
+
+function formatJsonValue(
+  value: unknown,
+  indentUnit: string,
+  eol: string,
+  baseIndent: string
+): string {
+  const raw = JSON.stringify(value, null, indentUnit);
+  return raw.replace(/\n/g, eol + baseIndent);
+}
+
+function setObjectPropertyInText(
+  body: string,
+  objNode: jsonc.Node,
+  propName: string,
+  value: unknown,
+  indentUnit: string,
+  eol: string
+): string {
+  const children = objNode.children ?? [];
+  const existingProp = children.find(
+    (p) => p.children && p.children[0] && p.children[0].value === propName
+  );
+
+  // Update existing property value in-place without touching surrounding comments or commas
+  if (existingProp && existingProp.children && existingProp.children[1]) {
+    const valNode = existingProp.children[1];
+    const propIndent = getLineIndent(body, existingProp.offset);
+    const formattedVal = formatJsonValue(value, indentUnit, eol, propIndent);
+    return (
+      body.slice(0, valNode.offset) +
+      formattedVal +
+      body.slice(valNode.offset + valNode.length)
+    );
+  }
+
+  const objEnd = objNode.offset + objNode.length;
+  const objLineIndent = getLineIndent(body, objNode.offset);
+
+  // Empty object `{}` or `{ /* comments */ }`
+  if (children.length === 0) {
+    const propIndent = objLineIndent + indentUnit;
+    const formattedVal = formatJsonValue(value, indentUnit, eol, propIndent);
+    const entryText = `${JSON.stringify(propName)}: ${formattedVal}`;
+    const inner = body.slice(objNode.offset + 1, objEnd - 1);
+    if (!inner.trim()) {
+      return (
+        body.slice(0, objNode.offset) +
+        `{${eol}${propIndent}${entryText}${eol}${objLineIndent}}` +
+        body.slice(objEnd)
+      );
+    }
+    const beforeClosing = body.slice(0, objEnd - 1).replace(/[ \t]*$/, '');
+    const prefixSep = beforeClosing.endsWith('\n') ? '' : eol;
+    return (
+      beforeClosing +
+      `${prefixSep}${propIndent}${entryText}${eol}${objLineIndent}` +
+      body.slice(objEnd - 1)
+    );
+  }
+
+  // Non-empty object: append after last property while preserving inline comments & trailing commas
+  const lastProp = children[children.length - 1]!;
+  const lastPropEnd = lastProp.offset + lastProp.length;
+  const propIndent = getLineIndent(body, lastProp.offset) || objLineIndent + indentUnit;
+  const formattedVal = formatJsonValue(value, indentUnit, eol, propIndent);
+
+  const tailSlice = body.slice(lastPropEnd, objEnd - 1);
+  const scanner = jsonc.createScanner(tailSlice, false);
+  let commaRelOffset = -1;
+  let commaRelEnd = -1;
+  let tok = scanner.scan();
+  while (tok !== jsonc.SyntaxKind.EOF) {
+    if (tok === jsonc.SyntaxKind.CommaToken) {
+      commaRelOffset = scanner.getTokenOffset();
+      commaRelEnd = commaRelOffset + scanner.getTokenLength();
+      break;
+    }
+    tok = scanner.scan();
+  }
+
+  const hasTrailingComma = commaRelOffset >= 0;
+  const entryText = `${JSON.stringify(propName)}: ${formattedVal}${hasTrailingComma ? ',' : ''}`;
+
+  const searchNewlineFrom = hasTrailingComma ? commaRelEnd : 0;
+  const afterAnchor = tailSlice.slice(searchNewlineFrom);
+  const nlMatch = /\r?\n/.exec(afterAnchor);
+  const lineEndRel = nlMatch ? searchNewlineFrom + nlMatch.index : tailSlice.length;
+  const insertAbsOffset = lastPropEnd + lineEndRel;
+
+  if (hasTrailingComma) {
+    return (
+      body.slice(0, insertAbsOffset) +
+      `${eol}${propIndent}${entryText}` +
+      body.slice(insertAbsOffset)
+    );
+  }
+
+  return (
+    body.slice(0, lastPropEnd) +
+    ',' +
+    body.slice(lastPropEnd, insertAbsOffset) +
+    `${eol}${propIndent}${entryText}` +
+    body.slice(insertAbsOffset)
+  );
+}
+
+/**
+ * Surgically inserts or updates `root[rootKey][serverName] = serverEntry` in a JSON or JSONC
+ * document while preserving `//` and `/* * /` comments, inline comments, trailing commas,
+ * custom indentation, UTF-8 BOM, and CRLF/LF line endings.
+ */
+export function upsertJsoncMcpServer(
+  raw: string,
+  rootKey: string,
+  serverName: string,
+  serverEntry: Record<string, unknown>
+): string {
+  // Validate first
+  parseJsoncObject(raw);
+
+  const { hasBom, body: initialBody, eol, indentUnit } = detectJsoncStyle(raw);
+  let body = initialBody;
+
+  const errors: jsonc.ParseError[] = [];
+  const rootNode = jsonc.parseTree(body, errors, {
+    allowTrailingComma: true,
+    disallowComments: false
+  });
+  if (errors.length > 0 || !rootNode || rootNode.type !== 'object') {
+    throw new Error('Corrupted JSON/JSONC configuration');
+  }
+
+  const containerProp = (rootNode.children ?? []).find(
+    (p) => p.children && p.children[0] && p.children[0].value === rootKey
+  );
+
+  if (!containerProp) {
+    body = setObjectPropertyInText(
+      body,
+      rootNode,
+      rootKey,
+      { [serverName]: serverEntry },
+      indentUnit,
+      eol
+    );
+    return (hasBom ? '\uFEFF' : '') + body;
+  }
+
+  const containerNode = containerProp.children?.[1];
+  if (!containerNode || containerNode.type !== 'object') {
+    throw new Error(`"${rootKey}" must be a JSON object`);
+  }
+
+  body = setObjectPropertyInText(body, containerNode, serverName, serverEntry, indentUnit, eol);
+  return (hasBom ? '\uFEFF' : '') + body;
 }
 
 /**
@@ -402,7 +606,11 @@ export function parseCodexTomlMcpServers(raw: string): Map<string, ParsedTomlMcp
 /**
  * Formats an MCP server specification into a Codex TOML `[mcp_servers.<name>]` block.
  */
-export function renderCodexTomlMcpBlock(serverName: string, spec: McpServerOverride): string {
+export function renderCodexTomlMcpBlock(
+  serverName: string,
+  spec: McpServerOverride,
+  eol = '\n'
+): string {
   const key = tomlFormatKey(serverName);
   const lines: string[] = [`[mcp_servers.${key}]`];
 
@@ -435,7 +643,7 @@ export function renderCodexTomlMcpBlock(serverName: string, spec: McpServerOverr
     }
   }
 
-  return lines.join('\n');
+  return lines.join(eol);
 }
 
 /**
@@ -447,6 +655,15 @@ export function doesCodexTomlServerMatch(
 ): boolean {
   if ((existing.command ?? undefined) !== (desired.command ?? undefined)) return false;
   if ((existing.url ?? undefined) !== (desired.url ?? undefined)) return false;
+  if ((existing.startupTimeoutSec ?? undefined) !== (desired.startupTimeoutSec ?? undefined)) {
+    return false;
+  }
+  if ((existing.toolTimeoutSec ?? undefined) !== (desired.toolTimeoutSec ?? undefined)) {
+    return false;
+  }
+  if ((existing.enabled ?? undefined) !== (desired.enabled ?? undefined)) {
+    return false;
+  }
 
   const existingArgs = existing.args ?? [];
   const desiredArgs = desired.args ?? [];
@@ -468,59 +685,120 @@ export function doesCodexTomlServerMatch(
   return true;
 }
 
+interface TomlSectionSpan {
+  header: string;
+  startLine: number;
+  lastContentLine: number;
+}
+
+function findTomlSections(lines: string[]): TomlSectionSpan[] {
+  const sections: TomlSectionSpan[] = [];
+  let bracketDepth = 0;
+
+  for (let i = 0; i < lines.length; i++) {
+    const stripped = stripTomlCommentOutsideQuotes(lines[i]!).trim();
+    if (!stripped) continue;
+
+    if (bracketDepth > 0) {
+      bracketDepth += countBracketBalanceOutsideQuotes(stripped);
+      if (sections.length > 0) {
+        sections[sections.length - 1]!.lastContentLine = i;
+      }
+      continue;
+    }
+
+    if (stripped.startsWith('[') && stripped.endsWith(']')) {
+      const header = stripped.slice(1, -1).trim();
+      sections.push({ header, startLine: i, lastContentLine: i });
+      continue;
+    }
+
+    const eqIdx = stripped.indexOf('=');
+    if (eqIdx >= 0) {
+      const rhs = stripped.slice(eqIdx + 1).trim();
+      bracketDepth += countBracketBalanceOutsideQuotes(rhs);
+      if (sections.length > 0) {
+        sections[sections.length - 1]!.lastContentLine = i;
+      }
+    }
+  }
+
+  return sections;
+}
+
 /**
- * Inserts or replaces a `[mcp_servers.<name>]` block in Codex `config.toml` non-destructively.
+ * Inserts or replaces a `[mcp_servers.<name>]` block in Codex `config.toml` in-place,
+ * preserving comments (`#`), blank lines, section ordering, UTF-8 BOM, and CRLF/LF line endings.
  */
 export function upsertCodexTomlServer(
   rawToml: string,
   serverName: string,
   spec: McpServerOverride
 ): string {
-  const block = renderCodexTomlMcpBlock(serverName, spec);
+  const hasBom = rawToml.startsWith('\uFEFF');
+  const body = hasBom ? rawToml.slice(1) : rawToml;
+  const eol: '\r\n' | '\n' = body.includes('\r\n') ? '\r\n' : '\n';
+  const blockLines = renderCodexTomlMcpBlock(serverName, spec, eol).split(/\r?\n/);
+
+  if (!body.trim()) {
+    const prefix = hasBom ? '\uFEFF' : '';
+    if (!body) {
+      return `${prefix}${blockLines.join(eol)}${eol}`;
+    }
+    const base = body.endsWith(eol) ? body : `${body}${eol}`;
+    return `${prefix}${base}${blockLines.join(eol)}${eol}`;
+  }
+
+  const hasTrailingNewline = body.endsWith('\n');
+  const lines = body.split(/\r?\n/);
+  if (hasTrailingNewline && lines[lines.length - 1] === '') {
+    lines.pop();
+  }
+
   const formattedKey = tomlFormatKey(serverName);
-  const mainHeader = `[mcp_servers.${formattedKey}]`;
-  const envHeader = `[mcp_servers.${formattedKey}.env]`;
+  const mainHeader = `mcp_servers.${formattedKey}`;
+  const envHeader = `mcp_servers.${formattedKey}.env`;
 
-  const lines = rawToml.split(/\r?\n/);
+  const sections = findTomlSections(lines);
+  const matching = sections.filter((s) => s.header === mainHeader || s.header === envHeader);
 
-  // Remove existing [mcp_servers.<name>] and [mcp_servers.<name>.env] sections if present
-  const keptLines: string[] = [];
-  let skipping = false;
-  let removedAny = false;
+  if (matching.length > 0) {
+    const first = matching[0]!;
+    const last = matching[matching.length - 1]!;
+    const firstSecIdx = sections.indexOf(first);
+    const lastSecIdx = sections.indexOf(last);
 
-  for (const line of lines) {
-    const trimmed = stripTomlCommentOutsideQuotes(line).trim();
-    if (trimmed.startsWith('[')) {
-      if (trimmed === mainHeader || trimmed === envHeader) {
-        skipping = true;
-        removedAny = true;
-        continue;
+    if (lastSecIdx - firstSecIdx === matching.length - 1) {
+      lines.splice(first.startLine, last.lastContentLine - first.startLine + 1, ...blockLines);
+    } else {
+      for (let m = matching.length - 1; m >= 1; m--) {
+        const sec = matching[m]!;
+        lines.splice(sec.startLine, sec.lastContentLine - sec.startLine + 1);
+      }
+      lines.splice(first.startLine, first.lastContentLine - first.startLine + 1, ...blockLines);
+    }
+  } else {
+    const mcpSections = sections.filter((s) => s.header.startsWith('mcp_servers.'));
+    if (mcpSections.length > 0) {
+      const lastMcp = mcpSections[mcpSections.length - 1]!;
+      lines.splice(lastMcp.lastContentLine + 1, 0, '', ...blockLines);
+    } else {
+      const projSec = sections.find((s) => s.header.startsWith('projects.'));
+      if (projSec) {
+        let insertIdx = projSec.startLine;
+        while (insertIdx > 0 && lines[insertIdx - 1]!.trim().startsWith('#')) {
+          insertIdx--;
+        }
+        lines.splice(insertIdx, 0, ...blockLines, '');
       } else {
-        skipping = false;
+        if (lines.length > 0 && lines[lines.length - 1]!.trim() !== '') {
+          lines.push('');
+        }
+        lines.push(...blockLines);
       }
     }
-    if (!skipping) {
-      keptLines.push(line);
-    }
   }
 
-  const updatedContent = keptLines.join('\n').replace(/\n{3,}/g, '\n\n').trimEnd();
-
-  if (removedAny) {
-    return `${updatedContent}\n\n${block}\n`;
-  }
-
-  // Insert before `[projects.` if present (Codex convention), else at the end
-  const projectsIndex = updatedContent.indexOf('\n[projects.');
-  if (projectsIndex >= 0) {
-    const before = updatedContent.slice(0, projectsIndex).trimEnd();
-    const after = updatedContent.slice(projectsIndex + 1);
-    return `${before}\n\n${block}\n\n${after}\n`;
-  }
-
-  if (!updatedContent) {
-    return `${block}\n`;
-  }
-
-  return `${updatedContent}\n\n${block}\n`;
+  const joined = lines.join(eol) + (hasTrailingNewline ? eol : '');
+  return (hasBom ? '\uFEFF' : '') + joined;
 }

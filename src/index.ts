@@ -30,6 +30,7 @@ export {
   isValidIdentifier
 } from './security/validator.js';
 export {
+  detectJsoncStyle,
   doesCodexTomlServerMatch,
   parseCodexTomlMcpServers,
   parseJsoncObject,
@@ -37,6 +38,7 @@ export {
   stripJsonCommentsAndTrailingCommas,
   stripTomlCommentOutsideQuotes,
   upsertCodexTomlServer,
+  upsertJsoncMcpServer,
   validateTomlSyntax
 } from './sync/parsers.js';
 export {
