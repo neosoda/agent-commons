@@ -1,8 +1,9 @@
 import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
-import { createFullBackup } from '../core/backup.js';
-import { inspectPath, removePhysicalDirectorySafe, writeFileAtomicSync } from '../core/links.js';
+import { createFullBackup, SnapshotSession, restoreBackup } from '../core/backup.js';
+import { detectAgents } from '../agents/detector.js';
+import { arePathsEqual, inspectPath, removePhysicalDirectorySafe, writeFileAtomicSync } from '../core/links.js';
 import { readPublicCatalog, type PublicSkill } from './public-catalog.js';
 import type { EnvironmentContext } from '../types.js';
 
@@ -213,4 +214,182 @@ export async function installCatalogSkill(
       removePhysicalDirectorySafe(staging);
     }
   }
+}
+
+
+export interface UninstallPreview {
+  skill: string;
+  source: string;
+  commit: string;
+  target: string;
+  files: string[];
+  totalBytes: number;
+  clean: true;
+}
+export interface UninstallOutcome {
+  preview: UninstallPreview;
+  removed: boolean;
+  snapshotId: string | null;
+}
+
+interface ManagedReceipt {
+  schemaVersion: 1;
+  skill: string;
+  repository: string;
+  source: string;
+  commit: string;
+  managedBy: 'agent-commons';
+  files: Array<{ path: string; gitBlobSha1: string }>;
+}
+
+/** Every file must match the signed-off install receipt; unknown files are user data. */
+function inspectManagedInstall(ctx: EnvironmentContext, id: string): UninstallPreview {
+  if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(id)) {
+    throw new Error('Invalid skill identifier.');
+  }
+  assertPhysicalRoots(ctx);
+  const target = path.join(ctx.centralSkillsDir, id);
+  if (inspectPath(target).state !== 'directory') {
+    throw new Error('Only physical, Agent Commons-managed skill directories can be uninstalled.');
+  }
+  const receiptPath = path.join(target, RECEIPT_NAME);
+  if (inspectPath(receiptPath).state !== 'file' || fs.lstatSync(receiptPath).size > 128 * 1024) {
+    throw new Error('Missing or invalid Agent Commons management receipt.');
+  }
+
+  let raw: unknown;
+  try { raw = JSON.parse(fs.readFileSync(receiptPath, 'utf8')) as unknown; }
+  catch { throw new Error('Invalid Agent Commons management receipt.'); }
+  if (!isRecord(raw) || raw.schemaVersion !== 1 || raw.skill !== id ||
+      raw.managedBy !== 'agent-commons' || typeof raw.repository !== 'string' ||
+      typeof raw.source !== 'string' || typeof raw.commit !== 'string' ||
+      !/^[0-9a-f]{40}$/.test(raw.commit) || !Array.isArray(raw.files) ||
+      raw.files.length === 0 || raw.files.length > MAX_FILES) {
+    throw new Error('Untrusted or malformed management receipt.');
+  }
+  const catalog = readPublicCatalog().catalog;
+  const known = catalog.skills.find(s => s.id === id);
+  if (!known || known.repository !== raw.repository ||
+      !raw.source.startsWith(known.repository + '/tree/' + raw.commit)) {
+    throw new Error('Receipt provenance does not match reviewed catalog origins.');
+  }
+
+  const receiptFiles = new Map<string, string>();
+  let expectedSKILL = false;
+  for (const file of raw.files) {
+    if (!isRecord(file) || typeof file.path !== 'string' ||
+        !entryPathSafe(file.path) || typeof file.gitBlobSha1 !== 'string' ||
+        !/^[0-9a-f]{40}$/.test(file.gitBlobSha1)) {
+      throw new Error('Unsafe or malformed management receipt entry.');
+    }
+    const key = file.path.toLowerCase();
+    if (receiptFiles.has(key)) throw new Error('Duplicate path in management receipt.');
+    receiptFiles.set(key, file.gitBlobSha1);
+    if (file.path === 'SKILL.md') expectedSKILL = true;
+  }
+  if (!expectedSKILL) throw new Error('Management receipt does not include SKILL.md.');
+
+  let totalBytes = 0;
+  let foundFiles = 0;
+  const discovered = new Set<string>();
+  const expectedDirs = new Set<string>();
+  for (const file of raw.files as Array<{ path: string }>) {
+    const parts = file.path.split('/');
+    for (let i = 1; i < parts.length; i++) {
+      expectedDirs.add(parts.slice(0, i).join('/').toLowerCase());
+    }
+  }
+
+  const walk = (dir: string, prefix = ''): void => {
+    for (const name of fs.readdirSync(dir)) {
+      const relative = prefix ? prefix + '/' + name : name;
+      const child = path.join(dir, name);
+      const stat = fs.lstatSync(child); // Never follow symlinks or junctions.
+      if (stat.isSymbolicLink()) {
+        throw new Error('Skill contains a link; refusing removal.');
+      }
+      if (stat.isDirectory()) {
+        if (!expectedDirs.has(relative.toLowerCase())) {
+          throw new Error('Skill has an unexpected directory; refusing removal.');
+        }
+        walk(child, relative);
+      } else if (stat.isFile()) {
+        if (relative === RECEIPT_NAME) continue;
+        const key = relative.toLowerCase();
+        const expectedSha = receiptFiles.get(key);
+        if (!expectedSha || discovered.has(key) || stat.size > MAX_FILE_BYTES) {
+          throw new Error('Skill contains untracked, duplicate or oversized files; refusing removal.');
+        }
+        discovered.add(key);
+        totalBytes += stat.size;
+        foundFiles++;
+        if (totalBytes > MAX_TOTAL_BYTES || foundFiles > MAX_FILES) {
+          throw new Error('Managed skill exceeds safe limits.');
+        }
+        const contents = fs.readFileSync(child);
+        const actualSha = crypto.createHash('sha1')
+          .update('blob ' + contents.length + '\0').update(contents).digest('hex');
+        if (actualSha !== expectedSha) {
+          throw new Error('Local skill has been modified; refusing to remove user changes.');
+        }
+      } else {
+        throw new Error('Skill has an unsupported filesystem entry; refusing removal.');
+      }
+    }
+  };
+  walk(target);
+  if (discovered.size !== receiptFiles.size) {
+    throw new Error('Managed skill is missing files; refusing removal.');
+  }
+
+  // Prevent breaking agent links when the central skill is removed.
+  for (const agent of detectAgents(ctx)) {
+    if (!agent.installed) continue;
+    const skillsDir = agent.skillsDirPath;
+    if (inspectPath(skillsDir).state === 'link') {
+      throw new Error('Agent skill directory is linked; refusing removal.');
+    }
+    const agentEntry = path.join(skillsDir, id);
+    const info = inspectPath(agentEntry);
+    if (info.state === 'link' && info.resolvedTarget &&
+        arePathsEqual(info.resolvedTarget, target, ctx.platform)) {
+      throw new Error('Skill is linked to an installed agent; detach the link safely before uninstalling.');
+    }
+  }
+
+  return { skill: id, source: raw.source as string,
+    commit: raw.commit as string, target,
+    files: (raw.files as Array<{ path: string }>).map(x => x.path).sort(),
+    totalBytes, clean: true };
+}
+
+/** Offline preview and strictly opt-in deletion. The target is backed up for restore. */
+export function previewCatalogUninstall(ctx: EnvironmentContext, id: string): UninstallPreview {
+  return inspectManagedInstall(ctx, id);
+}
+
+export function uninstallCatalogSkill(
+  ctx: EnvironmentContext,
+  id: string,
+  options: { yes?: boolean } = {}
+): UninstallOutcome {
+  const preview = previewCatalogUninstall(ctx, id);
+  if (!options.yes) return { preview, removed: false, snapshotId: null };
+
+  // Recheck immediately before the first write; never touch an unmanaged folder.
+  inspectManagedInstall(ctx, id);
+  const session = new SnapshotSession(ctx, 'manual');
+  session.recordPathBeforeModify('commons', 'central-skill', preview.target);
+  const snapshot = session.commitManifest();
+  try {
+    removePhysicalDirectorySafe(preview.target);
+  } catch (err) {
+    try { restoreBackup(ctx, snapshot.id); }
+    catch (rollback) {
+      throw new Error('Uninstall failed and restore also failed; recover from snapshot ' +
+        snapshot.id + ': ' + (rollback as Error).message, { cause: err });
+    }
+    throw err;
+  }
+  return { preview, removed: true, snapshotId: snapshot.id };
 }
