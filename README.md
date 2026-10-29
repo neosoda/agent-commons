@@ -170,7 +170,26 @@ Agent Commons can now **inventory the actual skills installed in your shared lib
 ```bash
 node dist/cli/index.js catalog
 node dist/cli/index.js catalog --json
+node dist/cli/index.js catalog review
+node dist/cli/index.js catalog review --json
 ```
+
+**Private review mode** groups every local skill by what needs attention: missing source, absent license claim, mutable/unpinned version, shared upstream path (potential duplicate), or pending human review. Categories are suggested from names but never treated as verified. Nothing is sent to GitHub or executed.
+
+On Windows, store the review **outside the repository**:
+
+```powershell
+cd A:\PROJETS\agent-commons
+git pull --ff-only
+npm ci
+npm run build
+node dist/cli/index.js catalog review --json > "$env:USERPROFILE\skill-catalog-review.private.json"
+```
+
+Review that file locally before deciding which entries can be proposed for the community catalog. It may disclose private project names or repository URLs.
+
+The public catalog accepts reviewed skills with repository-specific paths and pinned license files from GitHub, GitLab and Codeberg. **Local reports are never promoted automatically.**
+
 
 The report lists skill names, source URLs (where recorded), repository subpaths, pinned refs and **author-declared** license strings. Unknown sources and licenses are explicitly marked **unknown**. Every entry remains **unverified** until a person reviews the original repository and its license.
 
@@ -189,6 +208,7 @@ Nothing is downloaded, installed, synchronized or published by `catalog`. See [t
 | `catalog list` / `catalog search <term>` | Browse the offline public Skill Hub |
 | `catalog info <id>` | View upstream source, license and installed status |
 | `catalog` / `catalog --json` | Inspect the local private skill inventory (read-only) |
+| `catalog review [--json]` | Find missing provenance, license claims, unpinned versions and possible duplicates locally |
 | `list` | Inventory skills, MCP servers, agents and snapshots |
 | `sync --dry-run` | Show planned changes without modifying agent configurations |
 | `sync` | Synchronize compatible installed agents |

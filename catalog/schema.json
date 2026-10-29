@@ -70,16 +70,16 @@
           "repository": {
             "type": "string",
             "format": "uri",
-            "pattern": "^https://"
+            "pattern": "^https://(github\\.com|gitlab\\.com|codeberg\\.org)/"
           },
           "source": {
             "type": "string",
             "format": "uri",
-            "pattern": "^https://"
+            "pattern": "^https://(github\\.com|gitlab\\.com|codeberg\\.org)/"
           },
           "path": {
             "type": "string",
-            "pattern": "^skills/[a-z0-9-]+$"
+            "pattern": "^[A-Za-z0-9_.-]+(?:/[A-Za-z0-9_.-]+)*$"
           },
           "ref": {
             "type": "string",
@@ -92,7 +92,7 @@
           "licenseEvidence": {
             "type": "string",
             "format": "uri",
-            "pattern": "^https://"
+            "pattern": "^https://(github\\.com|gitlab\\.com|codeberg\\.org)/"
           },
           "review": {
             "type": "object",

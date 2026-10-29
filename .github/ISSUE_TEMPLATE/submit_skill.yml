@@ -1,0 +1,79 @@
+name: Suggest a public skill
+description: Propose upstream skill metadata for the reviewed public catalog (no third-party files)
+title: "[Skill Hub] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Submit only **public source references**, not a local lockfile, a copied SKILL.md,
+        secret, personal path, or a private inventory. Proposals are reviewed before merging.
+  - type: input
+    id: skill
+    attributes:
+      label: Skill identifier and title
+      placeholder: "my-skill — My Skill"
+    validations:
+      required: true
+  - type: input
+    id: source
+    attributes:
+      label: Canonical public repository URL
+      placeholder: "https://github.com/author/repo"
+    validations:
+      required: true
+  - type: input
+    id: skillpath
+    attributes:
+      label: Repository-relative skill directory containing SKILL.md
+      placeholder: "skills/my-skill"
+    validations:
+      required: true
+  - type: input
+    id: commit
+    attributes:
+      label: Immutable 40-character commit SHA
+      placeholder: "0123456789abcdef0123456789abcdef01234567"
+    validations:
+      required: true
+  - type: input
+    id: license
+    attributes:
+      label: Applicable upstream license and pinned evidence URL
+      placeholder: "Apache-2.0 — https://github.com/author/repo/blob/<commit>/LICENSE"
+    validations:
+      required: true
+  - type: input
+    id: author
+    attributes:
+      label: Original author or organization
+    validations:
+      required: true
+  - type: dropdown
+    id: category
+    attributes:
+      label: Primary category
+      options:
+        - Development
+        - DevOps / Infrastructure
+        - Cybersecurity
+        - UI / UX
+        - AI / Automation
+        - Documentation
+        - Productivity
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: What does this skill do? Any scripts or dependencies to review?
+    validations:
+      required: true
+  - type: checkboxes
+    id: attestation
+    attributes:
+      label: Source and safety acknowledgement
+      options:
+        - label: I confirm these links are public and contain no secrets or personal data.
+          required: true
+        - label: I understand that public source/license references do not certify that a skill is safe.
+          required: true

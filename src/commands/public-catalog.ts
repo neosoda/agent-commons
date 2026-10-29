@@ -41,16 +41,33 @@ function isSafeText(value: unknown, min = 1): value is string {
   return typeof value === 'string' && value.trim().length >= min &&
     value.length <= 1000 && !/[\u0000-\u001f<>{}]/.test(value);
 }
+function isSafeRelativePath(value: unknown): value is string {
+  return typeof value === 'string' && value.length > 0 && value.length < 512 &&
+    !value.startsWith('/') && !value.endsWith('/') &&
+    value.split('/').every(part => /^[A-Za-z0-9_.-]+$/.test(part) && part !== '.' && part !== '..');
+}
+
 function verifyUrl(value: unknown, repository?: string): value is string {
   if (typeof value !== 'string' || value.length > 1000) return false;
   try {
     const url = new URL(value);
-    if (url.protocol !== 'https:' || url.hostname !== 'github.com' ||
+    if (url.protocol !== 'https:' ||
+        !['github.com', 'gitlab.com', 'codeberg.org'].includes(url.hostname) ||
         url.username || url.password || url.search || url.hash ||
-        url.port || url.pathname.includes('..') || url.pathname.includes('%')) return false;
-    if (!/^\/[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+(?:\/[A-Za-z0-9_.\/-]+)?$/.test(url.pathname)) return false;
+        url.port || url.pathname.includes('%') || value !== url.origin + url.pathname) return false;
+    const parts = url.pathname.split('/').filter(Boolean);
+    if (parts.length < 2 || !parts.every(part => /^[A-Za-z0-9_.-]+$/.test(part) && part !== '.' && part !== '..')) return false;
+    // Accept nested GitLab groups without permitting arbitrary hosts or special URL characters.
     return !repository || value.startsWith(repository + '/');
   } catch { return false; }
+}
+function sourcePrefix(repository: string, ref: string): string {
+  const host = new URL(repository).hostname;
+  return repository + (host === 'gitlab.com' ? '/-/tree/' : host === 'codeberg.org' ? '/src/commit/' : '/tree/') + ref + '/';
+}
+function licensePrefix(repository: string, ref: string): string {
+  const host = new URL(repository).hostname;
+  return repository + (host === 'gitlab.com' ? '/-/blob/' : host === 'codeberg.org' ? '/src/commit/' : '/blob/') + ref + '/';
 }
 function validDate(value: unknown): value is string {
   return typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value) &&
@@ -84,11 +101,13 @@ export function validatePublicCatalog(input: unknown, categories: unknown): Publ
         !isSafeText(raw.author, 2) || typeof raw.category !== 'string' || !ids.has(raw.category) ||
         !verifyUrl(raw.repository) || !verifyUrl(raw.source, raw.repository) ||
         !verifyUrl(raw.licenseEvidence, raw.repository) ||
-        typeof raw.path !== 'string' || raw.path !== 'skills/' + raw.id ||
+        !isSafeRelativePath(raw.path) ||
         typeof raw.ref !== 'string' || !SHA_PATTERN.test(raw.ref) ||
         !isSafeText(raw.license, 2) ||
-        raw.source !== raw.repository + '/tree/' + raw.ref + '/' + raw.path ||
-        raw.licenseEvidence !== raw.repository + '/blob/' + raw.ref + '/' + raw.path + '/LICENSE.txt' ||
+        raw.source !== sourcePrefix(raw.repository as string, raw.ref) + raw.path ||
+        !(raw.licenseEvidence as string).startsWith(licensePrefix(raw.repository as string, raw.ref)) ||
+        !isSafeRelativePath((raw.licenseEvidence as string).slice(licensePrefix(raw.repository as string, raw.ref).length)) ||
+        !/^(?:LICENSE|COPYING)(?:\.[A-Za-z0-9_-]+)?$/i.test((raw.licenseEvidence as string).split('/').at(-1) ?? '') ||
         !isRecord(raw.review) || !validDate(raw.review.sourceChecked) ||
         !validDate(raw.review.licenseChecked) || raw.review.scope !== 'source-and-license-only' ||
         Object.keys(raw.review).sort().join(',') !== 'licenseChecked,scope,sourceChecked' ||

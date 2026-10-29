@@ -21,3 +21,9 @@ Thumbs.db
 .env
 .env.*
 .agents/
+
+# Local skill provenance audit reports — NEVER publish automatically
+/skill-catalog-private*.json
+/catalog-review*.json
+/catalogue-skills*.json
+/skills-review*.json

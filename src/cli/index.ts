@@ -2,6 +2,7 @@
 import { parseArgs } from 'node:util';
 import { runDoctor } from '../commands/doctor.js';
 import { runCatalog } from '../commands/catalog.js';
+import { reviewLocalCatalog } from '../commands/catalog-review.js';
 import { searchPublicCatalog, readPublicCatalog } from '../commands/public-catalog.js';
 import { runList } from '../commands/list.js';
 import { runSync } from '../commands/sync.js';
@@ -49,6 +50,7 @@ EXAMPLES:
   agent-commons catalog list
   agent-commons catalog search playwright
   agent-commons catalog info skill-creator
+  agent-commons catalog review --json
   agent-commons sync --dry-run
   agent-commons sync
   agent-commons backup
@@ -91,6 +93,7 @@ Usage: agent-commons catalog [subcommand] [options]
 
 Without a subcommand: inventory LOCAL skills only (existing behavior).
   catalog [--json]                    Local inventory and source attribution
+  catalog review [--json]             Private triage of missing origins, licenses and duplicates
   catalog list [--category <id>]      Curated PUBLIC metadata (offline)
   catalog search <query>              Search public skills by name, description or tags
   catalog info <id>                   Source, author, license and pinned ref
@@ -315,6 +318,31 @@ export function runCli(argv: string[] = process.argv.slice(2)): number {
           }
           for (const warning of report.warnings) console.error('Warning: ' + warning);
           console.log('Local only. Review for private data and licenses before sharing.');
+        }
+        return 0;
+      }
+      if (subcommand === 'review') {
+        if (positionals.length !== 2) {
+          console.error('Usage: agent-commons catalog review [--json]');
+          return 1;
+        }
+        const report = reviewLocalCatalog(ctx);
+        if (values.json) {
+          console.log(JSON.stringify(report, null, 2));
+        } else {
+          console.log('=== PRIVATE Agent Commons Skill Review ===');
+          console.log('Scanned: ' + report.scanned +
+            ', needs metadata: ' + report.needingMetadata +
+            ', ready for human review: ' + report.awaitingHumanReview);
+          console.log('Missing origins: ' + report.missingOrigins +
+            ', missing license claims: ' + report.missingLicenseClaims +
+            ', duplicate upstream references: ' + report.duplicateReferences);
+          for (const entry of report.entries) {
+            console.log('  ' + entry.name + ': ' + entry.status +
+              ' [' + entry.reasons.join(', ') + ']');
+          }
+          for (const warning of report.warnings) console.error('Warning: ' + warning);
+          console.log('PRIVATE report only. No third-party skill is automatically approved or published.');
         }
         return 0;
       }
