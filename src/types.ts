@@ -121,6 +121,8 @@ export interface BackupManifest {
 export interface SyncOptions {
   /** Explicit subset of central skills; empty/undefined keeps existing full-sync behavior. */
   skillFilter?: string[];
+  /** Agent-specific selection for saved profiles. All agents preflighted before any changes. */
+  skillFilterByAgent?: Record<string, string[]>;
   dryRun?: boolean;
   force?: boolean;
   adopt?: boolean;
