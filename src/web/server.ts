@@ -42,6 +42,13 @@ function checkedId(value: unknown): string {
   }
   return value;
 }
+function checkedMcpId(value: unknown): string {
+  if (typeof value !== 'string' || value.length > 128 ||
+      !/^[A-Za-z0-9._-]+$/.test(value) || ['.','..','__proto__','constructor','prototype'].includes(value)) {
+    throw new Error('Invalid MCP server identifier.');
+  }
+  return value;
+}
 function checkedSnapshot(value: unknown): string {
   if (typeof value !== 'string' || !SNAPSHOT.test(value)) {
     throw new Error('Invalid snapshot identifier.');
@@ -268,7 +275,7 @@ export async function startWebServer(options: WebOptions = {}): Promise<WebInsta
         if (action === 'mcp-preview' || action === 'mcp-apply') {
           if (action === 'mcp-apply') requireApproval(body);
           const request: McpEditorRequest = { operation: body.operation as McpEditorRequest['operation'],
-            name: checkedId(body.name), spec: body.spec, routing: body.routing,
+            name: checkedMcpId(body.name), spec: body.spec, routing: body.routing,
             ...(body.expectedRevision !== undefined ? { expectedRevision: String(body.expectedRevision) } : {}) };
           if (action === 'mcp-preview') {
             json(res, 200, {plan: previewMcpEdit(ctx, request)}); return;
