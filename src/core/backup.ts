@@ -291,7 +291,100 @@ function preflightRestore(
       }
     } else if (entry.stateBefore === 'file' || entry.stateBefore === 'directory') {
       if (typeof entry.backupRelativePath !== 'string' ||
-          !/^payload\\/[A-Za-z0-9._-]+$/.test(entry.backupRelativePath)) {
+          !new RegExp('^payload/[A-Za-z0-9._-]+
+        throw new Error('Invalid or missing snapshot payload path.');
+      }
+      const sourcePath = path.resolve(snapshotDir, entry.backupRelativePath);
+      const expectedState = entry.stateBefore;
+      if (!isSafeSubpath(payloadDir, sourcePath) ||
+          inspectPath(payloadDir).state !== 'directory' ||
+          inspectPath(sourcePath).state !== expectedState) {
+        throw new Error('Snapshot payload is missing, linked, or has the wrong type; nothing was restored.');
+      }
+    }
+  }
+
+  return snapshotDir;
+}
+
+/**
+ * Restores a backup snapshot by ID (or 'latest' / omitted for the most recent snapshot).
+ * Enforces strict path boundary checks and never follows symlinks/junctions when clearing paths.
+ */
+export function restoreBackup(ctx: EnvironmentContext, snapshotId?: string): BackupManifest {
+  let targetManifest: BackupManifest | undefined;
+
+  if (!snapshotId || snapshotId === 'latest') {
+    const all = listBackups(ctx);
+    if (all.length === 0) {
+      throw new Error(
+        `No backup snapshots found in "${ctx.backupsDir}". Run "agent-commons backup" first.`
+      );
+    }
+    targetManifest = all[0];
+  } else {
+    if (!isValidIdentifier(snapshotId)) {
+      throw new Error(`Invalid snapshot identifier: "${snapshotId}".`);
+    }
+    const snapshotDir = path.join(ctx.backupsDir, snapshotId);
+    if (!isSafeSubpath(ctx.backupsDir, snapshotDir)) {
+      throw new Error(`Snapshot path outside backups directory: "${snapshotId}".`);
+    }
+    const manifestPath = path.join(snapshotDir, 'manifest.json');
+    if (inspectPath(manifestPath).state !== 'file') {
+      throw new Error(`Snapshot "${snapshotId}" does not exist at "${manifestPath}".`);
+    }
+    targetManifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8')) as BackupManifest;
+  }
+
+  if (!targetManifest) {
+    throw new Error('Could not load backup manifest.');
+  }
+
+  const selectedId = snapshotId && snapshotId !== 'latest' ? snapshotId : targetManifest.id;
+  const snapshotDir = preflightRestore(ctx, targetManifest, selectedId);
+
+  // Restore in reverse order of modification
+  const reversedEntries = [...targetManifest.entries].reverse();
+
+  for (const entry of reversedEntries) {
+    const targetPath = path.resolve(entry.originalPath);
+    const currentInfo = inspectPath(targetPath);
+
+    // 1. Safely clear current state at targetPath without ever traversing links
+    if (currentInfo.state === 'link') {
+      detachLinkSafe(targetPath);
+    } else if (currentInfo.state === 'directory') {
+      removePhysicalDirectorySafe(targetPath);
+    } else if (currentInfo.state === 'file') {
+      fs.unlinkSync(targetPath);
+    }
+
+    // 2. Re-apply stateBefore
+    if (entry.stateBefore === 'missing') {
+      continue;
+    }
+
+    const parentDir = path.dirname(targetPath);
+    if (!fs.existsSync(parentDir)) {
+      fs.mkdirSync(parentDir, { recursive: true });
+    }
+
+    if (entry.stateBefore === 'link') {
+      // The link target was checked during preflight.
+      createDirectoryLink(targetPath, entry.linkTarget!, ctx.platform);
+    } else if (entry.stateBefore === 'file' && entry.backupRelativePath) {
+      const srcFile = path.join(snapshotDir, entry.backupRelativePath);
+      fs.copyFileSync(srcFile, targetPath);
+    } else if (entry.stateBefore === 'directory' && entry.backupRelativePath) {
+      const srcDir = path.join(snapshotDir, entry.backupRelativePath);
+      copyDirectorySafe(srcDir, targetPath);
+    }
+  }
+
+  return targetManifest;
+}
+).test(entry.backupRelativePath))
         throw new Error('Invalid or missing snapshot payload path.');
       }
       const sourcePath = path.resolve(snapshotDir, entry.backupRelativePath);
