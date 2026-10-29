@@ -3,6 +3,29 @@
   "generatedAt": "2026-10-29",
   "skills": [
     {
+      "id": "agent-cost-report",
+      "name": "Agent Cost Report",
+      "description": "Believable agent cost report for any period, default the last 7 full days PT, not counting today. Measured tokens from Claude Code transcripts priced at OpenRouter list prices (ESTIMATED), measured provider spend when a sanctioned source exists, note-taker cost separate, Timing-style HTML/PDF plus report.json, line-items.csv, evidence.json. - Bash - Read - Write - AskUserQuestion - mcp__plugin_claude-mem_mcp-search__search - mcp__plugin_claude-mem_mcp-search__timeline - mcp__",
+      "category": "ai-automation",
+      "author": "thedotmack",
+      "repository": "https://github.com/thedotmack/claude-mem",
+      "source": "https://github.com/thedotmack/claude-mem/tree/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/plugin/skills/agent-cost-report",
+      "path": "plugin/skills/agent-cost-report",
+      "ref": "d7c2da3e5f9397b394dbc6b6966f4b261b489f7b",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/thedotmack/claude-mem/blob/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ai-automation",
+        "claude-mem"
+      ]
+    },
+    {
       "id": "babysit",
       "name": "Babysit",
       "description": "Watch a pull request or review cycle until it is ready to merge. Use when asked to babysit, monitor, or keep checking PR comments, reviews, and CI until all actionable issues are resolved.",
@@ -395,6 +418,144 @@
       ]
     },
     {
+      "id": "mem-setup",
+      "name": "Mem Setup",
+      "description": "This skill should be used when the user asks to \"set up claude-mem\", \"pair claude-mem\", \"connect cmem\", \"add my cmem key\", \"set up cloud sync in Cowork\", or provides cmem.ai Connect values (sync token, user id, SyncHub URL) for this plugin. Configures the claude-mem-cowork plugin credentials. version: \"0.1.0",
+      "category": "ai-automation",
+      "author": "thedotmack",
+      "repository": "https://github.com/thedotmack/claude-mem",
+      "source": "https://github.com/thedotmack/claude-mem/tree/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/cowork/skills/mem-setup",
+      "path": "cowork/skills/mem-setup",
+      "ref": "d7c2da3e5f9397b394dbc6b6966f4b261b489f7b",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/thedotmack/claude-mem/blob/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ai-automation",
+        "claude-mem"
+      ]
+    },
+    {
+      "id": "mode-creator",
+      "name": "Mode Creator",
+      "description": "Interactively create, install, activate, and verify custom claude-mem modes, including domain-specific observation types, concept tags, optional Telegram alerts, bot setup, worker restart, and startup-context verification. Use this whenever someone asks to customize what claude-mem remembers, create or change a mode, track domain-specific notes, add observation types or tags, or send Telegram notifications for particular memories—even if they do not use the word \"mode.",
+      "category": "ai-automation",
+      "author": "thedotmack",
+      "repository": "https://github.com/thedotmack/claude-mem",
+      "source": "https://github.com/thedotmack/claude-mem/tree/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/plugin/skills/mode-creator",
+      "path": "plugin/skills/mode-creator",
+      "ref": "d7c2da3e5f9397b394dbc6b6966f4b261b489f7b",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/thedotmack/claude-mem/blob/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ai-automation",
+        "claude-mem"
+      ]
+    },
+    {
+      "id": "oh-my-issues",
+      "name": "Oh My Issues",
+      "description": "Cluster a GitHub issue backlog by root cause into a small set of plan-master issues, redirect children with a standardized comment, and bundle architectural-fix PRs that close clusters atomically. Use when an issue tracker has accumulated dozens of reports that share underlying defects, when asked to triage / consolidate / cluster / dedupe issues, when asked to build a plan series or roadmap from open issues, or when routing a new incoming bug into an existing plan.",
+      "category": "development",
+      "author": "thedotmack",
+      "repository": "https://github.com/thedotmack/claude-mem",
+      "source": "https://github.com/thedotmack/claude-mem/tree/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/plugin/skills/oh-my-issues",
+      "path": "plugin/skills/oh-my-issues",
+      "ref": "d7c2da3e5f9397b394dbc6b6966f4b261b489f7b",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/thedotmack/claude-mem/blob/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "development",
+        "claude-mem"
+      ]
+    },
+    {
+      "id": "pathfinder",
+      "name": "Pathfinder",
+      "description": "Map a codebase into feature-grouped flowcharts, identify duplicated concerns across features, and propose a unified architecture. Use when asked to \"find the ideal path,\" unify duplicated systems, or audit architecture before a refactor. Emits a proposed unified flowchart plus per-system /make-plan prompts.",
+      "category": "ai-automation",
+      "author": "thedotmack",
+      "repository": "https://github.com/thedotmack/claude-mem",
+      "source": "https://github.com/thedotmack/claude-mem/tree/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/plugin/skills/pathfinder",
+      "path": "plugin/skills/pathfinder",
+      "ref": "d7c2da3e5f9397b394dbc6b6966f4b261b489f7b",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/thedotmack/claude-mem/blob/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ai-automation",
+        "claude-mem"
+      ]
+    },
+    {
+      "id": "release",
+      "name": "Release",
+      "description": "Fully automate a release with version-bump and childhood.",
+      "category": "development",
+      "author": "thedotmack",
+      "repository": "https://github.com/thedotmack/claude-mem",
+      "source": "https://github.com/thedotmack/claude-mem/tree/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/plugin/skills/release",
+      "path": "plugin/skills/release",
+      "ref": "d7c2da3e5f9397b394dbc6b6966f4b261b489f7b",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/thedotmack/claude-mem/blob/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "development",
+        "claude-mem"
+      ]
+    },
+    {
+      "id": "screenpipe",
+      "name": "Screenpipe",
+      "description": "Search screen and audio history recorded by Screenpipe and optionally save selected context into claude-mem. Use when the user asks to recall desktop activity, a meeting, or something seen in another app through Screenpipe.",
+      "category": "productivity",
+      "author": "thedotmack",
+      "repository": "https://github.com/thedotmack/claude-mem",
+      "source": "https://github.com/thedotmack/claude-mem/tree/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/plugin/skills/screenpipe",
+      "path": "plugin/skills/screenpipe",
+      "ref": "d7c2da3e5f9397b394dbc6b6966f4b261b489f7b",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/thedotmack/claude-mem/blob/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "productivity",
+        "claude-mem"
+      ]
+    },
+    {
       "id": "skill-creator",
       "name": "Skill Creator",
       "description": "Create, test, benchmark and improve reusable agent skills.",
@@ -415,6 +576,75 @@
       "tags": [
         "ai-automation",
         "anthropic"
+      ]
+    },
+    {
+      "id": "smart-explore",
+      "name": "Smart Explore",
+      "description": "Token-optimized structural code search using tree-sitter AST parsing. Use instead of reading full files when you need to understand code structure, find functions, or explore a codebase efficiently.",
+      "category": "ai-automation",
+      "author": "thedotmack",
+      "repository": "https://github.com/thedotmack/claude-mem",
+      "source": "https://github.com/thedotmack/claude-mem/tree/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/plugin/skills/smart-explore",
+      "path": "plugin/skills/smart-explore",
+      "ref": "d7c2da3e5f9397b394dbc6b6966f4b261b489f7b",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/thedotmack/claude-mem/blob/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ai-automation",
+        "claude-mem"
+      ]
+    },
+    {
+      "id": "standup",
+      "name": "Standup",
+      "description": "Facilitate a read-only standup across git worktrees, branches, or PRs to compare changes and produce one consolidation plan.",
+      "category": "documentation",
+      "author": "thedotmack",
+      "repository": "https://github.com/thedotmack/claude-mem",
+      "source": "https://github.com/thedotmack/claude-mem/tree/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/plugin/skills/standup",
+      "path": "plugin/skills/standup",
+      "ref": "d7c2da3e5f9397b394dbc6b6966f4b261b489f7b",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/thedotmack/claude-mem/blob/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "documentation",
+        "claude-mem"
+      ]
+    },
+    {
+      "id": "timeline-report",
+      "name": "Timeline Report",
+      "description": "Generate a \"Journey Into [Project]\" narrative report analyzing a project's entire development history from claude-mem's timeline. Use when asked for a timeline report, project history analysis, development journey, or full project report.",
+      "category": "documentation",
+      "author": "thedotmack",
+      "repository": "https://github.com/thedotmack/claude-mem",
+      "source": "https://github.com/thedotmack/claude-mem/tree/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/plugin/skills/timeline-report",
+      "path": "plugin/skills/timeline-report",
+      "ref": "d7c2da3e5f9397b394dbc6b6966f4b261b489f7b",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/thedotmack/claude-mem/blob/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "documentation",
+        "claude-mem"
       ]
     },
     {
@@ -440,6 +670,29 @@
         "scope": "source-and-license-only"
       },
       "dependencies": []
+    },
+    {
+      "id": "version-bump",
+      "name": "Version Bump",
+      "description": "Automated semantic versioning and release workflow for Claude Code plugins. Handles version increments across package.json, marketplace.json, plugin.json manifests, build verification, git tagging, GitHub releases, and changelog generation. npm publishing is done by the tag-triggered GitHub Actions workflow through npm trusted publishing.",
+      "category": "development",
+      "author": "thedotmack",
+      "repository": "https://github.com/thedotmack/claude-mem",
+      "source": "https://github.com/thedotmack/claude-mem/tree/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/plugin/skills/version-bump",
+      "path": "plugin/skills/version-bump",
+      "ref": "d7c2da3e5f9397b394dbc6b6966f4b261b489f7b",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/thedotmack/claude-mem/blob/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "development",
+        "claude-mem"
+      ]
     },
     {
       "id": "video-shotcraft",
@@ -486,6 +739,75 @@
       "tags": [
         "development",
         "anthropic"
+      ]
+    },
+    {
+      "id": "weekly-digests",
+      "name": "Weekly Digests",
+      "description": "Generate a serial week-by-week narrative digest of a project's full claude-mem timeline. Splits the timeline into per-ISO-week files, then runs one consecutive subagent per week — each receiving the prior week's carry-forward block — to produce one chapter per ISO week of data. Use when asked for \"weekly digests\", \"week-by-week story\", \"serial timeline\", or \"narrative chapters\" of a project's history.",
+      "category": "documentation",
+      "author": "thedotmack",
+      "repository": "https://github.com/thedotmack/claude-mem",
+      "source": "https://github.com/thedotmack/claude-mem/tree/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/plugin/skills/weekly-digests",
+      "path": "plugin/skills/weekly-digests",
+      "ref": "d7c2da3e5f9397b394dbc6b6966f4b261b489f7b",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/thedotmack/claude-mem/blob/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "documentation",
+        "claude-mem"
+      ]
+    },
+    {
+      "id": "what-the",
+      "name": "What The",
+      "description": "What the? Use when the user wants a plain-English breakdown of something technical — the who, what, where, why, and when.",
+      "category": "ai-automation",
+      "author": "thedotmack",
+      "repository": "https://github.com/thedotmack/claude-mem",
+      "source": "https://github.com/thedotmack/claude-mem/tree/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/plugin/skills/what-the",
+      "path": "plugin/skills/what-the",
+      "ref": "d7c2da3e5f9397b394dbc6b6966f4b261b489f7b",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/thedotmack/claude-mem/blob/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ai-automation",
+        "claude-mem"
+      ]
+    },
+    {
+      "id": "wowerpoint",
+      "name": "Wowerpoint",
+      "description": "Turn one document into a kawaii NotebookLM slide deck. Use for \"wowerpoint this\", \"make a deck about file \", \"turn this report into slides\", or any request to render a single document as shareable narrative slides.",
+      "category": "documentation",
+      "author": "thedotmack",
+      "repository": "https://github.com/thedotmack/claude-mem",
+      "source": "https://github.com/thedotmack/claude-mem/tree/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/plugin/skills/wowerpoint",
+      "path": "plugin/skills/wowerpoint",
+      "ref": "d7c2da3e5f9397b394dbc6b6966f4b261b489f7b",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/thedotmack/claude-mem/blob/d7c2da3e5f9397b394dbc6b6966f4b261b489f7b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "documentation",
+        "claude-mem"
       ]
     }
   ]
