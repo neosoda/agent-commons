@@ -74,6 +74,15 @@ describe('local Skill Hub HTTP security and user workflows', () => {
     assert.equal(JSON.stringify(body).includes(home), false);
   });
 
+  it('never echoes absolute private home paths in failing HTTP operations', async () => {
+    fs.writeFileSync(path.join(home, '.agents'), 'blocking file');
+    for (const url of ['/api/state', '/api/doctor']) {
+      const response = await fetch(instance.url + url);
+      const body = await response.text();
+      assert.equal(body.includes(home), false, url + ' exposed a private home path');
+    }
+  });
+
   it('refuses foreign hosts, cross-origin requests, missing token and GET mutations', async () => {
     const badHostStatus = await new Promise<number>((resolve, reject) => {
       const url = new URL(instance.url);
