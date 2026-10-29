@@ -182,6 +182,13 @@ node dist/cli/index.js catalog uninstall skill-creator
 node dist/cli/index.js catalog uninstall skill-creator --yes
 ```
 
+**Offline integrity audit:** `catalog verify [id]` checks management receipts, tracked Git blob hashes, unexpected files and nested symlinks/junctions without downloads or filesystem changes. Without an ID, only locally present skills from the reviewed public catalog are audited; unrelated private skills are not scanned or disclosed. Results distinguish `intact`, `modified`, `untracked`, `missing`, `unmanaged` and `unsafe`. Any non-intact result produces a nonzero exit status; `--json` provides a machine-readable report. Matching hashes **do not** imply that upstream code has been security-audited.
+
+```bash
+node dist/cli/index.js catalog verify
+node dist/cli/index.js catalog verify skill-creator --json
+```
+
 `catalog outdated` now compares the installed Agent Commons management receipts to **the immutable commits pinned in the bundled public catalog**, entirely offline. This is not a check for the latest upstream changes.
 
 ```bash
@@ -295,6 +302,7 @@ Nothing is downloaded, installed, synchronized or published by `catalog`. See [t
 | `catalog uninstall <id> --yes` | Back up and safely remove that managed skill; restore by snapshot |
 | `catalog` / `catalog --json` | Inspect the local private skill inventory (read-only) |
 | `catalog review [--json]` | Find missing provenance, license claims, unpinned versions and possible duplicates locally |
+| `catalog verify [id] [--json]` | Audit reviewed-catalog skills offline, without changes; nonzero exit on integrity failures |
 | `list` | Inventory skills, MCP servers, agents and snapshots |
 | `sync --dry-run` | Show planned changes without modifying agent configurations |
 | `sync` | Synchronize compatible installed agents |

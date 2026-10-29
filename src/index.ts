@@ -65,3 +65,6 @@ export type { InstallFile, InstallPreview, InstallOutcome, UninstallPreview, Uni
 
 export { readSavedProfiles, saveAgentProfile, clearAgentProfile, runSavedProfilesSync } from './commands/saved-profiles.js';
 export type { SavedAgentProfile, SavedProfileManifest, SavedProfileSyncOptions } from './commands/saved-profiles.js';
+
+export { verifyCatalogSkills } from './commands/skill-verify.js';
+export type { IntegrityStatus, IntegrityIssue, SkillIntegrity, CatalogIntegrityReport } from './commands/skill-verify.js';
