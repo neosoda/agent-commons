@@ -95,6 +95,236 @@
       ]
     },
     {
+      "id": "cavecrew",
+      "name": "Cavecrew",
+      "description": "When to delegate to `cavecrew-investigator` (locate code), `cavecrew-builder` (1-2 file edit) or `cavecrew-reviewer` (diff review) instead of working inline or using `Explore`. Their output is compressed, so main context lasts longer.",
+      "category": "ai-automation",
+      "author": "JuliusBrussee",
+      "repository": "https://github.com/JuliusBrussee/caveman",
+      "source": "https://github.com/JuliusBrussee/caveman/tree/9b68f7ed12b05e7efaff18e65c5a3fc2849fd0a4/skills/cavecrew",
+      "path": "skills/cavecrew",
+      "ref": "9b68f7ed12b05e7efaff18e65c5a3fc2849fd0a4",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/JuliusBrussee/caveman/blob/9b68f7ed12b05e7efaff18e65c5a3fc2849fd0a4/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ai-automation",
+        "caveman"
+      ]
+    },
+    {
+      "id": "caveman",
+      "name": "Caveman",
+      "description": "Terse caveman voice: answer first, fluff gone, every technical fact kept. Use for /caveman, \"caveman mode\", \"talk like caveman\", \"be brief\", \"less tokens\". Stays on until \"stop caveman\" or \"normal mode\".",
+      "category": "ai-automation",
+      "author": "JuliusBrussee",
+      "repository": "https://github.com/JuliusBrussee/caveman",
+      "source": "https://github.com/JuliusBrussee/caveman/tree/9b68f7ed12b05e7efaff18e65c5a3fc2849fd0a4/skills/caveman",
+      "path": "skills/caveman",
+      "ref": "9b68f7ed12b05e7efaff18e65c5a3fc2849fd0a4",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/JuliusBrussee/caveman/blob/9b68f7ed12b05e7efaff18e65c5a3fc2849fd0a4/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ai-automation",
+        "caveman"
+      ]
+    },
+    {
+      "id": "caveman-commit",
+      "name": "Caveman Commit",
+      "description": "Write a Conventional Commits message compressed to intent only. Use for \"write a commit\", \"commit message\", /commit or /caveman-commit.",
+      "category": "development",
+      "author": "JuliusBrussee",
+      "repository": "https://github.com/JuliusBrussee/caveman",
+      "source": "https://github.com/JuliusBrussee/caveman/tree/9b68f7ed12b05e7efaff18e65c5a3fc2849fd0a4/skills/caveman-commit",
+      "path": "skills/caveman-commit",
+      "ref": "9b68f7ed12b05e7efaff18e65c5a3fc2849fd0a4",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/JuliusBrussee/caveman/blob/9b68f7ed12b05e7efaff18e65c5a3fc2849fd0a4/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "development",
+        "caveman"
+      ]
+    },
+    {
+      "id": "caveman-compress",
+      "name": "Caveman Compress",
+      "description": "Compress a memory file such as CLAUDE.md or a todo list into caveman format to save input tokens, keeping a readable backup. Sends the file's text to the configured model provider. Trigger: /caveman-compress.",
+      "category": "ai-automation",
+      "author": "JuliusBrussee",
+      "repository": "https://github.com/JuliusBrussee/caveman",
+      "source": "https://github.com/JuliusBrussee/caveman/tree/9b68f7ed12b05e7efaff18e65c5a3fc2849fd0a4/skills/caveman-compress",
+      "path": "skills/caveman-compress",
+      "ref": "9b68f7ed12b05e7efaff18e65c5a3fc2849fd0a4",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/JuliusBrussee/caveman/blob/9b68f7ed12b05e7efaff18e65c5a3fc2849fd0a4/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ai-automation",
+        "caveman"
+      ]
+    },
+    {
+      "id": "caveman-discover",
+      "name": "Caveman Discover",
+      "description": "Find and label every LLM workflow in the repository so Caveman Cloud groups spend by workflow instead of one bucket. Use for \"discover workflows\" or breaking LLM spend down by workflow.",
+      "category": "ai-automation",
+      "author": "JuliusBrussee",
+      "repository": "https://github.com/JuliusBrussee/caveman",
+      "source": "https://github.com/JuliusBrussee/caveman/tree/9b68f7ed12b05e7efaff18e65c5a3fc2849fd0a4/skills/caveman-discover",
+      "path": "skills/caveman-discover",
+      "ref": "9b68f7ed12b05e7efaff18e65c5a3fc2849fd0a4",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/JuliusBrussee/caveman/blob/9b68f7ed12b05e7efaff18e65c5a3fc2849fd0a4/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ai-automation",
+        "caveman"
+      ]
+    },
+    {
+      "id": "caveman-evidence-review",
+      "name": "Caveman Evidence Review",
+      "description": "Read-only review of Caveman Cloud evidence: cost, Cave Score, workflows, traces, latency, errors, routing, savings. Use when asked what Caveman found or where LLM spend goes.",
+      "category": "security",
+      "author": "JuliusBrussee",
+      "repository": "https://github.com/JuliusBrussee/caveman",
+      "source": "https://github.com/JuliusBrussee/caveman/tree/9b68f7ed12b05e7efaff18e65c5a3fc2849fd0a4/skills/caveman-evidence-review",
+      "path": "skills/caveman-evidence-review",
+      "ref": "9b68f7ed12b05e7efaff18e65c5a3fc2849fd0a4",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/JuliusBrussee/caveman/blob/9b68f7ed12b05e7efaff18e65c5a3fc2849fd0a4/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "security",
+        "caveman"
+      ]
+    },
+    {
+      "id": "caveman-explore",
+      "name": "Caveman Explore",
+      "description": "Read-only repository explorer for cold-start orientation, broad cross-file localization, or when a direct search failed. Skip it when the exact file or symbol is already named. Returns path:line citations only; its reads stay out of main context.",
+      "category": "ai-automation",
+      "author": "JuliusBrussee",
+      "repository": "https://github.com/JuliusBrussee/caveman",
+      "source": "https://github.com/JuliusBrussee/caveman/tree/9b68f7ed12b05e7efaff18e65c5a3fc2849fd0a4/skills/caveman-explore",
+      "path": "skills/caveman-explore",
+      "ref": "9b68f7ed12b05e7efaff18e65c5a3fc2849fd0a4",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/JuliusBrussee/caveman/blob/9b68f7ed12b05e7efaff18e65c5a3fc2849fd0a4/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ai-automation",
+        "caveman"
+      ]
+    },
+    {
+      "id": "caveman-help",
+      "name": "Caveman Help",
+      "description": "Quick-reference card for the three caveman skills and their commands. Trigger: /caveman-help or \"caveman help\".",
+      "category": "ai-automation",
+      "author": "JuliusBrussee",
+      "repository": "https://github.com/JuliusBrussee/caveman",
+      "source": "https://github.com/JuliusBrussee/caveman/tree/9b68f7ed12b05e7efaff18e65c5a3fc2849fd0a4/skills/caveman-help",
+      "path": "skills/caveman-help",
+      "ref": "9b68f7ed12b05e7efaff18e65c5a3fc2849fd0a4",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/JuliusBrussee/caveman/blob/9b68f7ed12b05e7efaff18e65c5a3fc2849fd0a4/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ai-automation",
+        "caveman"
+      ]
+    },
+    {
+      "id": "caveman-learn",
+      "name": "Caveman Learn",
+      "description": "Act on a Caveman learn report - review the ranked token sinks, apply cost-lowering fixes with per-edit consent, and report what those fixes returned. Use when asked to lower an agent's token cost, what caveman has saved, to trim a heavy CLAUDE.md, or to offload re-pasted context into cavemem.",
+      "category": "ai-automation",
+      "author": "JuliusBrussee",
+      "repository": "https://github.com/JuliusBrussee/caveman",
+      "source": "https://github.com/JuliusBrussee/caveman/tree/9b68f7ed12b05e7efaff18e65c5a3fc2849fd0a4/skills/caveman-learn",
+      "path": "skills/caveman-learn",
+      "ref": "9b68f7ed12b05e7efaff18e65c5a3fc2849fd0a4",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/JuliusBrussee/caveman/blob/9b68f7ed12b05e7efaff18e65c5a3fc2849fd0a4/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ai-automation",
+        "caveman"
+      ]
+    },
+    {
+      "id": "caveman-manage",
+      "name": "Caveman Manage",
+      "description": "Inspect Caveman Cloud's experiment lifecycle and block unsafe execution. Use when asked to start, approve, cancel, promote or roll back a Caveman experiment.",
+      "category": "ai-automation",
+      "author": "JuliusBrussee",
+      "repository": "https://github.com/JuliusBrussee/caveman",
+      "source": "https://github.com/JuliusBrussee/caveman/tree/9b68f7ed12b05e7efaff18e65c5a3fc2849fd0a4/skills/caveman-manage",
+      "path": "skills/caveman-manage",
+      "ref": "9b68f7ed12b05e7efaff18e65c5a3fc2849fd0a4",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/JuliusBrussee/caveman/blob/9b68f7ed12b05e7efaff18e65c5a3fc2849fd0a4/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ai-automation",
+        "caveman"
+      ]
+    },
+    {
       "id": "ccs-align",
       "name": "Ccs Align",
       "description": "Run the CCS Align seat's hourly breathing cycle — prove the local claude-mem worker is healthy, pull needle observations through search → timeline → get_observations, land them in a seat-owned middle cache via atomic grab → append → filter exclude-marks → replace, manage exclude marks, and walk house → project → seat rules to detect conflicts (SHADOW_HOUSE, DENY_ALLOW, DRIFT, CLOCK_HEADER) with an append-only rules-report.md. Use when asked to run CCS Align, breathe the align",
