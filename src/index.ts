@@ -60,5 +60,5 @@ export type { PublicSkill, PublicCatalog, PublicSkillResult, PublicSearchOptions
 export { reviewLocalCatalog } from './commands/catalog-review.js';
 export type { LocalCatalogReview, LocalSkillReview, ReviewReason } from './commands/catalog-review.js';
 
-export { previewCatalogInstall, installCatalogSkill, previewCatalogUninstall, uninstallCatalogSkill } from './commands/skill-install.js';
-export type { InstallFile, InstallPreview, InstallOutcome, UninstallPreview, UninstallOutcome, FetchJson } from './commands/skill-install.js';
+export { previewCatalogInstall, installCatalogSkill, previewCatalogUninstall, uninstallCatalogSkill, previewCatalogUpdate, updateCatalogSkill, listCatalogOutdated } from './commands/skill-install.js';
+export type { InstallFile, InstallPreview, InstallOutcome, UninstallPreview, UninstallOutcome, UpdatePreview, UpdateOutcome, OutdatedSkill, FetchJson } from './commands/skill-install.js';
