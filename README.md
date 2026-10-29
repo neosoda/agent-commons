@@ -77,7 +77,8 @@ The dashboard provides:
 - **Overview:** local skills, installed agent environments, MCP server names, backups and quick integrity status.
 - **Skill catalog:** searchable, category-filtered references; inspect pinned upstream source/license; preview and explicitly approve install/update/uninstall where supported.
 - **Agents & profiles:** view installed agents, assign shared skills and catalog categories per agent, save selections privately, preview synchronized changes and apply deliberately (skills only; unrelated settings untouched).
-- **Integrity:** strictly offline audit for Git-hash drift, invalid receipts, extra/missing files and unsafe links.
+- **MCP synchronization:** view shared MCP server names, preview a full skills + MCP synchronization, and apply it only after typing an explicit confirmation.
+- **Integrity & diagnostics:** strictly offline Git-hash audit, plus on-demand agent diagnostics for broken links and MCP configuration health.
 - **Backups:** create snapshots and restore a known snapshot after typing its exact ID to confirm.
 
 **Safety defaults:** the server listens only on `127.0.0.1`; it refuses cross-origin and foreign-Host requests, requires a random per-process CSRF token for changes, and never loads code, fonts or assets from third-party CDNs. There is **no login and no public network access**. Do not expose this local administrative UI with a proxy, port-forward or tunnel; it is intentionally **not hardened for remote multiuser access**. The dashboard does not start a daemon, install skills automatically, upload private reports or synchronize agents in the background. Skill source/license metadata does not certify script safety.
