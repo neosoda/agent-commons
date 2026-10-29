@@ -5,6 +5,7 @@ import { detectAgents } from '../agents/detector.js';
 import { isSafeSubpath, isValidIdentifier } from '../security/validator.js';
 import type { BackupEntry, BackupManifest, EnvironmentContext } from '../types.js';
 import {
+  arePathsEqual,
   copyDirectorySafe,
   createDirectoryLink,
   detachLinkSafe,
@@ -201,6 +202,111 @@ export function listBackups(ctx: EnvironmentContext): BackupManifest[] {
   return manifests;
 }
 
+
+/**
+ * Preflight the COMPLETE snapshot before deleting anything. Backup manifests are local
+ * files and must not be trusted as a list of arbitrary paths to overwrite or remove.
+ * A missing/corrupt payload must fail before the first destructive operation.
+ */
+function preflightRestore(
+  ctx: EnvironmentContext,
+  manifest: BackupManifest,
+  selectedId: string
+): string {
+  if (
+    !isValidIdentifier(selectedId) ||
+    !manifest ||
+    manifest.version !== 1 ||
+    manifest.id !== selectedId ||
+    !Array.isArray(manifest.entries)
+  ) {
+    throw new Error('Invalid snapshot manifest or snapshot ID mismatch.');
+  }
+  if (manifest.platform !== ctx.platform) {
+    throw new Error('Snapshot platform differs from the current platform.');
+  }
+
+  const snapshotDir = path.join(ctx.backupsDir, selectedId);
+  if (inspectPath(ctx.backupsDir).state !== 'directory' ||
+      inspectPath(snapshotDir).state !== 'directory' ||
+      inspectPath(path.join(snapshotDir, 'manifest.json')).state !== 'file') {
+    throw new Error('Snapshot directories and manifest must be physical paths, not links.');
+  }
+
+  const payloadDir = path.join(snapshotDir, 'payload');
+  const agents = detectAgents(ctx);
+  const seen = new Set<string>();
+
+  for (const entry of manifest.entries) {
+    if (!entry || typeof entry.originalPath !== 'string' ||
+        typeof entry.agentId !== 'string' ||
+        !['central-skill', 'skill-entry', 'mcp-config'].includes(entry.kind) ||
+        !['missing', 'link', 'file', 'directory'].includes(entry.stateBefore)) {
+      throw new Error('Invalid backup entry in snapshot manifest.');
+    }
+
+    const targetPath = path.resolve(entry.originalPath);
+    const agent = agents.find((a) => a.definition.id === entry.agentId);
+    const isImmediateSkill = (parent: string): boolean =>
+      arePathsEqual(path.dirname(targetPath), parent, ctx.platform) &&
+      isValidIdentifier(path.basename(targetPath));
+
+    const allowed =
+      (entry.kind === 'central-skill' &&
+        entry.agentId === 'commons' &&
+        isImmediateSkill(ctx.centralSkillsDir)) ||
+      (entry.kind === 'skill-entry' &&
+        Boolean(agent && isImmediateSkill(agent.skillsDirPath))) ||
+      (entry.kind === 'mcp-config' &&
+        ((entry.agentId === 'commons' &&
+          arePathsEqual(targetPath, ctx.centralMcpPath, ctx.platform)) ||
+          Boolean(agent?.mcpConfigPath &&
+            arePathsEqual(targetPath, agent.mcpConfigPath, ctx.platform))));
+
+    if (!allowed) {
+      throw new Error('Security violation: snapshot attempts to restore an unmanaged path.');
+    }
+
+    const pathKey = ctx.platform === 'win32' ? targetPath.toLowerCase() : targetPath;
+    if (seen.has(pathKey)) {
+      throw new Error('Invalid snapshot: duplicate restore path.');
+    }
+    seen.add(pathKey);
+
+    // Reject a junction/symlink in any parent directory: lstat(target) alone
+    // would otherwise miss writes through an ancestor link.
+    let parent = path.dirname(targetPath);
+    const root = path.parse(parent).root;
+    while (parent !== root) {
+      if (inspectPath(parent).state === 'link') {
+        throw new Error('Security violation: restore destination has a linked ancestor.');
+      }
+      parent = path.dirname(parent);
+    }
+
+    if (entry.stateBefore === 'link') {
+      if (typeof entry.linkTarget !== 'string' ||
+          inspectPath(entry.linkTarget).state !== 'directory') {
+        throw new Error('Snapshot link target is missing or invalid; refusing destructive restore.');
+      }
+    } else if (entry.stateBefore === 'file' || entry.stateBefore === 'directory') {
+      if (typeof entry.backupRelativePath !== 'string' ||
+          !/^payload\\/[A-Za-z0-9._-]+$/.test(entry.backupRelativePath)) {
+        throw new Error('Invalid or missing snapshot payload path.');
+      }
+      const sourcePath = path.resolve(snapshotDir, entry.backupRelativePath);
+      const expectedState = entry.stateBefore;
+      if (!isSafeSubpath(payloadDir, sourcePath) ||
+          inspectPath(payloadDir).state !== 'directory' ||
+          inspectPath(sourcePath).state !== expectedState) {
+        throw new Error('Snapshot payload is missing, linked, or has the wrong type; nothing was restored.');
+      }
+    }
+  }
+
+  return snapshotDir;
+}
+
 /**
  * Restores a backup snapshot by ID (or 'latest' / omitted for the most recent snapshot).
  * Enforces strict path boundary checks and never follows symlinks/junctions when clearing paths.
@@ -235,19 +341,8 @@ export function restoreBackup(ctx: EnvironmentContext, snapshotId?: string): Bac
     throw new Error('Could not load backup manifest.');
   }
 
-  const snapshotDir = path.join(ctx.backupsDir, targetManifest.id);
-
-  // Pre-validate every entry path before performing any destructive change
-  for (const entry of targetManifest.entries) {
-    const targetPath = path.resolve(entry.originalPath);
-    const insideHome = isSafeSubpath(ctx.homeDir, targetPath);
-    const insideLocalAppData = isSafeSubpath(ctx.localAppDataDir, targetPath);
-    if (!insideHome && !insideLocalAppData) {
-      throw new Error(
-        `Security violation: backup entry target "${targetPath}" is outside allowed user roots.`
-      );
-    }
-  }
+  const selectedId = snapshotId && snapshotId !== 'latest' ? snapshotId : targetManifest.id;
+  const snapshotDir = preflightRestore(ctx, targetManifest, selectedId);
 
   // Restore in reverse order of modification
   const reversedEntries = [...targetManifest.entries].reverse();
@@ -276,19 +371,14 @@ export function restoreBackup(ctx: EnvironmentContext, snapshotId?: string): Bac
     }
 
     if (entry.stateBefore === 'link') {
-      if (entry.linkTarget && inspectPath(entry.linkTarget).state === 'directory') {
-        createDirectoryLink(targetPath, entry.linkTarget, ctx.platform);
-      }
+      // The link target was checked during preflight.
+      createDirectoryLink(targetPath, entry.linkTarget!, ctx.platform);
     } else if (entry.stateBefore === 'file' && entry.backupRelativePath) {
       const srcFile = path.join(snapshotDir, entry.backupRelativePath);
-      if (isSafeSubpath(snapshotDir, srcFile) && inspectPath(srcFile).state === 'file') {
-        fs.copyFileSync(srcFile, targetPath);
-      }
+      fs.copyFileSync(srcFile, targetPath);
     } else if (entry.stateBefore === 'directory' && entry.backupRelativePath) {
       const srcDir = path.join(snapshotDir, entry.backupRelativePath);
-      if (isSafeSubpath(snapshotDir, srcDir) && inspectPath(srcDir).state === 'directory') {
-        copyDirectorySafe(srcDir, targetPath);
-      }
+      copyDirectorySafe(srcDir, targetPath);
     }
   }
 
