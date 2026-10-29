@@ -145,6 +145,47 @@ describe('local Skill Hub HTTP security and user workflows', () => {
     assert.equal(apply.status, 200);
   });
 
+  it('previews and confirms MCP creation, routing and removal without exposing secrets', async () => {
+    const initial=await (await fetch(instance.url+'/api/mcp')).json() as {revision:string;servers:unknown[]};
+    assert.equal(initial.servers.length,0);
+    const create={operation:'create',name:'sample_mcp',spec:{
+      type:'stdio',command:'npx',args:['-y','demo'],env:{TOKEN:'
+    assert.equal((await fetch(instance.url+'/api/preview?id=..%2Fprivate&op=uninstall')).status,400);
+    assert.equal((await fetch(instance.url+'/api/preview?id=skill-creator&op=unknown')).status,400);
+    assert.equal((await post({action:'install',id:'../private',approved:true})).status,400);
+    assert.equal((await post({action:'profile-save',agent:'codex',skills:'wrong',categories:[],approved:true})).status,400);
+    const large = await fetch(instance.url+'/api/action',{method:'POST',
+      headers:{'content-type':'application/json','x-agent-commons-csrf':csrf},
+      body:JSON.stringify({action:'profile-save',payload:'x'.repeat(18000)})});
+    assert.equal(large.status,400);
+    const text = await fetch(instance.url+'/api/action',{method:'POST',
+      headers:{'content-type':'text/plain','x-agent-commons-csrf':csrf},body:'hello'});
+    assert.equal(text.status,400);
+  });
+});
++'{PRIVATE_TOKEN}'},agents:['codex']
+    }};
+    const preview=await post({action:'mcp-preview',...create,expectedRevision:initial.revision});
+    assert.equal(preview.status,200);
+    assert.equal(fs.existsSync(path.join(home,'.agents','mcp.json')),false);
+    const shown=await preview.text();
+    assert.equal(shown.includes('PRIVATE_TOKEN'),false);
+    assert.equal((await post({action:'mcp-apply',...create,expectedRevision:initial.revision})).status,400);
+    const applied=await post({action:'mcp-apply',...create,expectedRevision:initial.revision,approved:true});
+    assert.equal(applied.status,200);
+    const overview=await (await fetch(instance.url+'/api/mcp')).json() as {revision:string;servers:Array<{name:string}>};
+    assert.equal(overview.servers[0]?.name,'sample_mcp');
+    assert.equal(JSON.stringify(overview).includes('PRIVATE_TOKEN'),false);
+    assert.equal((await post({action:'mcp-apply',...create,expectedRevision:initial.revision,approved:true})).status,400);
+    const routing=await post({action:'mcp-apply',operation:'configure',name:'sample_mcp',
+      routing:{agents:[],excludeAgents:['codex'],enabled:false},expectedRevision:overview.revision,approved:true});
+    assert.equal(routing.status,200);
+    const later=await (await fetch(instance.url+'/api/mcp')).json() as {revision:string};
+    const deletion=await post({action:'mcp-apply',operation:'delete',name:'sample_mcp',
+      expectedRevision:later.revision,approved:true});
+    assert.equal(deletion.status,200);
+  });
+
   it('rejects unsafe ids, oversized and wrong-type JSON and write attempts disguised as preview', async () => {
     assert.equal((await fetch(instance.url+'/api/preview?id=..%2Fprivate&op=uninstall')).status,400);
     assert.equal((await fetch(instance.url+'/api/preview?id=skill-creator&op=unknown')).status,400);
