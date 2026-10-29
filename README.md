@@ -220,6 +220,31 @@ Filters affect **only skills**, never MCP configurations. Unknown skill IDs and 
 
 Without a filter, `sync` behaves exactly as before. No agent configuration is permanently changed by browsing the catalog.
 
+### Save a different skills profile for each agent
+
+Profiles are **private, local preferences** kept in `~/.agents/agent-profiles.json`. Save a set of skills and categories once, then apply all configured agents together. **Saving never modifies your installed agents**.
+
+```bash
+# Codex receives the coding-agent skill plus all locally installed design skills
+node dist/cli/index.js profiles set codex --skill skill-creator --profile design
+
+# Claude Code receives only locally installed AI/automation skills
+node dist/cli/index.js profiles set claude-code --profile ai-automation
+
+# Inspect local preferences without touching skills or MCP configurations
+node dist/cli/index.js profiles list
+node dist/cli/index.js profiles show codex
+
+# Simulate agent-specific changes, then apply only after reviewing
+node dist/cli/index.js sync --saved-profiles --dry-run
+node dist/cli/index.js sync --saved-profiles
+
+# Remove a saved preference without unlinking or deleting existing skills
+node dist/cli/index.js profiles clear codex
+```
+
+The profile file is never uploaded to GitHub or bundled into the public catalog. Each agent gets only the specified local skills and categories, and the entire selection is validated **before any synchronization changes**. Multiple agents are handled by a single normal sync snapshot/rollback. Missing skills or empty profile matches stop the operation; unavailable agents are skipped. An optional `--agent codex` limits the operation to one configured agent. No MCP modifications, forced replacements, downloads, automatic link removals or background synchronization occur. Ordinary `sync` without `--saved-profiles` retains its previous behavior.
+
 ## Local skill provenance inventory
 
 Agent Commons can now **inventory the actual skills installed in your shared library** and look up their origins in the existing Vercel Skills lockfile (`~/.agents/.skill-lock.json`; legacy `skills-lock.json` is also inspected).
@@ -275,6 +300,8 @@ Nothing is downloaded, installed, synchronized or published by `catalog`. See [t
 | `sync` | Synchronize compatible installed agents |
 | `sync --skill <id> --agent <id>` | Link selected central skill(s) to selected agent(s) |
 | `sync --profile design --agent <id>` | Link locally installed, catalog-classified design skills |
+| `profiles set <agent-id> --skill <id>` | Store each agent's private skill choices without syncing |
+| `sync --saved-profiles --dry-run` | Preview all saved per-agent selections; apply without dry-run |
 | `sync --adopt` | Import unique local skills into the shared library |
 | `sync --force` | Resolve differing copies/conflicting servers by replacing them **with backups** |
 | `sync --agent codex` | Synchronize only the named agent (repeat `--agent` for more) |
