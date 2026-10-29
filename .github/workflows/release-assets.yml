@@ -1,0 +1,71 @@
+name: Attach verified Windows portable assets to GitHub Release
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-assets-${{ github.event.release.tag_name }}
+  cancel-in-progress: false
+
+jobs:
+  package:
+    name: Verify tag and attach portable Windows assets
+    runs-on: windows-latest
+    timeout-minutes: 30
+    permissions:
+      contents: write
+    steps:
+      - name: Check out exact published tag
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.release.tag_name }}
+          fetch-depth: 0
+      - name: Set up Node 24 LTS
+        uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: npm
+      - name: Verify tag, commit and package version
+        shell: pwsh
+        env:
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          if ($env:RELEASE_TAG -notmatch '^v[0-9]+\.[0-9]+\.[0-9]+$') { throw 'Not a stable semantic-version tag.' }
+          $pkg = Get-Content package.json -Raw | ConvertFrom-Json
+          if ($pkg.name -ne '@neosoda/agent-commons') { throw 'Unexpected package name.' }
+          if ('v' + $pkg.version -ne $env:RELEASE_TAG) { throw 'Git tag and package version mismatch.' }
+          git fetch origin main
+          git merge-base --is-ancestor HEAD origin/main
+          if ($LASTEXITCODE -ne 0) { throw 'Release tag is not merged into main.' }
+      - name: Install, audit, typecheck and test published revision
+        run: |
+          npm ci
+          npm run typecheck
+          npm test
+          npm audit --audit-level=high
+      - name: Package and smoke-test portable Windows bundle
+        shell: pwsh
+        run: ./scripts/build-windows-portable.ps1
+      - name: Attach ZIP and SHA256 checksum to the official release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: |
+          gh release upload $env:RELEASE_TAG artifacts/portable/AgentCommons-win-x64-portable.zip artifacts/portable/AgentCommons-win-x64-portable.zip.sha256 --clobber
+          if ($LASTEXITCODE -ne 0) { throw 'GitHub Release asset upload failed.' }
+      - name: Retain build artifacts for troubleshooting
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: validated-windows-portable-release
+          path: |
+            artifacts/portable/AgentCommons-win-x64-portable.zip
+            artifacts/portable/AgentCommons-win-x64-portable.zip.sha256
+          if-no-files-found: ignore
+          retention-days: 14
