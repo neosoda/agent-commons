@@ -155,13 +155,27 @@ node dist/cli/index.js catalog list --source github --license Apache-2.0
 
 All browsing is **offline** using [catalog/skills.json](catalog/skills.json); `--json` also works. An `INSTALLED` marker indicates a matching local skill in your shared library.
 
-**Safety boundary:** Only metadata and pinned upstream references are published—not copies of authors' skills. Source and license references have been inspected; executable scripts **have not** been security-audited. `catalog install` and `catalog update` deliberately **refuse to run** until a safe installer/rollback design is validated.
+**Safety boundary:** The public catalog still contains only metadata and pinned references. `catalog install` supports a **limited, explicit opt-in GitHub installer** for non-archived skills: the default is a file-list preview, and `--yes` is required before any changes. It verifies Git blob hashes, stages the new skill and refuses to overwrite an existing one. **No third-party scripts are executed.** GitLab/Codeberg installation, updates and uninstall remain disabled; source/license checks are not security audits.
 
 The separate `catalog` / `catalog --json` commands still inventory your **local private library**, using lockfile provenance if available. Do **not** commit those local reports without review. Private/local skill reports are never bundled or published; public upstream references are verified individually. **14 historical HyperFrames skills are marked archived** and link to the last verified pre-retirement commit. Not every installed local skill is available in this public catalog.
 
 See [catalog policy](docs/SKILL_CATALOG.md) and [categories](catalog/categories.json).
 
 ---
+
+### Preview a pinned skill installation
+
+```bash
+# Fetch only Git tree metadata to see the exact files (no writes)
+node dist/cli/index.js catalog install skill-creator
+
+# Explicitly accept installation into ~/.agents/skills/
+node dist/cli/index.js catalog install skill-creator --yes
+```
+
+This experimental path supports **public GitHub repositories only**, is limited to **150 files / 8 MiB** per skill and refuses links, unsafe names, existing targets and archived sources. It creates a snapshot before installing, verifies each Git blob hash, then atomically moves the staged files into the shared library. It does **not** run scripts, overwrite custom skills or synchronize agents automatically. Review the upstream scripts and provenance yourself before installing.
+
+`catalog update`, `catalog uninstall` and `catalog outdated` are intentionally unavailable while safe update/removal and freshness checks are not yet implemented. The package has not been published on npm.
 
 ## Local skill provenance inventory
 
@@ -207,6 +221,8 @@ Nothing is downloaded, installed, synchronized or published by `catalog`. See [t
 | `doctor` | Diagnose detected agents, links and MCP configurations |
 | `catalog list` / `catalog search <term>` | Browse the offline public Skill Hub |
 | `catalog info <id>` | View upstream source, license and installed status |
+| `catalog install <id>` | Preview GitHub pinned skill files without changes |
+| `catalog install <id> --yes` | Explicitly approve installation of a new, non-archived GitHub skill |
 | `catalog` / `catalog --json` | Inspect the local private skill inventory (read-only) |
 | `catalog review [--json]` | Find missing provenance, license claims, unpinned versions and possible duplicates locally |
 | `list` | Inventory skills, MCP servers, agents and snapshots |
