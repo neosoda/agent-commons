@@ -141,7 +141,29 @@ node dist/cli/index.js restore snapshot-<id>
 
 `restore` replaces the currently managed paths with their saved state. Review the target snapshot before running it: **restoration is a mutating operation**.
 
-## Skill provenance catalog (new)
+## Explore Skills — public Skill Hub
+
+**4 upstream skills** currently have verified source and license references. Browse them directly on GitHub in the [public Skills index](docs/skills/README.md).
+
+```bash
+node dist/cli/index.js catalog list
+node dist/cli/index.js catalog search playwright
+node dist/cli/index.js catalog info skill-creator
+node dist/cli/index.js catalog list --category ai-automation
+node dist/cli/index.js catalog list --source github --license Apache-2.0
+```
+
+All browsing is **offline** using [catalog/skills.json](catalog/skills.json); `--json` also works. An `INSTALLED` marker indicates a matching local skill in your shared library.
+
+**Safety boundary:** Only metadata and pinned upstream references are published—not copies of authors' skills. Source and license references have been inspected; executable scripts **have not** been security-audited. `catalog install` and `catalog update` deliberately **refuse to run** until a safe installer/rollback design is validated.
+
+The separate `catalog` / `catalog --json` commands still inventory your **local private library**, using lockfile provenance if available. Do **not** commit those local reports without review. Our 136-skill source library is not accessible from GitHub and is not part of this public catalog.
+
+See [catalog policy](docs/SKILL_CATALOG.md) and [categories](catalog/categories.json).
+
+---
+
+## Local skill provenance inventory
 
 Agent Commons can now **inventory the actual skills installed in your shared library** and look up their origins in the existing Vercel Skills lockfile (`~/.agents/.skill-lock.json`; legacy `skills-lock.json` is also inspected).
 
@@ -164,6 +186,9 @@ Nothing is downloaded, installed, synchronized or published by `catalog`. See [t
 | Command | Purpose |
 |---|---|
 | `doctor` | Diagnose detected agents, links and MCP configurations |
+| `catalog list` / `catalog search <term>` | Browse the offline public Skill Hub |
+| `catalog info <id>` | View upstream source, license and installed status |
+| `catalog` / `catalog --json` | Inspect the local private skill inventory (read-only) |
 | `list` | Inventory skills, MCP servers, agents and snapshots |
 | `sync --dry-run` | Show planned changes without modifying agent configurations |
 | `sync` | Synchronize compatible installed agents |

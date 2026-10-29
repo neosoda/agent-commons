@@ -36,6 +36,7 @@
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "files": [
+    "catalog",
     "dist/agents",
     "dist/cli",
     "dist/commands",
@@ -60,9 +61,11 @@
   "scripts": {
     "build": "tsc",
     "typecheck": "tsc --noEmit",
-    "test": "npm run build && node --test dist/test/**/*.test.js",
+    "test": "npm run build && node --test dist/test/**/*.test.js && npm run catalog:check",
     "prepack": "npm run build",
-    "prepublishOnly": "npm test"
+    "prepublishOnly": "npm test",
+    "catalog:generate": "npm run build && node scripts/build-catalog.mjs",
+    "catalog:check": "node scripts/build-catalog.mjs --check"
   },
   "devDependencies": {
     "@types/node": "^22.10.0",

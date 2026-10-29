@@ -35,5 +35,5 @@ jobs:
       - name: Typecheck
         run: npm run typecheck
 
-      - name: Build and run automated test suite
+      - name: Build, test and validate generated catalog documentation
         run: npm test

@@ -1,0 +1,37 @@
+[
+  {
+    "id": "development",
+    "label": "Development",
+    "description": "Software development, testing and engineering workflows"
+  },
+  {
+    "id": "devops",
+    "label": "DevOps / Infrastructure",
+    "description": "Deployment, operations and infrastructure"
+  },
+  {
+    "id": "security",
+    "label": "Cybersecurity",
+    "description": "Defensive security, audits and review"
+  },
+  {
+    "id": "design",
+    "label": "UI / UX",
+    "description": "Interface and visual design"
+  },
+  {
+    "id": "ai-automation",
+    "label": "AI / Automation",
+    "description": "Agent skills, MCP and automation"
+  },
+  {
+    "id": "documentation",
+    "label": "Documentation",
+    "description": "Writing and document workflows"
+  },
+  {
+    "id": "productivity",
+    "label": "Productivity",
+    "description": "Personal and team workflows"
+  }
+]
