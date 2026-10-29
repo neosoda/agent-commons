@@ -311,6 +311,10 @@ export function copyDirectorySafe(srcDir: string, destDir: string): void {
       copyDirectorySafe(srcPath, destPath);
     } else if (info.state === 'file') {
       fs.copyFileSync(srcPath, destPath);
+    } else if (info.state === 'link') {
+      // Silently skipping a nested link would create an incomplete backup.
+      // Fail before the original directory is replaced or removed.
+      throw new Error(`Cannot safely copy directory with nested link: "${srcPath}"`);
     }
   }
 }
