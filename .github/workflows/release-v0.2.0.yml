@@ -65,10 +65,21 @@ jobs:
             exit 0
           fi
           if gh release view v0.2.0 --repo "$GH_REPO" >/dev/null 2>&1; then
-            echo "v0.2.0 already published. No duplicate release."
-            exit 0
-          fi
-          if gh api "repos/$GH_REPO/git/ref/tags/v0.2.0" >/dev/null 2>&1; then
+            # Recover from partial completion: a release may exist if the later npm dispatch failed.
+            # Never accept an existing release/tag from a different commit.
+            REF_JSON="$(gh api "repos/$GH_REPO/git/ref/tags/v0.2.0")"
+            TAG_SHA="$(jq -r '.object.sha' <<< "$REF_JSON")"
+            TAG_TYPE="$(jq -r '.object.type' <<< "$REF_JSON")"
+            if [[ "$TAG_TYPE" == "tag" ]]; then
+              TAG_SHA="$(gh api "repos/$GH_REPO/git/tags/$TAG_SHA" --jq '.object.sha')"
+            fi
+            if [[ "$TAG_SHA" != "$RUN_SHA" ]]; then
+              echo "::error::Existing v0.2.0 tag points to $TAG_SHA, not the validated $RUN_SHA."
+              exit 1
+            fi
+            echo "release_exists=true" >> "$GITHUB_OUTPUT"
+            echo "Existing release matches validated main commit; verify/repair assets and npm dispatch."
+          elif gh api "repos/$GH_REPO/git/ref/tags/v0.2.0" >/dev/null 2>&1; then
             echo "::error::v0.2.0 tag exists but no release exists. Refusing to overwrite tag."
             exit 1
           fi
@@ -122,14 +133,30 @@ jobs:
             echo "::error::main changed between release gate and creation."
             exit 1
           fi
-          gh release create v0.2.0 \
-            validated-assets/AgentCommons-win-x64-portable.zip \
-            validated-assets/AgentCommons-win-x64-portable.zip.sha256 \
-            --repo "$GH_REPO" \
-            --target "$RUN_SHA" \
-            --title "Agent Commons v0.2.0 — Local Skill Hub" \
-            --notes-file docs/releases/v0.2.0-release-notes.md \
-            --latest
+          if gh release view v0.2.0 --repo "$GH_REPO" >/dev/null 2>&1; then
+            # Safe retry after an interrupted asset upload or npm dispatch.
+            # The gate already verified this release tag resolves to the exact validated commit.
+            gh release upload v0.2.0 \
+              validated-assets/AgentCommons-win-x64-portable.zip \
+              validated-assets/AgentCommons-win-x64-portable.zip.sha256 \
+              --repo "$GH_REPO" --clobber
+          else
+            gh release create v0.2.0 \
+              validated-assets/AgentCommons-win-x64-portable.zip \
+              validated-assets/AgentCommons-win-x64-portable.zip.sha256 \
+              --repo "$GH_REPO" \
+              --target "$RUN_SHA" \
+              --title "Agent Commons v0.2.0 — Local Skill Hub" \
+              --notes-file docs/releases/v0.2.0-release-notes.md \
+              --latest
+          fi
+          mkdir -p remote-assets
+          gh release download v0.2.0 --repo "$GH_REPO" \
+            --dir remote-assets --pattern 'AgentCommons-win-x64-portable.zip*'
+          cd remote-assets
+          test -s AgentCommons-win-x64-portable.zip
+          test -s AgentCommons-win-x64-portable.zip.sha256
+          sha256sum --check AgentCommons-win-x64-portable.zip.sha256
       - name: Explicitly dispatch npm OIDC publishing workflow
         if: steps.gate.outputs.ready == 'true'
         env:
@@ -139,5 +166,10 @@ jobs:
           set -euo pipefail
           # GITHUB_TOKEN release.published events do not launch workflows.
           # workflow_dispatch is an explicit, supported exception.
+          PUBLISHED="$(npm view @neosoda/agent-commons@0.2.0 version 2>/dev/null || true)"
+          if [[ "$PUBLISHED" == "0.2.0" ]]; then
+            echo "npm @neosoda/agent-commons@0.2.0 already exists; no duplicate dispatch."
+            exit 0
+          fi
           gh workflow run publish.yml --repo "$GH_REPO" --ref main -f tag=v0.2.0
           echo "Dispatched npm workflow; package publication requires valid npm Trusted Publisher configuration."
