@@ -712,6 +712,56 @@
       ]
     },
     {
+      "id": "embedded-captions",
+      "name": "Embedded Captions",
+      "description": "Archived upstream: Add captions or subtitles to an existing single-subject talking-head video without editing the footage. Use for plain verbatim captions, cinematic captions embedded behind the subject, VFX captions, “炸/特效/酷炫字幕,” or a named identity from the 35-style catalog. Route by visual identity, not by backend engine. The quiet `anchor` rail is the default; embed every word only when the user explicitly wants a fully cinematic treatment. ",
+      "lifecycle": "archived",
+      "category": "design",
+      "author": "HeyGen",
+      "repository": "https://github.com/heygen-com/hyperframes",
+      "source": "https://github.com/heygen-com/hyperframes/tree/207c8a4daf6480d697f203784f1fd422727569e3/skills/embedded-captions",
+      "path": "skills/embedded-captions",
+      "ref": "207c8a4daf6480d697f203784f1fd422727569e3",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/heygen-com/hyperframes/blob/207c8a4daf6480d697f203784f1fd422727569e3/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "design",
+        "hyperframes",
+        "video"
+      ]
+    },
+    {
+      "id": "faceless-explainer",
+      "name": "Faceless Explainer",
+      "description": "Archived upstream: Turn arbitrary text — an article, notes, a topic, a brief — into a faceless explainer video: there is no site or footage to capture, so the visuals are invented per scene (typography, abstract graphics, diagrams, data-viz). Use for topic explainers, concept breakdowns, how-tos, listicles. Not a video built from a website (/product-launch-video — promo or tour). Unclear → /hyperframes.",
+      "lifecycle": "archived",
+      "category": "design",
+      "author": "HeyGen",
+      "repository": "https://github.com/heygen-com/hyperframes",
+      "source": "https://github.com/heygen-com/hyperframes/tree/207c8a4daf6480d697f203784f1fd422727569e3/skills/faceless-explainer",
+      "path": "skills/faceless-explainer",
+      "ref": "207c8a4daf6480d697f203784f1fd422727569e3",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/heygen-com/hyperframes/blob/207c8a4daf6480d697f203784f1fd422727569e3/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "design",
+        "hyperframes",
+        "video"
+      ]
+    },
+    {
       "id": "figma",
       "name": "Figma",
       "description": "Bring Figma into a HyperFrames video - rendered assets, brand tokens, components, storyboard frames as reconstructed motion (frames read as states, not slides), shaders and connector-assisted motion. Use when the person pastes a figma.com link or asks to use a Figma design, frame, logo or brand.",
@@ -1034,6 +1084,31 @@
       ]
     },
     {
+      "id": "general-video",
+      "name": "General Video",
+      "description": "Archived upstream: Author or edit a custom HyperFrames composition when no specialized workflow fits, or when BRIEF.md sets flow: companion. Use for longer or multi-scene pieces, brand and sizzle reels, montages, static loops, static title cards, footage remixes, and freeform builds. Use motion-graphics instead for a short unnarrated motion-first unit, including an animated title. Route fresh creation through hyperframes before using this skill.",
+      "lifecycle": "archived",
+      "category": "design",
+      "author": "HeyGen",
+      "repository": "https://github.com/heygen-com/hyperframes",
+      "source": "https://github.com/heygen-com/hyperframes/tree/207c8a4daf6480d697f203784f1fd422727569e3/skills/general-video",
+      "path": "skills/general-video",
+      "ref": "207c8a4daf6480d697f203784f1fd422727569e3",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/heygen-com/hyperframes/blob/207c8a4daf6480d697f203784f1fd422727569e3/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "design",
+        "hyperframes",
+        "video"
+      ]
+    },
+    {
       "id": "hallmark",
       "name": "Hallmark",
       "description": "Design skill for websites and new pages that look designed, not generated. Use when the user asks to build or design something new, or names Hallmark. Never use it on an existing design unless the user names Hallmark, as in `/hallmark redesign path `.",
@@ -1126,6 +1201,56 @@
       ]
     },
     {
+      "id": "hyperframes-animation",
+      "name": "Hyperframes Animation",
+      "description": "Archived upstream: All animation knowledge for HyperFrames — atomic motion rules, multi-phase scene blueprints, scene transitions, broader motion-design techniques, AND the seven runtime adapters (GSAP default, plus Lottie, Three.js, Anime.js, CSS keyframes, Web Animations API, TypeGPU). Use for any motion or animation task: pick 2-4 rules and compose, or load a blueprint, or look up runtime-specific API (e.g. GSAP eases / Lottie player / Three.",
+      "lifecycle": "archived",
+      "category": "design",
+      "author": "HeyGen",
+      "repository": "https://github.com/heygen-com/hyperframes",
+      "source": "https://github.com/heygen-com/hyperframes/tree/207c8a4daf6480d697f203784f1fd422727569e3/skills/hyperframes-animation",
+      "path": "skills/hyperframes-animation",
+      "ref": "207c8a4daf6480d697f203784f1fd422727569e3",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/heygen-com/hyperframes/blob/207c8a4daf6480d697f203784f1fd422727569e3/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "design",
+        "hyperframes",
+        "video"
+      ]
+    },
+    {
+      "id": "hyperframes-audio",
+      "name": "Hyperframes Audio",
+      "description": "Archived upstream: Use when audio already placed in a HyperFrames composition needs to be mixed: fade-in/fade-out, crossfade, track gain or volume, volume automation, ducking, a music bed that fights a voiceover (voiceover carve), effects on a track (EQ, compressor, limiter, gate, saturation, delay, reverb, chorus, phaser, bitcrush), automation envelopes drawn on a track's volume or any effect parameter, or one submix bus carrying a chain, a fad",
+      "lifecycle": "archived",
+      "category": "design",
+      "author": "HeyGen",
+      "repository": "https://github.com/heygen-com/hyperframes",
+      "source": "https://github.com/heygen-com/hyperframes/tree/207c8a4daf6480d697f203784f1fd422727569e3/skills/hyperframes-audio",
+      "path": "skills/hyperframes-audio",
+      "ref": "207c8a4daf6480d697f203784f1fd422727569e3",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/heygen-com/hyperframes/blob/207c8a4daf6480d697f203784f1fd422727569e3/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "design",
+        "hyperframes",
+        "video"
+      ]
+    },
+    {
       "id": "hyperframes-cli",
       "name": "Hyperframes Cli",
       "description": "The HyperFrames CLI by job - scaffold, check, look at frames, edit the timeline, preview, render locally or in the cloud, publish, project history - plus reading its JSON and recovering from build or render failures.",
@@ -1145,6 +1270,56 @@
       "dependencies": [],
       "tags": [
         "development",
+        "hyperframes",
+        "video"
+      ]
+    },
+    {
+      "id": "hyperframes-core",
+      "name": "Hyperframes Core",
+      "description": "Archived upstream: The HyperFrames composition contract — build one renderable project. Use for composition structure, the `data-*` timing attributes, `class=\"clip\"`, tracks, sub-compositions, variables, framework-owned media playback, deterministic-render rules, and validation. Read before writing composition HTML.",
+      "lifecycle": "archived",
+      "category": "design",
+      "author": "HeyGen",
+      "repository": "https://github.com/heygen-com/hyperframes",
+      "source": "https://github.com/heygen-com/hyperframes/tree/207c8a4daf6480d697f203784f1fd422727569e3/skills/hyperframes-core",
+      "path": "skills/hyperframes-core",
+      "ref": "207c8a4daf6480d697f203784f1fd422727569e3",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/heygen-com/hyperframes/blob/207c8a4daf6480d697f203784f1fd422727569e3/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "design",
+        "hyperframes",
+        "video"
+      ]
+    },
+    {
+      "id": "hyperframes-creative",
+      "name": "Hyperframes Creative",
+      "description": "Archived upstream: Non-animation creative direction for HyperFrames videos. Use for design spec (frame.md / design.md) handling, palettes, typography, narration, beat planning, audio-reactive visuals, composition patterns, and brand / style decisions. For atomic motion patterns and scene blueprints, use `hyperframes-animation`.",
+      "lifecycle": "archived",
+      "category": "design",
+      "author": "HeyGen",
+      "repository": "https://github.com/heygen-com/hyperframes",
+      "source": "https://github.com/heygen-com/hyperframes/tree/207c8a4daf6480d697f203784f1fd422727569e3/skills/hyperframes-creative",
+      "path": "skills/hyperframes-creative",
+      "ref": "207c8a4daf6480d697f203784f1fd422727569e3",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/heygen-com/hyperframes/blob/207c8a4daf6480d697f203784f1fd422727569e3/LICENSE",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "design",
         "hyperframes",
         "video"
       ]
