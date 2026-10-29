@@ -1,0 +1,98 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-10-29",
+  "skills": [
+    {
+      "id": "skill-creator",
+      "name": "Skill Creator",
+      "description": "Create, test, benchmark and improve reusable agent skills.",
+      "category": "ai-automation",
+      "author": "Anthropic",
+      "repository": "https://github.com/anthropics/skills",
+      "source": "https://github.com/anthropics/skills/tree/ca45fc496a3436251f191354091d557da31c15b5/skills/skill-creator",
+      "path": "skills/skill-creator",
+      "ref": "ca45fc496a3436251f191354091d557da31c15b5",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/anthropics/skills/blob/ca45fc496a3436251f191354091d557da31c15b5/skills/skill-creator/LICENSE.txt",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ai-automation",
+        "anthropic"
+      ]
+    },
+    {
+      "id": "mcp-builder",
+      "name": "MCP Builder",
+      "description": "Design and build Model Context Protocol servers and tool integrations.",
+      "category": "ai-automation",
+      "author": "Anthropic",
+      "repository": "https://github.com/anthropics/skills",
+      "source": "https://github.com/anthropics/skills/tree/ca45fc496a3436251f191354091d557da31c15b5/skills/mcp-builder",
+      "path": "skills/mcp-builder",
+      "ref": "ca45fc496a3436251f191354091d557da31c15b5",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/anthropics/skills/blob/ca45fc496a3436251f191354091d557da31c15b5/skills/mcp-builder/LICENSE.txt",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ai-automation",
+        "anthropic"
+      ]
+    },
+    {
+      "id": "frontend-design",
+      "name": "Frontend Design",
+      "description": "Design distinctive frontend interfaces with intentional visual direction.",
+      "category": "design",
+      "author": "Anthropic",
+      "repository": "https://github.com/anthropics/skills",
+      "source": "https://github.com/anthropics/skills/tree/ca45fc496a3436251f191354091d557da31c15b5/skills/frontend-design",
+      "path": "skills/frontend-design",
+      "ref": "ca45fc496a3436251f191354091d557da31c15b5",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/anthropics/skills/blob/ca45fc496a3436251f191354091d557da31c15b5/skills/frontend-design/LICENSE.txt",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "design",
+        "anthropic"
+      ]
+    },
+    {
+      "id": "webapp-testing",
+      "name": "Web App Testing",
+      "description": "Test local web applications using Playwright-driven browser workflows.",
+      "category": "development",
+      "author": "Anthropic",
+      "repository": "https://github.com/anthropics/skills",
+      "source": "https://github.com/anthropics/skills/tree/ca45fc496a3436251f191354091d557da31c15b5/skills/webapp-testing",
+      "path": "skills/webapp-testing",
+      "ref": "ca45fc496a3436251f191354091d557da31c15b5",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/anthropics/skills/blob/ca45fc496a3436251f191354091d557da31c15b5/skills/webapp-testing/LICENSE.txt",
+      "review": {
+        "sourceChecked": "2026-10-29",
+        "licenseChecked": "2026-10-29",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "development",
+        "anthropic"
+      ]
+    }
+  ]
+}
