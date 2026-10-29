@@ -5,6 +5,19 @@ All notable changes to **Agent Commons** (`@neosoda/agent-commons`) will be docu
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- Local browser **Skill Hub**: overview, curated catalog with safe install/update/remove previews, agent profiles and explicit synchronization, shared MCP visibility, read-only integrity diagnostics, and manual snapshots/restoration.
+- Real Chromium QA at five viewport sizes with sanitized screenshot artifacts.
+- Automated Windows portable ZIP build using a SHA-256-verified official Node.js runtime, with a smoke-tested local HTTP startup and archive checksum. No published binary is claimed until a release is created.
+
+### Security
+
+- Loopback-only HTTP server with CSRF, strict Host/Origin controls, CSP and sanitized diagnostic messages.
+- CI now cancels superseded PR runs, audits npm dependencies, and verifies packaged files.
+
 ## [0.1.1] - 2026-10-29
 
 ### Changed
