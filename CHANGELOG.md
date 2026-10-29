@@ -1,9 +1,17 @@
 # Changelog
 
-All notable changes to **Agent Commons** will be documented in this file.
+All notable changes to **Agent Commons** (`@neosoda/agent-commons`) will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [0.1.1] - 2026-10-29
+
+### Changed
+
+- **Scoped npm Package Name**: Renamed package to `@neosoda/agent-commons` with `publishConfig.access = "public"` for public npm distribution while preserving the `agent-commons` CLI binary command.
+- **GitHub Actions OIDC Trusted Publishing**: Added `.github/workflows/publish.yml` with Node.js 24, `id-token: write` OIDC provenance attestation, GitHub Environment (`npm`) protection, tag/version/commit verification, and duplicate-version guards without permanent npm tokens.
+- **Documentation**: Expanded `README.md` with `npx @neosoda/agent-commons` usage, initial setup walkthrough, `--dry-run` inspection guide, and pre-sync safety precautions.
 
 ## [0.1.0] - 2026-10-29
 

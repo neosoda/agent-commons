@@ -1,6 +1,6 @@
 {
-  "name": "agent-commons",
-  "version": "0.1.0",
+  "name": "@neosoda/agent-commons",
+  "version": "0.1.1",
   "description": "Local-first multi-agent AI skills and MCP configuration synchronizer with native Windows NTFS junction support.",
   "keywords": [
     "ai",
@@ -29,6 +29,9 @@
   "type": "module",
   "bin": {
     "agent-commons": "./dist/cli/index.js"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
