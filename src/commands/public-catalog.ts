@@ -152,7 +152,7 @@ export function renderPublicCatalogMarkdown(): string {
     'A metadata-only catalog of **' + catalog.skills.length +
     ' upstream skills**. Sources and license texts were inspected on **' +
     catalog.generatedAt + '**; this does **not** certify code safety or grant additional redistribution rights.\n\n' +
-    '| Skill | What it does | Category | Original author | Upstream license |\n' +
+    '| Skill | What it does | Category | Upstream / maintainer | Upstream license |\n' +
     '|:--|:--|:--|:--|:--|\n' + rows.join('\n') + '\n\n' +
     'The links target upstream files pinned to a reviewed Git commit. Agent Commons does not copy the skills.\n\n' +
     'Browse locally: `agent-commons catalog list`, `agent-commons catalog search <query>`, ' +
