@@ -1,0 +1,22 @@
+name: Feature Request / New Agent Support
+description: Suggest a new agent integration or enhancement
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: summary
+    attributes:
+      label: Feature or Agent Description
+      description: Describe the proposed improvement or the AI coding agent you would like supported.
+    validations:
+      required: true
+  - type: textarea
+    id: paths
+    attributes:
+      label: Verified Paths & Configuration Format (if requesting a new agent)
+      description: |
+        - Detection path (e.g. `~/.myagent`)
+        - Skills directory path (e.g. `~/.myagent/skills`)
+        - MCP configuration path and format (`standard-json`, `opencode-jsonc`, `codex-toml`, or skills-only)
+    validations:
+      required: false

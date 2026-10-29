@@ -1,0 +1,23 @@
+# Dependencies
+node_modules/
+
+# Compiled output
+dist/
+
+# Logs and coverage
+*.log
+npm-debug.log*
+coverage/
+.nyc_output/
+
+# OS and IDE files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Local test artifacts or temporary files
+*.tgz
+.env
+.env.*
+.agents/

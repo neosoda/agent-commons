@@ -1,0 +1,49 @@
+name: Bug Report
+description: Report a bug, conflict handling issue, or agent path discrepancy
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for reporting an issue. **Never include raw API keys, tokens, or personal credentials in your report.**
+  - type: input
+    id: version
+    attributes:
+      label: Agent Commons Version
+      description: Output of `agent-commons --version`
+      placeholder: "0.1.0"
+    validations:
+      required: true
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating System
+      options:
+        - Windows
+        - macOS
+        - Linux
+    validations:
+      required: true
+  - type: input
+    id: node
+    attributes:
+      label: Node.js Version
+      description: Output of `node -v`
+      placeholder: "v22.x / v24.x"
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to Reproduce
+      description: Minimal steps to reproduce (ideally using `agent-commons <cmd> --home /tmp/test-sandbox`)
+    validations:
+      required: true
+  - type: textarea
+    id: output
+    attributes:
+      label: Actual vs Expected Output
+      description: Paste the CLI or `agent-commons doctor` output
+    validations:
+      required: true

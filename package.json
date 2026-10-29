@@ -1,0 +1,67 @@
+{
+  "name": "agent-commons",
+  "version": "0.1.0",
+  "description": "Local-first multi-agent AI skills and MCP configuration synchronizer with native Windows NTFS junction support.",
+  "keywords": [
+    "ai",
+    "agents",
+    "mcp",
+    "model-context-protocol",
+    "skills",
+    "claude-code",
+    "codex",
+    "cursor",
+    "gemini",
+    "antigravity",
+    "opencode",
+    "ntfs-junction",
+    "sync"
+  ],
+  "homepage": "https://github.com/neosoda/agent-commons#readme",
+  "bugs": {
+    "url": "https://github.com/neosoda/agent-commons/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/neosoda/agent-commons.git"
+  },
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "agent-commons": "./dist/cli/index.js"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist/agents",
+    "dist/cli",
+    "dist/commands",
+    "dist/core",
+    "dist/security",
+    "dist/sync",
+    "dist/index.js",
+    "dist/index.d.ts",
+    "dist/index.js.map",
+    "dist/types.js",
+    "dist/types.d.ts",
+    "dist/types.js.map",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md",
+    "CONTRIBUTING.md",
+    "SECURITY.md"
+  ],
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "test": "npm run build && node --test dist/test/**/*.test.js",
+    "prepublishOnly": "npm test"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "typescript": "^5.7.0"
+  }
+}
