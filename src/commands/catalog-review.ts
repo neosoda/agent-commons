@@ -42,7 +42,7 @@ export interface LocalCatalogReview {
 const CATEGORIES = [
   ['security', /secur|security|audit|pentest|vulnerab|threat|malware|sast|owasp/],
   ['devops', /docker|kubernetes|k8s|devops|infra|deploy|terraform|ansible|linux|cloud|network|observ/],
-  ['design', /design|ux|ui|figma|frontend|css|tailwind|accessib/],
+  ['design', /design|\bux\b|\bui\b|figma|frontend|css|tailwind|accessib/],
   ['documentation', /document|writing|markdown|docs|readme|pdf|docx|pptx|xlsx/],
   ['ai-automation', /agent|prompt|skill|llm|mcp|rag|model|automat/],
   ['development', /code|debug|test|react|python|typescript|javascript|git|api|backend/],
