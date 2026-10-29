@@ -59,3 +59,6 @@ export type { PublicSkill, PublicCatalog, PublicSkillResult, PublicSearchOptions
 
 export { reviewLocalCatalog } from './commands/catalog-review.js';
 export type { LocalCatalogReview, LocalSkillReview, ReviewReason } from './commands/catalog-review.js';
+
+export { previewCatalogInstall, installCatalogSkill } from './commands/skill-install.js';
+export type { InstallFile, InstallPreview, InstallOutcome, FetchJson } from './commands/skill-install.js';
