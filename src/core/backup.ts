@@ -275,13 +275,19 @@ function preflightRestore(
 
     // Reject a junction/symlink in any parent directory: lstat(target) alone
     // would otherwise miss writes through an ancestor link.
+    const boundary = isSafeSubpath(ctx.homeDir, targetPath)
+      ? ctx.homeDir
+      : ctx.localAppDataDir;
     let parent = path.dirname(targetPath);
-    const root = path.parse(parent).root;
-    while (parent !== root) {
+    while (!arePathsEqual(parent, boundary, ctx.platform)) {
       if (inspectPath(parent).state === 'link') {
         throw new Error('Security violation: restore destination has a linked ancestor.');
       }
-      parent = path.dirname(parent);
+      const next = path.dirname(parent);
+      if (next === parent) {
+        throw new Error('Security violation: restore destination escaped its root.');
+      }
+      parent = next;
     }
 
     if (entry.stateBefore === 'link') {
