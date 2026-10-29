@@ -7,7 +7,7 @@ import { createFullBackup, listBackups, restoreBackup } from '../core/backup.js'
 import { createEnvironmentContext } from '../core/context.js';
 import { redactSecrets } from '../security/scrubber.js';
 
-const VERSION = '0.1.0';
+const VERSION = '0.1.1';
 
 function getMainHelp(): string {
   return `
