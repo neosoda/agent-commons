@@ -26,7 +26,7 @@ node dist/cli/index.js catalog --json > skill-catalog-private.json
 
 ## Scope of verification
 
-The public catalog currently includes 7 upstream skill references from Anthropic and three other repositories independently checked for source/license evidence. The source paths and applicable upstream licenses (per-skill or repository-level) were inspected on 2026-10-29. Entries point to a pinned upstream commit and identify Apache-2.0 as the upstream license. That is **source-and-license verification, not a security review**. No skill code, scripts or bundled assets are included in this project.
+The public catalog currently includes 7 upstream skill references in total: four from Anthropic and one from each of three other repositories, independently checked for source/license evidence. The source paths and applicable upstream licenses (per-skill or repository-level) were inspected on 2026-10-29. Entries point to a pinned upstream commit and identify Apache-2.0 as the upstream license. That is **source-and-license verification, not a security review**. No skill code, scripts or bundled assets are included in this project.
 
 New contributions must provide:
 
