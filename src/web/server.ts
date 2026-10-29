@@ -173,13 +173,22 @@ export async function startWebServer(options: WebOptions = {}): Promise<WebInsta
       }
       if (req.method === 'GET' && path.pathname === '/api/doctor') {
         const doctor = runDoctor(ctx);
-        json(res, 200, { healthy: doctor.healthy, linkStrategy: doctor.linkStrategy,
-          linkCapabilityVerified: doctor.linkCapabilityVerified,
+        // Do not expose native configuration paths or filesystem errors over HTTP.
+        const issues: string[] = [];
+        if (!doctor.linkCapabilityVerified) issues.push('Filesystem link capability check failed.');
+        if (doctor.centralMcpStatus === 'corrupted') issues.push('Shared MCP manifest is invalid.');
+        for (const agent of doctor.agents.filter(agent => agent.installed)) {
+          if (agent.brokenLinksCount) issues.push(agent.name + ': ' + agent.brokenLinksCount + ' broken skill links.');
+          if (agent.conflictSkillsCount) issues.push(agent.name + ': ' + agent.conflictSkillsCount + ' skill conflicts.');
+          if (agent.mcpStatus === 'corrupted') issues.push(agent.name + ': MCP configuration is invalid.');
+        }
+        json(res, 200, { healthy: doctor.healthy && issues.length === 0,
+          linkStrategy: doctor.linkStrategy, linkCapabilityVerified: doctor.linkCapabilityVerified,
           centralMcpStatus: doctor.centralMcpStatus,
           agents: doctor.agents.map(agent => ({ id: agent.id, name: agent.name,
             installed: agent.installed, brokenLinksCount: agent.brokenLinksCount,
             conflictSkillsCount: agent.conflictSkillsCount, mcpStatus: agent.mcpStatus })),
-          issues: doctor.issues.map(redactSecrets) }); return;
+          issues }); return;
       }
       if (req.method === 'GET' && path.pathname === '/api/preview') {
         const id = checkedId(path.searchParams.get('id'));
