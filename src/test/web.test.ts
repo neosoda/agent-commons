@@ -83,6 +83,92 @@ describe('local Skill Hub HTTP security and user workflows', () => {
     }
   });
 
+  it('does not disclose unknown filesystem exceptions in read-only MCP API responses', async () => {
+    const mcp = path.join(home, '.agents', 'mcp.json');
+    fs.mkdirSync(path.dirname(mcp), { recursive: true });
+    fs.writeFileSync(mcp, '{"mcpServers":{}}');
+    const privateValue = 'unclassified-private-value-829471';
+    const read = fs.readFileSync;
+    fs.readFileSync = ((file, ...rest) => {
+      if (String(file) === mcp) {
+        throw new Error('upstream failure ' + privateValue + ' at /custom/private/config');
+      }
+      return (read as (...args: unknown[]) => unknown)(file, ...rest);
+    }) as typeof fs.readFileSync;
+    try {
+      const result = await fetch(instance.url + '/api/mcp');
+      assert.equal(result.status, 400);
+      const response = await result.text();
+      assert.doesNotMatch(response, /unclassified-private-value-829471|\/custom\/private\/config/);
+      assert.equal(JSON.parse(response).error,
+        'Local operation failed. Check Agent Commons CLI diagnostics for details.');
+    } finally {
+      fs.readFileSync = read;
+    }
+  });
+
+  it('redacts arbitrary restore errors even when no known token or home path is present', async () => {
+    const mcp = path.join(home, '.agents', 'mcp.json');
+    fs.mkdirSync(path.dirname(mcp), { recursive: true });
+    fs.writeFileSync(mcp, '{"mcpServers":{"before":{"command":"npx"}}}');
+    const make = await post({ action:'backup', approved:true });
+    assert.equal(make.status, 200);
+    const { id } = await make.json() as { id:string };
+    fs.writeFileSync(mcp, 'current private MCP content');
+    const rename = fs.renameSync;
+    fs.renameSync = ((from, to) => {
+      if (String(from) === mcp && path.basename(String(to)) === 'original') {
+        throw new Error('vendor message weirdCredentialValue-6273184 path=private/dev/secret');
+      }
+      return rename(from, to);
+    }) as typeof fs.renameSync;
+    try {
+      const response = await post({ action:'restore', snapshot:id, approved:true });
+      assert.equal(response.status, 400);
+      const text = await response.text();
+      assert.doesNotMatch(text, /weirdCredentialValue-6273184|private\/dev\/secret|current private MCP content/);
+      assert.equal(JSON.parse(text).error,
+        'Local operation failed. Check Agent Commons CLI diagnostics for details.');
+    } finally {
+      fs.renameSync = rename;
+    }
+    assert.equal(fs.readFileSync(mcp, 'utf8'), 'current private MCP content');
+  });
+
+  it('offers safe recovery guidance without leaking originals when rollback is incomplete', async () => {
+    const mcp = path.join(home, '.agents', 'mcp.json');
+    fs.mkdirSync(path.dirname(mcp), { recursive: true });
+    fs.writeFileSync(mcp, '{"mcpServers":{"before":{"command":"npx"}}}');
+    const make = await post({ action:'backup', approved:true });
+    assert.equal(make.status, 200);
+    const { id } = await make.json() as { id:string };
+    const privateValue = 'sensitive-operator-data-37729';
+    fs.writeFileSync(mcp, privateValue);
+    const rename = fs.renameSync;
+    fs.renameSync = ((from, to) => {
+      if (String(to) === mcp && path.basename(String(from)) === 'replacement') {
+        throw new Error('commit EIO ' + privateValue);
+      }
+      if (String(to) === mcp && path.basename(String(from)) === 'original') {
+        throw new Error('rollback EACCES ' + privateValue);
+      }
+      return rename(from, to);
+    }) as typeof fs.renameSync;
+    try {
+      const response = await post({ action:'restore', snapshot:id, approved:true });
+      assert.equal(response.status, 400);
+      const text = await response.text();
+      assert.doesNotMatch(text, /sensitive-operator-data-37729|agent-commons-web-|\.agents\/mcp/);
+      assert.match(JSON.parse(text).error as string, /rollback was incomplete.*staging folders/);
+    } finally {
+      fs.renameSync = rename;
+    }
+    const stage = fs.readdirSync(path.dirname(mcp))
+      .find(name => name.startsWith('.agent-commons-restore-'));
+    assert.ok(stage);
+    assert.equal(fs.readFileSync(path.join(path.dirname(mcp), stage, 'original'), 'utf8'), privateValue);
+  });
+
   it('refuses foreign hosts, cross-origin requests, missing token and GET mutations', async () => {
     const badHostStatus = await new Promise<number>((resolve, reject) => {
       const url = new URL(instance.url);
