@@ -32,6 +32,14 @@ Claude Code, Codex, Cursor, Gemini, OpenCode and other coding agents all want th
 > [!NOTE]
 > **Distribution:** See [GitHub Releases](https://github.com/neosoda/agent-commons/releases) for the latest published version and Windows portable assets. The optional npm package is available only after [its first verified registry publication](https://www.npmjs.com/package/@neosoda/agent-commons); if npm has not published it yet, use the source instructions below. Never assume `npx @neosoda/agent-commons` works until the registry confirms the version.
 
+## Getting Agent Commons
+
+**Windows users:** the simplest distribution is the **portable ZIP** in [GitHub Releases](https://github.com/neosoda/agent-commons/releases/latest). Download the matching `.sha256`, verify it, extract the complete ZIP and launch `AgentCommonsPortable/Start-AgentCommons.cmd`. No Node.js or administrator rights required.
+
+**Source users:** use the cross-platform instructions below (Node.js 22+). The npm installation route remains optional and must not be advertised as working until the scoped package is actually published.
+
+**v0.3.0 preparation:** see [release-readiness checks and Windows verification](docs/releases/v0.3.0.md). **This file is preparation, not proof that v0.3.0 is published**; always use the latest real release shown on GitHub.
+
 ## Quick start
 
 **Requirements:** Node.js **22+**, npm, and Git.
@@ -102,7 +110,7 @@ The **Windows portable ZIP** is built and verified by the [Windows portable CI w
 3. Double-click `AgentCommonsPortable\Start-AgentCommons.cmd`.
 4. The Skill Hub opens locally in your browser. Close the console with Ctrl+C to stop it.
 
-The ZIP contains the compiled npm distribution, its production dependencies, and a pinned official **Node.js 24.22.2 LTS executable**. The build checks the Node executable against the SHA-256 manifest published by nodejs.org, launches the package's CLI and verifies a real HTTP 200 response from its local dashboard before uploading it. The ZIP also includes a SHA-256 checksum; it is **not code-signed**. No administrator privileges, Docker, Node installation, Windows service or public network binding are required.
+The ZIP contains the compiled npm distribution, its production dependencies, and a pinned official **Node.js 24.22.2 LTS executable**. The v0.3.0 packaging gate also re-extracts the final ZIP into a clean path containing spaces, boots its embedded runtime against a synthetic home directory, checks the reported CLI version and verifies the archive checksum. The build checks the Node executable against the SHA-256 manifest published by nodejs.org, launches the package's CLI and verifies a real HTTP 200 response from its local dashboard before uploading it. The ZIP also includes a SHA-256 checksum; it is **not code-signed**. No administrator privileges, Docker, Node installation, Windows service or public network binding are required.
 
 For operators who already have Node.js 22+, `npm run web` remains available from the checked-out source.
 
