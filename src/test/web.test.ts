@@ -268,10 +268,67 @@ describe('local Skill Hub HTTP security and user workflows', () => {
     assert.equal(JSON.stringify(report).includes(home), false);
     const preview = await post({action:'sync-all-preview'});
     assert.equal(preview.status, 200);
-    assert.equal((await preview.json() as {dryRun: boolean}).dryRun, true);
+    const approved = await preview.json() as {dryRun:boolean;previewToken:string};
+    assert.equal(approved.dryRun,true);
+    assert.match(approved.previewToken,/^[a-f0-9]{48}$/);
     assert.equal((await post({action:'sync-all-apply'})).status, 400);
-    const apply = await post({action:'sync-all-apply',approved:true});
+    assert.equal((await post({action:'sync-all-apply',approved:true})).status,400);
+    const apply = await post({action:'sync-all-apply',approved:true,previewToken:approved.previewToken});
     assert.equal(apply.status, 200);
+    const replay = await post({action:'sync-all-apply',approved:true,previewToken:approved.previewToken});
+    assert.equal(replay.status,400);
+    assert.match((await replay.json() as {error:string}).error,/expired or missing/);
+  });
+
+  it('rejects changed full sync inputs and never writes stale approved MCP plans', async () => {
+    const config = path.join(home,'.agents','mcp.json');
+    fs.mkdirSync(path.dirname(config),{recursive:true});
+    fs.writeFileSync(config,'{"mcpServers":{}}');
+    const preview = await post({action:'sync-all-preview'});
+    assert.equal(preview.status,200);
+    const {previewToken} = await preview.json() as {previewToken:string};
+    fs.writeFileSync(config,'{"mcpServers":{"after":{"command":"node"}}}');
+    const stale = await post({action:'sync-all-apply',approved:true,previewToken});
+    assert.equal(stale.status,400);
+    assert.match((await stale.json() as {error:string}).error,/Workspace changed since preview/);
+    assert.equal(fs.readFileSync(config,'utf8'),'{"mcpServers":{"after":{"command":"node"}}}');
+    assert.equal((await post({action:'sync-all-apply',approved:true,previewToken})).status,400);
+  });
+
+  it('keeps saved-profile synchronization bound to the exact reviewed profile', async () => {
+    const central=path.join(home,'.agents','skills','reviewed-skill');
+    fs.mkdirSync(central,{recursive:true});
+    fs.writeFileSync(path.join(central,'SKILL.md'),'# Reviewed skill');
+    fs.mkdirSync(path.join(home,'.codex'),{recursive:true});
+    assert.equal((await post({action:'profile-save',agent:'codex',skills:['reviewed-skill'],
+      categories:[],approved:true})).status,200);
+    const preview = await post({action:'sync-preview'});
+    assert.equal(preview.status,200);
+    const {previewToken} = await preview.json() as {previewToken:string};
+    const installed = path.join(home,'.codex','skills','reviewed-skill');
+    assert.equal(fs.existsSync(installed),false);
+    // Saving a changed profile invalidates the approval even if its agent remains installed.
+    assert.equal((await post({action:'profile-save',agent:'codex',skills:[],
+      categories:['design'],approved:true})).status,200);
+    const stale = await post({action:'sync-apply',approved:true,previewToken});
+    assert.equal(stale.status,400);
+    assert.match((await stale.json() as {error:string}).error,/Workspace changed since preview/);
+    assert.equal(fs.existsSync(installed),false);
+    // A fresh preview still respects the exact current local configuration.
+    assert.equal((await post({action:'sync-preview'})).status,400);
+  });
+
+  it('rejects managed skill edits between full preview and apply', async () => {
+    const folder=path.join(home,'.agents','skills','editable-skill');
+    fs.mkdirSync(folder,{recursive:true});
+    fs.writeFileSync(path.join(folder,'SKILL.md'),'# Before');
+    fs.mkdirSync(path.join(home,'.codex'),{recursive:true});
+    const approved = await (await post({action:'sync-all-preview'})).json() as {previewToken:string};
+    fs.writeFileSync(path.join(folder,'SKILL.md'),'# After');
+    const stale = await post({action:'sync-all-apply',approved:true,previewToken:approved.previewToken});
+    assert.equal(stale.status,400);
+    assert.match((await stale.json() as {error:string}).error,/Workspace changed since preview/);
+    assert.equal(fs.existsSync(path.join(home,'.codex','skills','editable-skill')),false);
   });
 
   it('previews and confirms MCP creation, routing and removal', async () => {
