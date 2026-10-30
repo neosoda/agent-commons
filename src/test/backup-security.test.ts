@@ -153,6 +153,94 @@ describe('Backup restore preflight: no destructive writes on invalid snapshots',
     assert.equal(fs.readFileSync(path.join(external, 'keep.txt'), 'utf8'), 'external must survive');
   });
 
+
+  it('preserves current files when preparing the replacement fails with an I/O error', () => {
+    const { ctx, original } = setupMcpFile();
+    const snapshot = createFullBackup(ctx);
+    fs.writeFileSync(original, 'preserve newer content');
+    const copy = fs.copyFileSync;
+    fs.copyFileSync = ((source, destination, mode) => {
+      if (String(source).includes(snapshot.id) &&
+          path.basename(String(destination)) === 'replacement') {
+        throw Object.assign(new Error('simulated disk EIO'), { code: 'EIO' });
+      }
+      return copy(source, destination, mode);
+    }) as typeof fs.copyFileSync;
+    try {
+      assert.throws(() => restoreBackup(ctx, snapshot.id), /simulated disk EIO/);
+    } finally {
+      fs.copyFileSync = copy;
+    }
+    assert.equal(fs.readFileSync(original, 'utf8'), 'preserve newer content');
+    assert.equal(fs.readdirSync(home).some(name => name.startsWith('.agent-commons-restore-')), false);
+  });
+
+  it('rolls back all previously swapped entries if a later commit fails', () => {
+    const { ctx, original } = setupMcpFile();
+    const codexDir = path.join(home, '.codex');
+    fs.mkdirSync(codexDir);
+    const codexConfig = path.join(codexDir, 'config.toml');
+    fs.writeFileSync(codexConfig, 'codex before backup');
+    const snapshot = createFullBackup(ctx);
+    fs.writeFileSync(original, 'MCP newer content');
+    fs.writeFileSync(codexConfig, 'Codex newer content');
+
+    const rename = fs.renameSync;
+    let injected = false;
+    fs.renameSync = ((source, destination) => {
+      if (!injected && String(destination) === original &&
+          path.basename(String(source)) === 'replacement') {
+        injected = true;
+        throw Object.assign(new Error('simulated commit EACCES'), { code: 'EACCES' });
+      }
+      return rename(source, destination);
+    }) as typeof fs.renameSync;
+    try {
+      assert.throws(() => restoreBackup(ctx, snapshot.id), /simulated commit EACCES/);
+    } finally {
+      fs.renameSync = rename;
+    }
+    assert.equal(injected, true);
+    assert.equal(fs.readFileSync(original, 'utf8'), 'MCP newer content');
+    assert.equal(fs.readFileSync(codexConfig, 'utf8'), 'Codex newer content');
+    for (const dir of [home, codexDir]) {
+      assert.equal(fs.readdirSync(dir).some(name => name.startsWith('.agent-commons-restore-')), false);
+    }
+  });
+
+  it('refuses a target modified concurrently during replacement preparation', () => {
+    const { ctx, original } = setupMcpFile();
+    const snapshot = createFullBackup(ctx);
+    const copy = fs.copyFileSync;
+    let injected = false;
+    fs.copyFileSync = ((source, destination, mode) => {
+      const result = copy(source, destination, mode);
+      if (!injected && String(source).includes(snapshot.id) &&
+          path.basename(String(destination)) === 'replacement') {
+        injected = true;
+        fs.writeFileSync(original, 'modified while staging replacement');
+      }
+      return result;
+    }) as typeof fs.copyFileSync;
+    try {
+      assert.throws(() => restoreBackup(ctx, snapshot.id), /changed during preparation/);
+    } finally {
+      fs.copyFileSync = copy;
+    }
+    assert.equal(injected, true);
+    assert.equal(fs.readFileSync(original, 'utf8'), 'modified while staging replacement');
+  });
+
+  it('restores prepared content and removes staging directories on success', () => {
+    const { ctx, original } = setupMcpFile();
+    const snapshot = createFullBackup(ctx);
+    const saved = fs.readFileSync(original, 'utf8');
+    fs.writeFileSync(original, 'edited after snapshot');
+    restoreBackup(ctx, snapshot.id);
+    assert.equal(fs.readFileSync(original, 'utf8'), saved);
+    assert.equal(fs.readdirSync(home).some(name => name.startsWith('.agent-commons-restore-')), false);
+  });
+
   it('refuses a lossy backup of a physical skill containing nested links', () => {
     const ctx = createEnvironmentContext({ homeDir: home });
     const nestedTarget = path.join(home, 'nested-target');
