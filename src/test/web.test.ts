@@ -76,6 +76,16 @@ describe('local Skill Hub HTTP security and user workflows', () => {
     assert.match(page, /id="doctor-report" role="status" aria-live="polite"/);
   });
 
+  it('keeps async action errors inside accessible dialogs and preserves keyed focus controls', () => {
+    const html = renderWebUi('focus-nonce', 'focus-csrf');
+    assert.match(html, /function focusByKey\(key\)/);
+    assert.match(html, /dialog\.getAttribute\('aria-busy'\)!=='true'/);
+    assert.match(html, /inlineError\.setAttribute\('role','alert'\)/);
+    assert.match(html, /const generation=\+\+refreshGeneration/);
+    assert.match(html, /generation!==refreshGeneration/);
+    assert.match(html, /data-focus-key/);
+  });
+
   it('ships offline FR/EN UI strings without exposing workspace data in browser storage', () => {
     const html = renderWebUi('language-nonce', 'language-csrf');
     assert.match(html, /id="language-select"[^>]*aria-label="Interface language"/);

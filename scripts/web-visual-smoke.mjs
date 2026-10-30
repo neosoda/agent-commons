@@ -165,7 +165,7 @@ try {
   await restoreButton.click();
   backupDialog=page.getByRole('dialog');
   assert.match(await backupDialog.getByRole('heading').innerText(),/^Restaurer snapshot-/);
-  assert.match(await backupDialog.locator('p.subtle').innerText(),/^Saisissez snapshot-/);
+  assert.match(await backupDialog.locator('p.subtle:not([role="alert"])').innerText(),/^Saisissez snapshot-/);
   await page.keyboard.press('Escape');
   assert.equal(await page.getByRole('dialog').count(),0);
   // A user-provided server identifier named like a navigation label must stay unchanged.
@@ -198,6 +198,105 @@ try {
   assert.equal(await page.locator('[data-page="overview"] span').last().innerText(),'Overview');
   await page.reload({waitUntil:'networkidle'});
   assert.equal(await page.locator('#language-select').inputValue(),'en');
+
+
+  // Manual refresh must not erase unsaved profile selections or orphan keyboard focus.
+  fs.mkdirSync(path.join(home,'.claude'),{recursive:true});
+  await page.locator('#refresh').click();
+  await page.locator('#profile-agent option[value="claude-code"]').waitFor({state:'attached'});
+  await page.locator('[data-page="agents"]').click();
+  await page.locator('#profile-agent').selectOption('claude-code');
+  const draftCheckbox=page.locator('#profile-categories input[type="checkbox"]').first();
+  await draftCheckbox.check();
+  await draftCheckbox.focus();
+  await page.evaluate(() => document.getElementById('refresh').click());
+  await page.locator('#workspace-status').getByText('Workspace and integrity results updated.').waitFor();
+  assert.equal(await draftCheckbox.isChecked(),true,'manual refresh discarded unsaved profile draft');
+  assert.ok(await draftCheckbox.evaluate(el=>el===document.activeElement),
+    'rerendered profile checkbox lost keyboard focus');
+  await page.locator('[data-page="catalog"]').click();
+  const focusedSkill=page.locator('#catalog-cards .skill-card button').first();
+  await focusedSkill.focus();
+  await page.evaluate(() => document.getElementById('refresh').click());
+  await page.locator('#workspace-status').getByText('Workspace and integrity results updated.').waitFor();
+  assert.ok(await focusedSkill.evaluate(el=>el===document.activeElement),
+    'catalog refresh lost focused action');
+
+  // The older, artificially delayed response must not clobber newer API state.
+  const expectedSkills=Number(await page.locator('#metrics .metric .value').first().innerText());
+  let requests=0, firstSeen;
+  const firstRequest=new Promise(resolve=>{firstSeen=resolve});
+  await page.route('**/api/state', async route=>{
+    const call=++requests;
+    const response=await route.fetch();
+    const body=await response.json();
+    if(call===1){firstSeen();body.catalog=[];await new Promise(resolve=>setTimeout(resolve,800))}
+    await route.fulfill({response,json:body});
+  });
+  await page.evaluate(() => document.getElementById('refresh').click());
+  await firstRequest;
+  await page.evaluate(() => document.getElementById('refresh').click());
+  await page.locator('#workspace-status').getByText('Workspace and integrity results updated.').waitFor();
+  await page.waitForTimeout(900);
+  assert.equal(Number(await page.locator('#metrics .metric .value').first().innerText()),
+    expectedSkills,'a stale refresh replaced the latest catalog');
+  await page.unroute('**/api/state');
+
+  // Partial refresh must not announce complete success if the MCP endpoint failed.
+  await page.route('**/api/mcp',async route=>{
+    await route.fulfill({status:400,contentType:'application/json',
+      body:JSON.stringify({error:'Local operation failed. Check Agent Commons CLI diagnostics for details.'})});
+  });
+  await page.locator('#refresh').click();
+  await page.locator('#workspace-status').getByText('Workspace refreshed; MCP status unavailable.').waitFor();
+  assert.equal(await page.locator('#toast').getAttribute('role'),'alert');
+  await page.unroute('**/api/mcp');
+  await page.locator('#refresh').click();
+  await page.locator('#workspace-status').getByText('Workspace and integrity results updated.').waitFor();
+
+  // A pending destructive action must not be closed or submitted twice.
+  await page.locator('[data-page="backups"]').click();
+  let delayedBackups=0;
+  await page.route('**/api/action',async route=>{
+    const body=route.request().postDataJSON();
+    if(body?.action==='backup'){
+      delayedBackups++;
+      const response=await route.fetch();
+      await new Promise(resolve=>setTimeout(resolve,400));
+      await route.fulfill({response});
+    }else await route.continue();
+  });
+  await page.locator('#backup-create').click();
+  let busyDialog=page.getByRole('dialog');
+  await busyDialog.getByRole('button',{name:'Create backup'}).click();
+  assert.equal(await busyDialog.getAttribute('aria-busy'),'true');
+  assert.equal(await busyDialog.getByRole('button',{name:'Cancel'}).isDisabled(),true);
+  await page.keyboard.press('Escape');
+  assert.ok(await busyDialog.isVisible(),'Escape closed a pending operation');
+  await busyDialog.waitFor({state:'detached',timeout:7000});
+  assert.equal(delayedBackups,1,'backup operation was issued more than once');
+  await page.unroute('**/api/action');
+
+  // Failed confirmation stays open, exposes an inline alert, and can be cancelled.
+  await page.route('**/api/action',async route=>{
+    if(route.request().postDataJSON()?.action==='backup') {
+      await route.fulfill({status:400,contentType:'application/json',
+        body:JSON.stringify({error:'Local operation failed. Check Agent Commons CLI diagnostics for details.'})});
+    }else await route.continue();
+  });
+  await page.locator('#backup-create').click();
+  let failedDialog=page.getByRole('dialog');
+  await failedDialog.getByRole('button',{name:'Create backup'}).click();
+  const inlineAlert=failedDialog.getByRole('alert');
+  await inlineAlert.waitFor({state:'visible'});
+  assert.match(await inlineAlert.innerText(),/Local operation failed/);
+  assert.ok(await inlineAlert.evaluate(el=>el===document.activeElement),
+    'action error was not focused for keyboard users');
+  assert.ok(await failedDialog.getByRole('button',{name:'Cancel'}).isEnabled());
+  await page.keyboard.press('Escape');
+  assert.equal(await page.getByRole('dialog').count(),0);
+  assert.ok(await page.locator('#backup-create').evaluate(el=>el===document.activeElement));
+  await page.unroute('**/api/action');
 
   // Exercise the actual browser-to-HTTP MCP editor, not merely rendered controls.
   await page.setViewportSize({width: 1280, height: 720});
@@ -241,7 +340,7 @@ try {
   await page.locator('#mcp-items .empty').waitFor();
   assert.deepEqual(errors, []);
 
-  console.log('PASS: 5 viewports × 5 sections, WCAG control-border contrasts, refresh status, FR/EN language persistence, keyboard/dialog and MCP checks; no JS/CSP errors.');
+  console.log('PASS: responsive Skill Hub, i18n, concurrency-safe refresh, focus/draft preservation, pending and failed dialogs, keyboard/MCP workflows; no JS/CSP errors.');
   console.log('Screenshots: ' + artifacts);
 } finally {
   if (browser) await browser.close();
