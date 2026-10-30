@@ -168,7 +168,8 @@ const clear=e=>e.replaceChildren();
 let toastSequence=0;
 const showToast=(message,error=false)=>{const sequence=++toastSequence;const t=$('toast');t.setAttribute('role',error?'alert':'status');t.setAttribute('aria-live',error?'assertive':'polite');t.textContent=message;t.className='toast'+(error?' error':'');translateUI();setTimeout(()=>{if(toastSequence===sequence)t.classList.add('hidden')},4300)};
 async function request(url,body){const opts=body===undefined?{method:'GET'}:{method:'POST',headers:{'content-type':'application/json','x-agent-commons-csrf':csrf},body:JSON.stringify(body)};const response=await fetch(url,opts);let data;try{data=await response.json()}catch{throw Error('Invalid server response')}if(!response.ok)throw Error(data.error||'Request failed');return data}
-function go(page){const target=$('page-'+page);if(!target)return;activePage=page;document.querySelectorAll('.page').forEach(e=>e.classList.toggle('active',e===target));document.querySelectorAll('[data-page]').forEach(e=>{const current=e.dataset.page===page;e.classList.toggle('active',current);if(current)e.setAttribute('aria-current','page');else e.removeAttribute('aria-current')});window.scrollTo({top:0,behavior:'instant'});const heading=target.querySelector('h1');if(heading){heading.tabIndex=-1;heading.focus({preventScroll:true})}}
+let navigationGeneration=0;
+function go(page){const target=$('page-'+page);if(!target)return;if(activePage!==page)navigationGeneration++;activePage=page;document.querySelectorAll('.page').forEach(e=>e.classList.toggle('active',e===target));document.querySelectorAll('[data-page]').forEach(e=>{const current=e.dataset.page===page;e.classList.toggle('active',current);if(current)e.setAttribute('aria-current','page');else e.removeAttribute('aria-current')});window.scrollTo({top:0,behavior:'instant'});const heading=target.querySelector('h1');if(heading){heading.tabIndex=-1;heading.focus({preventScroll:true})}}
 document.querySelectorAll('[data-page],[data-go]').forEach(e=>e.addEventListener('click',()=>go(e.dataset.page||e.dataset.go)));
 let modalReturnFocus=null,modalReturnFocusKey=null;
 function unmountDialog(){clear($('modal-root'));document.querySelector('.layout').inert=false}
@@ -267,15 +268,37 @@ function mcpAgentPicker(label,selected=[]){
     row.append(input,rawNode('span',a.name));list.append(row)});
   return {wrap,get:()=>[...list.querySelectorAll('input:checked')].map(x=>x.value)}
 }
-async function mcpChange(payload){
+async function mcpChange(payload,editor=null){
+  const page=activePage,navAtStart=navigationGeneration;
+  const stillCurrent=()=>activePage===page&&navigationGeneration===navAtStart;
+  if(editor){
+    if(editor.box.getAttribute('aria-busy')==='true')return;
+    editor.box.setAttribute('aria-busy','true');
+    editor.preview.disabled=true;editor.cancel.disabled=true;
+    editor.error.textContent='';editor.error.classList.add('hidden');
+  }
   try{
-    const preview=await request('/api/action',{action:'mcp-preview',...payload,expectedRevision:mcpState.revision});
+    const revision=mcpState.revision;
+    const preview=await request('/api/action',{action:'mcp-preview',...payload,expectedRevision:revision});
+    if(!stillCurrent()||(editor&&!editor.box.isConnected))return;
     const p=preview.plan;
     modal('Confirm MCP '+p.operation,p.name+' · '+(p.changed?'Create a recovery snapshot and write the updated manifest.':'No changes.')+'\nAgent configuration synchronization remains a separate explicit action.','Apply change',async()=>{
       const result=await request('/api/action',{action:'mcp-apply',...payload,expectedRevision:p.expectedRevision,approved:true});
       showToast(p.name+' saved. Snapshot: '+(result.result.snapshotId||'not needed'));await refresh()
     },p.operation==='delete'?p.name:undefined);
-  }catch(err){showToast(err.message,true);closeDialog()}
+  }catch(err){
+    if(!stillCurrent())return;
+    if(editor&&editor.box.isConnected){
+      editor.error.textContent=err instanceof Error?err.message:'Operation failed.';
+      editor.error.classList.remove('hidden');
+      translateUI();editor.error.focus({preventScroll:true});
+    }else showToast(err.message,true);
+  }finally{
+    if(editor&&editor.box.isConnected){
+      editor.preview.disabled=false;editor.cancel.disabled=false;
+      editor.box.removeAttribute('aria-busy');
+    }
+  }
 }
 function mcpDialog(operation,server){
   if(!mcpState)return;
@@ -306,8 +329,10 @@ function mcpDialog(operation,server){
     exclude=mcpAgentPicker('Exclude agents',server?.excludeAgents||[]);
   box.append(include.wrap,exclude.wrap);
   const buttons=node('div',null,'modal-buttons'),cancel=node('button','Cancel','btn'),preview=node('button','Preview change','btn primary');
-  buttons.append(cancel,preview);box.append(buttons);bg.append(box);root.append(bg);
-  cancel.onclick=closeDialog;bg.onclick=e=>{if(e.target===bg)closeDialog()};
+  const inlineError=node('p','','subtle hidden');inlineError.setAttribute('role','alert');inlineError.tabIndex=-1;
+  buttons.append(cancel,preview);box.append(inlineError,buttons);
+  cancel.onclick=()=>{if(box.getAttribute('aria-busy')!=='true')closeDialog()};
+  bg.onclick=e=>{if(e.target===bg&&box.getAttribute('aria-busy')!=='true')closeDialog()};
   preview.onclick=()=>{
     const route={agents:include.get(),excludeAgents:exclude.get(),enabled:enabled.checked};
     const payload={operation,name:name.input.value.trim()};
@@ -317,7 +342,7 @@ function mcpDialog(operation,server){
       else spec.url=url.input.value.trim();
       payload.spec=spec;
     }else payload.routing=route;
-    unmountDialog();mcpChange(payload)
+    mcpChange(payload,{box,preview,cancel,error:inlineError});
   };
   showDialog(bg,box,name.input.disabled?cancel:name.input)
 }
