@@ -5,7 +5,7 @@
  */
 import crypto from 'node:crypto';
 import fs from 'node:fs';
-import { applyEdits, modify } from 'jsonc-parser';
+import { applyEdits, modify, parseTree, type Node } from 'jsonc-parser';
 import { detectAgents } from '../agents/detector.js';
 import { SnapshotSession, restoreBackup } from '../core/backup.js';
 import { inspectPath, writeFileAtomicSync } from '../core/links.js';
@@ -134,6 +134,30 @@ function describe(name: string, value: unknown): McpEditorServer {
     excludeAgents:Array.isArray(s.excludeAgents)?s.excludeAgents.filter(v=>typeof v==='string'):[],
     hasOverrides:!!s.agentOverrides && Object.keys(s.agentOverrides).length>0};
 }
+/**
+ * JSON.parse accepts duplicate keys (last wins), while JSONC edits can target
+ * a different occurrence. Reject ambiguous objects before any edit.
+ */
+function rejectDuplicateKeys(raw: string): void {
+  const root = parseTree(raw.replace(/^\uFEFF/, ''));
+  const visit = (node: Node | undefined): void => {
+    if (!node) return;
+    if (node.type === 'object') {
+      const seen = new Set<string>();
+      for (const property of node.children ?? []) {
+        const key = property.children?.[0]?.value;
+        if (typeof key === 'string') {
+          if (seen.has(key)) throw new Error('Duplicate JSONC properties are not safe to edit.');
+          seen.add(key);
+        }
+        visit(property.children?.[1]);
+      }
+    } else {
+      for (const child of node.children ?? []) visit(child);
+    }
+  };
+  visit(root);
+}
 function load(ctx: EnvironmentContext): {revision:string; raw:string; field:'mcpServers'|'servers'; servers:Dict} {
   if (inspectPath(ctx.homeDir).state !== 'directory') throw new Error('Home directory must be physical.');
   if (!['directory','missing'].includes(inspectPath(ctx.commonsDir).state)) throw new Error('Shared MCP directory is linked or invalid.');
@@ -145,6 +169,7 @@ function load(ctx: EnvironmentContext): {revision:string; raw:string; field:'mcp
   const raw = info.state === 'file' ? fs.readFileSync(ctx.centralMcpPath,'utf8') : '';
   const revision = crypto.createHash('sha256').update(info.state + '\0' + raw).digest('hex');
   const root = raw ? parseJsoncObject(raw) : {};
+  if (raw) rejectDuplicateKeys(raw);
   if ('mcpServers' in root && 'servers' in root) {
     throw new Error('Ambiguous manifest: both mcpServers and servers exist.');
   }

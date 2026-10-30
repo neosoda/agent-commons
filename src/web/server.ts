@@ -110,6 +110,7 @@ const PUBLIC_ERRORS = new Set([
   'Delete does not accept replacement fields.',
   'Existing commands and secrets cannot be replaced in the routing editor.',
   'MCP servers must be an object.',
+  'Duplicate JSONC properties are not safe to edit.',
   'Ambiguous manifest: both mcpServers and servers exist.',
   'Existing MCP server configuration is malformed.',
   'Shared MCP file is too large for safe editing.',
