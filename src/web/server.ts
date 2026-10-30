@@ -13,6 +13,7 @@ import { createEnvironmentContext } from '../core/context.js';
 import type { EnvironmentContext, SyncReport } from '../types.js';
 import { renderWebUi } from './ui.js';
 import { applyMcpEdit, mcpEditorOverview, previewMcpEdit, type McpEditorRequest } from './mcp-editor.js';
+import { syncInputRevision, type SyncPreviewKind } from './sync-revision.js';
 
 const IDENTIFIER = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const SNAPSHOT = /^snapshot-\d{8}-\d{6}-[a-f0-9]{6}$/;
@@ -114,7 +115,10 @@ const PUBLIC_ERRORS = new Set([
   'Shared MCP file is too large for safe editing.',
   'Shared MCP file is linked or invalid.',
   'Shared MCP directory is linked or invalid.',
-  'Home directory must be physical.'
+  'Home directory must be physical.',
+  'Workspace changed since preview. Preview again before applying.',
+  'Synchronization preview expired or missing. Preview again before applying.',
+  'Workspace too large for safe synchronization preview.'
 ]);
 function publicError(error: unknown, _ctx: EnvironmentContext): string {
   const message = error instanceof Error ? error.message : '';
@@ -209,6 +213,47 @@ export async function startWebServer(options: WebOptions = {}): Promise<WebInsta
   const nonce = crypto.randomBytes(18).toString('base64');
   let mutating = false;
   let origin = '';
+  // One-time, short-lived approvals bound to an exact filesystem/plan snapshot.
+  // Kept only in this process; restart invalidates outstanding confirmations.
+  const syncTickets = new Map<string, {kind: SyncPreviewKind; revision: string; plan: string; expires: number}>();
+  const previewSync = (kind: SyncPreviewKind, run: () => SyncReport): {previewToken:string; report:object} => {
+    const revision = syncInputRevision(ctx, kind);
+    const report = run();
+    if (revision !== syncInputRevision(ctx, kind)) {
+      throw new Error('Workspace changed since preview. Preview again before applying.');
+    }
+    const summary = summarize(report, ctx);
+    for (const [key, ticket] of syncTickets) {
+      if (ticket.expires < Date.now()) syncTickets.delete(key);
+    }
+    if (syncTickets.size >= 32) syncTickets.delete(syncTickets.keys().next().value!);
+    const previewToken = crypto.randomBytes(24).toString('hex');
+    syncTickets.set(previewToken, {
+      kind, revision, plan: JSON.stringify(summary), expires: Date.now() + 5 * 60 * 1000
+    });
+    return {previewToken, report: summary};
+  };
+  const checkSyncTicket = (kind: SyncPreviewKind, body: JsonValue, run: () => SyncReport): SyncReport => {
+    const token = body.previewToken;
+    if (typeof token !== 'string' || !/^[a-f0-9]{48}$/.test(token)) {
+      throw new Error('Synchronization preview expired or missing. Preview again before applying.');
+    }
+    const ticket = syncTickets.get(token);
+    syncTickets.delete(token); // A confirmation is single-use, including on failed validation.
+    if (!ticket || ticket.kind !== kind || ticket.expires < Date.now()) {
+      throw new Error('Synchronization preview expired or missing. Preview again before applying.');
+    }
+    const revision = syncInputRevision(ctx, kind);
+    if (revision !== ticket.revision) {
+      throw new Error('Workspace changed since preview. Preview again before applying.');
+    }
+    const report = run();
+    if (JSON.stringify(summarize(report, ctx)) !== ticket.plan ||
+        syncInputRevision(ctx, kind) !== ticket.revision) {
+      throw new Error('Workspace changed since preview. Preview again before applying.');
+    }
+    return report;
+  };
   const server = http.createServer(async (req, res) => {
     res.setHeader('Cache-Control', 'no-store');
     res.setHeader('X-Content-Type-Options', 'nosniff');
@@ -306,19 +351,24 @@ export async function startWebServer(options: WebOptions = {}): Promise<WebInsta
           json(res, 200, { cleared: true }); return;
         }
         if (action === 'sync-preview' || action === 'sync-apply') {
-          if (action === 'sync-apply') requireApproval(body);
-          const preflight = runSavedProfilesSync(ctx, { dryRun: true });
-          if (action === 'sync-preview') { json(res, 200, summarize(preflight, ctx)); return; }
+          if (action === 'sync-preview') {
+            const {previewToken,report} = previewSync('skills', () => runSavedProfilesSync(ctx, {dryRun:true}));
+            json(res, 200, {...report,previewToken}); return;
+          }
+          requireApproval(body);
+          const preflight = checkSyncTicket('skills',body,() => runSavedProfilesSync(ctx,{dryRun:true}));
           if (preflight.errors.length) throw new Error('Sync preview reported errors; refusing to apply.');
-          json(res, 200, summarize(runSavedProfilesSync(ctx, { dryRun: false }), ctx));
-          return;
+          json(res, 200, summarize(runSavedProfilesSync(ctx, {dryRun:false}),ctx)); return;
         }
         if (action === 'sync-all-preview' || action === 'sync-all-apply') {
-          if (action === 'sync-all-apply') requireApproval(body);
-          const preflight = runSync(ctx, { dryRun: true });
-          if (action === 'sync-all-preview') { json(res, 200, summarize(preflight, ctx)); return; }
+          if (action === 'sync-all-preview') {
+            const {previewToken,report} = previewSync('all', () => runSync(ctx,{dryRun:true}));
+            json(res, 200, {...report,previewToken}); return;
+          }
+          requireApproval(body);
+          const preflight = checkSyncTicket('all',body,() => runSync(ctx,{dryRun:true}));
           if (preflight.errors.length) throw new Error('Full sync preview reported errors; refusing to apply.');
-          json(res, 200, summarize(runSync(ctx, { dryRun: false }), ctx)); return;
+          json(res, 200, summarize(runSync(ctx,{dryRun:false}),ctx)); return;
         }
         if (action === 'mcp-preview' || action === 'mcp-apply') {
           if (action === 'mcp-apply') requireApproval(body);
