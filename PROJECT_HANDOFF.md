@@ -15,11 +15,11 @@ handling, safe backup/restore), `src/commands` (CLI), `src/web` (local
 HTTP and framework-free Skill Hub), `src/security`, `src/test`, `scripts`.
 Public catalog assets in `catalog`; end-user documentation in `README.md`.
 
-**Published stable version:** [GitHub **v0.3.0**](https://github.com/neosoda/agent-commons/releases/tag/v0.3.0),
-tag at `0b03e439194db99042d9b57065e2b8b115dfdf0d`, ZIP Windows x64 and
-matching SHA-256 uploaded. [Published release record](docs/releases/v0.3.0.md).
-The official ZIP's SHA-256 is
-`fe39656a51a609ba96c9d70b01de4336b148299787a30ca1a75d70df42421cc9`.
+**Published stable version:** [GitHub **v0.3.1**](https://github.com/neosoda/agent-commons/releases/tag/v0.3.1),
+tag at `9c1735aed0226dfa0eff4165753368c2daf2aa02`, ZIP Windows x64 and
+matching SHA-256 uploaded. Historical [v0.3.0](https://github.com/neosoda/agent-commons/releases/tag/v0.3.0) remains unchanged. [Published release record](docs/releases/v0.3.0.md).
+The current v0.3.1 ZIP's SHA-256 is
+`9f78bd4ee06f913e2f0b1d1492718282b498b08e03735cfd49bde01e9b345c7d`.
 Never move a published tag or silently modify a release asset.
 
 **Runtime safety invariants:**
@@ -57,7 +57,7 @@ Publishing workflow
 [success](https://github.com/neosoda/agent-commons/actions/runs/41059819873)
 verified the ZIP checksum and attached both official assets.
 
-**New P1 on `main` `ea9b3f2` (NOT included in the immutable v0.3.0 ZIP):**
+**P1 code merged at `ea9b3f2` and now included in published v0.3.1 (but NOT the historical v0.3.0 ZIP):**
 [CI 6/6](https://github.com/neosoda/agent-commons/actions/runs/41087377894),
 [Chromium](https://github.com/neosoda/agent-commons/actions/runs/41087377881),
 [Windows portable](https://github.com/neosoda/agent-commons/actions/runs/41087377883)
@@ -109,17 +109,15 @@ all `completed/success`.
   without ever exposing existing secrets in the browser.
 
 **Decision:** current software can be publicly downloaded through GitHub.
-After the P1/P2 cleanup, any patch incorporating post-v0.3.0 fixes must
-receive a **new tag**, preferably `v0.3.1`; do not claim the existing
-v0.3.0 ZIP includes #49.
+P1 and P2 are included in the **published v0.3.1** ZIP. Never move the historical v0.3.0 tag or imply it contains #49.
 
-## 3.1. v0.3.1 — patch release in progress
+## 3.1. v0.3.1 — published and verified
 
-- **Unreleased candidate:** branch `release/v0.3.1-p1-p2-stabilization-20261030`; `package.json` and `package-lock.json` aligned to **0.3.1**. Do not claim public availability until the GitHub tag/release and both ZIP/checksum assets exist.
-- Brings together #49's revision-bound one-use synchronization approvals and profile save race fix with #50's updated security docs, retired v0.3.0 one-shot workflow, Windows downloadable-ZIP verifier and NVDA acceptance checklist.
-- [Post-merge #50 `main` checks](https://github.com/neosoda/agent-commons/actions/runs/41088350290) CI 6/6, [Chromium](https://github.com/neosoda/agent-commons/actions/runs/41088350206), [Windows](https://github.com/neosoda/agent-commons/actions/runs/41088350367) all `success` on `b63de5682c7fd291a34f9a626fab772a2af5a5b8`.
-- New `.github/workflows/release-v0.3.1.yml`: one-shot release publication after all three workflows on the *same new main SHA* pass; verify package/lock 0.3.1, six CI jobs, ZIP/checksum, and publish both assets directly. Do not rely on `release.published` for releases created with `GITHUB_TOKEN`.
-- **After release:** retire the one-shot v0.3.1 workflow in another validated PR to prevent unnecessary follow-up workflow runs. Update actual release evidence and issue #19. npm bootstrap, physical Windows/SmartScreen and NVDA/VoiceOver remain external.
+- **Public release:** [Agent Commons v0.3.1](https://github.com/neosoda/agent-commons/releases/tag/v0.3.1), tag `9c1735aed0226dfa0eff4165753368c2daf2aa02`, official ZIP `AgentCommons-win-x64-portable.zip` (36,417,728 bytes) and `.sha256` present.
+- **ZIP SHA-256:** `9f78bd4ee06f913e2f0b1d1492718282b498b08e03735cfd49bde01e9b345c7d`, verified in release metadata and workflow publication.
+- **CI on the exact released commit:** [six matrix jobs](https://github.com/neosoda/agent-commons/actions/runs/41089403176), [Chromium](https://github.com/neosoda/agent-commons/actions/runs/41089402974), [Windows ZIP packaging and smoke](https://github.com/neosoda/agent-commons/actions/runs/41089403168) all `completed/success`.
+- [PR #51](https://github.com/neosoda/agent-commons/pull/51) merged for version+lock 0.3.1, patch notes and gated publisher. The **one-shot** `release-v0.3.1.yml` was removed in follow-up branch `chore/retire-v031-publisher-final-handoff-20261030` after checking actual release tag and assets.
+- **Still manual:** physical Windows PC first-run/SmartScreen, actual NVDA/VoiceOver reader testing, code signing, npm owner bootstrap and Trusted Publishing. [Acceptance checklist](docs/qa/RELEASE_ACCEPTANCE.md); [standalone ZIP verifier](scripts/check-published-windows.ps1). Do not claim those physical checks passed until performed.
 
 ## 4. Quality gates for every future PR / release
 
@@ -141,18 +139,4 @@ v0.3.0 ZIP includes #49.
 
 ## 5. Next-session resumption prompt
 
-> Reprends https://github.com/neosoda/agent-commons. Lis
-> `PROJECT_HANDOFF.md` puis vérifie les HEAD SHA/runs sur GitHub en direct.
-> Release publique v0.3.0 tag `0b03e43`, ZIP+SHA publiés ; ne pas
-> retagger. La PR #49 a fusionné en `ea9b3f2` avec CI 6/6,
-> Chromium et portable Windows verts : aperçu → apply lié à un ticket
-> unique et à la révision des inputs, sauvegarde de profils protégée
-> contre le changement d'agent. Vérifie puis fusionne la PR sur
-> `chore/post-release-security-docs-handoff-20261030` après les
-> neuf contrôles, revalide `main`, et confirme que le workflow
-> `release-v0.3.0.yml` est retiré. Le ZIP public v0.3.0 ne contient
-> PAS ces nouveaux correctifs : préparer si souhaité v0.3.1 avec
-> nouvelles validations et tag/ZIP, sans effacer v0.3.0. Tests
-> physiques Windows et NVDA/VoiceOver non réalisés ; npm non
-> publié (scope/2FA/Trusted Publisher propriétaire). Aucun agent
-> réel ni secret dans les essais ; UI uniquement 127.0.0.1.
+> Reprends https://github.com/neosoda/agent-commons. Lis ce fichier intégralement et contrôle `main`, PR ouvertes, releases, issues et workflows en direct. **Dernière release publique vérifiée v0.3.1**, tag SHA `9c1735a`, ZIP et `.sha256` disponibles. P1 [#49](https://github.com/neosoda/agent-commons/pull/49) : sync preview/apply jeton unique+révision filesystem+plan, erreurs fail-closed, profil async lié à l'agent initiateur. P2 [#50](https://github.com/neosoda/agent-commons/pull/50) : nettoyage workflow v0.3.0, SECURITY/README/handoff, script autonome ZIP Windows, grille NVDA, issue MCP #18 clarifiée. Patch [#51](https://github.com/neosoda/agent-commons/pull/51) v0.3.1 publié. La branche `chore/retire-v031-publisher-final-handoff-20261030` supprime son workflow one-shot et met à jour le handoff : **fusionner uniquement après CI 6/6, Chromium et portable Windows success sur SHA PR exact**, puis recontrôler main. Pas de test Windows/NVDA réel, ni signature Windows, ni npm autorisé : ces étapes externes nécessitent une machine ou le compte propriétaire. Ne pas exposer le Skill Hub (127.0.0.1 sans auth), ne pas toucher aux vrais agents/secrets, ne jamais déplacer les tags historiques. Toute future modification nécessite une nouvelle version et une validation complète.
