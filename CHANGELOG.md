@@ -7,6 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0] — Release candidate (publication GitHub non encore effectuée)
+
+### Added
+- Bilingual FR/EN local Skill Hub with persistent browser preference, accessible keyboard navigation, focus management and explicit error announcements.
+- Additional real Chromium regression scenarios for dialogs, localization, user draft recovery, delayed/failed HTTP requests and MCP synchronization preview races.
+- Release-quality Windows portable check: extract the final ZIP into a clean directory with spaces, run its **embedded** Node and CLI against a synthetic home, verify localhost HTTP startup, package/CLI versions and ZIP checksum.
+
+### Improved
+- Non-text contrast on interactive controls, clear inline feedback for invalid MCP previews, focus restoration after refresh, and protection against duplicate or stale dialogs.
+- MCP and profile editing keep drafts on read-only refresh; concurrent responses no longer overwrite newer UI state.
+- Staged backup/restore rollback preservation, recursive content fingerprints, private HTTP error allowlisting, and expanded cross-platform safety tests.
+
+### Fixed
+- CLI `--version` now reports the actual installed package version, not an obsolete hard-coded value.
+- MCP preview failures no longer discard the server configuration being edited.
+- Pending writes cannot be hidden by closing a confirmation; failures remain retryable and accessible.
+
+### Distribution notes
+- This version is **prepared**, not yet tagged/published. The previous published GitHub Release remains v0.2.0 until a verified v0.3.0 release is created.
+- Windows x64 portable ZIP is the preferred no-Node end-user distribution. The optional npm scope still requires authorized first publication and Trusted Publisher configuration.
+- No claims of full NVDA/VoiceOver certification, executable code signing, or manual installation on an independent physical Windows device.
+
+
 ### Fixed
 
 - Normalize the npm CLI `bin` path (remove leading `./`) to avoid npm 11 publish-time rewrite/warning; add regression test of compiled executable.

@@ -49,18 +49,31 @@ endlocal
 '@
 Set-Content -LiteralPath (Join-Path $stage 'Start-AgentCommons.cmd') -Value $launch -Encoding ascii
 $instructions = @'
-AGENT COMMONS - WINDOWS PORTABLE
-================================
-1. Extract the complete ZIP into a user-owned folder.
-2. Double-click Start-AgentCommons.cmd.
-3. Your browser opens http://127.0.0.1:4173.
-4. Keep the console open, use Ctrl+C to stop the server.
+AGENT COMMONS - WINDOWS PORTABLE / VERSION PORTABLE
+==================================================
+ENGLISH
+1. Extract the COMPLETE ZIP to a folder you own.
+2. Open AgentCommonsPortable and double-click Start-AgentCommons.cmd.
+3. Your browser opens the local Skill Hub (http://127.0.0.1:4173).
+4. Keep the console open; Ctrl+C stops the server.
 
-No administrator privileges, Node installation, background service, or
-publicly accessible listener are needed. Data stays in your user profile.
+FRANCAIS
+1. Extraire TOUTE l'archive ZIP dans un dossier personnel.
+2. Ouvrir AgentCommonsPortable puis Start-AgentCommons.cmd.
+3. Le Skill Hub s'ouvre dans le navigateur (http://127.0.0.1:4173).
+4. Garder la console ouverte ; Ctrl+C pour arreter le serveur.
 
-Options: Start-AgentCommons.cmd --port 5180
-         Start-AgentCommons.cmd --no-open
+No administrator rights or separate Node installation required.
+Aucune installation de Node.js ni droits administrateur necessaires.
+The dashboard is LOCAL ONLY, with no login: NEVER publish port 4173.
+Interface LOCALE SANS AUTHENTIFICATION : ne jamais exposer le port 4173.
+
+Options : Start-AgentCommons.cmd --port 5180
+          Start-AgentCommons.cmd --no-open
+          Start-AgentCommons.cmd --home "C:\temporary-test-profile"
+
+Official release and checksum:
+https://github.com/neosoda/agent-commons/releases
 Source: https://github.com/neosoda/agent-commons
 '@
 Set-Content -LiteralPath (Join-Path $stage 'README-Windows.txt') -Value $instructions -Encoding utf8
@@ -94,3 +107,56 @@ Compress-Archive -Path $stage -DestinationPath $zip -CompressionLevel Optimal -F
 $sha = (Get-FileHash -LiteralPath $zip -Algorithm SHA256).Hash.ToLowerInvariant()
 Set-Content -LiteralPath ($zip + '.sha256') -Value ($sha + '  ' + (Split-Path $zip -Leaf)) -Encoding ascii
 Write-Host ('PORTABLE_SHA256: ' + $sha)
+
+# Product-quality gate: re-extract the final ZIP into a clean directory (with spaces),
+# then run ONLY the embedded Node binary and the installed package from that ZIP.
+# This catches missing entries, bad relative paths and errors hidden by source-tree smoke tests.
+Write-Host 'Verifying final ZIP from a clean extracted location...'
+$unpacked = Join-Path $out 'portable clean extraction'
+$smokeHome = Join-Path $out 'portable synthetic home'
+New-Item -ItemType Directory -Path $unpacked, $smokeHome -Force | Out-Null
+$extractedServer = $null
+try {
+  Expand-Archive -LiteralPath $zip -DestinationPath $unpacked -Force
+  $bundle = Join-Path $unpacked 'AgentCommonsPortable'
+  $embeddedNode = Join-Path $bundle 'runtime\node.exe'
+  $embeddedCli = Join-Path $bundle 'app\node_modules\@neosoda\agent-commons\dist\cli\index.js'
+  foreach ($required in @($embeddedNode, $embeddedCli, (Join-Path $bundle 'Start-AgentCommons.cmd'), (Join-Path $bundle 'README-Windows.txt'))) {
+    if (-not (Test-Path -LiteralPath $required -PathType Leaf)) { throw ('ZIP missing: ' + $required) }
+  }
+  & $embeddedNode $embeddedCli --help | Out-Null
+  if ($LASTEXITCODE -ne 0) { throw 'ZIP-extracted CLI cannot boot.' }
+  $extractedManifestPath = Join-Path $bundle 'app\node_modules\@neosoda\agent-commons\package.json'
+  if (-not (Test-Path -LiteralPath $extractedManifestPath)) { throw 'ZIP missing packaged manifest.' }
+  $extractedManifest = Get-Content -LiteralPath $extractedManifestPath -Raw | ConvertFrom-Json
+  $expectedVersion = (Get-Content -LiteralPath (Join-Path $root 'package.json') -Raw | ConvertFrom-Json).version
+  $zipCliVersion = (& $embeddedNode $embeddedCli --version | Out-String).Trim()
+  if ($LASTEXITCODE -ne 0 -or $extractedManifest.version -ne $expectedVersion -or $zipCliVersion -ne $expectedVersion) {
+    throw ('ZIP version mismatch: package=' + $extractedManifest.version + ', CLI=' + $zipCliVersion + ', expected=' + $expectedVersion)
+  }
+  $cleanPort = Get-Random -Minimum 44000 -Maximum 55000
+  $cleanArgs = ('"' + $embeddedCli + '" web --no-open --home "' + $smokeHome + '" --port ' + $cleanPort)
+  $extractedServer = Start-Process -FilePath $embeddedNode -ArgumentList $cleanArgs -PassThru -NoNewWindow
+  $healthy = $false
+  for ($i = 0; $i -lt 40; $i++) {
+    if ($extractedServer.HasExited) { throw 'ZIP-extracted Skill Hub terminated during startup.' }
+    try {
+      $result = Invoke-WebRequest -Uri ('http://127.0.0.1:' + $cleanPort + '/') -TimeoutSec 2
+      if ($result.StatusCode -eq 200 -and $result.Content.Contains('Skill Hub')) {
+        $healthy = $true
+        break
+      }
+    } catch { Start-Sleep -Milliseconds 400 }
+  }
+  if (-not $healthy) { throw 'ZIP-extracted Skill Hub did not serve HTTP 200.' }
+  $checksumLine = (Get-Content -LiteralPath ($zip + '.sha256') -Raw).Trim()
+  if ($checksumLine -ne ($sha + '  ' + (Split-Path $zip -Leaf))) {
+    throw 'Published checksum does not match the built ZIP.'
+  }
+  Write-Host 'PASS: extracted ZIP, embedded runtime, isolated home, localhost dashboard, checksum.'
+} finally {
+  if ($extractedServer -and -not $extractedServer.HasExited) {
+    Stop-Process -Id $extractedServer.Id -Force
+  }
+  Remove-Item -LiteralPath $unpacked, $smokeHome -Recurse -Force -ErrorAction SilentlyContinue
+}

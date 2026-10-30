@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import { parseArgs } from 'node:util';
+import { readFileSync } from 'node:fs';
 import { startWebServer } from '../web/server.js';
 import { runDoctor } from '../commands/doctor.js';
 import { runCatalog } from '../commands/catalog.js';
@@ -15,7 +16,8 @@ import { createFullBackup, listBackups, restoreBackup } from '../core/backup.js'
 import { createEnvironmentContext } from '../core/context.js';
 import { redactSecrets } from '../security/scrubber.js';
 
-const VERSION = '0.1.1';
+// Read the installed package metadata, rather than shipping a stale hard-coded CLI version.
+const VERSION: string = (JSON.parse(readFileSync(new URL('../../package.json', import.meta.url), 'utf8')) as { version: string }).version;
 
 function getMainHelp(): string {
   return `
