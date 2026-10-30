@@ -244,6 +244,42 @@ try {
     expectedSkills,'a stale refresh replaced the latest catalog');
   await page.unroute('**/api/state');
 
+  // Saving one agent cannot clear another agent's unsaved draft if selection changes mid-request.
+  fs.mkdirSync(path.join(home,'.codex'),{recursive:true});
+  await page.locator('#refresh').click();
+  await page.locator('#workspace-status').getByText('Workspace and integrity results updated.').waitFor();
+  await page.locator('[data-page="agents"]').click();
+  await page.locator('#profile-agent').selectOption('claude-code');
+  const claudeCheck=page.locator('#profile-categories input[type="checkbox"]').first();
+  await claudeCheck.check();
+  await page.locator('#profile-agent').selectOption('codex');
+  const codexCheck=page.locator('#profile-categories input[type="checkbox"]').first();
+  await codexCheck.check();
+  await page.locator('#profile-agent').selectOption('claude-code');
+  let savedProfileRequests=0;
+  await page.route('**/api/action',async route=>{
+    const data=route.request().postDataJSON();
+    if(data?.action==='profile-save'){
+      savedProfileRequests++;
+      const response=await route.fetch();
+      await new Promise(resolve=>setTimeout(resolve,450));
+      await route.fulfill({response});
+    }else await route.continue();
+  });
+  await page.locator('#profile-save').click();
+  await page.locator('#profile-agent').selectOption('codex');
+  assert.ok(await page.locator('#profile-save').isDisabled(),'switching agents re-enabled duplicate save');
+  assert.ok(await codexCheck.isChecked(),'Codex draft lost during another agent save');
+  await page.waitForTimeout(650);
+  assert.equal(savedProfileRequests,1);
+  assert.ok(await codexCheck.isChecked(),'Codex draft lost after saving Claude profile');
+  const storedProfiles=JSON.parse(fs.readFileSync(path.join(home,'.agents','agent-profiles.json'),'utf8'));
+  assert.ok(storedProfiles.profiles['claude-code']?.categories.length>0,
+    'a profile save targeted the wrong selected agent');
+  assert.equal(storedProfiles.profiles.codex,undefined,'Codex draft was saved without approval');
+  await page.unroute('**/api/action');
+  await page.locator('[data-page="overview"]').click();
+
   // Partial refresh must not announce complete success if the MCP endpoint failed.
   await page.route('**/api/mcp',async route=>{
     await route.fulfill({status:400,contentType:'application/json',
