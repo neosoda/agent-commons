@@ -97,7 +97,8 @@ function setLanguage(next){
 }
 const node=(tag,text,cls)=>{const e=document.createElement(tag);if(text!==undefined&&text!==null)e.textContent=String(text);if(cls)e.className=cls;return e};
 const clear=e=>e.replaceChildren();
-const showToast=(message,error=false)=>{const t=$('toast');t.setAttribute('role',error?'alert':'status');t.setAttribute('aria-live',error?'assertive':'polite');t.textContent=message;t.className='toast'+(error?' error':'');translateUI();setTimeout(()=>{if(t.textContent===message)t.classList.add('hidden')},4300)};
+let toastSequence=0;
+const showToast=(message,error=false)=>{const sequence=++toastSequence;const t=$('toast');t.setAttribute('role',error?'alert':'status');t.setAttribute('aria-live',error?'assertive':'polite');t.textContent=message;t.className='toast'+(error?' error':'');translateUI();setTimeout(()=>{if(toastSequence===sequence)t.classList.add('hidden')},4300)};
 async function request(url,body){const opts=body===undefined?{method:'GET'}:{method:'POST',headers:{'content-type':'application/json','x-agent-commons-csrf':csrf},body:JSON.stringify(body)};const response=await fetch(url,opts);let data;try{data=await response.json()}catch{throw Error('Invalid server response')}if(!response.ok)throw Error(data.error||'Request failed');return data}
 function go(page){const target=$('page-'+page);if(!target)return;activePage=page;document.querySelectorAll('.page').forEach(e=>e.classList.toggle('active',e===target));document.querySelectorAll('[data-page]').forEach(e=>{const current=e.dataset.page===page;e.classList.toggle('active',current);if(current)e.setAttribute('aria-current','page');else e.removeAttribute('aria-current')});window.scrollTo({top:0,behavior:'instant'});const heading=target.querySelector('h1');if(heading){heading.tabIndex=-1;heading.focus({preventScroll:true})}}
 document.querySelectorAll('[data-page],[data-go]').forEach(e=>e.addEventListener('click',()=>go(e.dataset.page||e.dataset.go)));
