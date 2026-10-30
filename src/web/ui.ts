@@ -168,7 +168,8 @@ const clear=e=>e.replaceChildren();
 let toastSequence=0;
 const showToast=(message,error=false)=>{const sequence=++toastSequence;const t=$('toast');t.setAttribute('role',error?'alert':'status');t.setAttribute('aria-live',error?'assertive':'polite');t.textContent=message;t.className='toast'+(error?' error':'');translateUI();setTimeout(()=>{if(toastSequence===sequence)t.classList.add('hidden')},4300)};
 async function request(url,body){const opts=body===undefined?{method:'GET'}:{method:'POST',headers:{'content-type':'application/json','x-agent-commons-csrf':csrf},body:JSON.stringify(body)};const response=await fetch(url,opts);let data;try{data=await response.json()}catch{throw Error('Invalid server response')}if(!response.ok)throw Error(data.error||'Request failed');return data}
-function go(page){const target=$('page-'+page);if(!target)return;activePage=page;document.querySelectorAll('.page').forEach(e=>e.classList.toggle('active',e===target));document.querySelectorAll('[data-page]').forEach(e=>{const current=e.dataset.page===page;e.classList.toggle('active',current);if(current)e.setAttribute('aria-current','page');else e.removeAttribute('aria-current')});window.scrollTo({top:0,behavior:'instant'});const heading=target.querySelector('h1');if(heading){heading.tabIndex=-1;heading.focus({preventScroll:true})}}
+let navigationGeneration=0;
+function go(page){const target=$('page-'+page);if(!target)return;if(activePage!==page)navigationGeneration++;activePage=page;document.querySelectorAll('.page').forEach(e=>e.classList.toggle('active',e===target));document.querySelectorAll('[data-page]').forEach(e=>{const current=e.dataset.page===page;e.classList.toggle('active',current);if(current)e.setAttribute('aria-current','page');else e.removeAttribute('aria-current')});window.scrollTo({top:0,behavior:'instant'});const heading=target.querySelector('h1');if(heading){heading.tabIndex=-1;heading.focus({preventScroll:true})}}
 document.querySelectorAll('[data-page],[data-go]').forEach(e=>e.addEventListener('click',()=>go(e.dataset.page||e.dataset.go)));
 let modalReturnFocus=null,modalReturnFocusKey=null;
 function unmountDialog(){clear($('modal-root'));document.querySelector('.layout').inert=false}
@@ -267,15 +268,37 @@ function mcpAgentPicker(label,selected=[]){
     row.append(input,rawNode('span',a.name));list.append(row)});
   return {wrap,get:()=>[...list.querySelectorAll('input:checked')].map(x=>x.value)}
 }
-async function mcpChange(payload){
+async function mcpChange(payload,editor=null){
+  const page=activePage,navAtStart=navigationGeneration;
+  const stillCurrent=()=>activePage===page&&navigationGeneration===navAtStart;
+  if(editor){
+    if(editor.box.getAttribute('aria-busy')==='true')return;
+    editor.box.setAttribute('aria-busy','true');
+    editor.preview.disabled=true;editor.cancel.disabled=true;
+    editor.error.textContent='';editor.error.classList.add('hidden');
+  }
   try{
-    const preview=await request('/api/action',{action:'mcp-preview',...payload,expectedRevision:mcpState.revision});
+    const revision=mcpState.revision;
+    const preview=await request('/api/action',{action:'mcp-preview',...payload,expectedRevision:revision});
+    if(!stillCurrent()||(editor&&!editor.box.isConnected))return;
     const p=preview.plan;
     modal('Confirm MCP '+p.operation,p.name+' · '+(p.changed?'Create a recovery snapshot and write the updated manifest.':'No changes.')+'\nAgent configuration synchronization remains a separate explicit action.','Apply change',async()=>{
       const result=await request('/api/action',{action:'mcp-apply',...payload,expectedRevision:p.expectedRevision,approved:true});
       showToast(p.name+' saved. Snapshot: '+(result.result.snapshotId||'not needed'));await refresh()
     },p.operation==='delete'?p.name:undefined);
-  }catch(err){showToast(err.message,true);closeDialog()}
+  }catch(err){
+    if(!stillCurrent())return;
+    if(editor&&editor.box.isConnected){
+      editor.error.textContent=err instanceof Error?err.message:'Operation failed.';
+      editor.error.classList.remove('hidden');
+      translateUI();editor.error.focus({preventScroll:true});
+    }else showToast(err.message,true);
+  }finally{
+    if(editor&&editor.box.isConnected){
+      editor.preview.disabled=false;editor.cancel.disabled=false;
+      editor.box.removeAttribute('aria-busy');
+    }
+  }
 }
 function mcpDialog(operation,server){
   if(!mcpState)return;
@@ -306,8 +329,10 @@ function mcpDialog(operation,server){
     exclude=mcpAgentPicker('Exclude agents',server?.excludeAgents||[]);
   box.append(include.wrap,exclude.wrap);
   const buttons=node('div',null,'modal-buttons'),cancel=node('button','Cancel','btn'),preview=node('button','Preview change','btn primary');
-  buttons.append(cancel,preview);box.append(buttons);bg.append(box);root.append(bg);
-  cancel.onclick=closeDialog;bg.onclick=e=>{if(e.target===bg)closeDialog()};
+  const inlineError=node('p','','subtle hidden');inlineError.setAttribute('role','alert');inlineError.tabIndex=-1;
+  buttons.append(cancel,preview);box.append(inlineError,buttons);
+  cancel.onclick=()=>{if(box.getAttribute('aria-busy')!=='true')closeDialog()};
+  bg.onclick=e=>{if(e.target===bg&&box.getAttribute('aria-busy')!=='true')closeDialog()};
   preview.onclick=()=>{
     const route={agents:include.get(),excludeAgents:exclude.get(),enabled:enabled.checked};
     const payload={operation,name:name.input.value.trim()};
@@ -317,7 +342,7 @@ function mcpDialog(operation,server){
       else spec.url=url.input.value.trim();
       payload.spec=spec;
     }else payload.routing=route;
-    unmountDialog();mcpChange(payload)
+    mcpChange(payload,{box,preview,cancel,error:inlineError});
   };
   showDialog(bg,box,name.input.disabled?cancel:name.input)
 }
@@ -365,11 +390,45 @@ $('profile-agent').onchange=e=>{selectedAgent=e.target.value;$('profile-skill-se
 $('profile-skill-search').oninput=renderProfileEditor;
 $('profile-save').onclick=async()=>{if(!selectedAgent)return;const draft=profileDrafts[selectedAgent]||{skills:[],categories:[]};const skills=draft.skills;const categories=draft.categories;if(!skills.length&&!categories.length){showToast('Choose at least one skill or category.',true);return}try{await request('/api/action',{action:'profile-save',agent:selectedAgent,skills,categories,approved:true});delete profileDrafts[selectedAgent];showToast('Profile saved (not synced)');await refresh()}catch(err){showToast(err.message,true)}};
 $('profile-clear').onclick=()=>{if(!selectedAgent)return;modal('Clear profile','This only removes the saved selection; existing links stay untouched.','Clear profile',async()=>{await request('/api/action',{action:'profile-clear',agent:selectedAgent,approved:true});delete profileDrafts[selectedAgent];showToast('Saved profile cleared');await refresh()})};
-$('sync-preview').onclick=async()=>{try{showSync(await request('/api/action',{action:'sync-preview'}));go('agents')}catch(err){showToast(err.message,true)}};
-$('sync-apply').onclick=async()=>{try{const p=await request('/api/action',{action:'sync-preview'});showSync(p);if(p.errors.length)throw Error('Preview reported errors; apply is blocked.');modal('Apply saved profiles','Preview: '+p.skillResults.length+' skill result(s). Synchronization changes agent skill links and creates a recovery snapshot when needed. MCP configurations remain untouched.','Apply sync',async()=>{const r=await request('/api/action',{action:'sync-apply',approved:true});showSync(r);if(r.errors.length)throw Error('Sync returned errors: '+r.errors.join('; '));showToast('Profiles synchronized');await refresh()},'SYNC')}catch(err){showToast(err.message,true)}};
+let syncPreviewGeneration=0,fullSyncPreviewGeneration=0;
+async function guardedPreview(button,kind,run){
+  if(button.disabled)return;
+  const generation=kind==='full'?++fullSyncPreviewGeneration:++syncPreviewGeneration;
+  const page=activePage,nav=navigationGeneration;
+  const current=()=>activePage===page&&navigationGeneration===nav&&
+    generation===(kind==='full'?fullSyncPreviewGeneration:syncPreviewGeneration);
+  button.disabled=true;button.setAttribute('aria-busy','true');
+  try{await run(current)}catch(err){if(current())showToast(err.message,true)}
+  finally{button.disabled=false;button.removeAttribute('aria-busy')}
+}
+$('sync-preview').onclick=()=>guardedPreview($('sync-preview'),'skills',async current=>{
+  const r=await request('/api/action',{action:'sync-preview'});if(current())showSync(r)
+});
+$('sync-apply').onclick=()=>guardedPreview($('sync-apply'),'skills',async current=>{
+  const p=await request('/api/action',{action:'sync-preview'});if(!current())return;
+  showSync(p);if(p.errors.length)throw Error('Preview reported errors; apply is blocked.');
+  modal('Apply saved profiles','Preview: '+p.skillResults.length+' skill result(s). Synchronization changes agent skill links and creates a recovery snapshot when needed. MCP configurations remain untouched.','Apply sync',async()=>{
+    const r=await request('/api/action',{action:'sync-apply',approved:true});showSync(r);
+    if(r.errors.length)throw Error('Sync returned errors: '+r.errors.join('; '));
+    showToast('Profiles synchronized');await refresh()
+  },'SYNC')
+});
 $('doctor-run').onclick=async()=>{try{const r=await request('/api/doctor');const p=$('doctor-report');p.classList.remove('hidden');p.textContent=['Health: '+(r.healthy?'OK':'Attention'),'Link capability: '+(r.linkCapabilityVerified?'OK':'Failed'),'Central MCP: '+r.centralMcpStatus,...r.issues].join('\n')||'No issues';}catch(err){showToast(err.message,true)}};
-$('full-sync-preview').onclick=async()=>{try{const r=await request('/api/action',{action:'sync-all-preview'});const p=$('full-sync-report');p.classList.remove('hidden');p.textContent=formatSync(r)}catch(err){showToast(err.message,true)}};
-$('full-sync-apply').onclick=async()=>{try{const p=await request('/api/action',{action:'sync-all-preview'});const report=$('full-sync-report');report.classList.remove('hidden');report.textContent=formatSync(p);if(p.errors.length)throw Error('Preview reported errors.');modal('Synchronize skills + MCP','This changes compatible agent skill links and merges MCP server entries. A recovery snapshot is created when there are changes. Conflicts are preserved.','Apply full sync',async()=>{const result=await request('/api/action',{action:'sync-all-apply',approved:true});report.textContent=formatSync(result);if(result.errors.length)throw Error('Full sync returned errors: '+result.errors.join('; '));showToast('Full synchronization completed');await refresh()},'SYNC ALL')}catch(err){showToast(err.message,true)}};
+$('full-sync-preview').onclick=()=>guardedPreview($('full-sync-preview'),'full',async current=>{
+  const r=await request('/api/action',{action:'sync-all-preview'});if(!current())return;
+  const report=$('full-sync-report');report.classList.remove('hidden');report.textContent=formatSync(r)
+});
+$('full-sync-apply').onclick=()=>guardedPreview($('full-sync-apply'),'full',async current=>{
+  const p=await request('/api/action',{action:'sync-all-preview'});if(!current())return;
+  const report=$('full-sync-report');report.classList.remove('hidden');report.textContent=formatSync(p);
+  if(p.errors.length)throw Error('Preview reported errors.');
+  modal('Synchronize skills + MCP','This changes compatible agent skill links and merges MCP server entries. A recovery snapshot is created when there are changes. Conflicts are preserved.','Apply full sync',async()=>{
+    const result=await request('/api/action',{action:'sync-all-apply',approved:true});
+    report.textContent=formatSync(result);
+    if(result.errors.length)throw Error('Full sync returned errors: '+result.errors.join('; '));
+    showToast('Full synchronization completed');await refresh()
+  },'SYNC ALL')
+});
 $('verify-again').onclick=()=>refresh(true);
 $('backup-create').onclick=()=>modal('Create full backup','Capture agent skill and MCP state now. This may take a moment on large local libraries.','Create backup',async()=>{const r=await request('/api/action',{action:'backup',approved:true});showToast('Backup created: '+r.id);await refresh()});
 try{language=localStorage.getItem('agent-commons-ui-language')||'en'}catch{language='en'}

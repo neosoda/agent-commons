@@ -175,7 +175,7 @@ try {
   await previewDialog.locator('input.field').first().fill('Backups');
   await previewDialog.getByRole('button',{name:'Prévisualiser'}).click();
   previewDialog=page.getByRole('dialog');
-  assert.equal(await previewDialog.getByRole('heading').innerText(),'Confirmer MCP : création');
+  assert.equal(await previewDialog.getByRole('heading',{name:'Confirmer MCP : création'}).innerText(),'Confirmer MCP : création');
   assert.match(await previewDialog.locator('p.copy').innerText(),/^Backups · Créer un instantané/);
   await previewDialog.getByRole('button',{name:'Annuler'}).click();
   assert.equal(await page.getByRole('dialog').count(),0);
@@ -184,9 +184,11 @@ try {
   await page.locator('#mcp-add').click();
   let frenchDialog=page.getByRole('dialog');
   await frenchDialog.getByRole('button',{name:'Prévisualiser'}).click();
-  await page.locator('#toast[role="alert"]').waitFor({state:'visible'});
-  assert.match(await page.locator('#toast').innerText(),/Identifiant MCP invalide/);
-  await page.locator('#toast').waitFor({state:'hidden',timeout:7000});
+  await frenchDialog.getByRole('alert').waitFor({state:'visible'});
+  assert.match(await frenchDialog.getByRole('alert').innerText(),/Identifiant MCP invalide/);
+  assert.equal(await frenchDialog.locator('input.field').first().inputValue(),'');
+  assert.ok(await frenchDialog.getByRole('alert').evaluate(el=>el===document.activeElement));
+  await page.keyboard.press('Escape');
   assert.equal(await page.getByRole('dialog').count(),0);
 
   await page.reload({waitUntil:'networkidle'});
@@ -298,6 +300,75 @@ try {
   assert.ok(await page.locator('#backup-create').evaluate(el=>el===document.activeElement));
   await page.unroute('**/api/action');
 
+  // A slow MCP preview must not lose typed values, close on Escape, or duplicate requests.
+  await page.setViewportSize({width:1280,height:720});
+  await page.locator('[data-page="agents"]').click();
+  let delayedMcpPreviews=0;
+  await page.route('**/api/action',async route=>{
+    if(route.request().postDataJSON()?.action==='mcp-preview'){
+      delayedMcpPreviews++;
+      await new Promise(resolve=>setTimeout(resolve,350));
+      await route.fulfill({status:400,contentType:'application/json',
+        body:JSON.stringify({error:'Local operation failed. Check Agent Commons CLI diagnostics for details.'})});
+    }else await route.continue();
+  });
+  await page.locator('#mcp-add').click();
+  let pendingMcp=page.getByRole('dialog');
+  await pendingMcp.locator('input.field').first().fill('async-safe');
+  await pendingMcp.getByRole('button',{name:'Preview change'}).click();
+  assert.equal(await pendingMcp.getAttribute('aria-busy'),'true');
+  assert.ok(await pendingMcp.getByRole('button',{name:'Cancel'}).isDisabled());
+  await page.keyboard.press('Escape');
+  assert.ok(await pendingMcp.isVisible(),'Escape dismissed MCP editor during preview');
+  await pendingMcp.getByRole('alert').waitFor({state:'visible'});
+  assert.equal(await pendingMcp.locator('input.field').first().inputValue(),'async-safe');
+  assert.ok(await pendingMcp.getByRole('button',{name:'Preview change'}).isEnabled());
+  assert.ok(await pendingMcp.getByRole('alert').evaluate(el=>el===document.activeElement));
+  assert.equal(delayedMcpPreviews,1);
+  await page.unroute('**/api/action');
+  await pendingMcp.getByRole('button',{name:'Preview change'}).click();
+  let retryMcp=page.getByRole('dialog');
+  await retryMcp.getByRole('heading',{name:'Confirm MCP create'}).waitFor();
+  await retryMcp.getByRole('button',{name:'Cancel'}).click();
+  assert.ok(await page.locator('#mcp-add').evaluate(el=>el===document.activeElement),
+    'MCP confirmation cancellation failed to return focus');
+
+  // Preview responses arriving after a page change must not open surprise dialogs.
+  let delayedSyncPreviews=0;
+  await page.route('**/api/action',async route=>{
+    if(route.request().postDataJSON()?.action==='sync-preview'){
+      delayedSyncPreviews++;
+      const response=await route.fetch();
+      await new Promise(resolve=>setTimeout(resolve,400));
+      await route.fulfill({response});
+    }else await route.continue();
+  });
+  await page.locator('#sync-apply').click();
+  assert.ok(await page.locator('#sync-apply').isDisabled());
+  assert.equal(await page.locator('#sync-apply').getAttribute('aria-busy'),'true');
+  await page.evaluate(()=>document.getElementById('sync-apply').click());
+  await page.locator('[data-page="backups"]').click();
+  await page.waitForTimeout(550);
+  assert.equal(await page.getByRole('dialog').count(),0,'stale sync preview opened a dialog');
+  assert.equal(delayedSyncPreviews,1,'duplicate sync preview was sent');
+  await page.unroute('**/api/action');
+
+  // Even if the user switches away and back, the navigation generation invalidates the preview.
+  await page.locator('[data-page="agents"]').click();
+  await page.route('**/api/action',async route=>{
+    if(route.request().postDataJSON()?.action==='sync-preview'){
+      const response=await route.fetch();
+      await new Promise(resolve=>setTimeout(resolve,350));
+      await route.fulfill({response});
+    }else await route.continue();
+  });
+  await page.locator('#sync-apply').click();
+  await page.locator('[data-page="backups"]').click();
+  await page.locator('[data-page="agents"]').click();
+  await page.waitForTimeout(470);
+  assert.equal(await page.getByRole('dialog').count(),0,'old preview revived after navigating back');
+  await page.unroute('**/api/action');
+
   // Exercise the actual browser-to-HTTP MCP editor, not merely rendered controls.
   await page.setViewportSize({width: 1280, height: 720});
   await page.locator('[data-page="agents"]').click();
@@ -312,10 +383,13 @@ try {
     'MCP escape restores focus to Add MCP server');
   await page.locator('#mcp-add').click();
   dialog=page.getByRole('dialog');
-  // A rejected preview must be announced and must not strand keyboard focus.
+  // Invalid MCP preview must leave the fields and focus in the editor for correction.
   await dialog.getByRole('button',{name:'Preview change'}).click();
-  await page.locator('#toast[role="alert"]').waitFor({state:'visible'});
-  assert.ok((await page.locator('#toast').innerText()).includes('Invalid MCP server identifier.'));
+  await dialog.getByRole('alert').waitFor({state:'visible'});
+  assert.ok((await dialog.getByRole('alert').innerText()).includes('Invalid MCP server identifier.'));
+  assert.ok(await dialog.getByRole('alert').evaluate(el => el === document.activeElement));
+  assert.ok(await dialog.getByRole('button',{name:'Preview change'}).isEnabled());
+  await page.keyboard.press('Escape');
   assert.equal(await page.getByRole('dialog').count(), 0);
   assert.ok(await page.locator('#mcp-add').evaluate(el => el === document.activeElement));
   await page.locator('#mcp-add').click();
@@ -340,7 +414,7 @@ try {
   await page.locator('#mcp-items .empty').waitFor();
   assert.deepEqual(errors, []);
 
-  console.log('PASS: responsive Skill Hub, i18n, concurrency-safe refresh, focus/draft preservation, pending and failed dialogs, keyboard/MCP workflows; no JS/CSP errors.');
+  console.log('PASS: responsive Skill Hub, i18n, guarded MCP/sync previews, navigation race cancellation, focus/drafts, delayed/error dialogs, keyboard/MCP workflows; no JS/CSP errors.');
   console.log('Screenshots: ' + artifacts);
 } finally {
   if (browser) await browser.close();
