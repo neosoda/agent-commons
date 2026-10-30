@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
+import { spawnSync } from 'node:child_process';
 import { describe, it } from 'node:test';
 
 describe('npm CLI entrypoint packaging', () => {
@@ -8,6 +9,7 @@ describe('npm CLI entrypoint packaging', () => {
     const root = process.cwd();
     const manifest = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8')) as {
       name: string;
+      version: string;
       bin: Record<string, string>;
       files: string[];
     };
@@ -17,5 +19,12 @@ describe('npm CLI entrypoint packaging', () => {
     const script = path.join(root, manifest.bin['agent-commons']!);
     assert.equal(fs.existsSync(script), true, 'CLI script exists after the build');
     assert.match(fs.readFileSync(script, 'utf8').split(/\r?\n/, 1)[0] ?? '', /^#!\/usr\/bin\/env node$/);
+    const versionCheck = spawnSync(process.execPath, [script, '--version'], {
+      cwd: root, encoding: 'utf8', timeout: 15000
+    });
+    assert.equal(versionCheck.status, 0, versionCheck.stderr);
+    assert.equal(versionCheck.stdout.trim(), manifest.version,
+      'CLI version must match the installed package.json metadata');
+
   });
 });
