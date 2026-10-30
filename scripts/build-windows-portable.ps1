@@ -126,6 +126,14 @@ try {
   }
   & $embeddedNode $embeddedCli --help | Out-Null
   if ($LASTEXITCODE -ne 0) { throw 'ZIP-extracted CLI cannot boot.' }
+  $extractedManifestPath = Join-Path $bundle 'app\node_modules\@neosoda\agent-commons\package.json'
+  if (-not (Test-Path -LiteralPath $extractedManifestPath)) { throw 'ZIP missing packaged manifest.' }
+  $extractedManifest = Get-Content -LiteralPath $extractedManifestPath -Raw | ConvertFrom-Json
+  $expectedVersion = (Get-Content -LiteralPath (Join-Path $root 'package.json') -Raw | ConvertFrom-Json).version
+  $zipCliVersion = (& $embeddedNode $embeddedCli --version | Out-String).Trim()
+  if ($LASTEXITCODE -ne 0 -or $extractedManifest.version -ne $expectedVersion -or $zipCliVersion -ne $expectedVersion) {
+    throw ('ZIP version mismatch: package=' + $extractedManifest.version + ', CLI=' + $zipCliVersion + ', expected=' + $expectedVersion)
+  }
   $cleanPort = Get-Random -Minimum 44000 -Maximum 55000
   $cleanArgs = ('"' + $embeddedCli + '" web --no-open --home "' + $smokeHome + '" --port ' + $cleanPort)
   $extractedServer = Start-Process -FilePath $embeddedNode -ArgumentList $cleanArgs -PassThru -NoNewWindow
