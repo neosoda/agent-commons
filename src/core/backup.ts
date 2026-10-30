@@ -387,15 +387,36 @@ export function restoreBackup(ctx: EnvironmentContext, snapshotId?: string): Bac
     initialState: string;
     displaced: boolean;
     installed: boolean;
+    installedFingerprint?: string;
   }
   const stages: RestoreStage[] = [];
 
+  // Fingerprint the entire physical tree, not just the directory inode.
+  // In-place edits to SKILL.md do not necessarily change the parent directory.
+  // lstat never traverses symlinks/junctions; metadata checks are best-effort,
+  // not a filesystem-wide atomic lock against concurrent writers.
   const fingerprint = (target: string): string => {
-    const state = inspectPath(target).state;
-    if (state === 'missing') return state;
-    const stat = fs.lstatSync(target);
-    return JSON.stringify([state, stat.dev, stat.ino, stat.mode, stat.size,
-      stat.mtimeMs, stat.ctimeMs]);
+    if (inspectPath(target).state === 'missing') return 'missing';
+    const hash = crypto.createHash('sha256');
+    const pending: Array<{ absolute: string; relative: string }> =
+      [{ absolute: target, relative: '.' }];
+    while (pending.length > 0) {
+      const { absolute, relative } = pending.pop()!;
+      const stat = fs.lstatSync(absolute);
+      hash.update(JSON.stringify([relative, stat.dev, stat.ino, stat.mode,
+        stat.size, stat.mtimeMs, stat.ctimeMs, stat.nlink]) + '\n');
+      if (stat.isSymbolicLink()) {
+        hash.update(JSON.stringify(fs.readlinkSync(absolute)) + '\n');
+      } else if (stat.isDirectory()) {
+        for (const name of fs.readdirSync(absolute).sort().reverse()) {
+          pending.push({
+            absolute: path.join(absolute, name),
+            relative: relative === '.' ? name : relative + '/' + name
+          });
+        }
+      }
+    }
+    return hash.digest('hex');
   };
 
   const assertPhysicalParents = (target: string): void => {
@@ -444,9 +465,15 @@ export function restoreBackup(ctx: EnvironmentContext, snapshotId?: string): Bac
         fs.renameSync(stage.target, path.join(stage.temporaryDir, 'original'));
         stage.displaced = true;
       }
+      // On POSIX, rename would silently replace a freshly created target.
+      // Reject it rather than overwriting another process's new file.
+      if (inspectPath(stage.target).state !== 'missing') {
+        throw new Error('Restore destination appeared during commit; refusing overwrite.');
+      }
       if (inspectPath(path.join(stage.temporaryDir, 'replacement')).state !== 'missing') {
         fs.renameSync(path.join(stage.temporaryDir, 'replacement'), stage.target);
         stage.installed = true;
+        stage.installedFingerprint = fingerprint(stage.target);
       }
     }
   } catch (error) {
@@ -457,9 +484,18 @@ export function restoreBackup(ctx: EnvironmentContext, snapshotId?: string): Bac
     for (const stage of [...stages].reverse()) {
       try {
         if (stage.installed) {
+          // A separate writer may have changed our replacement: do not
+          // destroy its modifications during recovery.
+          if (fingerprint(stage.target) !== stage.installedFingerprint) {
+            throw new Error('Restore target was modified during rollback.');
+          }
           fs.renameSync(stage.target, path.join(stage.temporaryDir, 'discarded'));
         }
         if (stage.displaced) {
+          // Do not overwrite a new, independently-created target on Unix.
+          if (inspectPath(stage.target).state !== 'missing') {
+            throw new Error('Restore target was recreated during rollback.');
+          }
           fs.renameSync(path.join(stage.temporaryDir, 'original'), stage.target);
         }
       } catch {
