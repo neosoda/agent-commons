@@ -54,6 +54,38 @@ try {
   assert.ok(await page.locator('#page-catalog h1').evaluate(el => el === document.activeElement),
     'navigating sections moves focus to the section heading');
 
+  // WCAG 2.2 AA non-text contrast: fields, outlined controls, dialog perimeter.
+  // Computed styles are checked in real Chromium, not from guessed stylesheet values.
+  const controlContrast = await page.evaluate(() => {
+    const luminance = color => {
+      const values = color.match(/[0-9.]+/g)?.slice(0, 3).map(Number) ?? [];
+      if (values.length !== 3) throw Error('Unsupported CSS colour: ' + color);
+      const linear = values.map(c => {
+        const v = c / 255;
+        return v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4;
+      });
+      return linear[0] * 0.2126 + linear[1] * 0.7152 + linear[2] * 0.0722;
+    };
+    const ratio = (a, b) => {
+      const x = luminance(a), y = luminance(b);
+      return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05);
+    };
+    return ['#catalog-search', '#catalog-category', '#profile-agent',
+      '#refresh'].map(selector => {
+      const style = getComputedStyle(document.querySelector(selector));
+      return {selector, ratio: ratio(style.borderTopColor, style.backgroundColor)};
+    });
+  });
+  for (const {selector, ratio} of controlContrast) {
+    assert.ok(ratio >= 3, selector + ': insufficient non-text contrast ' + ratio.toFixed(2));
+  }
+  await page.locator('#refresh').click();
+  await page.locator('#workspace-status').getByText('Workspace and integrity results updated.').waitFor();
+  await page.locator('[data-page="integrity"]').click();
+  await page.locator('#verify-again').click();
+  await page.locator('#workspace-status').getByText('Workspace and integrity results updated.').waitFor();
+  await page.locator('[data-page="catalog"]').click();
+
   for (const viewport of sizes) {
     await page.setViewportSize(viewport);
     await page.goto(server.url, { waitUntil: 'networkidle' });
@@ -80,6 +112,15 @@ try {
     await opener.click();
     const dialog = page.getByRole('dialog');
     assert.ok(await dialog.isVisible());
+    const modalContrast = await dialog.evaluate(el => {
+      const rgb = value => value.match(/[0-9.]+/g).slice(0, 3).map(Number);
+      const lum = value => rgb(value).map(n => {const c=n/255;return c <= .04045?c/12.92:((c+.055)/1.055)**2.4})
+        .reduce((acc, c, i) => acc+c*[.2126,.7152,.0722][i],0);
+      const style=getComputedStyle(el), a=lum(style.borderTopColor), b=lum(style.backgroundColor);
+      return (Math.max(a,b)+.05)/(Math.min(a,b)+.05);
+    });
+    assert.ok(modalContrast >= 3, 'modal perimeter contrast below 3:1');
+
     assert.equal(await page.locator('.layout').evaluate(el => el.inert), true,
       'the background is inert while a dialog is open');
     assert.ok(await dialog.getByRole('button', { name: 'Close' })
@@ -141,7 +182,7 @@ try {
   await page.locator('#mcp-items .empty').waitFor();
   assert.deepEqual(errors, []);
 
-  console.log('PASS: 5 viewports × 5 sections, keyboard skip link/navigation, focus-trapped dialogs, Escape/restoration, alert announcements, MCP editor, no JS/CSP errors.');
+  console.log('PASS: 5 viewports × 5 sections, WCAG control-border contrasts, refresh live status, keyboard/dialog and MCP checks; no JS/CSP errors.');
   console.log('Screenshots: ' + artifacts);
 } finally {
   if (browser) await browser.close();

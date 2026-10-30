@@ -70,6 +70,7 @@ describe('local Skill Hub HTTP security and user workflows', () => {
     assert.match(page, /<main class="main" id="main-content" tabindex="-1">/);
     assert.match(page, /data-page="overview" aria-controls="page-overview" class="active" aria-current="page"/);
     assert.match(page, /id="toast"[^>]*role="status"[^>]*aria-live="polite"/);
+    assert.match(page, /id="workspace-status"[^>]*role="status"[^>]*aria-live="polite"/);
     assert.match(page, /id="sync-report" role="status" aria-live="polite"/);
     assert.match(page, /id="full-sync-report" role="status" aria-live="polite"/);
     assert.match(page, /id="doctor-report" role="status" aria-live="polite"/);
