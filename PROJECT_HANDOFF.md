@@ -78,7 +78,7 @@ all `completed/success`.
 
 ## 3. Current P2 cleanup and release qualification
 
-**On branch `chore/post-release-security-docs-handoff-20261030`, pending merge:**
+**Completed via [PR #50](https://github.com/neosoda/agent-commons/pull/50), merged `b63de5682c7fd291a34f9a626fab772a2af5a5b8`:**
 - Remove `.github/workflows/release-v0.3.0.yml`, a **one-time workflow that
   already published v0.3.0** and unnecessarily runs on subsequent main pushes.
   Keep `release-assets.yml` for future manually published releases.
@@ -112,6 +112,14 @@ all `completed/success`.
 After the P1/P2 cleanup, any patch incorporating post-v0.3.0 fixes must
 receive a **new tag**, preferably `v0.3.1`; do not claim the existing
 v0.3.0 ZIP includes #49.
+
+## 3.1. v0.3.1 — patch release in progress
+
+- **Unreleased candidate:** branch `release/v0.3.1-p1-p2-stabilization-20261030`; `package.json` and `package-lock.json` aligned to **0.3.1**. Do not claim public availability until the GitHub tag/release and both ZIP/checksum assets exist.
+- Brings together #49's revision-bound one-use synchronization approvals and profile save race fix with #50's updated security docs, retired v0.3.0 one-shot workflow, Windows downloadable-ZIP verifier and NVDA acceptance checklist.
+- [Post-merge #50 `main` checks](https://github.com/neosoda/agent-commons/actions/runs/41088350290) CI 6/6, [Chromium](https://github.com/neosoda/agent-commons/actions/runs/41088350206), [Windows](https://github.com/neosoda/agent-commons/actions/runs/41088350367) all `success` on `b63de5682c7fd291a34f9a626fab772a2af5a5b8`.
+- New `.github/workflows/release-v0.3.1.yml`: one-shot release publication after all three workflows on the *same new main SHA* pass; verify package/lock 0.3.1, six CI jobs, ZIP/checksum, and publish both assets directly. Do not rely on `release.published` for releases created with `GITHUB_TOKEN`.
+- **After release:** retire the one-shot v0.3.1 workflow in another validated PR to prevent unnecessary follow-up workflow runs. Update actual release evidence and issue #19. npm bootstrap, physical Windows/SmartScreen and NVDA/VoiceOver remain external.
 
 ## 4. Quality gates for every future PR / release
 
