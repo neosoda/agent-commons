@@ -242,6 +242,18 @@ try {
     expectedSkills,'a stale refresh replaced the latest catalog');
   await page.unroute('**/api/state');
 
+  // Partial refresh must not announce complete success if the MCP endpoint failed.
+  await page.route('**/api/mcp',async route=>{
+    await route.fulfill({status:400,contentType:'application/json',
+      body:JSON.stringify({error:'Local operation failed. Check Agent Commons CLI diagnostics for details.'})});
+  });
+  await page.locator('#refresh').click();
+  await page.locator('#workspace-status').getByText('Workspace refreshed; MCP status unavailable.').waitFor();
+  assert.equal(await page.locator('#toast').getAttribute('role'),'alert');
+  await page.unroute('**/api/mcp');
+  await page.locator('#refresh').click();
+  await page.locator('#workspace-status').getByText('Workspace and integrity results updated.').waitFor();
+
   // A pending destructive action must not be closed or submitted twice.
   await page.locator('[data-page="backups"]').click();
   let delayedBackups=0;
