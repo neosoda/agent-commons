@@ -175,7 +175,7 @@ try {
   await previewDialog.locator('input.field').first().fill('Backups');
   await previewDialog.getByRole('button',{name:'Prévisualiser'}).click();
   previewDialog=page.getByRole('dialog');
-  assert.equal(await previewDialog.getByRole('heading').innerText(),'Confirmer MCP : création');
+  assert.equal(await previewDialog.getByRole('heading',{name:'Confirmer MCP : création'}).innerText(),'Confirmer MCP : création');
   assert.match(await previewDialog.locator('p.copy').innerText(),/^Backups · Créer un instantané/);
   await previewDialog.getByRole('button',{name:'Annuler'}).click();
   assert.equal(await page.getByRole('dialog').count(),0);
