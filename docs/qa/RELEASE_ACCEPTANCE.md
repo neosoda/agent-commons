@@ -7,8 +7,8 @@ required before broader end-user/enterprise promotion.
 
 ## Windows 10/11 x64 — published ZIP
 
-1. On an independent Windows PC, download the **v0.3.0** ZIP and adjacent
-   `.sha256` from [GitHub Releases](https://github.com/neosoda/agent-commons/releases/tag/v0.3.0).
+1. On an independent Windows PC, download the **latest release** ZIP and adjacent
+   `.sha256` from [GitHub Releases](https://github.com/neosoda/agent-commons/releases/latest).
 2. From an ordinary PowerShell console (no Administrator, Node.js or Docker),
    run the standalone verifier **from the project source tree**:
 
