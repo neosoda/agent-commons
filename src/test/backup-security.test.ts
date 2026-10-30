@@ -125,6 +125,34 @@ describe('Backup restore preflight: no destructive writes on invalid snapshots',
     }
   });
 
+  it('rejects linked nested snapshot payloads before modifying any existing destination', () => {
+    const { ctx, original } = setupMcpFile();
+    const skillDir = path.join(ctx.centralSkillsDir, 'my-skill');
+    fs.mkdirSync(skillDir, { recursive: true });
+    const skillFile = path.join(skillDir, 'SKILL.md');
+    fs.writeFileSync(skillFile, '# Before backup');
+
+    const snapshot = createFullBackup(ctx);
+    const entry = snapshot.entries.find((e) => e.originalPath === skillDir);
+    assert.ok(entry?.backupRelativePath);
+    const payload = path.join(ctx.backupsDir, snapshot.id, entry.backupRelativePath!);
+    const nested = path.join(payload, 'nested');
+    const external = path.join(home, 'external-data');
+    fs.mkdirSync(nested);
+    fs.mkdirSync(external);
+    fs.writeFileSync(path.join(external, 'keep.txt'), 'external must survive');
+    fs.symlinkSync(external, path.join(nested, 'linked'),
+      process.platform === 'win32' ? 'junction' : 'dir');
+
+    fs.writeFileSync(original, 'newer MCP settings must survive');
+    fs.writeFileSync(skillFile, '# Newer skill must survive');
+
+    assert.throws(() => restoreBackup(ctx, snapshot.id), /payload contains a linked entry/);
+    assert.equal(fs.readFileSync(original, 'utf8'), 'newer MCP settings must survive');
+    assert.equal(fs.readFileSync(skillFile, 'utf8'), '# Newer skill must survive');
+    assert.equal(fs.readFileSync(path.join(external, 'keep.txt'), 'utf8'), 'external must survive');
+  });
+
   it('refuses a lossy backup of a physical skill containing nested links', () => {
     const ctx = createEnvironmentContext({ homeDir: home });
     const nestedTarget = path.join(home, 'nested-target');
