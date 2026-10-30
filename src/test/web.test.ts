@@ -86,6 +86,16 @@ describe('local Skill Hub HTTP security and user workflows', () => {
     assert.match(html, /data-focus-key/);
   });
 
+  it('retains MCP preview form and rejects late sync confirmations', () => {
+    const html=renderWebUi('preview-nonce','preview-csrf');
+    assert.match(html, /mcpChange\(payload,\{box,preview,cancel,error:inlineError\}\)/);
+    assert.match(html, /editor\.error\.focus\(\{preventScroll:true\}\)/);
+    assert.match(html, /editor\.box\.setAttribute\('aria-busy','true'\)/);
+    assert.match(html, /const current=\(\)=>activePage===page&&navigationGeneration===nav/);
+    assert.match(html, /button\.disabled=true;button\.setAttribute\('aria-busy','true'\)/);
+    assert.doesNotMatch(html, /unmountDialog\(\);mcpChange\(payload\)/);
+  });
+
   it('ships offline FR/EN UI strings without exposing workspace data in browser storage', () => {
     const html = renderWebUi('language-nonce', 'language-csrf');
     assert.match(html, /id="language-select"[^>]*aria-label="Interface language"/);
