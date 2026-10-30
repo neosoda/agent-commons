@@ -388,8 +388,32 @@ $('mcp-add').onclick=()=>mcpDialog('create');
 $('catalog-search').oninput=filterCatalog;$('catalog-category').onchange=filterCatalog;$('catalog-status').onchange=filterCatalog;
 $('profile-agent').onchange=e=>{selectedAgent=e.target.value;$('profile-skill-search').value='';renderProfileEditor()};
 $('profile-skill-search').oninput=renderProfileEditor;
-$('profile-save').onclick=async()=>{if(!selectedAgent)return;const draft=profileDrafts[selectedAgent]||{skills:[],categories:[]};const skills=draft.skills;const categories=draft.categories;if(!skills.length&&!categories.length){showToast('Choose at least one skill or category.',true);return}try{await request('/api/action',{action:'profile-save',agent:selectedAgent,skills,categories,approved:true});delete profileDrafts[selectedAgent];showToast('Profile saved (not synced)');await refresh()}catch(err){showToast(err.message,true)}};
-$('profile-clear').onclick=()=>{if(!selectedAgent)return;modal('Clear profile','This only removes the saved selection; existing links stay untouched.','Clear profile',async()=>{await request('/api/action',{action:'profile-clear',agent:selectedAgent,approved:true});delete profileDrafts[selectedAgent];showToast('Saved profile cleared');await refresh()})};
+$('profile-save').onclick=async()=>{
+  const agent=selectedAgent;
+  if(!agent||$('profile-save').disabled)return;
+  const draft=profileDrafts[agent]||{skills:[],categories:[]};
+  // Capture immutable values at click time: switching agents while HTTP is in flight
+  // must never clear another agent's draft or accidentally save later selections.
+  const skills=[...draft.skills],categories=[...draft.categories];
+  if(!skills.length&&!categories.length){showToast('Choose at least one skill or category.',true);return}
+  const button=$('profile-save');button.disabled=true;button.setAttribute('aria-busy','true');
+  try{
+    await request('/api/action',{action:'profile-save',agent,skills,categories,approved:true});
+    if(profileDrafts[agent]===draft&&
+       JSON.stringify(draft.skills)===JSON.stringify(skills)&&
+       JSON.stringify(draft.categories)===JSON.stringify(categories))delete profileDrafts[agent];
+    showToast('Profile saved (not synced)');await refresh()
+  }catch(err){showToast(err.message,true)}
+  finally{button.removeAttribute('aria-busy');button.disabled=!selectedAgent}
+};
+$('profile-clear').onclick=()=>{
+  const agent=selectedAgent;
+  if(!agent)return;
+  modal('Clear profile','This only removes the saved selection; existing links stay untouched.','Clear profile',async()=>{
+    await request('/api/action',{action:'profile-clear',agent,approved:true});
+    delete profileDrafts[agent];showToast('Saved profile cleared');await refresh()
+  })
+};
 let syncPreviewGeneration=0,fullSyncPreviewGeneration=0;
 async function guardedPreview(button,kind,run){
   if(button.disabled)return;
@@ -408,7 +432,7 @@ $('sync-apply').onclick=()=>guardedPreview($('sync-apply'),'skills',async curren
   const p=await request('/api/action',{action:'sync-preview'});if(!current())return;
   showSync(p);if(p.errors.length)throw Error('Preview reported errors; apply is blocked.');
   modal('Apply saved profiles','Preview: '+p.skillResults.length+' skill result(s). Synchronization changes agent skill links and creates a recovery snapshot when needed. MCP configurations remain untouched.','Apply sync',async()=>{
-    const r=await request('/api/action',{action:'sync-apply',approved:true});showSync(r);
+    const r=await request('/api/action',{action:'sync-apply',approved:true,previewToken:p.previewToken});showSync(r);
     if(r.errors.length)throw Error('Sync returned errors: '+r.errors.join('; '));
     showToast('Profiles synchronized');await refresh()
   },'SYNC')
@@ -423,7 +447,7 @@ $('full-sync-apply').onclick=()=>guardedPreview($('full-sync-apply'),'full',asyn
   const report=$('full-sync-report');report.classList.remove('hidden');report.textContent=formatSync(p);
   if(p.errors.length)throw Error('Preview reported errors.');
   modal('Synchronize skills + MCP','This changes compatible agent skill links and merges MCP server entries. A recovery snapshot is created when there are changes. Conflicts are preserved.','Apply full sync',async()=>{
-    const result=await request('/api/action',{action:'sync-all-apply',approved:true});
+    const result=await request('/api/action',{action:'sync-all-apply',approved:true,previewToken:p.previewToken});
     report.textContent=formatSync(result);
     if(result.errors.length)throw Error('Full sync returned errors: '+result.errors.join('; '));
     showToast('Full synchronization completed');await refresh()
