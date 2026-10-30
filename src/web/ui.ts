@@ -94,6 +94,7 @@ Object.assign(FR,{
   'No changes.':'Aucun changement.'
 });
 // Translate only anchored UI patterns; preserve captured IDs/names unchanged.
+FR['Workspace refreshed; MCP status unavailable.']='Espace actualisé, mais état MCP indisponible.';
 const FR_PATTERNS=[
   [/^(\d+) skills · pinned upstream metadata$/,n=>n+' compétences · références épinglées'],
   [/^(\d+) linked skills · (\d+) MCP servers$/, (a,b)=>a+' compétences liées · '+b+' serveurs MCP'],
@@ -349,7 +350,7 @@ async function refresh(announce=false){
     }
     if(mcpError)showToast(mcpError.message,true);
     if(state.warnings?.length)showToast(state.warnings[0],true);
-    if(announce){$('workspace-status').textContent='Workspace and integrity results updated.';translateUI()}
+    if(announce){$('workspace-status').textContent=mcpError?'Workspace refreshed; MCP status unavailable.':'Workspace and integrity results updated.';translateUI()}
   }catch(err){
     if(generation!==refreshGeneration)return;
     showToast(err.message,true);
