@@ -186,6 +186,8 @@ node dist/cli/index.js restore snapshot-<id>
 
 `restore` replaces the currently managed paths with their saved state. Review the target snapshot before running it: **restoration is a mutating operation**.
 
+**If restore reports an incomplete rollback:** stop and do not retry automatically. Original data may be recoverable in a hidden `.agent-commons-restore-*` staging directory **next to the affected destination**. Within that directory, `original` is the displaced pre-restore file/directory, `replacement` is a prepared snapshot copy (when not installed), and `discarded` may hold a rolled-back replacement. Preserve the entire staging directory before manual recovery. These folders may contain credentials or private agent configuration; do not upload or share them. No process automatically repairs a failed rollback or guarantees recovery after a power/storage failure.
+
 ## Explore Skills — public Skill Hub
 
 **103 upstream skills** currently have verified source and license references. Browse them directly on GitHub in the [public Skills index](docs/skills/README.md).
