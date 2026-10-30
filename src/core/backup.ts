@@ -8,7 +8,6 @@ import {
   arePathsEqual,
   copyDirectorySafe,
   createDirectoryLink,
-  detachLinkSafe,
   inspectPath,
   removePhysicalDirectorySafe,
   writeFileAtomicSync
