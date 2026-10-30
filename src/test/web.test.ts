@@ -76,6 +76,17 @@ describe('local Skill Hub HTTP security and user workflows', () => {
     assert.match(page, /id="doctor-report" role="status" aria-live="polite"/);
   });
 
+  it('ships offline FR/EN UI strings without exposing workspace data in browser storage', () => {
+    const html = renderWebUi('language-nonce', 'language-csrf');
+    assert.match(html, /id="language-select"[^>]*aria-label="Interface language"/);
+    assert.match(html, /<option value="en">English<\/option>/);
+    assert.match(html, /<option value="fr">Français<\/option>/);
+    assert.match(html, /agent-commons-ui-language/);
+    assert.match(html, /Catalogue de compétences/);
+    assert.match(html, /Vos outils IA/);
+    assert.doesNotMatch(html, /<script src=|fonts\.googleapis\.com/);
+  });
+
   it('returns a safe catalog and agent inventory without absolute local paths or secrets', async () => {
     const response = await fetch(instance.url + '/api/state');
     const body = await response.json() as Record<string, unknown>;
