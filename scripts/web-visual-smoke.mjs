@@ -165,7 +165,7 @@ try {
   await restoreButton.click();
   backupDialog=page.getByRole('dialog');
   assert.match(await backupDialog.getByRole('heading').innerText(),/^Restaurer snapshot-/);
-  assert.match(await backupDialog.locator('p.subtle').innerText(),/^Saisissez snapshot-/);
+  assert.match(await backupDialog.locator('p.subtle:not([role="alert"])').innerText(),/^Saisissez snapshot-/);
   await page.keyboard.press('Escape');
   assert.equal(await page.getByRole('dialog').count(),0);
   // A user-provided server identifier named like a navigation label must stay unchanged.
