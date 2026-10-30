@@ -74,6 +74,22 @@ describe('Safe central MCP editor', () => {
     assert.throws(()=>mcpEditorOverview(ctx),/linked or invalid/);
   });
 
+  it('fails closed on duplicate JSONC keys, including hidden nested duplicates', () => {
+    const ctx = createEnvironmentContext({homeDir:home});
+    fs.mkdirSync(ctx.commonsDir);
+    for (const raw of [
+      '{"mcpServers":{"demo":{"command":"npx"},"demo":{"command":"node"}}}',
+      '{"mcpServers":{"demo":{"command":"npx","command":"node"}}}',
+      '{"mcpServers":{"demo":{"command":"npx","env":{"TOKEN":"first","TOKEN":"second"}}}}',
+      '{"mcpServers":{"demo":{"command":"npx"}},"mcpServers":{}}'
+    ]) {
+      fs.writeFileSync(ctx.centralMcpPath, raw);
+      assert.throws(() => mcpEditorOverview(ctx), /Duplicate JSONC properties/);
+      assert.throws(() => previewMcpEdit(ctx, {operation:'delete',name:'demo'}), /Duplicate JSONC properties/);
+      assert.equal(fs.readFileSync(ctx.centralMcpPath, 'utf8'),raw);
+    }
+  });
+
   it('deletes only the named server with a recoverable snapshot',()=>{
     const ctx=createEnvironmentContext({homeDir:home});fs.mkdirSync(ctx.commonsDir);
     fs.writeFileSync(ctx.centralMcpPath,'{"mcpServers":{"remove":{"command":"npx"},"keep":{"command":"python"}},"other":{"value":99}}');
