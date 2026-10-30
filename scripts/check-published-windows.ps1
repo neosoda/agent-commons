@@ -3,6 +3,7 @@
 param(
   [Parameter(Mandatory = $true)][string]$ZipPath,
   [string]$ChecksumPath = '',
+  [string]$ExpectedVersion = '',
   [switch]$KeepFiles
 )
 $ErrorActionPreference = 'Stop'
@@ -35,8 +36,11 @@ try {
     }
   }
   $version = (& $node $cli --version | Out-String).Trim()
-  if ($LASTEXITCODE -ne 0 -or $version -ne '0.3.0') {
-    throw ('Incorrect release CLI version: ' + $version)
+  $manifestPath = Join-Path $bundle 'app\node_modules\@neosoda\agent-commons\package.json'
+  if (-not (Test-Path -LiteralPath $manifestPath -PathType Leaf)) { throw 'Missing packaged manifest.' }
+  $manifest = Get-Content -LiteralPath $manifestPath -Raw | ConvertFrom-Json
+  if ($LASTEXITCODE -ne 0 -or $version -ne $manifest.version -or ($ExpectedVersion -and $version -ne $ExpectedVersion)) {
+    throw ('Incorrect release CLI version: ' + $version + ', expected ' + $manifest.version)
   }
   Write-Host ('PASS: embedded Node and CLI v' + $version)
   $port = Get-Random -Minimum 44000 -Maximum 55000

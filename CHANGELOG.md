@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.1] — Patch de stabilisation (publication GitHub en préparation)
+
+### Fixed
+- Sync UI : `sync-apply` et `sync-all-apply` exigent désormais un jeton éphémère à usage unique lié à l'aperçu exact et à la révision des entrées (profil, skills, MCP, agents), avec refus en cas de modification intermédiaire.
+- Éditeur de profils : sauvegarde d'un agent immuable pendant l'appel HTTP, protection anti-double clic lors d'un changement d'agent, brouillons distincts conservés.
+
+### Changed
+- Politique de sécurité et versions prises en charge actualisées, documentation de la release 0.3.0 corrigée.
+- Workflow one-shot de publication 0.3.0 retiré après sa réussite ; mécanisme de publication 0.3.1 contrôlé séparément.
+- Script autonome de vérification du ZIP **téléchargé** sur un Windows indépendant, et checklist d'acceptation Windows/NVDA/VoiceOver.
+- Handoff simplifié pour la reprise autonome.
+
+
 ## [0.3.0] — Release candidate (publication GitHub non encore effectuée)
 
 ### Added
