@@ -1,25 +1,49 @@
 # Security Policy
 
-## Core Security Principles
+Agent Commons is a **local-first** configuration management tool. It reads and can
+modify local AI agent skills, MCP configuration files and backups **only when
+explicitly requested**. Treat those changes as potentially destructive:
+preview first, use a backup, and keep independent recovery copies for important data.
 
-Agent Commons is designed from the ground up for safe local operation:
+## Supported versions
 
-1. **Zero Telemetry & Zero Network Calls**: The CLI operates 100% offline against the local filesystem. It never transmits analytics, paths, or configuration data to any external server.
-2. **Non-Destructive Link Detachment**: Symlinks and Windows NTFS junctions are inspected via `lstat` and detached via `unlink`/`rmdir` on the reparse point itself. Target directories are never recursively traversed during link removal.
-3. **Symlink-Follow & Boundary Protection**: Agent Commons refuses to overwrite symlinked MCP configuration files, refuses to traverse agent `skills/` root folders that are themselves symlinks, and enforces strict subpath boundary checks during backup restoration.
-4. **Secret Scrubbing**: All diagnostic messages, error logs, and dry-run outputs pass through a strict credential scrubber that redacts API keys (`sk-*`, `ghp_*`, `github_pat_*`, `AKIA*`), Bearer tokens, JWTs, private keys, and database connection passwords while preserving `${ENV_VAR}` references.
-5. **Pre-Sync Snapshots & Automatic Rollback**: Every mutating `sync` operation records the prior state of modified paths in `~/.agents/backups/` and automatically rolls back if a fatal filesystem error occurs mid-flight.
+| Version | Security fixes |
+|---|---|
+| 0.3.x | Supported (current) |
+| 0.2.x | Superseded; upgrade to 0.3.x |
+| 0.1.x | Unsupported |
 
-## Supported Versions
+## Security boundaries and guarantees
 
-| Version | Supported |
-| ------- | --------- |
-| 0.1.x   | Yes       |
+- **Skill Hub:** binds exclusively to `127.0.0.1`, has **no login**, rejects
+  foreign Host/Origin requests, uses a per-process CSRF token and a restrictive
+  Content Security Policy. **Never** put this administrative UI behind a tunnel,
+  reverse proxy, port forward or public/LAN listener.
+- **No telemetry:** Agent Commons does not transmit analytics or private reports.
+  Inventory, diagnostics, public catalog browsing and ordinary sync run locally.
+  **Exception:** a user-triggered installation/update of a public GitHub skill
+  downloads pinned GitHub metadata/blobs over HTTPS. Do not describe the entire
+  application as permanently offline.
+- **Managed filesystem paths:** symlinks and Windows NTFS junctions are inspected
+  without following links into unrelated data; unrelated physical skill folders
+  and unknown native configuration fields are preserved wherever possible.
+- **Mutations:** preview and explicit approval are required from the Skill Hub.
+  Synchronization uses a short-lived, single-use preview revision guard (starting
+  with the next patch after v0.3.0); on-disk snapshots and rollback are used for
+  managed changes. These safeguards reduce risk but **do not** guarantee crash
+  atomicity or cross-process filesystem locking.
+- **Secrets:** browser responses deliberately omit MCP command arguments, URLs,
+  environment values and arbitrary private exception messages. Native configs
+  may still contain credentials; never share backup archives or recovery folders.
+- **Supply chain:** curated pinned source/licence metadata is **not a code
+  security audit**. Review third-party skills before installing/running them.
+  The Windows portable ZIP is currently unsigned. Verify the release SHA-256.
 
-## Reporting a Vulnerability
+## Reporting a vulnerability
 
-If you discover a security issue (such as a symlink traversal edge case, config corruption vector, or credential leak in CLI output):
+Please report vulnerabilities **privately** via
+[GitHub Security Advisories](https://github.com/neosoda/agent-commons/security/advisories/new).
+Do not post secret values or exploitable details in a public issue.
 
-1. **Do not open a public GitHub issue** containing a live exploit.
-2. Report the vulnerability privately via [GitHub Security Advisories](https://github.com/neosoda/agent-commons/security/advisories/new).
-3. Include minimal reproduction steps (using an isolated `--home` sandbox directory) and your OS / Node.js version.
+Provide the affected version, platform/Node version, reproduction steps using
+an isolated `--home` directory and a minimized example that contains no real secrets.
