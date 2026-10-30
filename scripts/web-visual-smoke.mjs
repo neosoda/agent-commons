@@ -140,6 +140,26 @@ try {
       'Escape restores focus to the invoking control');
     assert.equal(await page.locator('.layout').evaluate(el => el.inert), false);
   }
+  // FR/EN is a local-only preference; test language changes, persistence and
+  // dynamic catalog actions before returning to the English MCP smoke path.
+  await page.locator('#language-select').selectOption('fr');
+  assert.equal(await page.locator('html').getAttribute('lang'),'fr');
+  assert.equal(await page.locator('[data-page="catalog"] span').last().innerText(),'Catalogue de compétences');
+  await page.locator('[data-page="catalog"]').click();
+  assert.equal(await page.locator('#catalog-search').getAttribute('placeholder'),
+    'Rechercher compétences, tags, auteurs…');
+  assert.equal(await page.locator('#catalog-cards .skill-card button').first().innerText(),'Voir les détails');
+  assert.equal(await page.evaluate(() => localStorage.getItem('agent-commons-ui-language')),'fr');
+  await page.reload({waitUntil:'networkidle'});
+  assert.equal(await page.locator('html').getAttribute('lang'),'fr');
+  assert.equal(await page.locator('#language-select').inputValue(),'fr');
+  assert.equal(await page.locator('[data-page="overview"] span').last().innerText(),'Accueil');
+  await page.locator('#language-select').selectOption('en');
+  assert.equal(await page.locator('html').getAttribute('lang'),'en');
+  assert.equal(await page.locator('[data-page="overview"] span').last().innerText(),'Overview');
+  await page.reload({waitUntil:'networkidle'});
+  assert.equal(await page.locator('#language-select').inputValue(),'en');
+
   // Exercise the actual browser-to-HTTP MCP editor, not merely rendered controls.
   await page.setViewportSize({width: 1280, height: 720});
   await page.locator('[data-page="agents"]').click();
@@ -182,7 +202,7 @@ try {
   await page.locator('#mcp-items .empty').waitFor();
   assert.deepEqual(errors, []);
 
-  console.log('PASS: 5 viewports × 5 sections, WCAG control-border contrasts, refresh live status, keyboard/dialog and MCP checks; no JS/CSP errors.');
+  console.log('PASS: 5 viewports × 5 sections, WCAG control-border contrasts, refresh status, FR/EN language persistence, keyboard/dialog and MCP checks; no JS/CSP errors.');
   console.log('Screenshots: ' + artifacts);
 } finally {
   if (browser) await browser.close();
