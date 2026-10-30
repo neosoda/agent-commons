@@ -78,7 +78,7 @@ function translateUI(){
     const base=originalText.get(n);
     const clean=base.trim();
     if(Object.hasOwn(FR,clean))n.textContent=base.replace(clean,tr(clean));
-    else if(/^\\d+ skills · pinned upstream metadata$/.test(clean)&&language==='fr')n.textContent=base.replace(clean,clean.replace('skills · pinned upstream metadata','compétences · références épinglées'));
+    else if(/^[0-9]+ skills · pinned upstream metadata$/.test(clean)&&language==='fr')n.textContent=base.replace(clean,clean.replace('skills · pinned upstream metadata','compétences · références épinglées'));
     else n.textContent=base;
   }
   document.querySelectorAll('[placeholder],[aria-label]').forEach(el=>{
