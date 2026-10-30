@@ -20,6 +20,9 @@ concurrency:
 jobs:
   publish:
     name: Publish @neosoda/agent-commons to npm (OIDC)
+    # npm scope bootstrap / Trusted Publisher needs owner action. GitHub-only releases
+    # remain healthy instead of running a known-unauthorized publish attempt.
+    if: vars.NPM_PUBLISH_ENABLED == 'true'
     runs-on: ubuntu-latest
     environment: npm
     permissions:
