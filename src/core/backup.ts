@@ -204,6 +204,30 @@ export function listBackups(ctx: EnvironmentContext): BackupManifest[] {
 
 
 /**
+ * Verify every restored directory payload before touching any destination.
+ * Otherwise copyDirectorySafe can discover a nested link only after its
+ * original target has already been deleted during restore.
+ */
+function preflightPhysicalPayloadTree(root: string): void {
+  const pending = [root];
+  while (pending.length > 0) {
+    const directory = pending.pop()!;
+    for (const name of fs.readdirSync(directory)) {
+      const child = path.join(directory, name);
+      const info = fs.lstatSync(child);
+      if (info.isSymbolicLink()) {
+        throw new Error('Snapshot payload contains a linked entry; nothing was restored.');
+      }
+      if (info.isDirectory()) {
+        pending.push(child);
+      } else if (!info.isFile()) {
+        throw new Error('Snapshot payload contains an unsupported entry; nothing was restored.');
+      }
+    }
+  }
+}
+
+/**
  * Preflight the COMPLETE snapshot before deleting anything. Backup manifests are local
  * files and must not be trusted as a list of arbitrary paths to overwrite or remove.
  * A missing/corrupt payload must fail before the first destructive operation.
@@ -307,6 +331,9 @@ function preflightRestore(
           inspectPath(payloadDir).state !== 'directory' ||
           inspectPath(sourcePath).state !== expectedState) {
         throw new Error('Snapshot payload is missing, linked, or has the wrong type; nothing was restored.');
+      }
+      if (expectedState === 'directory') {
+        preflightPhysicalPayloadTree(sourcePath);
       }
     }
   }
