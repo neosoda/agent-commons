@@ -39,6 +39,21 @@ try {
       errors.push('CSP: ' + msg.text());
     }
   });
+  // Keyboard-only entry, skip link and section focus must work before mouse paths.
+  await page.goto(server.url, { waitUntil: 'networkidle' });
+  await page.keyboard.press('Tab');
+  assert.ok(await page.locator('.skip-link').evaluate(el => el === document.activeElement),
+    'skip link is the first keyboard stop');
+  await page.keyboard.press('Enter');
+  assert.ok(await page.locator('#main-content').evaluate(el => el === document.activeElement),
+    'skip link moves focus to main content');
+  await page.locator('[data-page="catalog"]').click();
+  assert.equal(await page.locator('[data-page="catalog"]').getAttribute('aria-current'), 'page');
+  assert.equal(await page.locator('[data-page="catalog"]').getAttribute('aria-controls'), 'page-catalog');
+  assert.equal(await page.locator('[data-page="overview"]').getAttribute('aria-current'), null);
+  assert.ok(await page.locator('#page-catalog h1').evaluate(el => el === document.activeElement),
+    'navigating sections moves focus to the section heading');
+
   for (const viewport of sizes) {
     await page.setViewportSize(viewport);
     await page.goto(server.url, { waitUntil: 'networkidle' });
@@ -61,9 +76,28 @@ try {
     assert.ok((await page.locator('#catalog-count').innerText()).startsWith('0 skills'));
     await search.fill('');
     await page.locator('#catalog-cards .skill-card').first().waitFor();
-    await page.locator('#catalog-cards .skill-card button').first().click();
-    assert.ok(await page.getByRole('dialog').isVisible());
-    await page.getByRole('dialog').getByRole('button', { name: 'Close' }).click();
+    const opener = page.locator('#catalog-cards .skill-card button').first();
+    await opener.click();
+    const dialog = page.getByRole('dialog');
+    assert.ok(await dialog.isVisible());
+    assert.equal(await page.locator('.layout').evaluate(el => el.inert), true,
+      'the background is inert while a dialog is open');
+    assert.ok(await dialog.getByRole('button', { name: 'Close' })
+      .evaluate(el => el === document.activeElement), 'dialog receives initial focus');
+    const first = dialog.locator('a[href]').first();
+    const last = dialog.locator('button').last();
+    await last.focus();
+    await page.keyboard.press('Tab');
+    assert.ok(await first.evaluate(el => el === document.activeElement),
+      'Tab wraps from last to first focusable control');
+    await page.keyboard.press('Shift+Tab');
+    assert.ok(await last.evaluate(el => el === document.activeElement),
+      'Shift+Tab wraps from first to last focusable control');
+    await page.keyboard.press('Escape');
+    assert.equal(await page.getByRole('dialog').count(), 0);
+    assert.ok(await opener.evaluate(el => el === document.activeElement),
+      'Escape restores focus to the invoking control');
+    assert.equal(await page.locator('.layout').evaluate(el => el.inert), false);
   }
   // Exercise the actual browser-to-HTTP MCP editor, not merely rendered controls.
   await page.setViewportSize({width: 1280, height: 720});
@@ -71,6 +105,22 @@ try {
   await page.locator('#mcp-add').click();
   let dialog=page.getByRole('dialog');
   assert.ok(await dialog.isVisible());
+  assert.ok(await dialog.locator('input.field').first()
+    .evaluate(el => el === document.activeElement), 'MCP dialog focuses the first field');
+  await page.keyboard.press('Escape');
+  assert.equal(await page.getByRole('dialog').count(), 0);
+  assert.ok(await page.locator('#mcp-add').evaluate(el => el === document.activeElement),
+    'MCP escape restores focus to Add MCP server');
+  await page.locator('#mcp-add').click();
+  dialog=page.getByRole('dialog');
+  // A rejected preview must be announced and must not strand keyboard focus.
+  await dialog.getByRole('button',{name:'Preview change'}).click();
+  await page.locator('#toast[role="alert"]').waitFor({state:'visible'});
+  assert.ok((await page.locator('#toast').innerText()).includes('Invalid MCP server identifier.'));
+  assert.equal(await page.getByRole('dialog').count(), 0);
+  assert.ok(await page.locator('#mcp-add').evaluate(el => el === document.activeElement));
+  await page.locator('#mcp-add').click();
+  dialog=page.getByRole('dialog');
   await dialog.locator('input.field').nth(0).fill('browser-sample');
   await dialog.locator('input.field').nth(1).fill('npx');
   await dialog.locator('input.field').nth(2).fill('-y\nsafe-package');
@@ -78,20 +128,20 @@ try {
   dialog=page.getByRole('dialog');
   await dialog.getByRole('button',{name:'Apply change'}).click();
   await page.locator('#mcp-items').getByText('browser-sample').waitFor();
-  await page.locator('#mcp-items .row-item').first().getByRole('button',{name:'Routing…'}).click();
+  await page.locator('#mcp-items .row-item').first().getByRole('button',{name:'Edit routing for browser-sample'}).click();
   dialog=page.getByRole('dialog');
   await dialog.getByRole('button',{name:'Preview change'}).click();
   dialog=page.getByRole('dialog');
   await dialog.getByRole('button',{name:'Apply change'}).click();
   await page.locator('#mcp-items').getByText('browser-sample').waitFor();
-  await page.locator('#mcp-items .row-item').first().getByRole('button',{name:'Remove…'}).click();
+  await page.locator('#mcp-items .row-item').first().getByRole('button',{name:'Remove MCP server browser-sample'}).click();
   dialog=page.getByRole('dialog');
   await dialog.locator('input.field').fill('browser-sample');
   await dialog.getByRole('button',{name:'Apply change'}).click();
   await page.locator('#mcp-items .empty').waitFor();
   assert.deepEqual(errors, []);
 
-  console.log('PASS: 5 viewports × 5 sections + catalog filters/modal, no JS errors or CSP violations.');
+  console.log('PASS: 5 viewports × 5 sections, keyboard skip link/navigation, focus-trapped dialogs, Escape/restoration, alert announcements, MCP editor, no JS/CSP errors.');
   console.log('Screenshots: ' + artifacts);
 } finally {
   if (browser) await browser.close();

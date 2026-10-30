@@ -64,6 +64,17 @@ describe('local Skill Hub HTTP security and user workflows', () => {
     assert.doesNotMatch(page, /<[^>]+\sclass="[^"]*"[^>]+\sclass="/, 'no duplicate class attributes');
   });
 
+  it('provides a keyboard skip link, labelled sections and accessible status channels', () => {
+    const page = renderWebUi('unit-nonce', 'unit-csrf');
+    assert.match(page, /<a class="skip-link" href="#main-content">Skip to main content<\/a>/);
+    assert.match(page, /<main class="main" id="main-content" tabindex="-1">/);
+    assert.match(page, /data-page="overview" aria-controls="page-overview" class="active" aria-current="page"/);
+    assert.match(page, /id="toast"[^>]*role="status"[^>]*aria-live="polite"/);
+    assert.match(page, /id="sync-report" role="status" aria-live="polite"/);
+    assert.match(page, /id="full-sync-report" role="status" aria-live="polite"/);
+    assert.match(page, /id="doctor-report" role="status" aria-live="polite"/);
+  });
+
   it('returns a safe catalog and agent inventory without absolute local paths or secrets', async () => {
     const response = await fetch(instance.url + '/api/state');
     const body = await response.json() as Record<string, unknown>;
