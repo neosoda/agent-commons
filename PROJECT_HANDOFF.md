@@ -1,246 +1,150 @@
-# PROJECT_HANDOFF — Agent Commons
+# Agent Commons — PROJECT_HANDOFF
 
-> **Mémoire opérationnelle pour toute reprise IA.** Lire ce document **avant** toute modification et vérifier les données GitHub en direct : les SHA, runs CI et états de publication ci-dessous sont des **instantanés**, pas une preuve permanente. Le [README](README.md) est la documentation utilisateur ; ce fichier concerne la maintenance, l'audit, la feuille de route et la reprise.
->
-> **Dernière revue : 2026-10-30 (Europe/Paris).** Dépôt : https://github.com/neosoda/agent-commons · branche de référence : `main`. Cette revue repose sur le code et les statuts GitHub accessibles par connecteur et sur les exécutions CI publiées ; **aucun accès direct à un worktree Windows utilisateur ou à un environnement npm authentifié** n'a été établi.
+> **Operational handoff, last verified: 2026-10-30.** Read this file before modifying the repository; then check live `main`, release/tag, PRs, issues and GitHub Actions **by exact commit SHA**. Historical SHA and run IDs below are a snapshot, not a promise of current status. This review used the connected GitHub repository only; it did **not** inspect the user's Windows PC, npm account or private agent configurations.
 
-## 1. Projet, architecture et maturité
+## 1. Product, distribution and safety boundaries
 
-**Finalité.** Agent Commons est un gestionnaire **local-first** qui mutualise des skills IA et des définitions MCP entre plusieurs assistants de programmation, sans écraser leurs paramètres existants. Les modifications du système de fichiers et des configurations doivent être prévisualisées, explicitement approuvées et sauvegardées quand elles sont destructrices.
+**Goal:** local-first multi-agent AI skills and MCP configuration management, with
+a shared skill library, central MCP manifest, per-agent profiles, optional
+curated public GitHub skill installer, explicit sync, backups and safe recovery.
 
-**Fonctions présentes :**
-- Détection de **17 environnements d'agents** enregistrés ; ne pas confondre *enregistré*, *installé* et *synchronisé*.
-- Bibliothèque centrale de skills, liens symboliques/jonctions NTFS, contrôle des chemins et des conflits.
-- Catalogue public de références **épinglées** (103 skills au dernier contrôle du catalogue) : recherche, inspection de provenance/licence, prévisualisation d'installation/mise à jour/retrait, reçus et vérification d'intégrité. Métadonnées révisées ≠ audit de sécurité du code tiers.
-- Manifeste MCP commun, adaptateurs JSON/JSONC/TOML selon les agents, aperçu des changements et synchronisation explicite.
-- Profils de skills par agent, prévisualisation, backups/snapshots et restauration.
-- **Skill Hub Web local** : overview, catalogue, agents/profils, diagnostics, snapshots et éditeur MCP restreint. Dans l'éditeur, création stdio/HTTP/SSE, routage/activation d'entrées existantes et suppression ; les commandes, URL et valeurs d'environnement **existantes** ne sont pas exposées au navigateur. L'édition ne synchronise pas automatiquement les agents.
-- Distribution Windows portable (ZIP avec runtime Node officiel épinglé et vérifié SHA-256) assemblée et testée par GitHub Actions.
+**Architecture:** TypeScript strict, Node.js >=22, native ESM, `jsonc-parser` as
+the only runtime package. Source: `src/agents` (17 known environments),
+`src/sync` (skills/JSON/JSONC/TOML MCP adapters), `src/core` (link/junction
+handling, safe backup/restore), `src/commands` (CLI), `src/web` (local
+HTTP and framework-free Skill Hub), `src/security`, `src/test`, `scripts`.
+Public catalog assets in `catalog`; end-user documentation in `README.md`.
 
-**Stack et répertoires :** TypeScript strict, Node.js **>=22**, modules ESM/NodeNext, npm, dépendance d'exécution `jsonc-parser` ; pas de framework web/frontend ni de base de données. Code : `src/agents/` (registre/détection), `src/commands/` (CLI et opérations), `src/core/` (contexte, liens et snapshots), `src/security/`, `src/sync/` (skills et MCP), `src/web/` (serveur, UI et éditeur), `src/test/`. Scripts de build/catalogue/QA/portable : `scripts/`. Documentation/catalogue : `docs/`, `catalog/`. Entrée CLI : `src/cli/index.ts` -> `dist/cli/index.js`.
+**Published stable version:** [GitHub **v0.3.0**](https://github.com/neosoda/agent-commons/releases/tag/v0.3.0),
+tag at `0b03e439194db99042d9b57065e2b8b115dfdf0d`, ZIP Windows x64 and
+matching SHA-256 uploaded. [Published release record](docs/releases/v0.3.0.md).
+The official ZIP's SHA-256 is
+`fe39656a51a609ba96c9d70b01de4336b148299787a30ca1a75d70df42421cc9`.
+Never move a published tag or silently modify a release asset.
 
-**Maturité :** **GitHub Release v0.2.0 officielle publiée**, avec ZIP Windows portable et SHA-256 vérifiés. La CI du tag est verte, mais **la distribution npm est bloquée** lors de sa première publication ; le lancement Windows portable n'a été validé qu'en CI, pas sur chaque PC réel.
+**Runtime safety invariants:**
+- UI binds **127.0.0.1 only**, has **no authentication** and must **never** be
+  exposed by tunnel, proxy, port forward or LAN address. Strict Host/Origin,
+  CSRF, CSP; do not expose MCP secrets or raw private filesystem errors.
+- No telemetry or unattended writes. Public skill installs/updates do use
+  explicit HTTPS GitHub requests; ordinary local sync/catalog browsing does not.
+- Skills and MCP are only changed after explicit previews/approvals. Never
+  silently overwrite unmanaged skill folders or native agent custom fields.
+- Symlinks and NTFS junctions must never be traversed by destructive cleanup;
+  snapshots preserve recoverable originals where possible. Do not promise
+  atomic recovery in every crash/power-loss scenario.
+- Private `--home` overrides and synthetic HOME used by all acceptance tests;
+  **never perform automated tests against real user agents**.
 
-## 2. Travaux intégrés et choix importants
+## 2. Completed, verified changes
 
-| PR / commit de fusion | Livraison intégrée sur `main` |
+| Topic | Key PRs |
 |---|---|
-| [#17](https://github.com/neosoda/agent-commons/pull/17) — `b20d5ae` | Skill Hub local, protection HTTP, tests Chromium multi-viewport, fabrication du ZIP Windows |
-| [#20](https://github.com/neosoda/agent-commons/pull/20) — `7514148` | Éditeur MCP prudent : prévisualisation, révision SHA-256, écriture JSONC, snapshot/rollback et tests |
-| [#21](https://github.com/neosoda/agent-commons/pull/21) — `87836d1` | Workflow pour joindre ZIP Windows et checksum aux GitHub Releases |
-| [#22](https://github.com/neosoda/agent-commons/pull/22) — `7b4b78a` | Version **0.2.0** dans `package.json` et `package-lock.json`, checklist de release |
-| [#23](https://github.com/neosoda/agent-commons/pull/23) — `2230970` | Workflow npm OIDC renforcé, vérification préalable du contenu réel du tarball |
-| [#25](https://github.com/neosoda/agent-commons/pull/25) — `0fd31b5` | `PROJECT_HANDOFF.md`, `AGENTS.md`, audit et feuille de route pérenne |
-| [#24](https://github.com/neosoda/agent-commons/pull/24) — `6ad617d` | Workflow sécurisé de publication v0.2.0, notes de release, reprise après publication partielle |
-| [#26](https://github.com/neosoda/agent-commons/pull/26) — `555643b` | Correction de la déclaration `bin` npm, test de régression, suppression du workflow one-shot et actualisation du handoff |
-| [#28](https://github.com/neosoda/agent-commons/pull/28) — `4301f0d` | Vérification récursive des payloads de sauvegarde avant restauration, refus des liens imbriqués et test anti-perte de données |
-| [#30](https://github.com/neosoda/agent-commons/pull/30) — `5a65a02` | Restauration préparée sur le volume cible, permutation avec originaux récupérables et rollback multi-entrée ; injections EIO/EACCES et tests de concurrence |
-| [#32](https://github.com/neosoda/agent-commons/pull/32) — `b288427` | Empreintes récursives des dossiers, refus d'écrasement concurrent au commit/rollback, tests de sauvegarde récupérable et guide de secours |
-| [#34](https://github.com/neosoda/agent-commons/pull/34) — `3cc5b2d` | Réponses d'erreur HTTP sur messages sûrs explicitement autorisés, retours génériques pour exceptions arbitraires, tests de restauration et rollback |
-| [#36](https://github.com/neosoda/agent-commons/pull/36) — `dacb85c` | Navigation clavier et modales accessibles (focus, inert, Escape, Tab), labels ARIA, alertes et tests Chromium multi-écrans |
-| [#38](https://github.com/neosoda/agent-commons/pull/38) — `9b7696e` | Contraste non textuel des commandes et modales, tests Chromium des couleurs calculées, annonces de rafraîchissement |
-| [#39](https://github.com/neosoda/agent-commons/pull/39) — `2c8ef2e` | Sélecteur local FR/EN, préférence persistante navigateur, dictionnaire de libellés UI, tests Chromium traduction/toast/persistance et README |
-| [#41](https://github.com/neosoda/agent-commons/pull/41) — `f9bcfbe` | Traductions FR des comptes, confirmations et aperçus multilignes ; préservation des identifiants et métadonnées externes, QA Chromium renforcée |
-| [#43](https://github.com/neosoda/agent-commons/pull/43) — `892a869` | Sécurité des refresh concurrents, brouillons/focus conservés, modales `aria-busy`, erreurs inline et tests Chromium injectés |
-| [#45](https://github.com/neosoda/agent-commons/pull/45) — `bc98bfb` | Prévisualisations MCP corrigeables sans perdre le formulaire, contrôles anti-doublons, confirmations sync annulées si navigation, régressions Chromium |
+| Initial local Skill Hub and publishing | [#17](https://github.com/neosoda/agent-commons/pull/17), [#20](https://github.com/neosoda/agent-commons/pull/20), [#21](https://github.com/neosoda/agent-commons/pull/21), [#24](https://github.com/neosoda/agent-commons/pull/24), [#26](https://github.com/neosoda/agent-commons/pull/26) |
+| Restore staging, rollback, filesystem checks, private HTTP errors | [#28](https://github.com/neosoda/agent-commons/pull/28), [#30](https://github.com/neosoda/agent-commons/pull/30), [#32](https://github.com/neosoda/agent-commons/pull/32), [#34](https://github.com/neosoda/agent-commons/pull/34) |
+| Keyboard navigation, contrast, FR/EN language and dynamically translated UI messages | [#36](https://github.com/neosoda/agent-commons/pull/36), [#38](https://github.com/neosoda/agent-commons/pull/38), [#39](https://github.com/neosoda/agent-commons/pull/39), [#41](https://github.com/neosoda/agent-commons/pull/41) |
+| Concurrent refreshes, preserving drafts/focus, async MCP and sync previews | [#43](https://github.com/neosoda/agent-commons/pull/43), [#45](https://github.com/neosoda/agent-commons/pull/45) |
+| Distributed Windows ZIP, verified extracted portable package, v0.3.0 publication | [#47](https://github.com/neosoda/agent-commons/pull/47), [#48](https://github.com/neosoda/agent-commons/pull/48) |
+| **P1 after v0.3.0:** one-time sync preview tokens tied to inspected managed input revision + dry-run plan; save profile bound to its original agent and independent draft | [#49](https://github.com/neosoda/agent-commons/pull/49), merged `ea9b3f2c64ca1c5665b8b6e326a534b1ea8471f2` |
 
-**Décisions à conserver :** local-only sur `127.0.0.1`, sans télémétrie ni CDN ; protection Host/Origin/CSRF/CSP ; ne jamais exposer le dashboard sur Internet (il **n'a pas d'authentification distante**). Aucune installation, synchronisation, suppression ou restauration implicite. Les chemins privés et secrets ne doivent jamais remonter dans les réponses HTTP. Les skills locaux non gérés ne doivent pas être écrasés. Les snapshots et liens doivent être traités avec précaution (symlinks, junctions, différences Windows/macOS/Linux). Réutiliser la logique métier CLI, ne pas la dupliquer dans le serveur web. Ne pas prétendre que l'analyse de licence garantit la sûreté d'un skill.
+**v0.3.0 release gates on published SHA:** six CI matrix jobs
+[success](https://github.com/neosoda/agent-commons/actions/runs/41059690473),
+real Chromium browser QA
+[success](https://github.com/neosoda/agent-commons/actions/runs/41059690292),
+ZIP and extracted-runtime Windows verification
+[success](https://github.com/neosoda/agent-commons/actions/runs/41059690154).
+Publishing workflow
+[success](https://github.com/neosoda/agent-commons/actions/runs/41059819873)
+verified the ZIP checksum and attached both official assets.
 
-### État actuel vérifié — release v0.2.0
+**New P1 on `main` `ea9b3f2` (NOT included in the immutable v0.3.0 ZIP):**
+[CI 6/6](https://github.com/neosoda/agent-commons/actions/runs/41087377894),
+[Chromium](https://github.com/neosoda/agent-commons/actions/runs/41087377881),
+[Windows portable](https://github.com/neosoda/agent-commons/actions/runs/41087377883)
+all `completed/success`.
+- `src/web/sync-revision.ts` fingerprints managed sync inputs with `lstat`
+  (no linked-target traversal), content hashes for small files, stat metadata
+  for large files. This is an **optimistic concurrency check**, not an
+  OS-level cross-process lock; no guarantee against all TOCTOU/power failures.
+- `src/web/server.ts` issues a **one-use 5-minute preview token** for saved
+  profile sync or full skills+MCP sync, and checks the same revision and full
+  dry-run report again before applying. If a config/skill/profile changes,
+  the request fails closed and requires a fresh preview.
+- `src/web/ui.ts` forwards tokens, binds a save/clear action to the selected
+  agent at click time, and preserves unrelated unsaved profile drafts.
+- HTTP unit tests exercise stale/duplicated tokens, changed central MCP,
+  profiles and skills; actual Chromium tests cover a delayed agent save while
+  switching the selected agent.
 
-- **`main` vérifiée le 2026-10-30 : `bc98bfb685d021706a9629a2c59b86dd1008d4a2`** (fusion [#45](https://github.com/neosoda/agent-commons/pull/45)). [CI 6/6](https://github.com/neosoda/agent-commons/actions/runs/41053925780), [Chromium](https://github.com/neosoda/agent-commons/actions/runs/41053925551) et [ZIP Windows](https://github.com/neosoda/agent-commons/actions/runs/41053925856) tous `success`. Revue des agents locaux non effectuée. Ce constat ne couvre pas les fichiers locaux non commités du PC utilisateur.
+## 3. Current P2 cleanup and release qualification
 
-- **Tag `v0.2.0` :** `6ad617d5aeb4fea07b348f458dc0c8c3842ebaff` (tag léger pointant exactement sur ce commit ; ne pas le déplacer). La [release GitHub v0.2.0](https://github.com/neosoda/agent-commons/releases/tag/v0.2.0) a été publiée le **2026-10-29 à 17:17 UTC**, avec `AgentCommons-win-x64-portable.zip` et `AgentCommons-win-x64-portable.zip.sha256`.
-- **Validations historiques du commit de release `6ad617d` :** [CI 6/6](https://github.com/neosoda/agent-commons/actions/runs/40919654232), [Chromium](https://github.com/neosoda/agent-commons/actions/runs/40919654286) et [Windows portable](https://github.com/neosoda/agent-commons/actions/runs/40919654268) : tous `completed/success`. Le workflow [Verified v0.2.0 release](https://github.com/neosoda/agent-commons/actions/runs/40919820995) a abouti.
-- **npm : PAS PUBLIÉ / NON CONFIRMÉ.** Les [runs npm OIDC #40919949448](https://github.com/neosoda/agent-commons/actions/runs/40919949448) et [#40920030835](https://github.com/neosoda/agent-commons/actions/runs/40920030835) ont tous deux échoué avec **E404** pendant `npm publish --provenance --access public` : registre ne trouvant pas `@neosoda/agent-commons@0.2.0` ou autorisation/scope inexistant. Les étapes build, tests, audit et tarball étaient vertes. Le job affichait aussi un avertissement de normalisation du chemin `bin` à cause de `./dist/cli/index.js` ; ne pas confondre cet avertissement avec la cause E404. Vérifier le `bin` du tarball avant première publication.
-- **Nettoyage post-release terminé :** PR [#26](https://github.com/neosoda/agent-commons/pull/26) fusionnée en `555643b`, après CI 6/6 + Chromium + Windows portable réussis. Déclaration npm `bin` normalisée en `dist/cli/index.js`, test de régression ajouté, workflow one-shot `release-v0.2.0.yml` retiré. Le tag `v0.2.0` demeure volontairement sur le commit original `6ad617d` ; **ne pas le déplacer**.
-- **Blocage externe réel :** le propriétaire npm doit s'assurer qu'il contrôle le scope `@neosoda`, effectuer si nécessaire la **première publication authentifiée avec 2FA** pour créer le paquet, puis configurer le Trusted Publisher pour les versions suivantes (`neosoda`, `agent-commons`, `publish.yml`, environnement `npm`, droit `npm publish`). Ne pas générer de token ni contourner l'autorisation ; ne pas prétendre que le paquet est présent avant `npm view @neosoda/agent-commons@0.2.0 version`.
-- **Attention aux workflows :** une release créée par `GITHUB_TOKEN` ne déclenche pas automatiquement les workflows sur `release.published`. Le workflow spécifique #24 a publié les assets et dispatché npm. Son retrait post-release empêche de réessayer indéfiniment un bootstrap npm bloqué ; conserver `publish.yml` et `release-assets.yml` pour le futur.
-- **Conditions de fin :** publication vérifiée du paquet par son propriétaire, mise en place et essai de Trusted Publishing à la prochaine version, installation CLI/npx testée depuis le registre. Une release GitHub publiée n'est pas synonyme d'une publication npm.
+**On branch `chore/post-release-security-docs-handoff-20261030`, pending merge:**
+- Remove `.github/workflows/release-v0.3.0.yml`, a **one-time workflow that
+  already published v0.3.0** and unnecessarily runs on subsequent main pushes.
+  Keep `release-assets.yml` for future manually published releases.
+- Fix `SECURITY.md` support policy to reflect v0.3.x, no telemetry vs
+  user-requested GitHub network fetches, local UI security and actual
+  filesystem/rollback limits.
+- Update `README.md` and `docs/releases/v0.3.0.md` to reflect the
+  **actually published** release instead of future plans.
+- Add standalone `scripts/check-published-windows.ps1` to test the
+  **downloaded** ZIP on an independent Windows machine (SHA, extraction into
+  spaced path, embedded runtime version, local UI/API in synthetic HOME).
+- Add [physical Windows / screen-reader acceptance checklist](docs/qa/RELEASE_ACCEPTANCE.md).
+- Simplify this handoff, remove obsolete instructions such as republishing
+  npm v0.2.0 or claiming the v0.3.0 release still needs creation.
+- Update [#18](https://github.com/neosoda/agent-commons/issues/18) to reflect
+  existing *limited* MCP editor and track only advanced editing scope.
 
-### Session 2026-10-30 — durcissement de la restauration (PR #28)
+**Remaining external/manual work — not passed by CI:**
+- Physically download the v0.3.0 public ZIP and test on a separate Windows
+  machine, including SmartScreen, first start/stop, browser and synthetic
+  backup/restore.
+- NVDA on Windows and VoiceOver on macOS through the test checklist.
+- Windows executable signing if reputation and enterprise distribution require it.
+- First authorized publication of `@neosoda/agent-commons` to npm:
+  scope owner/2FA/Trusted Publisher needed. `publish.yml` is gated by
+  `NPM_PUBLISH_ENABLED=true` and must not be enabled before owner bootstrap.
+- Future optional editor feature: update existing MCP command/URL/env references
+  without ever exposing existing secrets in the browser.
 
-- **Base vérifiée avant modification :** `main` `c4f16ad`, trois workflows terminés avec succès (CI 6/6, Chromium, Windows). Aucune PR ouverte au début de session ; la release GitHub v0.2.0 est inchangée. Les tentatives précédentes de publication npm restent bloquées en E404 ; la disponibilité publique du paquet n'est pas confirmée.
-- **Problème identifié :** la restauration d'un dossier sauvegardé vérifiait le chemin de payload lui-même, mais non ses descendants. Un lien symbolique/jonction ajouté sous ce payload *après le backup* pouvait déclencher une erreur de copie après suppression de la destination actuelle.
-- **Correction fusionnée dans [#28](https://github.com/neosoda/agent-commons/pull/28) :** `src/core/backup.ts` prévalide récursivement les dossiers sauvegardés avec `lstatSync`, refuse liens et types non pris en charge **avant toute suppression**. `src/test/backup-security.test.ts` injecte un lien dans une sauvegarde puis vérifie la conservation des fichiers MCP/skill modifiés et des données externes. Pas de nouvelle dépendance.
-- **Validation confirmée :** tête PR `51f16f305c008970fcee474d32507e2ceaa6f490` : [CI 6/6](https://github.com/neosoda/agent-commons/actions/runs/41032058754), [Chromium](https://github.com/neosoda/agent-commons/actions/runs/41032058869) et [ZIP Windows](https://github.com/neosoda/agent-commons/actions/runs/41032058886) tous `success`. Squash merge `4301f0d` ; trois workflows `main` confirmés verts ci-dessus. Aucun test effectué sur le PC Windows réel de l'utilisateur.
-- **Restant P1 :** vérifier les échecs de permissions et les races entre preflight et application, les liens de parents et le rollback d'écritures concurrentes ; puis installation du ZIP de release sur un Windows réel. La vérification npm reste une action du propriétaire.
+**Decision:** current software can be publicly downloaded through GitHub.
+After the P1/P2 cleanup, any patch incorporating post-v0.3.0 fixes must
+receive a **new tag**, preferably `v0.3.1`; do not claim the existing
+v0.3.0 ZIP includes #49.
 
-### Session complémentaire 2026-10-30 — restauration préparée avec rollback (#30 fusionnée)
+## 4. Quality gates for every future PR / release
 
-- **Point de départ contrôlé :** `main` `b5aa8e6bc6f2f31f50bbb0f052133b6b340a0262` (PR #29), sans PR ouverte. **Nouvelle base validée : `main` `5a65a02c8dfefdf772be325b017035c11abb2a56`** (squash PR [#30](https://github.com/neosoda/agent-commons/pull/30)). Les jobs post-merge [CI 6/6](https://github.com/neosoda/agent-commons/actions/runs/41033773069), [QA Chromium](https://github.com/neosoda/agent-commons/actions/runs/41033772967) et [ZIP Windows](https://github.com/neosoda/agent-commons/actions/runs/41033773110) sont terminés **success** sur ce SHA.
-- **Risque reproduit par revue de code :** l'ancien `restoreBackup` supprimait sa destination puis copiait le payload ; un EIO/EACCES ou un échec plus tard dans une restauration multi-entrée pouvait laisser les anciens contenus perdus ou partiellement restaurés.
-- **Modification fusionnée dans la PR #30 :** tous les remplacements sont d'abord copiés dans un staging physique créé à côté de chaque destination (même volume). L'état de la cible est vérifié avant la permutation ; l'ancienne cible est déplacée dans le staging plutôt que supprimée immédiatement. En cas d'erreur lors des permutations, les anciennes cibles sont remises en place en ordre inverse ; si ce rollback échoue lui-même, les répertoires de staging contenant les originaux sont **conservés**. Nettoyage seulement après succès complet.
-- **Tests ajoutés :** défaut EIO durant la préparation, défaut EACCES lors de la seconde permutation avec rollback multi-entrée, modification concurrente d'un fichier pendant préparation, restauration nominale sans résidu de staging.
-- **Limites :** sécurité best-effort ; aucune garantie transactionnelle contre coupure d'alimentation, changement concurrent ultra-rapide après le dernier contrôle, modifications profondes dans un répertoire ou panne de stockage pendant rollback. Les tests injectent des erreurs de FS ; ils ne simulent pas une panne matérielle réelle.
-- **Validation PR :** head `3a86e5ce1a7857c9cb1c88717035dcfa05267c96` : [CI 6/6](https://github.com/neosoda/agent-commons/actions/runs/41033589514), [Chromium](https://github.com/neosoda/agent-commons/actions/runs/41033589603) et [ZIP portable](https://github.com/neosoda/agent-commons/actions/runs/41033589529) **success**. Merge effectué après vérification des 6 jobs. Revalidation sur `main` également **success** (voir ci-dessus). Pas de test sur le vrai PC Windows de l'utilisateur.
+1. Verify live branch SHA, pending PRs/CI, GitHub releases and user worktree
+   status if a local checkout is accessible. Do not overwrite uncommitted work.
+2. Run `npm ci`, `npm run typecheck`, `npm test`,
+   `npm audit --audit-level=high`, `npm pack --dry-run`.
+3. On **exact PR head SHA** require **6 successful matrix jobs** (Windows,
+   Ubuntu, macOS × Node 22/24), successful real Chromium browser QA, and
+   successful Windows portable packaging/extraction tests.
+4. Squash merge only after the gate, verify all three on the resulting `main`
+   SHA, ensure no open PR remains unexpectedly.
+5. Update handoff with actual SHA/run evidence, and never advertise an
+   unreleased version or npm package.
+6. Publish a new release only from the validated commit with its matching
+   archive/checksum. A GitHub `GITHUB_TOKEN`-created release does not
+   automatically trigger `release.published`; attach assets in the
+   creating workflow or publish manually.
 
-### Session complémentaire 2026-10-30 — modifications concurrentes et récupération (PR #32 fusionnée)
+## 5. Next-session resumption prompt
 
-- **Base vérifiée avant travaux :** `main` `81f3cf40be61ca44ce47efa548137df9f1f90acd` (fusion #31), CI 6/6, Chromium et ZIP Windows `success` ; aucune PR ouverte au début de session.
-- **P1 fusionné via [#32](https://github.com/neosoda/agent-commons/pull/32) (`b288427`) :** l'empreinte de la destination de restauration inclut maintenant récursivement les métadonnées de chaque fichier et dossier, sans suivre les liens. Les éditions de fichiers *dans* un dossier sont donc détectées lors de la préparation, sans refaire une copie supplémentaire des fichiers utilisateurs.
-- **Protection supplémentaire :** avant une permutation, refuse qu'une destination ait réapparu ; lors du rollback, refuse de supprimer une destination modifiée par un autre processus ou d'écraser un nouveau fichier. En cas de rollback incomplet, le staging avec les originaux est conservé. Guide de récupération manuelle ajouté dans le README.
-- **Tests ajoutés :** injection d'une panne de rollback `EACCES` après `EIO` de commit (preuve de l'original en staging), édition concurrente de `SKILL.md` pendant la préparation, création concurrente d'un nouveau fichier pendant la permutation.
-- **Validation confirmée :** tête PR `c88ecfff807e2777ff94d80af1b03dc152dded1d` : [CI 6/6](https://github.com/neosoda/agent-commons/actions/runs/41035500194), [Chromium](https://github.com/neosoda/agent-commons/actions/runs/41035500272) et [ZIP Windows](https://github.com/neosoda/agent-commons/actions/runs/41035500213) tous `success`. Revalidation après fusion sur `main` également `success` (voir ci-dessus). **Limite connue :** le digest repose sur les métadonnées (ctime/mtime/taille/inode), pas un hash intégral des octets ; aucune garantie contre un TOCTOU après le dernier contrôle ni une coupure électrique.
-
-### Session 2026-10-30 — confidentialité des erreurs API Web (PR #34 fusionnée)
-
-- **Base vérifiée :** `main` `0b76f30a37d673ecf6fcc6d7317ba68642f7e9c4` (#33), aucun PR ouvert, CI 6/6, QA Chromium et ZIP Windows verts avant modification.
-- **Faille identifiée :** `src/web/server.ts:publicError` renvoyait les messages d'exception inconnus si aucun chemin local connu ni format de secret prédéfini n'y était reconnu. Des messages système tiers pouvaient donc exposer des valeurs confidentielles imprévues via `/api/action`, `/api/mcp` ou les warnings HTTP.
-- **Correctif fusionné en [#34](https://github.com/neosoda/agent-commons/pull/34), SHA `3cc5b2d` :** liste explicite de messages statiques autorisés, réponse générique pour toute exception inconnue, indication non sensible de récupération quand le rollback restauration/MCP échoue. Ne modifie ni les erreurs CLI ni les logs locaux, ne dépend d'aucun nouveau paquet.
-- **Tests HTTP :** injection d'un message FS arbitraire sur `GET /api/mcp`, erreur inconnue en cours de restauration `POST /api/action`, et rollback doublement défaillant avec `original` conservé dans un staging local. Vérifier que ni chemins/valeurs privées ni messages d'exception ne sont renvoyés, et que les validations d'entrée connues restent explicites.
-- **Preuves CI :** dernier head PR `0a14d81fbcd22b54310eafcf2fe2cfb97a715372` : [CI 6/6](https://github.com/neosoda/agent-commons/actions/runs/41037758789), [Chromium](https://github.com/neosoda/agent-commons/actions/runs/41037758673), [ZIP Windows](https://github.com/neosoda/agent-commons/actions/runs/41037758693) `success` ; après squash merge, trois workflows verts sur `main` `3cc5b2d` (voir plus haut). Aucun test Windows physique ni publication npm.
-- **Prochain P1 indépendant :** audit UX/accessibilité au clavier et tests de la release ZIP officielle sur Windows réel ; les races TOCTOU très étroites et les coupures matérielles ne sont pas couvertes.
-
-### Session 2026-10-30 — accessibilité clavier du Skill Hub (PR #36 fusionnée)
-
-- **Base contrôlée :** `main` `5a8741da28a9f66e304a5ca552f1fda441c0af53`, aucune PR ouverte ; CI 6/6, Chromium et package Windows success. Pas d'accès direct au Windows utilisateur.
-- **Constats corrigés dans `src/web/ui.ts` :** absence de Skip-to-main, page courante sans `aria-current` ni changement de focus, boîtes de dialogue sans Échap/Tab trap/retour focus, arrière-plan accessible au clavier sous un dialogue, erreurs annoncées seulement en statut poli, actions répétées sans contexte pour lecteurs d'écran.
-- **Corrections :** lien d'évitement visible au clavier ; navigation `aria-controls`/`aria-current` avec focus sur le titre ; fenêtre modale légendée, arrière-plan `inert`, confinement du focus Tab/Shift+Tab, fermeture Escape/clic dehors et restauration du focus ; messages d'erreurs en `role=alert`, rapports et compte catalogue avec `aria-live`. Boutons de skills, routing MCP et snapshots identifiés nominativement. Aucune dépendance, aucun changement API, aucune exposition réseau.
-- **Tests :** `scripts/web-visual-smoke.mjs` ajoute vérifications Chromium du lien d'évitement, navigation par titre, dialogues sur les 5 tailles d'écran, focus cyclique, fermeture/restauration et annonce d'erreur MCP ; `src/test/web.test.ts` protège les attributs ARIA structurants.
-- **Résultats vérifiés :** dernier head PR `9d2dbbd7ac739a02fdd550d63266c7ef75ec7966` : [CI 6/6](https://github.com/neosoda/agent-commons/actions/runs/41042366686), [Chromium](https://github.com/neosoda/agent-commons/actions/runs/41042366929) et [ZIP Windows](https://github.com/neosoda/agent-commons/actions/runs/41042366739) **success**. Squash merge #36 `dacb85c` ; [CI post-merge](https://github.com/neosoda/agent-commons/actions/runs/41042529208), [Chromium](https://github.com/neosoda/agent-commons/actions/runs/41042528952), [portable](https://github.com/neosoda/agent-commons/actions/runs/41042528867) aussi **success**. Le support lecteur d'écran approfondi (NVDA/VoiceOver) et une revue de contraste systématique restent non démontrés.
-
-### Session 2026-10-30 — contrastes et annonces dynamiques (PR #38 fusionnée)
-
-- **Base contrôlée :** `main` `e0b42fed7533dc8d5fba7a28dd0aebc175c88c8b` (#37), sans PR ouverte ; six tests CI, Chromium et Windows portable verts.
-- **Mesures de contraste :** les textes principaux analysés (dont sidebar, navigation, muted, footer, tags) atteignaient ≥ 4,5:1 sur leurs fonds solides (ex. sidebar 5,04:1, texte secondaire 7,21:1). En revanche les contours de champs #33435a sur #0b1527 n'atteignaient que ~1,82:1 : échec du repère graphique WCAG AA 3:1.
-- **Correctif :** bordures des champs, listes de sélection, boutons contourés et modales rehaussées à #7189ab ; bordures danger renforcées ; zone SR-only `workspace-status` avec annonce asynchrone quand l'utilisateur lance manuellement Refresh ou Verify (sans exposer de chemins/secrets).
-- **Tests nouveaux :** mesure des couleurs CSS réellement calculées dans Chromium (seuil 3:1 pour contours de commande et de modale) ; test des annonces de réactualisation, invariant DOM ARIA. Ne prétend pas couvrir tous les pixels ni le contraste du texte sur fond dégradé.
-- **Validation confirmée :** PR #38 tête `28c9d9cf7d48daec306cf3b5273bc7034272cd38` : [CI 6/6](https://github.com/neosoda/agent-commons/actions/runs/41043753158), [Chromium](https://github.com/neosoda/agent-commons/actions/runs/41043753154), [Windows portable](https://github.com/neosoda/agent-commons/actions/runs/41043753004) tous `success`. Fusion `main` `9b7696e`, [CI](https://github.com/neosoda/agent-commons/actions/runs/41043921214), [Chromium](https://github.com/neosoda/agent-commons/actions/runs/41043921296) et [portable](https://github.com/neosoda/agent-commons/actions/runs/41043921230) aussi `success`. Revue NVDA/VoiceOver sur poste réel hors CI.
-
-### Session complémentaire 2026-10-30 — première couche FR/EN (PR #39 fusionnée)
-
-- **Base :** `main` `9b7696e` (PR #38 fusionnée, trois workflows verts). Branche `feat/skill-hub-fr-en-20261030` consacrée au bilingue côté navigateur, sans changements API.
-- **Mise en œuvre :** sélecteur English/Français en en-tête, attribut `html.lang` mis à jour, choix `en`/`fr` dans `localStorage` uniquement (sans secret et sans appel réseau) ; dictionnaire explicite d'environ 130 libellés courants, navigation, cartes, commandes, états et messages d'erreur ; conservation de l'anglais sur les métadonnées de tiers et certains messages techniques. Toute injection de texte passe par `textContent`, CSP identique.
-- **Tests :** Chromium change la langue, vérifie nav/placeholder/boutons dynamiques et la persistance après reload puis revient en anglais avant parcours MCP ; tests Node protègent la présence du sélecteur et la CSP ; README décrit la couverture honnêtement.
-- **Limite :** cette première couche couvre principalement l'interface, mais la traduction exhaustive des messages composés et le contenu tiers restent à compléter lors d'un audit ultérieur ; pas de qualification NVDA/VoiceOver.
-- **Validation confirmée :** dernier head PR #39 `c3a61c7d4e2ae761e03b9d799049e60255e09584` : [CI 6/6](https://github.com/neosoda/agent-commons/actions/runs/41044746524), [Chromium](https://github.com/neosoda/agent-commons/actions/runs/41044746441) et [portable Windows](https://github.com/neosoda/agent-commons/actions/runs/41044746417) **success**. Après squash merge `2c8ef2e`, trois workflows post-merge [CI](https://github.com/neosoda/agent-commons/actions/runs/41045018969), [Chromium](https://github.com/neosoda/agent-commons/actions/runs/41045018942), [portable](https://github.com/neosoda/agent-commons/actions/runs/41045018972) également **success**. Un bug de toast restant affiché après traduction a été corrigé par minuterie versionnée et couvert en Chromium.
-
-### Session complémentaire 2026-10-30 — finitions FR des messages composés (PR #41 fusionnée)
-
-- **Base confirmée au départ :** `main` `2fb88326ba983dac71db8400c32a0be0a14af8a1` (#40), CI 6/6, navigateur Chromium, Windows portable `success` ; aucune PR ouverte.
-- **Problème :** la couche #39 traduisait les libellés fixes mais laissait les chaînes construites avec nombres/identifiants en anglais. Les noms d'agents/serveurs et étiquettes tierces pouvaient accidentellement correspondre à un libellé de traduction.
-- **Correction dans `src/web/ui.ts` :** dictionnaire de messages composés avec motifs ancrés, traduction réversible FR↔EN des comptages, confirmations, descriptions MCP, labels d'actions, sauvegardes et synthèses de statut ; gestion des aperçus multilignes. `data-no-i18n` préserve les identifiants, noms d'agents, catégories, descriptions, licences et données de catalogues externes sans les traduire. Aucun changement backend, CSP ni dépendance.
-- **Tests Chromium ajoutés :** compteur catalogue, indicateurs de santé, libellés ARIA des cartes, boîte de sauvegarde et confirmation restaurer sans effet, confirmation MCP avec serveur nommé `Backups` (valeur conservée), annulation et parcours MCP anglais historique. Documentation README clarifiée.
-- **Validation confirmée :** dernier head [PR #41](https://github.com/neosoda/agent-commons/pull/41) `da814fe5d8484ea6587f418da388b81f50966a1b` : [CI 6/6](https://github.com/neosoda/agent-commons/actions/runs/41047495616), [Chromium](https://github.com/neosoda/agent-commons/actions/runs/41047495621) et [portable Windows](https://github.com/neosoda/agent-commons/actions/runs/41047495686) **success**. Après fusion `f9bcfbe`, les trois workflows post-merge [CI 6/6](https://github.com/neosoda/agent-commons/actions/runs/41047665292), [Chromium](https://github.com/neosoda/agent-commons/actions/runs/41047665363) et [portable Windows](https://github.com/neosoda/agent-commons/actions/runs/41047665293) sont également **success**.
-- **Limites :** aucune traduction automatique des données utilisateur et tiers, rapports techniques parfois en anglais ; tests NVDA/VoiceOver réels et installation ZIP GitHub sur poste Windows physique non réalisés.
-
-### Session 2026-10-30 — résilience UI aux actions asynchrones (PR #43 fusionnée)
-
-- **Base vérifiée :** `main` `e4c8ac1c4c092ff6aed384216356779b9cc203ff`, sans PR ouverte, avec 6/6 CI, Chromium, Windows portable `success`.
-- **Bugs constatés :** `refresh()` reconstruisait les contrôles sans restaurer leur focus, effaçait systématiquement les sélections de profil non enregistrées et pouvait accepter en dernier une réponse HTTP plus ancienne ; les dialogues de confirmation pouvaient être fermés par Échap pendant une mutation encore en cours et n'avaient pas d'erreur locale dans la boîte.
-- **Corrections sur `fix/skill-hub-async-focus-state-20261030` :** génération croissante pour ignorer les refresh obsolètes, rétention des profils brouillons lors d'une lecture manuelle (réinitialisation seulement après sauvegarde/effacement confirmé), clés de focus sur actions/cases dynamiques et restauration après reconstruction. Confirmation async : `aria-busy`, action/cancel désactivés, fermeture via Échap/backdrop interdite pendant l'appel ; les échecs restent ouverts avec message `role=alert` focalisé puis action re-tentable. Aucun téléchargement, aucune dépendance, pas de modification du protocole HTTP ni de l'isolation loopback.
-- **Chromium :** tests sur home factice `.claude` pour sélection non sauvegardée + focus, résultat `/api/state` ancien volontairement retardé, confirmation backup retardée et erreur HTTP injectée sans écriture utilisateur, plus la suite existante FR/EN, dialogues/MCP, cinq viewports et CSP. Vérification physique NVDA/Windows reste hors CI.
-- **Preuves :** dernière tête PR #43 `62d3c83df48a12eb6edd405ac7f95ea9cf582f18` — [CI 6/6](https://github.com/neosoda/agent-commons/actions/runs/41051580206), [Chromium](https://github.com/neosoda/agent-commons/actions/runs/41051580225), [portable Windows](https://github.com/neosoda/agent-commons/actions/runs/41051580201) tous `success`. Squash merge `892a869`, puis [CI 6/6](https://github.com/neosoda/agent-commons/actions/runs/41051808261), [Chromium](https://github.com/neosoda/agent-commons/actions/runs/41051808161) et [ZIP Windows](https://github.com/neosoda/agent-commons/actions/runs/41051808398) **success** sur ce commit. Deux erreurs initiales de sélecteur Playwright (`p.subtle` ambigu, `option` attachée mais masquée) ont été corrigées avant la fusion et la suite complète a été relancée, sans contournement.
-
-### Session 2026-10-30 — prévisualisations MCP et synchro asynchrones (PR #45 fusionnée)
-
-- **Base contrôlée :** `main` `8479dc5ea2b665d6bae72c63dbc6af69a615e10c` (#44), CI 6/6, Chromium et ZIP Windows verts. Aucune PR ouverte à l'ouverture.
-- **Constat démontré dans `src/web/ui.ts` :** l'éditeur MCP était démonté *avant* la réponse `mcp-preview` ; si celle-ci échouait, les champs saisis disparaissaient. Les aperçus de sync pouvaient ouvrir un dialogue après un changement de section, et les appels répétés n'étaient pas empêchés.
-- **Correction :** `mcpChange(payload,editor)` conserve la saisie pendant un aperçu asynchrone, signale `aria-busy`, désactive temporairement Cancel et Preview, bloque Escape/clic backdrop, affiche l'échec inline avec `role=alert` et permet de corriger puis relancer. L'écran de confirmation remplace le formulaire **seulement après** preview accepté ; le focus initial reste restaurable. Pour sync simple/complète, `guardedPreview` écarte les réponses devenues obsolètes lors d'une navigation (compteur génération) ou d'un nouvel aperçu du même groupe, évite les demandes dupliquées via désactivation temporaire. La validation serveur des révisions et l'obligation de confirmation restent intactes.
-- **Nouveaux tests Chromium :** aperçus MCP artificiellement retardés/refusés, champ et focus conservés, retry vers vraie confirmation puis annulation ; preview de sync tardif après navigation et retour arrière, aucun dialogue intempestif et aucune requête doublée ; les parcours E2E MCP réels ainsi que FR/EN et cinq viewports tournent aussi. Les tests restent limités à un HOME synthétique.
-- **Limites :** pas de preuve de sûreté transactionnelle contre crash ou de comportement physique NVDA/Windows ; les rapports techniques et données utilisateurs ne sont pas traduits automatiquement.
-- **Validations réelles :** dernier SHA de PR #45 `1a7eb6cb423d901d3e613736e7f9a810469e5fbd` : [CI 6/6](https://github.com/neosoda/agent-commons/actions/runs/41053678731), [Chromium](https://github.com/neosoda/agent-commons/actions/runs/41053678592), [ZIP Windows](https://github.com/neosoda/agent-commons/actions/runs/41053678655) **success**. Fusion `bc98bfb`, puis post-merge : [CI 6/6](https://github.com/neosoda/agent-commons/actions/runs/41053925780), [Chromium](https://github.com/neosoda/agent-commons/actions/runs/41053925551), [ZIP Windows](https://github.com/neosoda/agent-commons/actions/runs/41053925856) **success**. Un test initial `getByRole('heading')` supposait l'apparition immédiate du dialogue ; il a été rendu précis sur le titre de confirmation et la suite a été relancée intégralement sans masquer de régression. Aucun changement d'API ni dépendance.
-
-### Préparation v0.3.0 — passage à un produit distribuable (validation en cours)
-
-- **État de départ vérifié au 30/10/2026 :** `main` `3efad4d453ce878c84ccc31c1719e47f6913a6fc` (PR #46), aucune PR ouverte, CI 6/6, Chromium et ZIP Windows verts. Release publique **toujours v0.2.0** avec ZIP et .sha256 ; npm `@neosoda/agent-commons` non confirmé, E404 antérieur.
-- **Stratégie :** prioriser **Windows portable ZIP sur GitHub Releases** et installation depuis les sources pour Linux/macOS, au lieu d'attendre npm. Proposer une v0.3.0 qui inclut les correctifs post-v0.2.0, sans annoncer une publication inexistante.
-- **Modifications branchées :** version `0.3.0` cohérente dans package.json et lockfile ; `src/cli/index.ts` lit la version du manifeste réellement installé (l'ancien `0.1.1` codé en dur était erroné), test automatisé de `--version` ; `scripts/build-windows-portable.ps1` recompresse puis **ré-extrait le ZIP final** dans un chemin avec espaces, lance uniquement son Node embarqué contre un HOME synthétique, compare versions et SHA-256, attend un vrai HTTP 200 de l'UI. README-Windows du bundle bilingue et consignes de sécurité explicites.
-- **Distribution :** notes de release publiables dans `docs/releases/v0.3.0-release-notes.md`, checklist `docs/releases/v0.3.0.md`, README, changelog. `publish.yml` n'essaie le canal npm que si la variable de dépôt `NPM_PUBLISH_ENABLED=true` est définie par le propriétaire *après* bootstrap du scope et Trusted Publisher, afin d'éviter les échecs E404 lors de la release GitHub.
-- **État :** **préparation uniquement**, **aucun tag v0.3.0 ni GitHub Release v0.3.0 créé** à ce stade. Un utilisateur ne doit pas télécharger la v0.2.0 en croyant utiliser les améliorations récentes.
-- **Gate avant publication :** CI six jobs sur dernière tête PR, Chromium, Windows portable complet `success`, squash merge, puis même vérification sur le commit `main` choisi. Après cette validation, le workflow one-shot `release-v0.3.0.yml` vérifie les trois workflows sur le même SHA `main`, les six jobs CI et l'artefact Windows, puis crée le tag/release et joint **directement** ZIP et checksum. Les releases créées par `GITHUB_TOKEN` ne déclenchent pas forcément `release-assets.yml` : ne pas dépendre de ce dernier pour la publication automatique. Vérifier physiquement ces deux assets et la somme, sans déplacer les tags historiques.
-- **Non couvert :** installation physique sur Windows utilisateur et lecture d'écran NVDA/VoiceOver, certification de sécurité, signature du binaire, premier `npm publish` autorisé. Ne pas les qualifier de réussis sur la seule base de la CI.
-
-### Publication automatisée v0.3.0 — en validation
-
-- **Base live :** `main` `9f11a7f03358125d47946bc943a94e8fa89a2833`, version 0.3.0 ; [CI 6/6](https://github.com/neosoda/agent-commons/actions/runs/41056515761), [Chromium](https://github.com/neosoda/agent-commons/actions/runs/41056515808) et [ZIP Windows](https://github.com/neosoda/agent-commons/actions/runs/41056515783) tous `success`. Aucun tag/release v0.3.0 au contrôle initial.
-- **Changement proposé :** nouveau `release-v0.3.0.yml` sur `main`, déclenché par la fin des trois workflows. Il vérifie qu'ils concernent le même SHA courant sur `main` et les six jobs CI, télécharge l'artefact testé, vérifie son checksum et publie directement la release/tag v0.3.0 avec ZIP + SHA256. Pas de tag réécrit ; si un workflow ou une permission est bloqué, aucune publication.
-- **Contraintes GitHub :** une release créée par `GITHUB_TOKEN` ne déclenche pas automatiquement un autre workflow `release.published` ; les fichiers sont joints dans la même étape de création. Les notes `docs/releases/v0.3.0.md` expliquent la procédure et le fallback manuel autorisé.
-- **À vérifier réellement après merge :** workflow de publication exécuté, tag `v0.3.0` sur `main` testé, release publique disponible avec les **deux** assets, somme SHA-256 cohérente. Les validations physiques et npm restent hors de portée.
-
-## 3. Vérifications et état réel
-
-**Validations automatisées en place :**
-1. `.github/workflows/ci.yml` — 3 OS (Windows, Ubuntu, macOS 15 Intel) × Node 22/24 ; `npm ci`, typecheck, build/tests/catalogue, `npm audit --audit-level=high` et `npm pack --dry-run` (Linux Node 24).
-2. `.github/workflows/web-qa.yml` — Chromium réel, **5 sections × 5 viewports**, recherche, dialogue, création/routage/suppression MCP, détection des erreurs JavaScript/CSP et débordement horizontal ; captures réalisées avec un `HOME` de test synthétique.
-3. `.github/workflows/windows-portable.yml` — archive npm + dépendances de production + Node Windows épinglé depuis nodejs.org, SHA-256 du runtime, lancement CLI et HTTP localhost, ZIP + checksum en artifact.
-4. `.github/workflows/publish.yml` — publication npm OIDC sur release/dispatch ; nécessite un **Trusted Publisher npm correspondant** et l'environnement GitHub `npm`.
-5. `.github/workflows/release-assets.yml` — construction et attachement de ZIP pour les futures releases mainteneur déclenchées par `release.published`. Le workflow **one-shot** `release-v0.2.0.yml` a rempli sa mission et son retrait est prévu dans la PR de nettoyage.
-
-**Limites de preuve :** la CI atteste les tests exécutés sur ses runners, pas un audit pentest exhaustif, une installation Windows sur une machine réelle, la justesse des licences tierces, ni l'état du worktree sur le PC de l'utilisateur. Les métriques de couverture de code, de performance à grande échelle et la validation complète clavier/lecteur d'écran **ne sont pas encore démontrées**. Les chemins locaux, secrets, fichiers utilisateur et installations d'agents de production **n'ont pas été inspectés** lors de cette revue.
-
-**Rejouer localement (Node 22/24 + Git, dans un clone de test) :**
-
-```bash
-git fetch --all --prune
-git status --short
-git log -1 --oneline
-npm ci
-npm run typecheck
-npm test
-npm run catalog:check
-npm audit --audit-level=high
-npm pack --dry-run
-node dist/cli/index.js doctor
-node dist/cli/index.js sync --dry-run
-# Tester le dashboard avec un HOME temporaire ; ne pas utiliser ses vrais agents :
-node dist/cli/index.js web --home /path/to/temporary/home --no-open
-```
-
-Pour Windows, le script de création est `scripts/build-windows-portable.ps1` (PowerShell, depuis la racine). Dans la CI, les tests Playwright s'exécutent via `node scripts/web-visual-smoke.mjs` après installation isolée de Chromium.
-
-## 4. Audit statique ciblé et dette restante
-
-**Architecture :** modules métier séparés, faible dépendance runtime, ESM moderne et tests spécialisés. Une recherche statique dans **28 fichiers TypeScript/scripts** n'a relevé ni `TODO`/`FIXME` persistant, ni emploi évident de `eval`, `execSync` ou `shell: true` ; ce contrôle ne prouve pas l'absence de code mort ou de vulnérabilités. Aucun fichier n'a été supprimé sans preuve de son inutilité. Les deux plus gros points de maintenance sont `src/web/ui.ts` (fichier unique HTML/CSS/JS de ~38 Ko) et `src/sync/parsers.ts` (~23 Ko), avec tests associés ; les refactoriser uniquement si une régression, une difficulté de maintenance concrète ou un besoin de traduction le justifie. L'interface peut être améliorée sans migration imposée vers un framework.
-
-**Sécurité :** bonnes protections locales (loopback, CSRF, refus de chemins liés, backups, validation stricte de l'éditeur MCP), mais l'application manipule des répertoires réels. Priorité aux tests de concurrence entre aperçu et écriture, aux parents symlink/junction, aux fautes d'E/S, aux rollbacks défaillants et à la confidentialité des erreurs. Aucune affirmation de sécurité exhaustive.
-
-**Performance / fiabilité :** pas de benchmark représentatif du chargement d'un catalogue massif, de plusieurs installations simultanées ou de milliers de configurations. Les traitements restent essentiellement locaux et les APIs doivent continuer à limiter tailles et écritures. Éviter toute infrastructure additionnelle sans mesure de besoin.
-
-**UX :** l'interface est en anglais et a été testée en Chromium à plusieurs résolutions. Un mode français, le support clavier/focus et les états d'erreur/annulation méritent un audit d'usage, sans modifier le modèle local et explicite.
-
-| Priorité | Action précise | Justification et critère d'acceptation | Complexité | Statut |
-|---|---|---|---|---|
-| **P0** | Bootstrap npm `@neosoda/agent-commons` | Le propriétaire du scope npm doit créer/autoriser la première version 0.2.0 via publication authentifiée et 2FA, vérifier le `bin` et la disponibilité du registre ; **E404 confirmé** en CI | S (action externe) | Bloqué — propriétaire npm |
-| **P1** | Préparer le prochain `npm` OIDC vérifié | Après bootstrap du scope, enregistrer Trusted Publisher (`neosoda/agent-commons`, `publish.yml`, environnement `npm`, action publish) et vérifier son premier succès au cours d'une version ultérieure ; ne pas réécrire le tag 0.2.0 | S-M | À faire après bootstrap |
-| **P1** | Renforcer la sûreté des opérations sur fichiers MCP/skills | Tests isolation, symlinks/junctions parents, fichiers changés entre preview/apply, écritures concurrentes, permissions, rollback impossible ; pas de perte de contenu non géré | M | #28/#30/#32/#34 fusionnées et CI vertes ; restent TOCTOU étroits, tests Windows réel et revue UX |
-| **P1** | Tester l'installation de release de bout en bout | Depuis le **ZIP publié** sur Windows non préparé : vérifier checksum, démarrage/arrêt, navigateurs, profil vide, agent de test ; refaire source npm après publication | M | CI portable uniquement |
-| **P1** | Audit accessibilité et messages d'erreur UI | Tests focus, clavier, confirmation destructive, lecteurs d'écran, contraste, responsive ; corriger seulement les problèmes vérifiés | S-M | #36 clavier/focus terminé ; contrôles WCAG non-texte + live status en validation ; NVDA/VoiceOver reste externe |
-| **P2** | Internationalisation FR/EN sans framework lourd | Centraliser les chaînes, traduire les parcours clés, tester la persistance du choix de langue, absence de régression CSP | M | PR #39/#41 fusionnées, FR/EN persistant et messages composés validés Chromium ; audit restes avancés et NVDA/VoiceOver réel à faire |
-| **P2** | Terminer les champs avancés de l'éditeur MCP ([#18](https://github.com/neosoda/agent-commons/issues/18)) | Permettre mise à jour prudente des commandes, URL et références d'env **sans afficher les secrets existants**, avec preview et tests | M-L | Partiel |
-| **P2** | Améliorer revue/catalogue | Détection de doublons, provenance, licences, dépendances, politique de sélection ; aucun install automatique ni garantie infondée | M | À faire |
-| **P3** | Mesurer performances et envisager signatures Windows | Benchmark si catalogue volumineux ; signature du ZIP/exécutable uniquement si compte et certificat légitimes disponibles | M-L | Optionnel |
-
-## 5. Feuille de route et dépendances
-
-1. **Nettoyage post-release terminé** : PR #26 (normalisation `bin`, retrait du workflow one-shot), #27 (handoff) fusionnées ; `main` `c4f16ad` vert sur CI 6/6, Chromium et Windows portable.
-2. **Bootstrap npm (propriétaire requis)** : sur compte npm autorisé et scope existant, publier le premier `@neosoda/agent-commons@0.2.0` depuis le tag stable (après vérification du contenu réel du tarball et normalisation CLI si nécessaire). Vérifier `npm view @neosoda/agent-commons@0.2.0 version`, puis configurer Trusted Publisher pour les **prochaines** releases et valider un vrai run OIDC.
-3. **Durcissement :** #28/#30/#32/#34 fusionnées et vérifiées. Contrôler les races TOCTOU résiduelles et les installations Windows physiques sans surpromettre une atomicité totale ; continuer avec l'accessibilité.
-4. **UX/I18n (indépendant)** : #36 clavier, #38 contraste/live announcements, #39 FR/EN et #41 messages composés tous fusionnés et validés ; poursuivre un audit ciblé des cas rares et une revue NVDA/VoiceOver réelle.
-5. **Extensions secondaires** : MCP avancé, revue des nouveaux skills, benchmark si nécessaire.
-
-**Critères de sortie pour chaque PR :** changements ciblés, typecheck, tests réels utiles, audit dépendances, workflows Chromium/portable et **6/6 matrix** sur SHA exact, puis squash merge ; vérifier aussi les runs `main`. Ne pas faire une succession de commits après validation sans relancer les contrôles.
-
-### Instruction aux agents
-
-Le fichier racine **`AGENTS.md`** référence ce handoff et fixe les garde-fous pour les assistants qui le reconnaissent. Les autres assistants doivent ouvrir `PROJECT_HANDOFF.md` eux-mêmes.
-
-## 6. Instructions de reprise d'une nouvelle session IA
-
-1. **Lire ce fichier**, puis `README.md`, `package.json`, `CHANGELOG.md`, `SECURITY.md`, `docs/releases/v0.2.0.md` et `docs/releases/v0.2.0-release-notes.md` si présents.
-2. Vérifier en direct les branches, PR ouvertes, leur SHA, la dernière release, les **runs par SHA** et les issues #18/#19. Toujours consulter les logs d'échec et différencier **queued**, **failed**, **cancelled**, **success**.
-3. Vérifier **la branche locale de l'utilisateur** et `git status` **avant** checkout/reset/rebase. Le connecteur GitHub ne voit pas les changements non commités sur le PC de l'utilisateur. Ne jamais écraser de données ni supposer un worktree propre.
-4. Lire `src/web/server.ts`, `src/web/mcp-editor.ts`, `src/web/ui.ts`, `src/core/backup.ts`, `src/core/links.ts`, `src/commands/skill-install.ts`, `src/sync/mcp.ts` et leurs tests avant de modifier les opérations.
-5. Respecter les choix de sécurité : localhost uniquement, pas de serveur public, secrets jamais dans API/logs, pas d'écrasement des installations non gérées, backups et confirmations, Windows symlinks/junctions, **pas de services ni de téléchargements imposés**.
-6. Après chaque phase : reprendre le tableau des tâches, confirmer résultats sur commits exacts, mettre ce document à jour **avec état courant et blocages**, puis commit/push et merge après validation.
-
-### Prochaine action concrète
-
-**Priorité P0 : bootstrap du paquet npm par le propriétaire du scope `@neosoda`.** Sur un environnement propre et autorisé, inspecter le tarball, se connecter au compte npm qui possède le scope, publier la version initiale `0.2.0` avec authentification/2FA si le paquet n'existe pas, vérifier `npm view @neosoda/agent-commons@0.2.0 version` et la commande `npx`. Le code normalisé sur `main` contient déjà le correctif `bin` ; ne pas changer/retagger la release GitHub `v0.2.0`. Configurer ensuite Trusted Publisher (`neosoda`, `agent-commons`, `publish.yml`, environnement `npm`, **autoriser `npm publish`**) pour la prochaine version. La relation de confiance doit être établie après la création du paquet et validée par une publication réelle. Si le compte ou le scope ne sont pas autorisés, documenter le refus exact sans utiliser de jeton inventé.
-
-**Priorité actuelle produit :** la PR #47 est fusionnée (`9f11a7f`) avec CI 6/6, Chromium et portable Windows post-merge verts. La branche `release/publish-v0.3.0-on-verified-main` installe un workflow de **publication automatique à contrôles stricts**, qui crée v0.3.0 et joint ZIP + SHA256 lui-même après les validations du nouveau `main`. Vérifier sa CI avant merge, puis **inspecter la release réellement créée, son tag, ses deux assets et leurs SHA**, sans confondre préparation et publication. Les validations NVDA/Windows réelles et npm bootstrap restent distinctes.
-
-## Prompt de reprise
-
-> Reprends https://github.com/neosoda/agent-commons ; lis `PROJECT_HANDOFF.md`, contrôle SHA réel de `main`, PR, CI et GitHub Releases. **Priorité absolue : publier effectivement v0.3.0 avec les assets Windows.** Le commit `9f11a7f` contient déjà la v0.3.0 et ses tests sur ZIP extrait ; PR #47 fusionnée, CI 6/6, Chromium, portable post-merge verts. Une PR sur la branche `release/publish-v0.3.0-on-verified-main` introduit `.github/workflows/release-v0.3.0.yml` qui attend que les trois workflows soient verts sur le *nouveau main* à l'identique, confirme six jobs CI, vérifie le ZIP et SHA256 de l'artefact Windows, puis **crée la GitHub Release v0.3.0 et attache directement les deux fichiers**. GitHub `GITHUB_TOKEN` ne réveille pas `release.published` : ne pas attendre `release-assets.yml` dans cette voie. Le workflow refuse tout tag existant, changement de SHA ou test échoué. **Valider la PR (6 CI + Chromium + Windows) puis merger ; surveiller les `workflow_run` de publication, récupérer les logs en cas d'échec et vérifier que la release v0.3.0 + ZIP + .sha256 existent vraiment.** Ne pas prétendre publiée prématurément. Si GitHub interdit le `contents: write` de l'automate, expliquer le blocage et préparer l'action owner sans contourner les permissions. Le package npm reste non publié et opt-in (`NPM_PUBLISH_ENABLED`), premier bootstrap/2FA réservé au compte propriétaire ; ne pas déplacer le tag v0.2.0. Les tests NVDA/VoiceOver, Windows physique et signature restent externes. Ne pas toucher aux agents ni secrets de l'utilisateur, préserver localhost et CSP.
+> Reprends https://github.com/neosoda/agent-commons. Lis
+> `PROJECT_HANDOFF.md` puis vérifie les HEAD SHA/runs sur GitHub en direct.
+> Release publique v0.3.0 tag `0b03e43`, ZIP+SHA publiés ; ne pas
+> retagger. La PR #49 a fusionné en `ea9b3f2` avec CI 6/6,
+> Chromium et portable Windows verts : aperçu → apply lié à un ticket
+> unique et à la révision des inputs, sauvegarde de profils protégée
+> contre le changement d'agent. Vérifie puis fusionne la PR sur
+> `chore/post-release-security-docs-handoff-20261030` après les
+> neuf contrôles, revalide `main`, et confirme que le workflow
+> `release-v0.3.0.yml` est retiré. Le ZIP public v0.3.0 ne contient
+> PAS ces nouveaux correctifs : préparer si souhaité v0.3.1 avec
+> nouvelles validations et tag/ZIP, sans effacer v0.3.0. Tests
+> physiques Windows et NVDA/VoiceOver non réalisés ; npm non
+> publié (scope/2FA/Trusted Publisher propriétaire). Aucun agent
+> réel ni secret dans les essais ; UI uniquement 127.0.0.1.
