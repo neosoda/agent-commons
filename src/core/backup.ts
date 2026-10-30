@@ -378,43 +378,103 @@ export function restoreBackup(ctx: EnvironmentContext, snapshotId?: string): Bac
   const selectedId = snapshotId && snapshotId !== 'latest' ? snapshotId : targetManifest.id;
   const snapshotDir = preflightRestore(ctx, targetManifest, selectedId);
 
-  // Restore in reverse order of modification
-  const reversedEntries = [...targetManifest.entries].reverse();
+  // Every replacement is prepared on the destination filesystem BEFORE any original
+  // is moved. Moving existing paths aside (rather than deleting them) lets us roll back
+  // earlier entries when a later rename fails. Staging next to each destination avoids
+  // cross-device rename failures for localAppData on another volume.
+  interface RestoreStage {
+    target: string;
+    temporaryDir: string;
+    initialState: string;
+    displaced: boolean;
+    installed: boolean;
+  }
+  const stages: RestoreStage[] = [];
 
-  for (const entry of reversedEntries) {
-    const targetPath = path.resolve(entry.originalPath);
-    const currentInfo = inspectPath(targetPath);
+  const fingerprint = (target: string): string => {
+    const state = inspectPath(target).state;
+    if (state === 'missing') return state;
+    const stat = fs.lstatSync(target);
+    return JSON.stringify([state, stat.dev, stat.ino, stat.mode, stat.size,
+      stat.mtimeMs, stat.ctimeMs]);
+  };
 
-    // 1. Safely clear current state at targetPath without ever traversing links
-    if (currentInfo.state === 'link') {
-      detachLinkSafe(targetPath);
-    } else if (currentInfo.state === 'directory') {
-      removePhysicalDirectorySafe(targetPath);
-    } else if (currentInfo.state === 'file') {
-      fs.unlinkSync(targetPath);
+  const assertPhysicalParents = (target: string): void => {
+    const boundary = isSafeSubpath(ctx.homeDir, target) ? ctx.homeDir : ctx.localAppDataDir;
+    let parent = path.dirname(target);
+    while (!arePathsEqual(parent, boundary, ctx.platform)) {
+      if (inspectPath(parent).state === 'link') {
+        throw new Error('Security violation: restore destination has a linked ancestor.');
+      }
+      const next = path.dirname(parent);
+      if (next === parent) throw new Error('Security violation: restore destination escaped its root.');
+      parent = next;
     }
+  };
 
-    // 2. Re-apply stateBefore
-    if (entry.stateBefore === 'missing') {
-      continue;
-    }
-
-    const parentDir = path.dirname(targetPath);
-    if (!fs.existsSync(parentDir)) {
+  try {
+    for (const entry of [...targetManifest.entries].reverse()) {
+      const target = path.resolve(entry.originalPath);
+      assertPhysicalParents(target);
+      const initialState = fingerprint(target);
+      const parentDir = path.dirname(target);
       fs.mkdirSync(parentDir, { recursive: true });
+      assertPhysicalParents(target);
+      const temporaryDir = fs.mkdtempSync(path.join(parentDir, '.agent-commons-restore-'));
+      const stage: RestoreStage = { target, temporaryDir, initialState,
+        displaced: false, installed: false };
+      stages.push(stage);
+
+      const replacement = path.join(temporaryDir, 'replacement');
+      if (entry.stateBefore === 'file' && entry.backupRelativePath) {
+        fs.copyFileSync(path.join(snapshotDir, entry.backupRelativePath), replacement,
+          fs.constants.COPYFILE_EXCL);
+      } else if (entry.stateBefore === 'directory' && entry.backupRelativePath) {
+        copyDirectorySafe(path.join(snapshotDir, entry.backupRelativePath), replacement);
+      } else if (entry.stateBefore === 'link') {
+        createDirectoryLink(replacement, entry.linkTarget!, ctx.platform);
+      }
     }
 
-    if (entry.stateBefore === 'link') {
-      // The link target was checked during preflight.
-      createDirectoryLink(targetPath, entry.linkTarget!, ctx.platform);
-    } else if (entry.stateBefore === 'file' && entry.backupRelativePath) {
-      const srcFile = path.join(snapshotDir, entry.backupRelativePath);
-      fs.copyFileSync(srcFile, targetPath);
-    } else if (entry.stateBefore === 'directory' && entry.backupRelativePath) {
-      const srcDir = path.join(snapshotDir, entry.backupRelativePath);
-      copyDirectorySafe(srcDir, targetPath);
+    for (const stage of stages) {
+      assertPhysicalParents(stage.target);
+      if (fingerprint(stage.target) !== stage.initialState) {
+        throw new Error('Restore destination changed during preparation; refusing stale restore.');
+      }
+      if (stage.initialState !== 'missing') {
+        fs.renameSync(stage.target, path.join(stage.temporaryDir, 'original'));
+        stage.displaced = true;
+      }
+      if (inspectPath(path.join(stage.temporaryDir, 'replacement')).state !== 'missing') {
+        fs.renameSync(path.join(stage.temporaryDir, 'replacement'), stage.target);
+        stage.installed = true;
+      }
     }
+  } catch (error) {
+    // Reverse every already-applied entry, including the entry whose installation
+    // failed. Keep staging directories intact if rollback fails: they contain the
+    // originals, which must never be silently deleted during cleanup.
+    let rollbackFailed = false;
+    for (const stage of [...stages].reverse()) {
+      try {
+        if (stage.installed) {
+          fs.renameSync(stage.target, path.join(stage.temporaryDir, 'discarded'));
+        }
+        if (stage.displaced) {
+          fs.renameSync(path.join(stage.temporaryDir, 'original'), stage.target);
+        }
+      } catch {
+        rollbackFailed = true;
+      }
+    }
+    if (rollbackFailed) {
+      throw new Error('Restore failed and rollback was incomplete. Original data remains in restore staging folders.', { cause: error });
+    }
+    for (const stage of stages) removePhysicalDirectorySafe(stage.temporaryDir);
+    throw error;
   }
 
+  // Only discard old destinations after the entire restore was committed.
+  for (const stage of stages) removePhysicalDirectorySafe(stage.temporaryDir);
   return targetManifest;
 }
