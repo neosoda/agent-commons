@@ -72,7 +72,7 @@ node dist/cli/index.js web
 
 Your browser opens at **http://127.0.0.1:4173**. Override the port with `web --port 5050`, use `--no-open` on headless machines, or `--home /temporary/test-home` to test safely against a separate environment. Stop with **Ctrl+C**.
 
-**Language:** choose **English** or **Français** from the dashboard header. The choice is stored only in your browser's local storage (language code `en`/`fr`), remains after reload, and does not sync to agents or any remote service. The first translation pass covers main navigation, common commands, dialogs and core status messages; technical diagnostics and third-party catalog metadata may still be shown in English.
+**Language:** choose **English** or **Français** from the dashboard header. The choice is stored only in your browser's local storage (language code `en`/`fr`), remains after reload, and does not sync to agents or any remote service. The French translation covers navigation, common commands, dialogs, snapshot confirmations, dynamically generated counts and MCP action labels. Identifiers, agent names, upstream skill metadata, and technical diagnostic reports are deliberately left unchanged; some advanced technical text remains in English. French and English use the same backend actions and confirmation safeguards.
 
 The dashboard provides:
 
