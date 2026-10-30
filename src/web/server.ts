@@ -10,7 +10,6 @@ import { installCatalogSkill, updateCatalogSkill, uninstallCatalogSkill, preview
 import { readSavedProfiles, saveAgentProfile, clearAgentProfile, runSavedProfilesSync } from '../commands/saved-profiles.js';
 import { createFullBackup, listBackups, restoreBackup } from '../core/backup.js';
 import { createEnvironmentContext } from '../core/context.js';
-import { redactSecrets } from '../security/scrubber.js';
 import type { EnvironmentContext, SyncReport } from '../types.js';
 import { renderWebUi } from './ui.js';
 import { applyMcpEdit, mcpEditorOverview, previewMcpEdit, type McpEditorRequest } from './mcp-editor.js';
@@ -69,15 +68,64 @@ function requireApproval(body: JsonValue): void {
  * The CLI may print diagnostic paths for its local operator. HTTP responses do not:
  * a web page must not accidentally expose a home path, API token, or arbitrary FS error.
  */
-function publicError(error: unknown, ctx: EnvironmentContext): string {
-  const raw = redactSecrets(error instanceof Error ? error.message : 'Local operation failed.');
-  const privateRoots = [ctx.homeDir, ctx.localAppDataDir, ctx.commonsDir]
-    .filter(root => root.length > 1);
-  if (privateRoots.some(root => raw.toLowerCase().includes(root.toLowerCase())) ||
-      /(?:[a-z]:[\\/]|\/(?:home|users|root|tmp|var|etc)\/)/i.test(raw)) {
-    return 'Local filesystem operation failed. Check Agent Commons CLI diagnostics for details.';
+/**
+ * HTTP error output is deliberately fail-closed. Filesystem, parsing, Git and
+ * dependency errors can carry arbitrary user data in their messages, including
+ * secrets not recognizable by regex-based scrubbers. Only fixed, known-safe
+ * diagnostics may be sent to the browser.
+ */
+const PUBLIC_ERRORS = new Set([
+  'Invalid skill or agent identifier.',
+  'Invalid MCP server identifier.',
+  'Invalid snapshot identifier.',
+  'Invalid profile selection.',
+  'Explicit approval is required.',
+  'Only application/json is accepted.',
+  'Request body too large.',
+  'Malformed JSON request.',
+  'Expected a JSON object.',
+  'Snapshot does not exist.',
+  'Sync preview reported errors; refusing to apply.',
+  'Full sync preview reported errors; refusing to apply.',
+  'A valid preview revision is required to apply.',
+  'MCP manifest changed since preview. Refresh and retry.',
+  'MCP manifest changed during the backup. Refresh and retry.',
+  'MCP server already exists.',
+  'MCP server does not exist.',
+  'Unknown MCP editor action.',
+  'Only agent routing and enabled status may be edited.',
+  'Invalid enabled status.',
+  'Invalid or duplicate agent selection.',
+  'An agent cannot be both included and excluded.',
+  'Invalid MCP configuration.',
+  'Unsupported MCP configuration field.',
+  'Choose stdio, http or sse transport.',
+  'stdio requires a command and no URL.',
+  'Invalid command arguments.',
+  'Remote MCP requires a URL and no command arguments.',
+  'Use an HTTP(S) URL without embedded credentials, query or fragments.',
+  'Invalid environment variables.',
+  'Only environment-variable references are accepted. Never paste plaintext secrets.',
+  'Delete does not accept replacement fields.',
+  'Existing commands and secrets cannot be replaced in the routing editor.',
+  'MCP servers must be an object.',
+  'Ambiguous manifest: both mcpServers and servers exist.',
+  'Existing MCP server configuration is malformed.',
+  'Shared MCP file is too large for safe editing.',
+  'Shared MCP file is linked or invalid.',
+  'Shared MCP directory is linked or invalid.',
+  'Home directory must be physical.'
+]);
+function publicError(error: unknown, _ctx: EnvironmentContext): string {
+  const message = error instanceof Error ? error.message : '';
+  if (PUBLIC_ERRORS.has(message)) return message;
+  if (message === 'Restore failed and rollback was incomplete. Original data remains in restore staging folders.') {
+    return 'Restore failed and rollback was incomplete. Preserve the local restore staging folders; see README for recovery.';
   }
-  return raw.length <= 350 ? raw : 'Operation failed. Check local CLI diagnostics for details.';
+  if (message.startsWith('MCP save failed and rollback failed. Recover using snapshot ')) {
+    return 'MCP save failed and recovery was incomplete. See local backup instructions.';
+  }
+  return 'Local operation failed. Check Agent Commons CLI diagnostics for details.';
 }
 async function readJson(req: IncomingMessage): Promise<JsonValue> {
   if (!(req.headers['content-type'] ?? '').startsWith('application/json')) {
