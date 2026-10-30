@@ -150,6 +150,15 @@ try {
     'Rechercher compétences, tags, auteurs…');
   assert.equal(await page.locator('#catalog-cards .skill-card button').first().innerText(),'Voir les détails');
   assert.equal(await page.evaluate(() => localStorage.getItem('agent-commons-ui-language')),'fr');
+  await page.locator('[data-page="agents"]').click();
+  await page.locator('#mcp-add').click();
+  let frenchDialog=page.getByRole('dialog');
+  await frenchDialog.getByRole('button',{name:'Prévisualiser'}).click();
+  await page.locator('#toast[role="alert"]').waitFor({state:'visible'});
+  assert.match(await page.locator('#toast').innerText(),/Identifiant MCP invalide/);
+  await page.locator('#toast').waitFor({state:'hidden',timeout:7000});
+  assert.equal(await page.getByRole('dialog').count(),0);
+
   await page.reload({waitUntil:'networkidle'});
   assert.equal(await page.locator('html').getAttribute('lang'),'fr');
   assert.equal(await page.locator('#language-select').inputValue(),'fr');
