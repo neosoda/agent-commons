@@ -38,7 +38,7 @@ Claude Code, Codex, Cursor, Gemini, OpenCode and other coding agents all want th
 
 **Source users:** use the cross-platform instructions below (Node.js 22+). The npm installation route remains optional and must not be advertised as working until the scoped package is actually published.
 
-**v0.3.0 preparation:** see [release-readiness checks and Windows verification](docs/releases/v0.3.0.md). **This file is preparation, not proof that v0.3.0 is published**; always use the latest real release shown on GitHub.
+**v0.3.0 published:** [download the verified Windows portable ZIP and checksum](https://github.com/neosoda/agent-commons/releases/tag/v0.3.0), and consult the [publication and verification record](docs/releases/v0.3.0.md). Later source changes require a new release tag; the published 0.3.0 archive is not silently updated.
 
 ## Quick start
 
@@ -265,7 +265,7 @@ node dist/cli/index.js catalog update skill-creator --yes
 
 Updates only work when a skill was **previously installed by Agent Commons**, is **unmodified**, has **no unknown files or directories**, has a **different pinned commit** in the curated catalog, and is **not linked to an agent**. The updater checks every downloaded Git blob, creates a focused restore snapshot, and uses a staged directory replacement. If the swap fails it attempts to put the previous directory back. No code is executed and there are no silent or automatic updates.
 
-The project never decides that a mutable GitHub branch is a safe update. No release is published automatically. The package has not been published on npm.
+The project never decides that a mutable GitHub branch is a safe skill update. Releases are explicitly versioned and published on GitHub; this is distinct from updating any installed skill. The npm package is not a confirmed distribution channel until the registry verifies it.
 
 ### Sync only the skills your agent needs
 
