@@ -203,7 +203,7 @@ try {
   // Manual refresh must not erase unsaved profile selections or orphan keyboard focus.
   fs.mkdirSync(path.join(home,'.claude'),{recursive:true});
   await page.locator('#refresh').click();
-  await page.locator('#profile-agent option[value="claude-code"]').waitFor();
+  await page.locator('#profile-agent option[value="claude-code"]').waitFor({state:'attached'});
   await page.locator('[data-page="agents"]').click();
   await page.locator('#profile-agent').selectOption('claude-code');
   const draftCheckbox=page.locator('#profile-categories input[type="checkbox"]').first();
