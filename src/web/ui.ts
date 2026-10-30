@@ -85,7 +85,13 @@ Object.assign(FR,{
   'Disabled':'Désactivé','Failed':'Échec','No issues':'Aucun problème',
   'not needed':'inutile','none':'aucun','no receipt':'sans reçu',
   'Remove':'Supprimer','Update':'Mettre à jour','Install':'Installer',
-  'Uninstall':'Désinstaller','Create':'Créer','Configure':'Configurer'
+  'Uninstall':'Désinstaller','Create':'Créer','Configure':'Configurer',
+  'Agent configuration synchronization remains a separate explicit action.':'La synchronisation des agents reste une opération distincte.',
+  'The operation will revalidate local files and create a recovery snapshot where supported. No third-party scripts are executed.':'Les fichiers locaux sont revérifiés et un instantané est créé si possible. Aucun script tiers n’est exécuté.',
+  'Synchronization changes agent skill links and creates a recovery snapshot when needed. MCP configurations remain untouched.':'La synchronisation modifie les liens de compétences et crée un instantané si nécessaire. Les configurations MCP restent inchangées.',
+  'This changes compatible agent skill links and merges MCP server entries. A recovery snapshot is created when there are changes. Conflicts are preserved.':'Les liens de compétences sont mis à jour et les entrées MCP fusionnées. Un instantané est créé en cas de changement. Les conflits sont conservés.',
+  'Health: OK':'Santé : OK','Link capability: OK':'Gestion des liens : OK',
+  'No changes.':'Aucun changement.'
 });
 // Translate only anchored UI patterns; preserve captured IDs/names unchanged.
 const FR_PATTERNS=[
@@ -107,10 +113,21 @@ const FR_PATTERNS=[
   [/^Confirm MCP (create|configure|delete)$/,op=>'Confirmer MCP : '+({create:'création',configure:'configuration',delete:'suppression'}[op])],
   [/^(.+) saved\. Snapshot: (.+)$/, (name,id)=>name+' enregistré. Instantané : '+(id==='not needed'?'inutile':id)],
   [/^Backup created: (.+)$/,id=>'Sauvegarde créée : '+id],
-  [/^(.+) (installed|updated|uninstalled)$/, (id,verb)=>id+' '+({installed:'installé',updated:'mis à jour',uninstalled:'désinstallé'}[verb])]
+  [/^(.+) (installed|updated|uninstalled)$/, (id,verb)=>id+' '+({installed:'installé',updated:'mis à jour',uninstalled:'désinstallé'}[verb])],
+  [/^(.+) · (Create a recovery snapshot and write the updated manifest\.|No changes\.)$/, (id,desc)=>id+' · '+translateText(desc)],
+  [/^Preview: (\d+) skill result\(s\)\. Synchronization changes agent skill links and creates a recovery snapshot when needed\. MCP configurations remain untouched\.$/,n=>'Aperçu : '+n+' résultats de compétences. La synchronisation modifie les liens des agents et crée un instantané si nécessaire. Les paramètres MCP restent inchangés.'],
+  [/^Commit: (.+)$/,commit=>'Commit : '+commit],
+  [/^Files: (\d+)$/,count=>'Fichiers : '+count],
+  [/^Bytes: (\d+)$/,bytes=>'Octets : '+bytes],
+  [/^From: (.+)$/,commit=>'Depuis : '+commit],
+  [/^To: (.+)$/,commit=>'Vers : '+commit],
+  [/^Added: (\d+)$/,count=>'Ajoutés : '+count],
+  [/^Changed: (\d+)$/,count=>'Modifiés : '+count],
+  [/^Removed: (\d+)$/,count=>'Supprimés : '+count]
 ];
 function translateText(english){
   if(Object.hasOwn(FR,english))return FR[english];
+  if(english.includes('\n'))return english.split('\n').map(translateText).join('\n');
   for(const [pattern,format] of FR_PATTERNS){
     const match=english.match(pattern);
     if(match)return format(...match.slice(1));
@@ -170,9 +187,10 @@ function skillDetails(s){
   box.setAttribute('role','dialog');box.setAttribute('aria-modal','true');box.setAttribute('aria-label',s.name);
   const audit=state.integrity.results.find(item=>item.skill===s.id);
   const managed=!!s.installed&&audit?.status==='intact';
-  box.append(node('div',s.category+' · '+s.author,'eyebrow'),node('h2',s.name),node('p',s.description,'copy'));
+  box.append(rawNode('div',s.category+' · '+s.author,'eyebrow'),rawNode('h2',s.name),rawNode('p',s.description,'copy'));
   const details=node('div');
-  details.append(row('License',s.license),row('Pinned Git revision',short(s.ref)),
+  const licenseRow=row('License',s.license);licenseRow.querySelector('small').dataset.noI18n='true';
+  details.append(licenseRow,row('Pinned Git revision',short(s.ref)),
     row('Status',!s.installed?'Not installed':managed?'Verified managed installation':'Local installation · '+(audit?.status||'unverified'),
       labelStatus(!s.installed?'available':audit?.status||'unmanaged')));
   if(managed)details.append(row('Installed revision',short(audit.commit),labelStatus(audit.commit===s.ref?'intact':'outdated')));
@@ -282,7 +300,7 @@ function choicesInto(container,items,selected){clear(container);if(!items.length
 function renderProfileEditor(){if(!state)return;const saved=state.profiles.profiles[selectedAgent]||{skills:[],categories:[]};const draft=profileDrafts[selectedAgent]||(profileDrafts[selectedAgent]={skills:[...saved.skills],categories:[...saved.categories]});const query=$('profile-skill-search').value.toLowerCase().trim();choicesInto($('profile-skills'),state.inventory.centralSkills.filter(id=>!query||id.toLowerCase().includes(query)).map(id=>({id,label:id})),draft.skills);choicesInto($('profile-categories'),state.categories.map(c=>({id:c.id,label:c.label})),draft.categories);for(const [container,key] of [[$('profile-skills'),'skills'],[$('profile-categories'),'categories']]){container.querySelectorAll('input[type="checkbox"]').forEach(check=>check.addEventListener('change',()=>{const all=new Set(draft[key]);if(check.checked)all.add(check.value);else all.delete(check.value);draft[key]=[...all].sort()}))}$('profile-save').disabled=!selectedAgent;$('profile-clear').disabled=!state.profiles.profiles[selectedAgent]}
 function formatSync(r){const lines=['Mode: '+(r.dryRun?'PREVIEW':'APPLIED'),'Agents: '+r.detectedAgentsCount,'Skill operations: '+r.skillResults.length,'MCP operations: '+r.mcpResults.length,'Snapshot: '+(r.snapshotId||'none')];r.skillResults.forEach(s=>{if(s.action!=='already-synced')lines.push('['+s.agentId+'] '+s.skillName+': '+s.action)});r.errors.forEach(e=>lines.push('ERROR: '+e));if(!r.skillResults.length&&!r.errors.length)lines.push('No skill changes proposed.');return lines.join('\n')}
 function showSync(r){const p=$('sync-report');p.classList.remove('hidden');p.textContent=formatSync(r)}
-function renderIntegrity(){clear($('integrity-items'));if(!state.integrity.scanned){$('integrity-items').append(node('div','No managed public-catalog skill installations found.','empty'));return}state.integrity.results.forEach(r=>{const e=row(r.skill,r.checkedFiles+' files checked · '+(r.commit?short(r.commit):'no receipt'),labelStatus(r.status));$('integrity-items').append(e);if(r.issues.length){const issues=node('div',r.issues.map(i=>i.type+': '+i.reason+(i.path?' ('+i.path+')':'')).join('\n'),'result-box');$('integrity-items').append(issues)}})}
+function renderIntegrity(){clear($('integrity-items'));if(!state.integrity.scanned){$('integrity-items').append(node('div','No managed public-catalog skill installations found.','empty'));return}state.integrity.results.forEach(r=>{const e=row(r.skill,r.checkedFiles+' files checked · '+(r.commit?short(r.commit):'no receipt'),labelStatus(r.status));e.querySelector('strong').dataset.noI18n='true';$('integrity-items').append(e);if(r.issues.length){const issues=node('div',r.issues.map(i=>i.type+': '+i.reason+(i.path?' ('+i.path+')':'')).join('\n'),'result-box');$('integrity-items').append(issues)}})}
 function renderBackups(){clear($('backup-items'));if(!state.inventory.backups.length){$('backup-items').append(node('div','No snapshots yet.','empty'));return}state.inventory.backups.forEach(b=>{const btn=node('button','Restore…','btn danger small');btn.setAttribute('aria-label','Restore snapshot '+b.id);btn.onclick=()=>modal('Restore '+b.id,'This replaces managed paths with their historical state. Create a fresh backup first, and verify that this is the intended snapshot.','Restore',async()=>{await request('/api/action',{action:'restore',snapshot:b.id,approved:true});showToast('Snapshot restored');await refresh()},b.id);$('backup-items').append(row(b.id,b.createdAt+' · '+b.reason+' · '+b.entriesCount+' entries',btn))})}
 function renderAll(){renderOverview();renderCatalog();renderAgents();renderMcp();renderIntegrity();renderBackups();translateUI()}
 async function refresh(announce=false){if(announce)$('workspace-status').textContent='Refreshing local workspace…';try{state=await request('/api/state');try{mcpState=await request('/api/mcp')}catch(err){mcpState=null;showToast(err.message,true)}profileDrafts=Object.create(null);renderAll();if(state.warnings?.length)showToast(state.warnings[0],true);if(announce){$('workspace-status').textContent='Workspace and integrity results updated.';translateUI()}}catch(err){showToast(err.message,true);if(announce){$('workspace-status').textContent='Workspace refresh failed.';translateUI()}}}
