@@ -150,6 +150,36 @@ try {
     'Rechercher compétences, tags, auteurs…');
   assert.equal(await page.locator('#catalog-cards .skill-card button').first().innerText(),'Voir les détails');
   assert.equal(await page.evaluate(() => localStorage.getItem('agent-commons-ui-language')),'fr');
+  assert.match(await page.locator('#catalog-count').innerText(),/compétences · références épinglées/);
+  assert.match(await page.locator('#catalog-cards .skill-card button').first().getAttribute('aria-label'),/^Voir les détails de /);
+  await page.locator('[data-page="overview"]').click();
+  assert.match(await page.locator('#overview-health').innerText(),/installations vérifiées du catalogue/);
+  assert.match(await page.locator('#overview-health').innerText(),/éléments à examiner/);
+  await page.locator('[data-page="backups"]').click();
+  await page.locator('#backup-create').click();
+  let backupDialog=page.getByRole('dialog');
+  assert.equal(await backupDialog.getByRole('heading').innerText(),'Créer une sauvegarde complète');
+  await backupDialog.getByRole('button',{name:'Créer une sauvegarde'}).click();
+  const restoreButton=page.locator('#backup-items').getByRole('button',{name:/^Restaurer l’instantané snapshot-/});
+  await restoreButton.waitFor();
+  await restoreButton.click();
+  backupDialog=page.getByRole('dialog');
+  assert.match(await backupDialog.getByRole('heading').innerText(),/^Restaurer snapshot-/);
+  assert.match(await backupDialog.locator('p.subtle').innerText(),/^Saisissez snapshot-/);
+  await page.keyboard.press('Escape');
+  assert.equal(await page.getByRole('dialog').count(),0);
+  // A user-provided server identifier named like a navigation label must stay unchanged.
+  await page.locator('[data-page="agents"]').click();
+  await page.locator('#mcp-add').click();
+  let previewDialog=page.getByRole('dialog');
+  await previewDialog.locator('input.field').first().fill('Backups');
+  await previewDialog.getByRole('button',{name:'Prévisualiser'}).click();
+  previewDialog=page.getByRole('dialog');
+  assert.equal(await previewDialog.getByRole('heading').innerText(),'Confirmer MCP : création');
+  assert.match(await previewDialog.locator('p.copy').innerText(),/^Backups · Créer un instantané/);
+  await previewDialog.getByRole('button',{name:'Annuler'}).click();
+  assert.equal(await page.getByRole('dialog').count(),0);
+
   await page.locator('[data-page="agents"]').click();
   await page.locator('#mcp-add').click();
   let frenchDialog=page.getByRole('dialog');
