@@ -241,6 +241,88 @@ describe('Backup restore preflight: no destructive writes on invalid snapshots',
     assert.equal(fs.readdirSync(home).some(name => name.startsWith('.agent-commons-restore-')), false);
   });
 
+  it('keeps the old file recoverable when rollback itself fails', () => {
+    const { ctx, original } = setupMcpFile();
+    const snapshot = createFullBackup(ctx);
+    fs.writeFileSync(original, 'newer content to rescue');
+    const realRename = fs.renameSync;
+    fs.renameSync = ((source, destination) => {
+      if (String(destination) === original && path.basename(String(source)) === 'replacement') {
+        throw Object.assign(new Error('simulated commit EIO'), { code: 'EIO' });
+      }
+      if (String(destination) === original && path.basename(String(source)) === 'original') {
+        throw Object.assign(new Error('simulated rollback EACCES'), { code: 'EACCES' });
+      }
+      return realRename(source, destination);
+    }) as typeof fs.renameSync;
+    try {
+      assert.throws(() => restoreBackup(ctx, snapshot.id), /rollback was incomplete/);
+    } finally {
+      fs.renameSync = realRename;
+    }
+    const stages = fs.readdirSync(home).filter(name => name.startsWith('.agent-commons-restore-'));
+    assert.equal(stages.length, 1);
+    assert.equal(fs.readFileSync(path.join(home, stages[0]!, 'original'), 'utf8'),
+      'newer content to rescue');
+  });
+
+  it('detects edits to a nested skill file even when the directory inode is unchanged', () => {
+    const ctx = createEnvironmentContext({ homeDir: home });
+    const skillDir = path.join(ctx.centralSkillsDir, 'my-skill');
+    fs.mkdirSync(skillDir, { recursive: true });
+    const skillFile = path.join(skillDir, 'SKILL.md');
+    fs.writeFileSync(skillFile, 'original text');
+    const snapshot = createFullBackup(ctx);
+    fs.writeFileSync(skillFile, 'current text!');
+    const realCopy = fs.copyFileSync;
+    let injected = false;
+    fs.copyFileSync = ((source, destination, mode) => {
+      const result = realCopy(source, destination, mode);
+      if (!injected && String(source).includes(snapshot.id) &&
+          path.basename(String(destination)) === 'SKILL.md') {
+        injected = true;
+        fs.writeFileSync(skillFile, 'newer edit!!!');
+        fs.utimesSync(skillFile, new Date(1000), new Date(1000));
+      }
+      return result;
+    }) as typeof fs.copyFileSync;
+    try {
+      assert.throws(() => restoreBackup(ctx, snapshot.id), /changed during preparation/);
+    } finally {
+      fs.copyFileSync = realCopy;
+    }
+    assert.equal(injected, true);
+    assert.equal(fs.readFileSync(skillFile, 'utf8'), 'newer edit!!!');
+    assert.deepEqual(fs.readdirSync(ctx.centralSkillsDir).sort(), ['my-skill']);
+  });
+
+  it('never overwrites a target recreated by a concurrent writer during commit or rollback', () => {
+    const { ctx, original } = setupMcpFile();
+    const snapshot = createFullBackup(ctx);
+    fs.writeFileSync(original, 'edited since snapshot');
+    const realRename = fs.renameSync;
+    let injected = false;
+    fs.renameSync = ((source, destination) => {
+      const value = realRename(source, destination);
+      if (!injected && String(source) === original &&
+          path.basename(String(destination)) === 'original') {
+        injected = true;
+        fs.writeFileSync(original, 'created by another process');
+      }
+      return value;
+    }) as typeof fs.renameSync;
+    try {
+      assert.throws(() => restoreBackup(ctx, snapshot.id), /rollback was incomplete/);
+    } finally {
+      fs.renameSync = realRename;
+    }
+    assert.equal(injected, true);
+    assert.equal(fs.readFileSync(original, 'utf8'), 'created by another process');
+    const stage = fs.readdirSync(home).find(name => name.startsWith('.agent-commons-restore-'));
+    assert.ok(stage);
+    assert.equal(fs.readFileSync(path.join(home, stage, 'original'), 'utf8'), 'edited since snapshot');
+  });
+
   it('refuses a lossy backup of a physical skill containing nested links', () => {
     const ctx = createEnvironmentContext({ homeDir: home });
     const nestedTarget = path.join(home, 'nested-target');
