@@ -49,6 +49,7 @@ try {
     'skip link moves focus to main content');
   await page.locator('[data-page="catalog"]').click();
   assert.equal(await page.locator('[data-page="catalog"]').getAttribute('aria-current'), 'page');
+  assert.equal(await page.locator('[data-page="catalog"]').getAttribute('aria-controls'), 'page-catalog');
   assert.equal(await page.locator('[data-page="overview"]').getAttribute('aria-current'), null);
   assert.ok(await page.locator('#page-catalog h1').evaluate(el => el === document.activeElement),
     'navigating sections moves focus to the section heading');
@@ -127,13 +128,13 @@ try {
   dialog=page.getByRole('dialog');
   await dialog.getByRole('button',{name:'Apply change'}).click();
   await page.locator('#mcp-items').getByText('browser-sample').waitFor();
-  await page.locator('#mcp-items .row-item').first().getByRole('button',{name:'Routing…'}).click();
+  await page.locator('#mcp-items .row-item').first().getByRole('button',{name:'Edit routing for browser-sample'}).click();
   dialog=page.getByRole('dialog');
   await dialog.getByRole('button',{name:'Preview change'}).click();
   dialog=page.getByRole('dialog');
   await dialog.getByRole('button',{name:'Apply change'}).click();
   await page.locator('#mcp-items').getByText('browser-sample').waitFor();
-  await page.locator('#mcp-items .row-item').first().getByRole('button',{name:'Remove…'}).click();
+  await page.locator('#mcp-items .row-item').first().getByRole('button',{name:'Remove MCP server browser-sample'}).click();
   dialog=page.getByRole('dialog');
   await dialog.locator('input.field').fill('browser-sample');
   await dialog.getByRole('button',{name:'Apply change'}).click();
