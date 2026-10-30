@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.3.1] — Patch de stabilisation (publication GitHub en préparation)
+## [0.3.1] — 2026-10-30 (publiée sur GitHub)
 
 ### Fixed
 - Sync UI : `sync-apply` et `sync-all-apply` exigent désormais un jeton éphémère à usage unique lié à l'aperçu exact et à la révision des entrées (profil, skills, MCP, agents), avec refus en cas de modification intermédiaire.
@@ -20,7 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Handoff simplifié pour la reprise autonome.
 
 
-## [0.3.0] — Release candidate (publication GitHub non encore effectuée)
+## [0.3.0] — 2026-10-30 (publiée sur GitHub)
 
 ### Added
 - Bilingual FR/EN local Skill Hub with persistent browser preference, accessible keyboard navigation, focus management and explicit error announcements.
