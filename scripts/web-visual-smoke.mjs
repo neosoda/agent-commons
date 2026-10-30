@@ -58,7 +58,7 @@ try {
   // Computed styles are checked in real Chromium, not from guessed stylesheet values.
   const controlContrast = await page.evaluate(() => {
     const luminance = color => {
-      const values = color.match(/[\\d.]+/g)?.slice(0, 3).map(Number) ?? [];
+      const values = color.match(/[0-9.]+/g)?.slice(0, 3).map(Number) ?? [];
       if (values.length !== 3) throw Error('Unsupported CSS colour: ' + color);
       const linear = values.map(c => {
         const v = c / 255;
@@ -113,7 +113,7 @@ try {
     const dialog = page.getByRole('dialog');
     assert.ok(await dialog.isVisible());
     const modalContrast = await dialog.evaluate(el => {
-      const rgb = value => value.match(/[\\d.]+/g).slice(0, 3).map(Number);
+      const rgb = value => value.match(/[0-9.]+/g).slice(0, 3).map(Number);
       const lum = value => rgb(value).map(n => {const c=n/255;return c <= .04045?c/12.92:((c+.055)/1.055)**2.4})
         .reduce((acc, c, i) => acc+c*[.2126,.7152,.0722][i],0);
       const style=getComputedStyle(el), a=lum(style.borderTopColor), b=lum(style.backgroundColor);
