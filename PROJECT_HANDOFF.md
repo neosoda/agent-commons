@@ -144,3 +144,16 @@ P1 and P2 are included in the **published v0.3.1** ZIP. Never move the historica
 ## 6. In-progress hardening — duplicate JSONC properties (2026-10-30)
 
 Branch `fix/mcp-jsonc-duplicate-keys-20261030` addresses ambiguous JSONC manifests before pursuing advanced MCP editing in issue #18. `JSON.parse` accepts duplicate object keys (last wins), while a path-based JSONC editor can modify a different occurrence. MCP editor now walks the parsed AST to reject duplicate keys at any nesting level, prior to preview or write, and maps this to a fixed browser-safe error. Added synthetic-HOME regression cases for repeated server names, command, env keys and root manifest fields. No existing secret or vendor field is returned to the browser. **Validation pending:** local `npm ci`, typecheck, npm test, audit and pack, followed by exact-head CI 6/6, Chromium and Windows portable; do not merge without them. No new release is published by this branch. Next: verify automated gates and then continue issue #18 advanced editing in a separate, reviewed feature PR.
+
+
+## 7. In progress — offline context router (2026-11-01)
+
+Feature branch: `feat/lightweight-skill-routing-20261101`. Added read-only
+`context <task>` skill routing, deterministic keyword ranking, optional saved
+profile scope, default metadata-only recommendations, explicit `--expand`
+and estimated token budget. No ECC scripts/skills copied, no hooks/subagents,
+no network or implicit native-agent changes. Added synthetic-HOME regression
+tests and usage documentation. **Validation not yet claimed**: run local
+`npm ci`, `npm run typecheck`, `npm test`, `npm audit --audit-level=high`
+and `npm pack --dry-run`, then review exact-head CI matrix, Chromium and
+Windows portable before merge. Release v0.3.1 remains unchanged.

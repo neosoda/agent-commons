@@ -68,3 +68,6 @@ export type { SavedAgentProfile, SavedProfileManifest, SavedProfileSyncOptions }
 
 export { verifyCatalogSkills } from './commands/skill-verify.js';
 export type { IntegrityStatus, IntegrityIssue, SkillIntegrity, CatalogIntegrityReport } from './commands/skill-verify.js';
+
+export { routeSkills } from './commands/skill-router.js';
+export type { SkillRouteOptions, SkillRouteReport, RoutedSkill } from './commands/skill-router.js';

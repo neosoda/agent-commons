@@ -67,6 +67,22 @@ node dist/cli/index.js sync
 
 **New to Agent Commons?** Start with only one agent, using `sync --dry-run --agent codex` (replace `codex` with your agent's ID). The `--home <path>` flag lets you test against a separate home directory first.
 
+## Token-conscious skill discovery
+
+Choose skills **only when a task needs them**, with no extra agents, hooks or
+automatic context injection:
+
+```bash
+node dist/cli/index.js context "review TypeScript security" --agent codex --budget 800
+node dist/cli/index.js context "test the API" --expand --budget 4000 --json
+```
+
+By default only a short metadata shortlist is returned; `--expand` opts in
+to full skill content if it fits the estimated token budget. This offline
+read-only feature draws on lightweight agent-routing ideas from ECC without
+bundling ECC itself. Token counts are rough estimates, not measured provider
+usage. See [Lightweight skill routing](docs/CONTEXT_ROUTING.md).
+
 ## Local Skill Hub — browser dashboard
 
 **New:** a responsive, dependency-free local interface to manage Agent Commons without memorizing commands.
