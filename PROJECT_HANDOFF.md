@@ -146,14 +146,27 @@ P1 and P2 are included in the **published v0.3.1** ZIP. Never move the historica
 Branch `fix/mcp-jsonc-duplicate-keys-20261030` addresses ambiguous JSONC manifests before pursuing advanced MCP editing in issue #18. `JSON.parse` accepts duplicate object keys (last wins), while a path-based JSONC editor can modify a different occurrence. MCP editor now walks the parsed AST to reject duplicate keys at any nesting level, prior to preview or write, and maps this to a fixed browser-safe error. Added synthetic-HOME regression cases for repeated server names, command, env keys and root manifest fields. No existing secret or vendor field is returned to the browser. **Validation pending:** local `npm ci`, typecheck, npm test, audit and pack, followed by exact-head CI 6/6, Chromium and Windows portable; do not merge without them. No new release is published by this branch. Next: verify automated gates and then continue issue #18 advanced editing in a separate, reviewed feature PR.
 
 
-## 7. In progress — offline context router (2026-11-01)
+## 7. Offline context router — merged (2026-11-01)
 
-Feature branch: `feat/lightweight-skill-routing-20261101`. Added read-only
-`context <task>` skill routing, deterministic keyword ranking, optional saved
-profile scope, default metadata-only recommendations, explicit `--expand`
-and estimated token budget. No ECC scripts/skills copied, no hooks/subagents,
-no network or implicit native-agent changes. Added synthetic-HOME regression
-tests and usage documentation. **Validation not yet claimed**: run local
-`npm ci`, `npm run typecheck`, `npm test`, `npm audit --audit-level=high`
-and `npm pack --dry-run`, then review exact-head CI matrix, Chromium and
-Windows portable before merge. Release v0.3.1 remains unchanged.
+**Merged [PR #54](https://github.com/neosoda/agent-commons/pull/54)** into
+`main` at `694ae5ebfeb31dc549e3529fb0332527928603e2` (squash merge).
+Added the offline, read-only `context <task>` CLI command: deterministic
+keyword ranking over locally installed physical skills, optional saved-profile
+allowlist, metadata-only recommendations by default, explicit `--expand` for
+full SKILL.md, and an approximate output token budget. No ECC content was
+copied, and no hooks, additional subagents, network activity, telemetry,
+implicit agent configuration edits or automatic prompt injection were added.
+
+**All PR-head verification passed** at `231726f2f284a3b7e03f754cf6261561d06c2045`:
+- [CI matrix 6/6](https://github.com/neosoda/agent-commons/actions/runs/41306754670)
+  (Windows, macOS, Linux × Node 22 and 24), including npm ci, typecheck,
+  tests, audit (high) and pack dry-run.
+- [Chromium browser QA](https://github.com/neosoda/agent-commons/actions/runs/41306754705).
+- [Windows portable ZIP build and smoke](https://github.com/neosoda/agent-commons/actions/runs/41306754730).
+
+**Caveats:** budget estimate is UTF-8 byte size/4, not a provider tokenizer
+measurement or a guarantee of actual Claude/Codex consumption. Ranking is
+keyword-based, not semantic. This command does not automatically alter agents'
+active context. No new release or npm publication has been made; public stable
+release remains v0.3.1. Main-branch CI for the merged SHA should also be checked.
+
