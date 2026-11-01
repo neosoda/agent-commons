@@ -9,6 +9,7 @@ import { searchPublicCatalog, readPublicCatalog } from '../commands/public-catal
 import { installCatalogSkill, uninstallCatalogSkill, updateCatalogSkill, listCatalogOutdated } from '../commands/skill-install.js';
 import { verifyCatalogSkills } from '../commands/skill-verify.js';
 import { runList } from '../commands/list.js';
+import { routeSkills } from '../commands/skill-router.js';
 import { runSync } from '../commands/sync.js';
 import { discoverCentralSkills } from '../sync/skills.js';
 import { readSavedProfiles, saveAgentProfile, clearAgentProfile, runSavedProfilesSync } from '../commands/saved-profiles.js';
@@ -32,6 +33,7 @@ COMMANDS:
   list                    List central skills, MCP servers, agent inventories, and backups
   catalog                 Inventory local skills / explore curated public skill metadata
   profiles                Save per-agent skill choices locally (never auto-applied)
+  context <task>          Recommend only relevant skills within a token budget (offline)
   web                     Open local browser dashboard for skills, profiles and backups
   sync                    Synchronize skills and MCP configurations to installed agents
   backup                  Create a point-in-time snapshot of all agent skills and MCP configs
@@ -58,6 +60,7 @@ EXAMPLES:
   agent-commons doctor
   agent-commons list
   agent-commons catalog
+  agent-commons context "review TypeScript security" --agent codex --budget 800
   agent-commons catalog --json
   agent-commons catalog list
   agent-commons catalog search playwright
@@ -144,6 +147,21 @@ Usage: agent-commons profiles <list|show|set|clear> [agent-id] [options]
 Profiles are stored in ~/.agents/agent-profiles.json. Saving does NOT sync.
 Use sync --saved-profiles --dry-run to inspect and sync --saved-profiles to apply.
 No MCP changes, no automatic removal of old links, no network access.
+`.trim();
+    case 'context':
+      return `
+Usage: agent-commons context <task> [options]
+
+Offline, read-only task-based shortlist of local physical SKILL.md files.
+No agent is started, no automatic prompt injection or sync is performed.
+
+Options:
+  --agent <id>       Restrict recommendations to an existing saved agent profile
+  --limit <1-10>     Maximum recommended skills (default: 3)
+  --budget <128-32768>  Approximate maximum output tokens (default: 2400)
+  --expand           Explicitly include complete SKILL.md files if budget permits
+  --json             Emit a machine-readable report
+  --home <path>      Use a separate home directory
 `.trim();
     case 'web':
       return `
@@ -235,7 +253,10 @@ export function runCli(argv: string[] = process.argv.slice(2)): number {
         yes: { type: 'boolean', default: false },
         skill: { type: 'string', multiple: true },
         profile: { type: 'string', multiple: true },
-        'saved-profiles': { type: 'boolean', default: false }
+        'saved-profiles': { type: 'boolean', default: false },
+        expand: { type: 'boolean', default: false },
+        budget: { type: 'string' },
+        limit: { type: 'string' }
       }
     });
 
@@ -540,6 +561,36 @@ export function runCli(argv: string[] = process.argv.slice(2)): number {
       }
       console.error('Unknown catalog subcommand: ' + redactSecrets(subcommand));
       return 1;
+    }
+
+    if (command === 'context') {
+      const task = positionals.slice(1).join(' ').trim();
+      if (!task || (values.agent?.length ?? 0) > 1) {
+        throw new Error('Usage: context <task> [--agent <id>] [--budget <tokens>] [--limit <n>] [--expand]');
+      }
+      const report = routeSkills(ctx, task, {
+        agent: values.agent?.[0],
+        budget: values.budget === undefined ? undefined : Number(values.budget),
+        limit: values.limit === undefined ? undefined : Number(values.limit),
+        expand: values.expand
+      });
+      if (values.json) console.log(JSON.stringify(report, null, 2));
+      else {
+        console.log('=== Agent Commons Context Router (offline) ===');
+        console.log('Matches: ' + report.matching + '/' + report.scanned +
+          ' | selected: ' + report.selected.length +
+          ' | estimated tokens: ' + report.estimatedTokens + '/' + report.budget);
+        for (const item of report.selected) {
+          console.log('  ' + item.id + ' (score ' + item.score + ', ~' +
+            (item.metadataTokens + (report.expanded ? item.fullTextTokens : 0)) + ' tokens)');
+          if (item.description) console.log('    ' + item.description);
+          if (item.content !== undefined) console.log(item.content);
+        }
+        if (report.skippedForBudget) console.log('Skipped by budget/size: ' + report.skippedForBudget);
+        if (!report.matching) console.log('No local skills matched the task.');
+        console.log(report.note);
+      }
+      return 0;
     }
 
     if (command === 'profiles') {
