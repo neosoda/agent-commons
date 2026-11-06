@@ -8,6 +8,7 @@ import {
   createDirectoryLink,
   detachLinkSafe,
   inspectPath,
+  isSelfReferentialLink,
   removePhysicalDirectorySafe
 } from '../core/links.js';
 import { redactSecrets } from '../security/scrubber.js';
@@ -94,8 +95,7 @@ export function syncSkillsForAgents(
       const entry = path.join(ctx.centralSkillsDir, name);
       const info = inspectPath(entry);
       if (info.state !== 'link') continue;
-      const circular = Boolean(info.resolvedTarget) &&
-        arePathsEqual(info.resolvedTarget!, entry, ctx.platform);
+      const circular = isSelfReferentialLink(entry, info.resolvedTarget, ctx.platform);
       results.push({
         agentId: 'commons',
         agentName: 'Agent Commons',

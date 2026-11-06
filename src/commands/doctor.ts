@@ -9,6 +9,7 @@ import {
   createDirectoryLink,
   detachLinkSafe,
   inspectPath,
+  isSelfReferentialLink,
   removePhysicalDirectorySafe
 } from '../core/links.js';
 import { redactSecrets } from '../security/scrubber.js';
@@ -76,8 +77,7 @@ export function runDoctor(ctx: EnvironmentContext, agentFilter?: string[]): Doct
       const info = inspectPath(entry);
       if (info.state !== 'link') continue;
       invalidCentralLinks++;
-      const circular = Boolean(info.resolvedTarget) &&
-        arePathsEqual(info.resolvedTarget!, entry, ctx.platform);
+      const circular = isSelfReferentialLink(entry, info.resolvedTarget, ctx.platform);
       issues.push(circular
         ? `Circular central skill link "${name}" (preview "agent-commons repair-central").`
         : `Central skill "${name}" is a link, not a physical directory (preserved).`);

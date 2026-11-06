@@ -2,8 +2,8 @@ import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import {
-  arePathsEqual,
   copyDirectorySafe,
+  isSelfReferentialLink,
   inspectPath,
   removePhysicalDirectorySafe,
   writeFileAtomicSync
@@ -76,8 +76,7 @@ export function previewCentralRepair(ctx: EnvironmentContext): CentralRepairRepo
     if (info.state !== 'link') continue;
     const oldTarget = info.resolvedTarget ?? info.linkTarget ?? '';
     const matches = sources.get(name) ?? [];
-    const circular = Boolean(info.resolvedTarget) &&
-      arePathsEqual(info.resolvedTarget!, centralPath, ctx.platform);
+    const circular = isSelfReferentialLink(centralPath, info.resolvedTarget, ctx.platform);
 
     let status: CentralRepairItem['status'] = 'skipped';
     let sourcePath: string | null = null;
@@ -134,7 +133,7 @@ export function repairCentralSkills(
       const info = inspectPath(item.centralPath);
       if (info.state !== 'link' || info.targetExists ||
           !info.resolvedTarget ||
-          !arePathsEqual(info.resolvedTarget, item.centralPath, ctx.platform) ||
+          !isSelfReferentialLink(item.centralPath, info.resolvedTarget, ctx.platform) ||
           info.resolvedTarget !== item.oldTarget ||
           inspectPath(item.sourcePath!).state !== 'directory' ||
           inspectPath(path.join(item.sourcePath!, 'SKILL.md')).state !== 'file') {
