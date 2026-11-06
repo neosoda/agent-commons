@@ -172,14 +172,14 @@ release remains v0.3.1. Main-branch CI for the merged SHA should also be checked
 
 
 
-## 8. Circular central junction remediation (2026-11-06, PR pending)
+## 8. Circular central junction remediation (2026-11-06, merged PR #56)
 
 Investigated a reported local Windows library with self-referential NTFS
 junctions under `~/.agents/skills/`, legitimate physical sources beneath
 `.sources/`, and dependent broken agent links. Repository-only investigation:
 no local workstation paths or skill files were accessed.
 
-Proposed in a separate PR: the low-level link creator rejects self/ancestor
+Merged in [PR #56](https://github.com/neosoda/agent-commons/pull/56): the low-level link creator rejects self/ancestor
 cycles; doctor flags central circular junctions as unhealthy; sync reports
 central links instead of silently ignoring them; `repair-central` defaults
 to preview and only with `--yes` copies unambiguous physical `.sources`
@@ -187,7 +187,13 @@ skills into the central library, archiving old junctions for recovery. A
 synthetic-HOME regression suite covers dry-run, unique/ambiguous sources,
 nested link refusal, source preservation, and agent sync after recovery.
 
-**Not yet confirmed on a real Windows system.** CI must pass on the exact PR
-head: 6/6 matrix, Chromium QA and Windows portable. Never mass-delete links
-or treat missing/unmatched sources as recoverable. Follow with doctor and
-skills-only preview on the user's machine before applying agent sync.
+**Validation:** the exact PR head `ee708ac5ec9b1b5a87aab3029d68f8cd0f161f3e`
+passed all [six CI matrix jobs](https://github.com/neosoda/agent-commons/actions/runs/42263455310),
+[Chromium browser QA](https://github.com/neosoda/agent-commons/actions/runs/42263455032),
+and [Windows portable packaging](https://github.com/neosoda/agent-commons/actions/runs/42263455046).
+Squash-merged into `main` as `bb7b31332cddc14fbc953f08b2f6987a678dbd9e`.
+**Main-branch post-merge checks were still in progress when this handoff
+update was authored.** No real Windows user machine was accessed or repaired.
+Never mass-delete links or treat missing/unmatched sources as recoverable.
+Follow with doctor and skills-only preview on the user's machine before
+applying agent sync.
