@@ -170,3 +170,24 @@ keyword-based, not semantic. This command does not automatically alter agents'
 active context. No new release or npm publication has been made; public stable
 release remains v0.3.1. Main-branch CI for the merged SHA should also be checked.
 
+
+
+## 8. Circular central junction remediation (2026-11-06, PR pending)
+
+Investigated a reported local Windows library with self-referential NTFS
+junctions under `~/.agents/skills/`, legitimate physical sources beneath
+`.sources/`, and dependent broken agent links. Repository-only investigation:
+no local workstation paths or skill files were accessed.
+
+Proposed in a separate PR: the low-level link creator rejects self/ancestor
+cycles; doctor flags central circular junctions as unhealthy; sync reports
+central links instead of silently ignoring them; `repair-central` defaults
+to preview and only with `--yes` copies unambiguous physical `.sources`
+skills into the central library, archiving old junctions for recovery. A
+synthetic-HOME regression suite covers dry-run, unique/ambiguous sources,
+nested link refusal, source preservation, and agent sync after recovery.
+
+**Not yet confirmed on a real Windows system.** CI must pass on the exact PR
+head: 6/6 matrix, Chromium QA and Windows portable. Never mass-delete links
+or treat missing/unmatched sources as recoverable. Follow with doctor and
+skills-only preview on the user's machine before applying agent sync.

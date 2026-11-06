@@ -9,6 +9,7 @@ import {
   createDirectoryLink,
   detachLinkSafe,
   inspectPath,
+  isSelfReferentialLink,
   removePhysicalDirectorySafe
 } from '../core/links.js';
 import { redactSecrets } from '../security/scrubber.js';
@@ -64,6 +65,24 @@ export function runDoctor(ctx: EnvironmentContext, agentFilter?: string[]): Doct
 
   const centralSkills = discoverCentralSkills(ctx);
   const centralSkillsMap = new Map(centralSkills.map((s) => [s.name, s.path]));
+  let invalidCentralLinks = 0;
+  const centralDirInfo = inspectPath(ctx.centralSkillsDir);
+  if (centralDirInfo.state === 'link' || centralDirInfo.state === 'file') {
+    issues.push('Central skills root is not a physical directory.');
+    invalidCentralLinks++;
+  } else if (centralDirInfo.state === 'directory') {
+    for (const name of fs.readdirSync(ctx.centralSkillsDir).sort()) {
+      if (!isValidIdentifier(name)) continue;
+      const entry = path.join(ctx.centralSkillsDir, name);
+      const info = inspectPath(entry);
+      if (info.state !== 'link') continue;
+      invalidCentralLinks++;
+      const circular = isSelfReferentialLink(entry, info.resolvedTarget, ctx.platform);
+      issues.push(circular
+        ? `Circular central skill link "${name}" (preview "agent-commons repair-central").`
+        : `Central skill "${name}" is a link, not a physical directory (preserved).`);
+    }
+  }
 
   const loadedMcp = loadCentralMcpManifest(ctx);
   if (loadedMcp.status === 'corrupted') {
@@ -169,6 +188,7 @@ export function runDoctor(ctx: EnvironmentContext, agentFilter?: string[]): Doct
 
   const hasCriticalIssues =
     !probe.ok ||
+    invalidCentralLinks > 0 ||
     loadedMcp.status === 'corrupted' ||
     agentStatuses.some((a) => a.brokenLinksCount > 0 || a.mcpStatus === 'corrupted');
 

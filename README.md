@@ -462,3 +462,29 @@ Want to help? See [CONTRIBUTING.md](CONTRIBUTING.md), [SECURITY.md](SECURITY.md)
 Made by [@neosoda](https://github.com/neosoda) · [MIT licensed](LICENSE) · [Releases](https://github.com/neosoda/agent-commons/releases)
 
 </div>
+
+
+### Repair circular central skill junctions (Windows)
+
+If `agent-commons doctor` reports circular links directly under
+`~/.agents/skills/`, do **not** delete the `.sources` folder or run an
+unreviewed recursive junction cleanup. Agent Commons expects physical central
+skill directories containing `SKILL.md`; ordinary `sync` does not follow
+or delete malformed central junctions.
+
+```powershell
+agent-commons repair-central --dry-run
+agent-commons repair-central --yes
+agent-commons doctor
+agent-commons sync --skills-only --dry-run
+agent-commons sync --skills-only
+```
+
+Repair is read-only unless `--yes` is supplied. Only a central junction
+pointing to itself with **one unique, physical** matching source under
+`~/.agents/skills/.sources/` is eligible. The complete source is staged as
+a physical directory, and the old junction is moved to
+`~/.agents/backups/central-repair-*/` for manual recovery. Real central
+folders, valid external links, dangling links with other targets, ambiguous
+sources and unreadable sources are **never overwritten**. The command does
+not execute third-party skills. Inspect remaining doctor findings manually.

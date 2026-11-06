@@ -8,6 +8,7 @@ import {
   createDirectoryLink,
   detachLinkSafe,
   inspectPath,
+  isSelfReferentialLink,
   removePhysicalDirectorySafe
 } from '../core/links.js';
 import { redactSecrets } from '../security/scrubber.js';
@@ -84,6 +85,28 @@ export function syncSkillsForAgents(
       message: `Central skills directory "${ctx.centralSkillsDir}" is a ${centralDirInfo.state}, expected physical directory.`
     });
     return results;
+  }
+
+  // Central links are not valid physical skills. Surface them instead of
+  // silently pretending they are installed; never detach them during sync.
+  if (centralDirInfo.state === 'directory') {
+    for (const name of fs.readdirSync(ctx.centralSkillsDir).sort()) {
+      if (!isValidIdentifier(name)) continue;
+      const entry = path.join(ctx.centralSkillsDir, name);
+      const info = inspectPath(entry);
+      if (info.state !== 'link') continue;
+      const circular = isSelfReferentialLink(entry, info.resolvedTarget, ctx.platform);
+      results.push({
+        agentId: 'commons',
+        agentName: 'Agent Commons',
+        skillName: name,
+        targetPath: entry,
+        action: 'conflict-skipped',
+        message: circular
+          ? 'Circular central skill junction; use "agent-commons repair-central" to preview recovery from .sources.'
+          : 'Central skill is a junction rather than a physical folder; preserved. Only physical skills are synchronized.'
+      });
+    }
   }
 
   // Step 1: Optional adoption of local-only physical skills into central ~/.agents/skills/
