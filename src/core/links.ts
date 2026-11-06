@@ -149,6 +149,18 @@ export function createDirectoryLink(
   platform: NodeJS.Platform = process.platform
 ): void {
   const resolvedTarget = path.resolve(targetDirPath);
+  const resolvedLink = path.resolve(linkPath);
+  // A directory junction that points at itself or at one of its ancestors
+  // creates a filesystem traversal cycle. Check BEFORE touching the disk.
+  const relative = path.relative(resolvedTarget, resolvedLink);
+  const insideTarget = relative === '' ||
+    (relative !== '..' && !relative.startsWith('..' + path.sep) &&
+      !path.isAbsolute(relative));
+  if (insideTarget) {
+    throw new Error(
+      `Refusing circular directory link: "${resolvedLink}" is inside target "${resolvedTarget}".`
+    );
+  }
   const targetInfo = inspectPath(resolvedTarget);
   if (targetInfo.state !== 'directory') {
     throw new Error(

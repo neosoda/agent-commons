@@ -86,6 +86,29 @@ export function syncSkillsForAgents(
     return results;
   }
 
+  // Central links are not valid physical skills. Surface them instead of
+  // silently pretending they are installed; never detach them during sync.
+  if (centralDirInfo.state === 'directory') {
+    for (const name of fs.readdirSync(ctx.centralSkillsDir).sort()) {
+      if (!isValidIdentifier(name)) continue;
+      const entry = path.join(ctx.centralSkillsDir, name);
+      const info = inspectPath(entry);
+      if (info.state !== 'link') continue;
+      const circular = Boolean(info.resolvedTarget) &&
+        arePathsEqual(info.resolvedTarget!, entry, ctx.platform);
+      results.push({
+        agentId: 'commons',
+        agentName: 'Agent Commons',
+        skillName: name,
+        targetPath: entry,
+        action: 'conflict-skipped',
+        message: circular
+          ? 'Circular central skill junction; use "agent-commons repair-central" to preview recovery from .sources.'
+          : 'Central skill is a junction rather than a physical folder; preserved. Only physical skills are synchronized.'
+      });
+    }
+  }
+
   // Step 1: Optional adoption of local-only physical skills into central ~/.agents/skills/
   const initialCentral = new Set(discoverCentralSkills(ctx).map((s) => s.name));
 

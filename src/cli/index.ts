@@ -3,6 +3,7 @@ import { parseArgs } from 'node:util';
 import { readFileSync } from 'node:fs';
 import { startWebServer } from '../web/server.js';
 import { runDoctor } from '../commands/doctor.js';
+import { repairCentralSkills } from '../commands/repair-central.js';
 import { runCatalog } from '../commands/catalog.js';
 import { reviewLocalCatalog } from '../commands/catalog-review.js';
 import { searchPublicCatalog, readPublicCatalog } from '../commands/public-catalog.js';
@@ -30,6 +31,7 @@ USAGE:
 
 COMMANDS:
   doctor                  Diagnose environment, link capabilities, central library, and 17 agents
+  repair-central          Preview/recover circular central junctions from physical .sources
   list                    List central skills, MCP servers, agent inventories, and backups
   catalog                 Inventory local skills / explore curated public skill metadata
   profiles                Save per-agent skill choices locally (never auto-applied)
@@ -58,6 +60,8 @@ SYNC OPTIONS:
 
 EXAMPLES:
   agent-commons doctor
+  agent-commons repair-central
+  agent-commons repair-central --yes
   agent-commons list
   agent-commons catalog
   agent-commons context "review TypeScript security" --agent codex --budget 800
@@ -95,6 +99,16 @@ Options:
   --agent <id>      Inspect specific agent(s) only
   --json            Emit JSON output
   -h, --help        Show this help message
+`.trim();
+    case 'repair-central':
+      return `
+Usage: agent-commons repair-central [--yes] [--dry-run] [--home <path>] [--json]
+
+Preview-only by default. With --yes, stage a physical copy of each uniquely
+recoverable self-referential junction from ~/.agents/skills/.sources, then
+archive the original junction in ~/.agents/backups/central-repair-*.
+Does not change unrelated links, real folders or source files. Synchronize
+agents separately with "agent-commons sync --skills-only" after review.
 `.trim();
     case 'list':
       return `
@@ -282,6 +296,27 @@ export function runCli(argv: string[] = process.argv.slice(2)): number {
     const ctx = createEnvironmentContext({
       homeDir: values.home
     });
+
+    if (command === 'repair-central') {
+      if (positionals.length !== 1) {
+        throw new Error('Usage: agent-commons repair-central [--yes] [--dry-run] [--home <path>]');
+      }
+      const report = repairCentralSkills(ctx, { yes: values.yes, dryRun: values['dry-run'] });
+      if (values.json) console.log(JSON.stringify(report, null, 2));
+      else {
+        console.log('=== Central Skills Junction Repair' +
+          (report.applied ? ' (applied)' : ' (preview)') + ' ===');
+        for (const item of report.items) {
+          console.log('[' + item.status + '] ' + item.name + ': ' + item.message);
+          if (item.sourcePath) console.log('  source: ' + item.sourcePath);
+        }
+        if (report.recoveryDir) console.log('Original junctions: ' + report.recoveryDir);
+        if (!values.yes || values['dry-run']) {
+          console.log('Preview only; use --yes to repair eligible central junctions.');
+        }
+      }
+      return report.errors.length ? 1 : 0;
+    }
 
     if (command === 'doctor') {
       const report = runDoctor(ctx, values.agent);
