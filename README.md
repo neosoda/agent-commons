@@ -1,162 +1,158 @@
 <div align="center">
 
-<img src="docs/assets/agent-commons-hero.svg" alt="Agent Commons — one home for skills, one manifest for tools, every coding agent in sync" width="100%" />
+**🇫🇷 Français** · [🇬🇧 English](README.en.md)
+
+<img src="docs/assets/agent-commons-hero.svg" alt="Agent Commons — une bibliothèque de skills, un manifeste d'outils, tous vos agents IA synchronisés" width="100%" />
 
 <br />
 
 [![CI](https://github.com/neosoda/agent-commons/actions/workflows/ci.yml/badge.svg)](https://github.com/neosoda/agent-commons/actions/workflows/ci.yml)
-[![Latest release](https://img.shields.io/github/v/release/neosoda/agent-commons?label=release&color=7c83ff)](https://github.com/neosoda/agent-commons/releases)
+[![Dernière version](https://img.shields.io/github/v/release/neosoda/agent-commons?label=version&color=7c83ff)](https://github.com/neosoda/agent-commons/releases)
 [![Node 22+](https://img.shields.io/badge/node-22%2B-75D7C9?logo=nodedotjs&logoColor=white)](https://nodejs.org)
-[![MIT license](https://img.shields.io/github/license/neosoda/agent-commons?color=91A0FF)](LICENSE)
-[![Windows · macOS · Linux](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-263550)](#compatibility)
+[![Licence MIT](https://img.shields.io/github/license/neosoda/agent-commons?color=91A0FF)](LICENSE)
+[![Windows · macOS · Linux](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-263550)](#compatibilite)
 
-**The local-first home for your AI coding agents.**  
-Share skills, keep MCP configurations in sync, and protect existing setups.
+**Le point central, local et sécurisé, pour vos agents IA de développement.**  
+Partagez vos skills, synchronisez les configurations MCP et préservez vos installations existantes.
 
-[**Get started**](#quick-start) · [How it works](#how-it-works) · [Compatibility](#compatibility) · [Safety](#designed-to-be-safe) · [Credits](#credits-and-upstream-projects) · [Contribute](CONTRIBUTING.md)
+[**Démarrer**](#démarrage-rapide) · [Fonctionnement](#fonctionnement) · [Compatibilité](#compatibilité) · [Sécurité](#conçu-pour-rester-sûr) · [Crédits](#crédits-et-projets-sources) · [Contribuer](CONTRIBUTING.md)
 
 </div>
 
 ---
 
-## Stop configuring the same thing seventeen times.
+## Fini de configurer dix-sept fois la même chose
 
-Claude Code, Codex, Cursor, Gemini, OpenCode and other coding agents all want their own skills and tools. Agent Commons gives them **a shared source of truth**—without forcing you to abandon their native configurations.
+Claude Code, Codex, Cursor, Gemini, OpenCode et les autres agents de développement utilisent chacun leurs propres skills et outils. **Agent Commons réunit leurs configurations dans une source commune**, tout en conservant les formats natifs des logiciels.
 
-| 🧩 **One skills library** | 🔌 **One MCP manifest** | 🛟 **A way back** |
+| 🧩 **Une bibliothèque de skills** | 🔌 **Un manifeste MCP** | 🛟 **Une marche arrière** |
 |:--|:--|:--|
-| Reuse the same `SKILL.md` folders through filesystem links—no needless copies. | Add shared servers to each supported agent's native JSON, JSONC or TOML configuration. | Preview changes, keep conflicts intact, capture snapshots and restore previous state. |
+| Réutilisez les dossiers `SKILL.md` grâce aux liens système, sans copies inutiles. | Déclarez les serveurs MCP partagés et synchronisez-les dans les fichiers JSON, JSONC ou TOML de chaque agent compatible. | Prévisualisez les changements, conservez les conflits, réalisez des sauvegardes et restaurez un état précédent. |
 
-**At a glance:** 17 registered agent environments · 9 with Skills + MCP adapters · 8 with Skills synchronization · Windows, macOS and Linux CI.
+**En bref :** 17 environnements d'agents reconnus · 9 adaptateurs Skills + MCP · 8 adaptateurs Skills uniquement · CI sous Windows, macOS et Linux.
 
 > [!NOTE]
-> **Distribution:** See [GitHub Releases](https://github.com/neosoda/agent-commons/releases) for the latest published version and Windows portable assets. The optional npm package is available only after [its first verified registry publication](https://www.npmjs.com/package/@neosoda/agent-commons); if npm has not published it yet, use the source instructions below. Never assume `npx @neosoda/agent-commons` works until the registry confirms the version.
+> **Distribution :** consultez les [releases GitHub](https://github.com/neosoda/agent-commons/releases) pour la dernière version effectivement publiée et les archives Windows portables. Le paquet npm facultatif ne doit être considéré comme disponible qu'après [vérification de sa publication sur npm](https://www.npmjs.com/package/@neosoda/agent-commons). Ne présumez pas que `npx @neosoda/agent-commons` fonctionne avant cette vérification.
 
-## Getting Agent Commons
+## Installer Agent Commons
 
-**Windows users:** the simplest distribution is the **portable ZIP** in [GitHub Releases](https://github.com/neosoda/agent-commons/releases/latest). Download the matching `.sha256`, verify it, extract the complete ZIP and launch `AgentCommonsPortable/Start-AgentCommons.cmd`. No Node.js or administrator rights required.
+**Sous Windows :** la solution la plus simple est l'[archive ZIP portable](https://github.com/neosoda/agent-commons/releases/latest). Téléchargez également son fichier `.sha256`, vérifiez l'empreinte, extrayez l'archive complète, puis lancez `AgentCommonsPortable/Start-AgentCommons.cmd`. Aucun administrateur ni installation de Node.js n'est nécessaire.
 
-**Source users:** use the cross-platform instructions below (Node.js 22+). The npm installation route remains optional and must not be advertised as working until the scoped package is actually published.
+**Depuis les sources :** utilisez les instructions multiplateformes ci-dessous avec Node.js 22 ou supérieur. L'installation depuis npm est facultative et ne doit pas être annoncée comme fonctionnelle avant la première publication effective.
 
-**Official downloads:** use the [latest verified GitHub Release](https://github.com/neosoda/agent-commons/releases/latest) for the Windows ZIP and its matching SHA-256. The [v0.3.0 release record](docs/releases/v0.3.0.md) remains available for historical verification. Future patches are published under new version tags: an old release archive is never silently replaced.
+**Téléchargements officiels :** privilégiez la [dernière release GitHub vérifiée](https://github.com/neosoda/agent-commons/releases/latest) et son empreinte SHA-256. Le [dossier de vérification v0.3.0](docs/releases/v0.3.0.md) reste disponible à titre historique. Une version publiée n'est jamais remplacée silencieusement sous le même tag.
 
-## Quick start
+## Démarrage rapide
 
-**Requirements:** Node.js **22+**, npm, and Git.
+**Prérequis :** Node.js **22+**, npm et Git.
 
-~~~bash
+```bash
 git clone https://github.com/neosoda/agent-commons.git
 cd agent-commons
 npm ci
 npm run build
 
-# Inspect your environment — no agent configuration changes
+# Inspecter l'environnement sans modifier les agents
 node dist/cli/index.js doctor
 node dist/cli/index.js list
 
-# Preview every planned synchronization
+# Prévisualiser toutes les synchronisations
 node dist/cli/index.js sync --dry-run
-~~~
+```
 
-When the preview looks right, take a baseline backup and apply:
+Une fois la prévisualisation vérifiée, créez une sauvegarde de référence et appliquez la synchronisation :
 
-~~~bash
+```bash
 node dist/cli/index.js backup
 node dist/cli/index.js sync
-~~~
+```
 
-**New to Agent Commons?** Start with only one agent, using `sync --dry-run --agent codex` (replace `codex` with your agent's ID). The `--home <path>` flag lets you test against a separate home directory first.
+**Vous découvrez Agent Commons ?** Commencez avec un seul agent : `sync --dry-run --agent codex` (remplacez `codex` par son identifiant). L'option `--home <chemin>` permet aussi de tester le logiciel dans un répertoire utilisateur distinct.
 
-## Token-conscious skill discovery
+## Découverte de skills économe en tokens
 
-Choose skills **only when a task needs them**, with no extra agents, hooks or
-automatic context injection:
+Ne sélectionnez **que les skills utiles à la tâche**, sans ajouter d'agents, de hooks ou de contenu dans le contexte automatiquement :
 
 ```bash
 node dist/cli/index.js context "review TypeScript security" --agent codex --budget 800
 node dist/cli/index.js context "test the API" --expand --budget 4000 --json
 ```
 
-By default only a short metadata shortlist is returned; `--expand` opts in
-to full skill content if it fits the estimated token budget. This offline
-read-only feature draws on lightweight agent-routing ideas from ECC without
-bundling ECC itself. Token counts are rough estimates, not measured provider
-usage. See [Lightweight skill routing](docs/CONTEXT_ROUTING.md).
+Par défaut, seul un court classement de métadonnées est renvoyé. `--expand` inclut le contenu complet des `SKILL.md` sélectionnés, sous réserve du budget estimé. Cette recherche hors ligne, en lecture seule, s'inspire d'idées de routage léger issues d'ECC, **sans intégrer ECC**. Le nombre de tokens est approximé, et non mesuré chez les fournisseurs. Consultez le [routage des skills](docs/CONTEXT_ROUTING.md).
 
-## Local Skill Hub — browser dashboard
+## Skill Hub local — interface web
 
-**New:** a responsive, dependency-free local interface to manage Agent Commons without memorizing commands.
+Une interface locale, responsive et sans framework frontend supplémentaire permet de gérer Agent Commons sans mémoriser toutes ses commandes.
 
-After cloning and building the project, run:
+Après récupération et compilation du dépôt :
 
 ```bash
 node dist/cli/index.js web
-# or npm run web (builds first)
+# ou npm run web (compile d'abord le projet)
 ```
 
-Your browser opens at **http://127.0.0.1:4173**. Override the port with `web --port 5050`, use `--no-open` on headless machines, or `--home /temporary/test-home` to test safely against a separate environment. Stop with **Ctrl+C**.
+Le navigateur s'ouvre sur **http://127.0.0.1:4173**. Vous pouvez choisir un autre port avec `web --port 5050`, éviter l'ouverture automatique avec `--no-open` ou utiliser `--home /chemin/test` pour un environnement isolé. Arrêtez le serveur avec **Ctrl+C**.
 
-**Language:** choose **English** or **Français** from the dashboard header. The choice is stored only in your browser's local storage (language code `en`/`fr`), remains after reload, and does not sync to agents or any remote service. The French translation covers navigation, common commands, dialogs, snapshot confirmations, dynamically generated counts and MCP action labels. Identifiers, agent names, upstream skill metadata, and technical diagnostic reports are deliberately left unchanged; some advanced technical text remains in English. French and English use the same backend actions and confirmation safeguards.
+**Langues :** l'interface propose le **français** et l'**anglais**. Le choix est enregistré uniquement dans le stockage local de votre navigateur (`fr` ou `en`). La traduction française couvre notamment la navigation, les dialogues, les compteurs, les confirmations et les actions MCP. Les identifiants, noms d'agents, métadonnées externes et certains rapports techniques restent volontairement inchangés. Les deux langues disposent des mêmes protections et commandes côté serveur.
 
-The dashboard provides:
+L'interface comporte :
 
-- **Overview:** local skills, installed agent environments, MCP server names, backups and quick integrity status.
-- **Skill catalog:** searchable, category-filtered references; inspect pinned upstream source/license; preview and explicitly approve install/update/uninstall where supported.
-- **Agents & profiles:** view installed agents, assign shared skills and catalog categories per agent, save selections privately, preview synchronized changes and apply deliberately (skills only; unrelated settings untouched).
-- **MCP server editor:** add an explicitly configured stdio or HTTP(S)/SSE entry, change existing per-agent inclusion/exclusion/enablement, or remove a named server. Every write is previewed, revision-checked and snapshotted; existing credentials and command options are never returned to the browser.
-- **MCP synchronization:** preview the separate full skills + MCP synchronization, and apply it only after explicit confirmation. Changing the central manifest does not automatically synchronize agents.
-- **Integrity & diagnostics:** strictly offline Git-hash audit, plus on-demand agent diagnostics for broken links and MCP configuration health.
-- **Backups:** create snapshots and restore a known snapshot after typing its exact ID to confirm.
+- **Vue générale :** skills locaux, agents détectés, noms des serveurs MCP, sauvegardes et indicateurs d'intégrité.
+- **Catalogue de skills :** recherche et filtres, provenance et licences, prévisualisation puis approbation explicite des installations, mises à jour et désinstallations compatibles.
+- **Agents et profils :** choix des skills et catégories par agent, enregistrement local, simulation et synchronisation sélective, sans modifier les paramètres sans rapport.
+- **Éditeur MCP :** création de serveurs stdio, HTTP(S) ou SSE, activation ou inclusion/exclusion d'agents, suppression contrôlée. Chaque écriture est prévisualisée, liée à une révision et sauvegardée ; les secrets existants ne sont pas renvoyés au navigateur.
+- **Synchronisation MCP :** simulation distincte d'une synchronisation complète Skills + MCP et application après confirmation explicite. Modifier le manifeste central ne synchronise rien tout seul.
+- **Intégrité :** contrôles de hachage Git hors ligne et diagnostics des liens cassés et configurations MCP.
+- **Sauvegardes :** création et restauration de snapshots, avec saisie exacte de leur identifiant.
 
+**Sécurité de l'éditeur MCP :** les commandes, arguments, URL, variables d'environnement et adaptations propres aux agents déjà enregistrés ne sont pas exposés dans le navigateur. Pour un serveur existant, l'édition se limite à son ciblage d'agents et à son état activé/désactivé. Les autres champs sensibles restent modifiables dans le manifeste local d'origine. Pour une nouvelle entrée, seules des références de variables d'environnement au format `${ENV_VAR}` sont acceptées ; l'éditeur n'exécute aucun serveur. Les modifications créent un snapshot et refusent toute prévisualisation périmée.
 
-**MCP editor safety:** The browser does not expose raw MCP commands, arguments, URLs, environment values, or agent overrides for existing servers. Editing an existing server is intentionally limited to its agent routing and enabled state; sensitive/advanced fields must be maintained in the original local manifest. New entries support stdio or HTTP(S)/SSE without embedded credentials. Only `\${ENV_VAR}`-style environment references are accepted by the backend, and editing the central manifest never executes a server. All writes create a snapshot and reject stale previews.
+**Pendant une prévisualisation MCP ou de synchronisation :** les champs saisis restent présents si la vérification échoue, une erreur compréhensible apparaît et une nouvelle tentative reste possible. Les boutons sont temporairement désactivés afin d'éviter les doubles requêtes ; les prévisualisations devenues obsolètes après un changement de page ne déclenchent pas de confirmation surprise.
 
-**While previewing MCP or sync:** the MCP editor keeps all typed fields until the preview succeeds and asks for explicit confirmation. An invalid or failed preview stays in the editor with a focused inline error, so it can be corrected and retried. Preview buttons disable temporarily to avoid duplicate requests. Synchronization previews that finish after the user navigated elsewhere are discarded rather than opening a surprise confirmation. No automatic apply is introduced.
+**Pendant l'édition :** Actualiser et Vérifier préservent les choix de profils non enregistrés et restaurent le focus lorsque c'est possible. Une réponse réseau ancienne ne peut pas écraser une vue plus récente. Les fenêtres de confirmation restent ouvertes jusqu'à la fin de l'opération ; les erreurs permettent de réessayer ou d'annuler.
 
-**While editing:** manual Refresh or Verify keeps unsaved profile checkbox selections and restores focus to an equivalent control when the interface is rebuilt. Concurrent refreshes cannot replace newer results with stale responses. A confirmation dialog stays open and cannot be dismissed while its action is pending; failed actions display an accessible inline error and permit retry or cancellation. Refresh is read-only and does not save a draft for you.
+**Protection par défaut :** le serveur n'écoute que sur `127.0.0.1`, refuse les requêtes avec Host/Origin étrangers, impose un jeton CSRF aléatoire pour les modifications et ne charge pas de ressources depuis des CDN externes. **Il n'y a ni authentification ni accès réseau public.** N'exposez jamais cette interface d'administration par proxy, redirection de port ou tunnel : elle n'est pas conçue pour une utilisation distante ou multiutilisateur. Pas de démon, télémétrie, téléchargement de rapports privés ou synchronisation automatique en arrière-plan. Une source et une licence référencées ne prouvent pas qu'un skill est sûr à exécuter.
 
-**Safety defaults:** the server listens only on `127.0.0.1`; it refuses cross-origin and foreign-Host requests, requires a random per-process CSRF token for changes, and never loads code, fonts or assets from third-party CDNs. There is **no login and no public network access**. Do not expose this local administrative UI with a proxy, port-forward or tunnel; it is intentionally **not hardened for remote multiuser access**. The dashboard does not start a daemon, install skills automatically, upload private reports or synchronize agents in the background. Skill source/license metadata does not certify script safety.
+### Archive Windows portable (sans installation de Node.js)
 
-### Windows portable package (no Node installation)
+Le [workflow Windows portable](https://github.com/neosoda/agent-commons/actions/workflows/windows-portable.yml) construit et vérifie l'archive ZIP. Utilisez de préférence le ZIP officiel et son empreinte SHA-256 issus de la [dernière release](https://github.com/neosoda/agent-commons/releases/latest). Sinon, les artefacts d'un workflow **réussi** conviennent uniquement aux essais.
 
-The **Windows portable ZIP** is built and verified by the [Windows portable CI workflow](https://github.com/neosoda/agent-commons/actions/workflows/windows-portable.yml). Prefer the ZIP and SHA-256 checksum from the [latest published GitHub Release](https://github.com/neosoda/agent-commons/releases/latest). If there is not yet an official release with both files, use the artifact from a **successful** CI run for testing only.
+1. Téléchargez `AgentCommons-win-x64-portable.zip` et son fichier `.sha256`.
+2. Extrayez **toute** l'archive dans un dossier de votre choix.
+3. Double-cliquez sur `AgentCommonsPortable\Start-AgentCommons.cmd`.
+4. Le Skill Hub s'ouvre localement ; fermez la console avec **Ctrl+C** pour l'arrêter.
 
-1. Download `AgentCommons-win-x64-portable.zip` and its `.sha256` checksum from GitHub Releases (or the verified workflow artifact for testing).
-2. Extract the complete archive into a folder you control.
-3. Double-click `AgentCommonsPortable\Start-AgentCommons.cmd`.
-4. The Skill Hub opens locally in your browser. Close the console with Ctrl+C to stop it.
+L'archive contient le paquet npm compilé, ses dépendances de production et un exécutable officiel **Node.js 24.22.2 LTS épinglé**. La chaîne de vérification extrait le ZIP dans un chemin neuf contenant des espaces, lance le runtime embarqué dans un `HOME` synthétique, contrôle la version et l'accès HTTP 200. Le fichier Node est comparé à la somme SHA-256 publiée par nodejs.org. Le ZIP produit possède également une empreinte SHA-256 mais **n'est pas signé numériquement**. Il ne requiert ni droits administrateur, ni Docker, ni service Windows, ni ouverture sur le réseau.
 
-The ZIP contains the compiled npm distribution, its production dependencies, and a pinned official **Node.js 24.22.2 LTS executable**. The v0.3.0 packaging gate also re-extracts the final ZIP into a clean path containing spaces, boots its embedded runtime against a synthetic home directory, checks the reported CLI version and verifies the archive checksum. The build checks the Node executable against the SHA-256 manifest published by nodejs.org, launches the package's CLI and verifies a real HTTP 200 response from its local dashboard before uploading it. The ZIP also includes a SHA-256 checksum; it is **not code-signed**. No administrator privileges, Docker, Node installation, Windows service or public network binding are required.
+Si Node.js 22+ est déjà installé, `npm run web` fonctionne directement depuis le dépôt compilé.
 
-For operators who already have Node.js 22+, `npm run web` remains available from the checked-out source.
+### Tests avec un vrai navigateur
 
-### Browser-tested quality gates
+Le [workflow de tests Chromium](https://github.com/neosoda/agent-commons/actions/workflows/web-qa.yml) parcourt cinq vues du tableau de bord sur cinq formats (1920×1080, 1440×900, 1280×720, 768×1024 et 390×844). Il vérifie navigation, filtres, boîtes de dialogue, erreurs JavaScript, refus CSP et absence de débordement horizontal. Les captures sont réalisées avec un répertoire utilisateur synthétique vide : elles n'exposent aucune configuration privée.
 
-The [Chromium browser QA workflow](https://github.com/neosoda/agent-commons/actions/workflows/web-qa.yml) opens five dashboard views across five viewport sizes (1920×1080, 1440×900, 1280×720, 768×1024 and 390×844), checks navigation, filtering, dialogs, JavaScript errors, CSP rejections, and horizontal overflow, and uploads screenshots from a synthetic empty user environment. Screenshots never contain personal agent configuration data.
+## Fonctionnement
 
-## How it works
-
-~~~mermaid
+```mermaid
 flowchart TB
-    A["~/.agents/skills/<br/>Shared SKILL.md folders"] --> C["Agent Commons"]
-    B["~/.agents/mcp.json<br/>Shared MCP definitions"] --> C
+    A["~/.agents/skills/<br/>Dossiers SKILL.md partagés"] --> C["Agent Commons"]
+    B["~/.agents/mcp.json<br/>Définitions MCP partagées"] --> C
     C --> D["Claude Code"]
     C --> E["Codex"]
     C --> F["Cursor"]
     C --> G["Gemini / Antigravity"]
-    C --> H["OpenCode + others"]
-    C -. "Backups before changes" .-> I["~/.agents/backups/"]
-~~~
+    C --> H["OpenCode et autres"]
+    C -. "Sauvegarde avant modification" .-> I["~/.agents/backups/"]
+```
 
-**Skills** use NTFS directory junctions on Windows and directory symlinks on macOS/Linux. Agent Commons compares physical copies before replacing them with links. If a local copy differs, it is left untouched unless you explicitly use `--force`.
+Pour les **skills**, Agent Commons utilise des *jonctions NTFS* sous Windows et des *liens symboliques* sous macOS/Linux. Avant de remplacer une copie locale par un lien, il compare les répertoires. Une copie différente est laissée intacte sauf demande explicite avec `--force`.
 
-**MCP** is different: Agent Commons **merges individual servers** into native config files rather than linking whole files together. It preserves unrelated settings and existing server definitions; conflicts require an explicit `--force`.
+Pour les **serveurs MCP**, il fusionne individuellement les entrées dans les fichiers de configuration natifs, au lieu de remplacer tout le fichier par un lien. Les paramètres sans rapport restent intacts et les conflits nécessitent également `--force`.
 
-### 1. Create your shared library
+### 1. Créer la bibliothèque commune
 
-Each skill is a physical directory containing a `SKILL.md` file.
+Chaque skill doit être un répertoire physique possédant un fichier `SKILL.md`.
 
-~~~text
+```text
 ~/.agents/
 ├── skills/
 │   ├── code-review/
@@ -165,15 +161,15 @@ Each skill is a physical directory containing a `SKILL.md` file.
 │       └── SKILL.md
 ├── mcp.json
 └── backups/
-~~~
+```
 
-Already have unique local skills scattered between agents? `sync --adopt` can copy them into the common library and replace those original folders with links. **Preview it first** with `sync --adopt --dry-run`.
+Des skills sont déjà éparpillés entre plusieurs agents ? `sync --adopt` peut copier ceux qui sont uniques vers la bibliothèque commune puis remplacer les dossiers d'origine par des liens. **Prévisualisez impérativement** avec `sync --adopt --dry-run`.
 
-### 2. Declare MCP servers once
+### 2. Déclarer une seule fois les serveurs MCP
 
-Create `~/.agents/mcp.json`:
+Créez `~/.agents/mcp.json` :
 
-~~~json
+```json
 {
   "mcpServers": {
     "my-local-tools": {
@@ -184,43 +180,41 @@ Create `~/.agents/mcp.json`:
     }
   }
 }
-~~~
+```
 
-This is an **example**, not a bundled server. Replace the path with an MCP server you already have installed.
+C'est un **exemple**, pas un serveur livré avec Agent Commons. Remplacez le chemin par celui d'un serveur MCP que vous avez réellement installé.
 
-Agent Commons handles the destination dialect:
-
-| Agent format | Example destination | Behavior |
+| Format agent | Fichier de destination type | Fonctionnement |
 |---|---|---|
-| **JSON** | `~/.claude.json`, `~/.gemini/settings.json` | Merge into `mcpServers` |
-| **JSONC** | `~/.config/opencode/opencode.jsonc` | Merge into `mcp`, preserving comments and formatting |
-| **TOML** | `~/.codex/config.toml` | Merge `[mcp_servers.<name>]` sections |
+| **JSON** | `~/.claude.json`, `~/.gemini/settings.json` | Fusion dans `mcpServers` |
+| **JSONC** | `~/.config/opencode/opencode.jsonc` | Fusion dans `mcp`, commentaires et mise en forme préservés |
+| **TOML** | `~/.codex/config.toml` | Fusion des sections `[mcp_servers.<name>]` |
 
-You can also use `excludeAgents`, `agentOverrides` and environment placeholders such as `${MY_API_TOKEN}`. **Placeholders are preserved, not a secret vault**—configure credentials securely in the target environment and never commit real credentials to your shared manifest.
+Les options `excludeAgents`, `agentOverrides` et les références à des variables d'environnement sont également prises en charge. **Une référence de variable n'est pas un coffre-fort à secrets** : protégez vos identifiants dans l'environnement cible et ne les versionnez jamais dans Git.
 
-### 3. Preview, sync, recover
+### 3. Prévisualiser, synchroniser, restaurer
 
-~~~bash
-# Inspect
+```bash
+# Examiner
 node dist/cli/index.js doctor
 node dist/cli/index.js sync --dry-run
 
-# Make a baseline snapshot, then synchronize
+# Sauvegarder puis synchroniser
 node dist/cli/index.js backup
 node dist/cli/index.js sync
 
-# Inspect or restore snapshots
+# Examiner ou restaurer les sauvegardes
 node dist/cli/index.js restore --list
 node dist/cli/index.js restore snapshot-<id>
-~~~
+```
 
-`restore` replaces the currently managed paths with their saved state. Review the target snapshot before running it: **restoration is a mutating operation**.
+La commande `restore` remplace les chemins gérés par les versions sauvegardées. Vérifiez toujours le snapshot cible : **c'est une opération qui modifie les fichiers**.
 
-**If restore reports an incomplete rollback:** stop and do not retry automatically. Original data may be recoverable in a hidden `.agent-commons-restore-*` staging directory **next to the affected destination**. Within that directory, `original` is the displaced pre-restore file/directory, `replacement` is a prepared snapshot copy (when not installed), and `discarded` may hold a rolled-back replacement. Preserve the entire staging directory before manual recovery. These folders may contain credentials or private agent configuration; do not upload or share them. No process automatically repairs a failed rollback or guarantees recovery after a power/storage failure.
+**Si une restauration échoue partiellement :** arrêtez-vous, ne réessayez pas automatiquement. Les originaux peuvent subsister dans un dossier temporaire `.agent-commons-restore-*` voisin de la destination. Le sous-dossier `original` contient l'élément déplacé avant restauration ; `replacement` une copie préparée du snapshot, et `discarded` éventuellement une version annulée. Conservez le dossier complet avant toute récupération manuelle. Il peut contenir des secrets et des configurations privées : ne le partagez pas. Aucun mécanisme ne garantit un rétablissement automatique après panne ou coupure de courant.
 
-## Explore Skills — public Skill Hub
+## Explorer les skills — catalogue public
 
-**103 upstream skills** currently have verified source and license references. Browse them directly on GitHub in the [public Skills index](docs/skills/README.md).
+**103 skills externes** disposent actuellement de références vérifiées pour leur source et leur licence. Retrouvez-les dans [l'index public](docs/skills/README.md).
 
 ```bash
 node dist/cli/index.js catalog list
@@ -230,129 +224,123 @@ node dist/cli/index.js catalog list --category ai-automation
 node dist/cli/index.js catalog list --source github --license Apache-2.0
 ```
 
-All browsing is **offline** using [catalog/skills.json](catalog/skills.json); `--json` also works. An `INSTALLED` marker indicates a matching local skill in your shared library.
+La consultation utilise `catalog/skills.json` **hors ligne** ; l'option `--json` est aussi disponible. L'indication `INSTALLED` signifie qu'un skill correspondant existe déjà dans votre bibliothèque centrale.
 
-**Safety boundary:** The public catalog still contains only metadata and pinned references. `catalog install` supports a **limited, explicit opt-in GitHub installer** for non-archived skills: the default is a file-list preview, and `--yes` is required before any changes. It verifies Git blob hashes, stages the new skill and refuses to overwrite an existing one. **No third-party scripts are executed.** GitLab/Codeberg installation and updates remain disabled; removal is limited to intact managed skills; source/license checks are not security audits.
+**Limites de sécurité :** le catalogue public contient seulement des métadonnées et des sources épinglées. `catalog install` fournit une installation GitHub limitée et optionnelle : simple prévisualisation par défaut, approbation explicite via `--yes`. Les blobs Git sont vérifiés, les fichiers sont préparés dans un dossier temporaire et une cible existante n'est jamais écrasée. **Aucun script tiers n'est exécuté.** L'installation depuis GitLab/Codeberg reste désactivée ; les suppressions ne concernent que les skills intacts gérés par Agent Commons. Une licence contrôlée ne vaut pas audit de sécurité.
 
-The separate `catalog` / `catalog --json` commands still inventory your **local private library**, using lockfile provenance if available. Do **not** commit those local reports without review. Private/local skill reports are never bundled or published; public upstream references are verified individually. **14 historical HyperFrames skills are marked archived** and link to the last verified pre-retirement commit. Not every installed local skill is available in this public catalog.
+Les commandes `catalog` et `catalog --json` recensent séparément la **bibliothèque locale privée**, avec les informations des éventuels fichiers de verrouillage. Ne publiez pas ces rapports sans les relire. **14 skills historiques HyperFrames** restent indiqués comme archivés et pointent vers leur dernier commit vérifié avant retrait. Tous les skills locaux n'apparaissent pas nécessairement dans le catalogue public.
 
-See [catalog policy](docs/SKILL_CATALOG.md) and [categories](catalog/categories.json).
+Consultez la [politique du catalogue](docs/SKILL_CATALOG.md) et les [catégories](catalog/categories.json).
 
 ---
 
-### Preview a pinned skill installation
+### Installer un skill épinglé
 
 ```bash
-# Fetch only Git tree metadata to see the exact files (no writes)
+# Lire l'arborescence GitHub épinglée, sans écrire
 node dist/cli/index.js catalog install skill-creator
 
-# Explicitly accept installation into ~/.agents/skills/
+# Autoriser explicitement l'installation dans ~/.agents/skills/
 node dist/cli/index.js catalog install skill-creator --yes
 ```
 
-This experimental path supports **public GitHub repositories only**, is limited to **150 files / 8 MiB** per skill and refuses links, unsafe names, existing targets and archived sources. It creates a snapshot before installing, verifies each Git blob hash, then atomically moves the staged files into the shared library. It does **not** run scripts, overwrite custom skills or synchronize agents automatically. Review the upstream scripts and provenance yourself before installing.
+Cette fonction expérimentale accepte uniquement les dépôts GitHub publics, avec au plus **150 fichiers / 8 Mio** par skill. Elle refuse les liens, noms non sûrs, cibles déjà occupées et sources archivées. Elle crée une sauvegarde, vérifie les hachages Git et déplace les fichiers préparés vers la bibliothèque. Elle ne lance aucun script, ne remplace aucun skill personnalisé et ne synchronise pas automatiquement les agents. Relisez les sources avant installation.
 
-`catalog uninstall <id>` now provides a **fully offline verification and removal preview**. It refuses any untracked/changed files or folders, links inside the skill, and any skill linked to an installed agent. Only a directory with an intact Agent Commons management receipt can be removed with `--yes`. A focused snapshot of the skill is created before removal; run `agent-commons restore <snapshot-id>` to put it back.
+`catalog uninstall <id>` réalise une vérification et une prévisualisation **complètement hors ligne**. La suppression est refusée si des fichiers inconnus ou modifiés existent, en présence de liens internes, ou si le skill est encore lié à un agent. Seul un skill doté d'un reçu d'installation Agent Commons intact peut être supprimé avec `--yes` ; un snapshot ciblé permet une restauration avec `agent-commons restore <snapshot-id>`.
 
 ```bash
 node dist/cli/index.js catalog uninstall skill-creator
 node dist/cli/index.js catalog uninstall skill-creator --yes
 ```
 
-**Offline integrity audit:** `catalog verify [id]` checks management receipts, tracked Git blob hashes, unexpected files and nested symlinks/junctions without downloads or filesystem changes. Without an ID, only locally present skills from the reviewed public catalog are audited; unrelated private skills are not scanned or disclosed. Results distinguish `intact`, `modified`, `untracked`, `missing`, `unmanaged` and `unsafe`. Any non-intact result produces a nonzero exit status; `--json` provides a machine-readable report. Matching hashes **do not** imply that upstream code has been security-audited.
+**Contrôle d'intégrité hors ligne :** `catalog verify [id]` examine les reçus, les hachages Git, les fichiers imprévus et les liens internes, sans téléchargement ni modification. Sans identifiant, il vérifie les skills présents qui appartiennent au catalogue public, sans examiner ni divulguer les skills privés sans rapport. Les états possibles sont `intact`, `modified`, `untracked`, `missing`, `unmanaged` et `unsafe`. Toute anomalie donne un code de sortie non nul. `--json` fournit un rapport exploitable par script. **Un hachage correct ne prouve pas l'innocuité du code.**
 
 ```bash
 node dist/cli/index.js catalog verify
 node dist/cli/index.js catalog verify skill-creator --json
 ```
 
-`catalog outdated` now compares the installed Agent Commons management receipts to **the immutable commits pinned in the bundled public catalog**, entirely offline. This is not a check for the latest upstream changes.
+`catalog outdated` compare **hors ligne** les reçus des skills gérés à leurs commits immuables déclarés dans le catalogue intégré. Il ne cherche **pas** la dernière version disponible sur GitHub.
 
 ```bash
-# Offline: compare installed managed skills against catalog revisions
+# Comparer les versions approuvées, sans accès réseau
 node dist/cli/index.js catalog outdated
 
-# Online: preview exact changes from old pinned commit to the catalog's pinned commit
+# Prévisualiser les changements entre deux commits approuvés
 node dist/cli/index.js catalog update skill-creator
 
-# Explicitly approve after inspecting the upstream changes
+# Accepter explicitement après inspection
 node dist/cli/index.js catalog update skill-creator --yes
 ```
 
-Updates only work when a skill was **previously installed by Agent Commons**, is **unmodified**, has **no unknown files or directories**, has a **different pinned commit** in the curated catalog, and is **not linked to an agent**. The updater checks every downloaded Git blob, creates a focused restore snapshot, and uses a staged directory replacement. If the swap fails it attempts to put the previous directory back. No code is executed and there are no silent or automatic updates.
+Une mise à jour n'est autorisée que pour un skill **installé auparavant par Agent Commons**, non modifié, sans fichiers inconnus, sans lien actif vers un agent et dont le commit épinglé a changé dans le catalogue validé. Les blobs sont vérifiés, une sauvegarde ciblée est créée, puis le dossier préparé remplace l'ancien avec tentative de rollback en cas d'erreur. Pas d'exécution de script ni de mise à jour silencieuse.
 
-The project never decides that a mutable GitHub branch is a safe skill update. Releases are explicitly versioned and published on GitHub; this is distinct from updating any installed skill. The npm package is not a confirmed distribution channel until the registry verifies it.
+Agent Commons n'utilise pas une branche GitHub mouvante comme garantie de sécurité. Les releases versionnées du logiciel sont distinctes des mises à jour des skills. La publication npm demeure facultative et ne doit pas être supposée active sans vérification du registre.
 
-### Activate Find Skills for Codex, Claude Code or Gemini
+### Activer Find Skills pour Codex, Claude Code ou Gemini
 
-[Find Skills](https://agenticskills.io/skills/find-skills) from Vercel Labs is
-**already in the reviewed public catalog**, but it is not installed on your PC
-just because it appears in the index. Use the native Agent Commons workflow:
+[Find Skills](https://agenticskills.io/skills/find-skills), de Vercel Labs, figure **déjà dans le catalogue public vérifié**. Cela ne signifie pas qu'il est installé sur votre machine : utilisez le parcours natif d'Agent Commons.
 
 ```powershell
 agent-commons catalog info find-skills
-agent-commons catalog install find-skills          # Preview only
-agent-commons catalog install find-skills --yes    # Approved, pinned install
-agent-commons catalog verify find-skills           # Read-only integrity check
+agent-commons catalog install find-skills          # Prévisualisation uniquement
+agent-commons catalog install find-skills --yes    # Installation épinglée et approuvée
+agent-commons catalog verify find-skills           # Vérification en lecture seule
 agent-commons sync --skill find-skills --agent codex --dry-run
 agent-commons sync --skill find-skills --agent codex
 ```
 
-Substitute `claude-code`, `gemini-cli` or `gemini-antigravity` for
-`codex` as needed. Find Skills discovers third-party skills; **never
-automatically run the upstream `npx skills add -g -y` suggestion**, since that
-bypasses Agent Commons' reviewed catalog, backups and selective sync. See
-[the full activation guide](docs/FIND_SKILLS.md).
+Remplacez `codex` par `claude-code`, `gemini-cli` ou `gemini-antigravity` selon vos agents installés. Find Skills aide à découvrir des skills tiers ; **n'exécutez pas automatiquement `npx skills add -g -y`**, qui contournerait les validations, sauvegardes et synchronisations sélectives d'Agent Commons. Consultez le [guide d'activation détaillé](docs/FIND_SKILLS.md).
 
-### Sync only the skills your agent needs
+### Synchroniser uniquement les skills nécessaires
 
-You **do not** have to load your entire shared library into every agent. Select individual central skills or one or more categories:
+Vous n'êtes **pas obligé** de charger l'intégralité de la bibliothèque centrale dans tous les agents. Sélectionnez un skill ou une catégorie :
 
 ```bash
-# Preview a single skill for Codex, without touching MCP settings
+# Prévisualiser un seul skill pour Codex, sans toucher au MCP
 node dist/cli/index.js sync --skill skill-creator --agent codex --dry-run
 
-# Sync a selected skill to Codex
+# Synchroniser ce skill avec Codex
 node dist/cli/index.js sync --skill skill-creator --agent codex
 
-# Sync all locally installed skills tagged "design" in the public catalog
+# Synchroniser les skills locaux classés « design » avec Claude Code
 node dist/cli/index.js sync --profile design --agent claude-code --dry-run
 ```
 
-The category IDs are `development`, `devops`, `security`, `design`, `ai-automation`, `documentation` and `productivity`. Repeating `--skill` or `--profile` selects multiple entries.
+Identifiants des catégories : `development`, `devops`, `security`, `design`, `ai-automation`, `documentation` et `productivity`. Répétez `--skill` ou `--profile` pour sélectionner plusieurs éléments.
 
-Filters affect **only skills**, never MCP configurations. Unknown skill IDs and categories fail before any writes; an empty matched profile refuses to run. Skills not present in the public catalog are **not automatically included in category profiles**, but remain selectable by explicit `--skill`. Mixing `--skill` with `--profile` is not supported, and `--adopt` cannot be used with a filtered sync.
+Ces filtres ne concernent **que les skills**, jamais les configurations MCP. Les identifiants inconnus et sélections vides provoquent un refus avant écriture. Les skills absents du catalogue public ne sont pas sélectionnés automatiquement par catégorie mais restent accessibles via `--skill`. Mélanger `--skill` et `--profile` n'est pas pris en charge ; `--adopt` n'est pas compatible avec une synchronisation filtrée.
 
-Without a filter, `sync` behaves exactly as before. No agent configuration is permanently changed by browsing the catalog.
+Sans filtre, `sync` garde son comportement habituel. La simple consultation du catalogue n'écrit jamais dans les configurations des agents.
 
-### Save a different skills profile for each agent
+### Enregistrer des profils distincts selon les agents
 
-Profiles are **private, local preferences** kept in `~/.agents/agent-profiles.json`. Save a set of skills and categories once, then apply all configured agents together. **Saving never modifies your installed agents**.
+Les profils sont des préférences **privées et locales** dans `~/.agents/agent-profiles.json`. L'enregistrement ne modifie **jamais** les agents à lui seul.
 
 ```bash
-# Codex receives the coding-agent skill plus all locally installed design skills
+# Codex : un skill précis et les skills locaux de conception
 node dist/cli/index.js profiles set codex --skill skill-creator --profile design
 
-# Claude Code receives only locally installed AI/automation skills
+# Claude Code : les skills IA/automatisation
 node dist/cli/index.js profiles set claude-code --profile ai-automation
 
-# Inspect local preferences without touching skills or MCP configurations
+# Consulter les préférences sans changement
 node dist/cli/index.js profiles list
 node dist/cli/index.js profiles show codex
 
-# Simulate agent-specific changes, then apply only after reviewing
+# Simuler puis appliquer les changements sélectionnés
 node dist/cli/index.js sync --saved-profiles --dry-run
 node dist/cli/index.js sync --saved-profiles
 
-# Remove a saved preference without unlinking or deleting existing skills
+# Effacer un profil enregistré, sans supprimer les liens déjà créés
 node dist/cli/index.js profiles clear codex
 ```
 
-The profile file is never uploaded to GitHub or bundled into the public catalog. Each agent gets only the specified local skills and categories, and the entire selection is validated **before any synchronization changes**. Multiple agents are handled by a single normal sync snapshot/rollback. Missing skills or empty profile matches stop the operation; unavailable agents are skipped. An optional `--agent codex` limits the operation to one configured agent. No MCP modifications, forced replacements, downloads, automatic link removals or background synchronization occur. Ordinary `sync` without `--saved-profiles` retains its previous behavior.
+Le fichier de profil n'est jamais envoyé à GitHub ni inclus dans le catalogue public. Chaque agent reçoit seulement les skills et catégories choisis ; toute la sélection est vérifiée **avant la première écriture**. La synchronisation utilise les mécanismes habituels de sauvegarde et rollback. Des skills absents ou une sélection vide bloquent l'action ; les agents non disponibles sont ignorés. `--agent codex` peut limiter l'opération. Aucune modification MCP, substitution forcée, désinstallation automatique ou synchronisation en arrière-plan. `sync` sans `--saved-profiles` conserve son fonctionnement normal.
 
-## Local skill provenance inventory
+## Inventaire local de provenance des skills
 
-Agent Commons can now **inventory the actual skills installed in your shared library** and look up their origins in the existing Vercel Skills lockfile (`~/.agents/.skill-lock.json`; legacy `skills-lock.json` is also inspected).
+Agent Commons peut répertorier les **skills réellement installés** dans la bibliothèque commune et rechercher leurs sources dans le fichier de verrouillage Vercel Skills (`~/.agents/.skill-lock.json`, ou anciennement `skills-lock.json`).
 
 ```bash
 node dist/cli/index.js catalog
@@ -361,9 +349,9 @@ node dist/cli/index.js catalog review
 node dist/cli/index.js catalog review --json
 ```
 
-**Private review mode** groups every local skill by what needs attention: missing source, absent license claim, mutable/unpinned version, shared upstream path (potential duplicate), or pending human review. Categories are suggested from names but never treated as verified. Nothing is sent to GitHub or executed.
+Le mode de **vérification privée** classe les problèmes : origine manquante, licence absente, version non épinglée, chemin source partagé (doublon potentiel) ou vérification humaine nécessaire. Une catégorie peut être suggérée d'après le nom mais n'est jamais certifiée. Rien n'est envoyé sur GitHub ni exécuté.
 
-On Windows, store the review **outside the repository**:
+Sous Windows, conservez le rapport **hors du dépôt** :
 
 ```powershell
 cd A:\PROJETS\agent-commons
@@ -373,61 +361,58 @@ npm run build
 node dist/cli/index.js catalog review --json > "$env:USERPROFILE\skill-catalog-review.private.json"
 ```
 
-Review that file locally before deciding which entries can be proposed for the community catalog. It may disclose private project names or repository URLs.
+Relisez le fichier avant toute proposition au catalogue communautaire : il peut révéler des projets ou des URL de dépôts privés.
 
-The public catalog accepts reviewed skills with repository-specific paths and pinned license files from GitHub, GitLab and Codeberg. **Local reports are never promoted automatically.**
-
-
-The report lists skill names, source URLs (where recorded), repository subpaths, pinned refs and **author-declared** license strings. Unknown sources and licenses are explicitly marked **unknown**. Every entry remains **unverified** until a person reviews the original repository and its license.
+Le catalogue public accepte des skills examinés avec des chemins et des licences épinglés dans GitHub, GitLab ou Codeberg. **Les rapports locaux ne sont jamais rendus publics automatiquement.** Ils indiquent les noms, URL sources enregistrées, chemins internes, commits épinglés et déclarations de licences de leurs auteurs. Une source ou une licence absente reste marquée **inconnue** jusqu'à examen humain.
 
 > [!WARNING]
-> **Catalog output is local inventory, not an approved public skill pack.** Lockfile source URLs may reference private repositories. Do not commit the output to GitHub without reviewing every entry. Cataloging a third-party skill does **not** grant permission to redistribute its files or prove that it is safe to execute.
+> **Le résultat de `catalog` est un inventaire local, pas un pack de skills validé.** Les URL enregistrées peuvent désigner des dépôts privés. Ne committez jamais ce rapport sans examiner chaque élément. Recenser un skill ne donne pas le droit de le redistribuer et ne garantit pas sa sécurité.
 
-Nothing is downloaded, installed, synchronized or published by `catalog`. See [the catalog policy](docs/SKILL_CATALOG.md) for the intended workflow for a future opt-in public collection.
+Aucun téléchargement, installation, synchronisation ou publication n'est déclenché par `catalog`. Consultez la [politique du catalogue](docs/SKILL_CATALOG.md).
 
 ---
 
-## CLI reference
+## Référence des commandes
 
-| Command | Purpose |
+| Commande | Fonction |
 |---|---|
-| `doctor` | Diagnose detected agents, links and MCP configurations |
-| `web [--port 4173] [--no-open]` | Open the local Skill Hub dashboard and manage skills, profiles and snapshots |
-| `catalog list` / `catalog search <term>` | Browse the offline public Skill Hub |
-| `catalog info <id>` | View upstream source, license and installed status |
-| `catalog install <id>` | Preview GitHub pinned skill files without changes |
-| `catalog install <id> --yes` | Explicitly approve installation of a new, non-archived GitHub skill |
-| `catalog uninstall <id>` | Preview removal of an intact, managed and unlinked skill (offline) |
-| `catalog uninstall <id> --yes` | Back up and safely remove that managed skill; restore by snapshot |
-| `catalog` / `catalog --json` | Inspect the local private skill inventory (read-only) |
-| `catalog review [--json]` | Find missing provenance, license claims, unpinned versions and possible duplicates locally |
-| `catalog verify [id] [--json]` | Audit reviewed-catalog skills offline, without changes; nonzero exit on integrity failures |
-| `list` | Inventory skills, MCP servers, agents and snapshots |
-| `sync --dry-run` | Show planned changes without modifying agent configurations |
-| `sync` | Synchronize compatible installed agents |
-| `sync --skill <id> --agent <id>` | Link selected central skill(s) to selected agent(s) |
-| `sync --profile design --agent <id>` | Link locally installed, catalog-classified design skills |
-| `profiles set <agent-id> --skill <id>` | Store each agent's private skill choices without syncing |
-| `sync --saved-profiles --dry-run` | Preview all saved per-agent selections; apply without dry-run |
-| `sync --adopt` | Import unique local skills into the shared library |
-| `sync --force` | Resolve differing copies/conflicting servers by replacing them **with backups** |
-| `sync --agent codex` | Synchronize only the named agent (repeat `--agent` for more) |
-| `sync --skills-only` / `sync --mcp-only` | Restrict the operation to one feature |
-| `backup` | Make a manual snapshot |
-| `restore --list` | List available snapshots |
-| `restore <snapshot-id>` | Restore a selected snapshot |
-| `list --json` / `doctor --json` | Machine-readable reports |
-| `--home <path>` | Operate against an alternative user home |
+| `doctor` | Diagnostiquer agents, liens et configurations MCP |
+| `web [--port 4173] [--no-open]` | Ouvrir l'interface locale des skills, profils et sauvegardes |
+| `catalog list` / `catalog search <terme>` | Consulter hors ligne le catalogue public |
+| `catalog info <id>` | Voir source, auteur, licence et état d'installation |
+| `catalog install <id>` | Prévisualiser sans modification les fichiers GitHub épinglés |
+| `catalog install <id> --yes` | Approuver l'installation d'un skill GitHub non archivé |
+| `catalog uninstall <id>` | Examiner la suppression d'un skill intact, géré et non lié |
+| `catalog uninstall <id> --yes` | Sauvegarder puis supprimer ce skill |
+| `catalog` / `catalog --json` | Inventorier les skills privés locaux en lecture seule |
+| `catalog review [--json]` | Détecter les origines/licences manquantes et doublons potentiels |
+| `catalog verify [id] [--json]` | Vérifier hors ligne l'intégrité des skills gérés |
+| `list` | Voir skills, serveurs MCP, agents et snapshots |
+| `sync --dry-run` | Simuler sans modifier les fichiers |
+| `sync` | Synchroniser les agents compatibles installés |
+| `sync --skill <id> --agent <id>` | Synchroniser certains skills avec certains agents |
+| `sync --profile design --agent <id>` | Synchroniser les skills locaux d'une catégorie |
+| `profiles set <agent-id> --skill <id>` | Enregistrer les préférences d'un agent |
+| `sync --saved-profiles --dry-run` | Prévisualiser les profils enregistrés ; retirer `--dry-run` pour appliquer |
+| `sync --adopt` | Importer des skills locaux uniques dans la bibliothèque commune |
+| `sync --force` | Sauvegarder puis remplacer les copies divergentes ou conflits MCP |
+| `sync --agent codex` | Limiter la synchronisation à cet agent (répétable) |
+| `sync --skills-only` / `sync --mcp-only` | Limiter l'opération aux skills ou au MCP |
+| `backup` | Créer une sauvegarde manuelle |
+| `restore --list` | Lister les sauvegardes disponibles |
+| `restore <snapshot-id>` | Restaurer un snapshot précis |
+| `list --json` / `doctor --json` | Produire des rapports JSON |
+| `--home <chemin>` | Utiliser un autre répertoire utilisateur |
 
-Use `node dist/cli/index.js --help` for the full help, or `node dist/cli/index.js sync --help` for command-specific options. Once npm publishing is enabled, these commands will also be available through the `agent-commons` executable.
+La commande `node dist/cli/index.js --help` fournit l'aide complète et `node dist/cli/index.js sync --help` celle de la synchronisation. L'exécutable `agent-commons` sera également disponible par npm une fois la publication effectivement vérifiée.
 
-## Compatibility
+## Compatibilité
 
-**17 registered environments** in the source registry. This means their paths and file formats have automated coverage—not that their proprietary applications are launched and end-to-end verified in CI.
+**17 environnements d'agents enregistrés** dans le code. Cela signifie que leurs chemins et formats sont couverts par les tests automatisés, pas que leurs applications propriétaires sont lancées et validées de bout en bout par la CI.
 
 ### Skills + MCP (9)
 
-| Environment | Skills | MCP |
+| Environnement | Skills | MCP |
 |---|:---:|---|
 | Claude Code | ✓ | JSON |
 | OpenAI Codex | ✓ | TOML |
@@ -439,58 +424,58 @@ Use `node dist/cli/index.js --help` for the full help, or `node dist/cli/index.j
 | MiniMax | ✓ | JSON |
 | Kiro | ✓ | JSON |
 
-### Skills only (8)
+### Skills uniquement (8)
 
-| Environment | Support |
+| Environnement | Prise en charge |
 |---|---|
 | Cline · Roo Code · Continue · Kimi | Skills |
-| Hermes (home and AppData installations) | Skills |
+| Hermes (installations home et AppData) | Skills |
 | Aider Desk · Grok | Skills |
 
-MCP for skills-only environments is **not yet implemented**. Actual agent directory layouts can change between vendor versions; please [open an issue](https://github.com/neosoda/agent-commons/issues) if detection or integration needs updating.
+La synchronisation MCP n'est **pas encore implémentée** pour les environnements limités aux skills. Les chemins et formats des applications peuvent évoluer : [ouvrez une issue](https://github.com/neosoda/agent-commons/issues) en cas d'incompatibilité.
 
-## Designed to be safe
+## Conçu pour rester sûr
 
-- **Local-first.** No account, background daemon, telemetry or network routing is required for synchronization. Building from source and installing npm packages still use their usual package registries.
-- **Non-destructive defaults.** Existing divergent skill folders and conflicting MCP definitions are preserved until you opt into `--force`.
-- **Careful config editing.** JSONC comments, indentation and line endings are preserved during supported edits. Corrupted configurations are reported instead of overwritten.
-- **Recoverable changes.** Mutating sync operations record per-path snapshots and attempt rollback after errors. Restore now preflights entries and expected backup payloads before destructive changes in the current source.
-- **Windows-friendly.** Junctions avoid requiring Developer Mode or Administrator rights on compatible local filesystems. Some network filesystems cannot create them.
-- **No bundled third-party skills.** Agent Commons distributes the sync engine, **not** someone else's skill library.
+- **Local d'abord.** Ni compte, ni démon permanent, ni télémétrie, ni connexion réseau nécessaires pour synchroniser. L'installation des dépendances depuis npm utilise naturellement son registre.
+- **Pas de destruction par défaut.** Les dossiers divergents et les définitions MCP conflictuelles sont préservés jusqu'à demande explicite de `--force`.
+- **Édition prudente.** Les commentaires JSONC, l'indentation et les fins de ligne sont conservés. Les fichiers corrompus sont signalés au lieu d'être écrasés.
+- **Récupération possible.** Les synchronisations enregistrent des snapshots par chemin et tentent un retour arrière en cas d'erreur. La restauration vérifie les éléments sauvegardés avant toute modification.
+- **Adapté à Windows.** Les jonctions NTFS évitent généralement d'exiger le mode développeur ou des privilèges administrateur. Certains systèmes de fichiers réseau peuvent ne pas les prendre en charge.
+- **Aucun skill tiers embarqué.** Agent Commons distribue le moteur de synchronisation, **pas les bibliothèques des autres auteurs**.
 
 > [!CAUTION]
-> A filesystem synchronizer can replace files. Always inspect `sync --dry-run`, keep an independent backup of important agent configurations, and treat `--force` and `restore` as deliberate changes. This project is pre-1.0 software.
+> Un synchroniseur de fichiers peut remplacer des données. Examinez `sync --dry-run`, gardez une sauvegarde indépendante des configurations importantes et considérez `--force` et `restore` comme des opérations sensibles. Le logiciel est encore en version pré-1.0.
 
-## Credits and upstream projects
+## Crédits et projets sources
 
-Agent Commons is an independent project by [@neosoda](https://github.com/neosoda) under the [MIT license](LICENSE). It builds on community standards, open-source tooling and the work of skill authors. **Thank you to all these maintainers.** This section separates dependencies we actually use from inspiration and skill references.
+Agent Commons est un projet indépendant de [@neosoda](https://github.com/neosoda), distribué sous [licence MIT](LICENSE). Il s'appuie sur des standards ouverts, des outils libres et le travail de nombreux auteurs de skills. **Merci à toutes ces personnes et équipes !** Les dépendances effectives sont distinguées des inspirations et des simples références du catalogue.
 
-### Dependencies and build / test tools
+### Dépendances et outils de compilation / tests
 
-| Project | Role in Agent Commons | License |
+| Projet | Utilisation dans Agent Commons | Licence |
 |:--|:--|:--|
-| [Node.js](https://github.com/nodejs/node) | Runtime; official binary bundled in the Windows portable build | MIT |
-| [JSONC Parser](https://github.com/microsoft/node-jsonc-parser) | Production dependency for JSONC configuration parsing and editing | MIT |
-| [TypeScript](https://github.com/microsoft/TypeScript) | Source language and compiler (development dependency) | Apache-2.0 |
-| [DefinitelyTyped / @types/node](https://github.com/DefinitelyTyped/DefinitelyTyped) | Node.js type definitions (development dependency) | MIT |
-| [Undici / undici-types](https://github.com/nodejs/undici) | Transitive development type dependency | MIT |
-| [Playwright](https://github.com/microsoft/playwright) | Chromium browser tests in CI; **not** a production dependency | Apache-2.0 |
-| [actions/checkout](https://github.com/actions/checkout), [actions/setup-node](https://github.com/actions/setup-node), [actions/upload-artifact](https://github.com/actions/upload-artifact), [actions/download-artifact](https://github.com/actions/download-artifact) | GitHub Actions checkout, Node setup and test artifacts | Refer to each upstream repository |
+| [Node.js](https://github.com/nodejs/node) | Runtime ; binaire officiel inclus dans l'archive Windows portable | MIT |
+| [JSONC Parser](https://github.com/microsoft/node-jsonc-parser) | Dépendance de production pour la lecture et la modification des configurations JSONC | MIT |
+| [TypeScript](https://github.com/microsoft/TypeScript) | Langage source et compilateur (dépendance de développement) | Apache-2.0 |
+| [DefinitelyTyped / @types/node](https://github.com/DefinitelyTyped/DefinitelyTyped) | Types Node.js (développement) | MIT |
+| [Undici / undici-types](https://github.com/nodejs/undici) | Types transitifs pour le développement | MIT |
+| [Playwright](https://github.com/microsoft/playwright) | Tests Chromium en CI ; **pas** une dépendance de production | Apache-2.0 |
+| [actions/checkout](https://github.com/actions/checkout), [actions/setup-node](https://github.com/actions/setup-node), [actions/upload-artifact](https://github.com/actions/upload-artifact), [actions/download-artifact](https://github.com/actions/download-artifact) | Récupération du code, préparation de Node et gestion des artefacts GitHub Actions | Voir les licences de chaque dépôt |
 
-Runtime and npm dependency license labels above match the checked-in package manifest / lockfile or official upstream license. Dependencies are separate from the public skill catalog.
+Les licences indiquées pour les dépendances npm proviennent du manifeste, du lockfile ou des licences amont. Elles sont distinctes des licences des skills présents dans le catalogue.
 
-### Design references (not bundled)
+### Inspirations (non intégrées au paquet)
 
-- [Everything Claude Code (ECC)](https://github.com/affaan-m/ECC) by affaan-m — inspiration for the lightweight, offline, task-based skill router; **no ECC skills or hooks are copied**.
-- [Vercel Skills](https://github.com/vercel-labs/skills) by Vercel — external skill discovery ecosystem and the upstream [Find Skills](https://agenticskills.io/skills/find-skills) skill; Agent Commons uses its **own** curated installer and does **not** bundle or automatically run `npx skills add`.
-- [Model Context Protocol](https://github.com/modelcontextprotocol/specification) — interoperability specification for MCP configuration; the reference specification is **not a bundled dependency**.
+- [Everything Claude Code (ECC)](https://github.com/affaan-m/ECC), par affaan-m — idées pour le routage léger, local et contextuel des skills ; **aucun skill ni hook ECC n'est copié**.
+- [Vercel Skills](https://github.com/vercel-labs/skills), par Vercel — écosystème externe de découverte de skills et source du skill [Find Skills](https://agenticskills.io/skills/find-skills). Agent Commons conserve **son propre programme d'installation vérifié** et n'exécute pas automatiquement `npx skills add`.
+- [Model Context Protocol](https://github.com/modelcontextprotocol/specification) — spécification d'interopérabilité des configurations MCP ; **la spécification n'est pas une dépendance embarquée**.
 
-### Upstream repositories referenced by the public Skill Hub
+### Dépôts référencés dans le catalogue public
 
 <!-- BEGIN GENERATED SKILL REPOSITORY CREDITS -->
-The curated public catalog references **103 skills across 16 upstream repositories**. These are **metadata-only references**: Agent Commons does not bundle or automatically install their skills. Licenses are recorded per pinned skill in [the full index](docs/skills/README.md); repositories with more than one license must be checked per skill.
+Le catalogue public référence **103 skills provenant de 16 dépôts sources**. Il s'agit **uniquement de métadonnées** : Agent Commons ne regroupe pas et n'installe pas automatiquement ces skills. Les licences sont indiquées pour chaque skill épinglé dans [l'index complet](docs/skills/README.md) ; si plusieurs licences figurent pour un dépôt, vérifiez celle applicable à chaque skill.
 
-| Upstream repository | Author / maintainer | Skill references | Declared license(s) |
+| Dépôt source | Auteur / responsable | Skills référencés | Licence(s) déclarée(s) |
 |:--|:--|--:|:--|
 | [anthropics/skills](https://github.com/anthropics/skills) | Anthropic | 4 | Apache-2.0 |
 | [cathrynlavery/diagram-design](https://github.com/cathrynlavery/diagram-design) | Cathryn Lavery | 1 | MIT |
@@ -510,41 +495,26 @@ The curated public catalog references **103 skills across 16 upstream repositori
 | [Vincentwei1021/video-shotcraft](https://github.com/Vincentwei1021/video-shotcraft) | Vincentwei1021 | 1 | Apache-2.0 |
 <!-- END GENERATED SKILL REPOSITORY CREDITS -->
 
-Each individual skill, its author, **pinned source commit**, applicable license evidence and lifecycle status is linked in [the complete skill attribution index](docs/skills/README.md) and [catalog/skills.json](catalog/skills.json). Some entries are archived. Being listed does **not** imply a code audit, installation, endorsement or redistribution of third-party content.
+Pour chaque skill, son auteur, son **commit source épinglé**, la preuve de licence applicable et son statut (actif ou archivé) figurent dans [l'index d'attribution complet](docs/skills/README.md) et dans [catalog/skills.json](catalog/skills.json). Une référence ne signifie **ni audit du code, ni installation, ni approbation, ni redistribution**.
 
-Private skills installed on your own machine are **not inventoried or credited publicly**: use `agent-commons catalog review` to check their provenance locally without publishing private paths or repositories.
+Les skills installés dans votre bibliothèque **privée** ne sont ni recensés ni crédités publiquement. Vérifiez leur provenance localement avec `agent-commons catalog review` sans exposer vos chemins ou dépôts privés.
 
-## Development
+## Développement
 
-~~~bash
+```bash
 npm ci
 npm run typecheck
 npm test
 npm pack --dry-run
-~~~
+```
 
-CI runs on **Windows, macOS and Ubuntu** with **Node.js 22 and 24**. Tests use isolated temporary homes; the registered agent adapters are tested without starting proprietary agents.
+La CI s'exécute sur **Windows, macOS et Ubuntu** avec **Node.js 22 et 24**. Tous les tests utilisent des répertoires utilisateur temporaires isolés : les applications propriétaires des agents ne sont pas lancées.
 
-Want to help? See [CONTRIBUTING.md](CONTRIBUTING.md), [SECURITY.md](SECURITY.md), the [changelog](CHANGELOG.md), or [open an issue](https://github.com/neosoda/agent-commons/issues). We welcome reproducible bug reports, additional adapter tests and documentation fixes.
+Pour contribuer, consultez [CONTRIBUTING.md](CONTRIBUTING.md), [SECURITY.md](SECURITY.md), le [journal des changements](CHANGELOG.md) ou [ouvrez une issue](https://github.com/neosoda/agent-commons/issues). Les rapports de bugs reproductibles, tests de compatibilité et améliorations documentaires sont bienvenus.
 
----
+### Réparer les jonctions circulaires de la bibliothèque centrale (Windows)
 
-<div align="center">
-
-**One source of truth. Less configuration drift. More time building.**
-
-Made by [@neosoda](https://github.com/neosoda) · [MIT licensed](LICENSE) · [Releases](https://github.com/neosoda/agent-commons/releases)
-
-</div>
-
-
-### Repair circular central skill junctions (Windows)
-
-If `agent-commons doctor` reports circular links directly under
-`~/.agents/skills/`, do **not** delete the `.sources` folder or run an
-unreviewed recursive junction cleanup. Agent Commons expects physical central
-skill directories containing `SKILL.md`; ordinary `sync` does not follow
-or delete malformed central junctions.
+Si `agent-commons doctor` signale des liens circulaires directement dans `~/.agents/skills/`, **ne supprimez pas `.sources`** et ne lancez pas de nettoyage récursif non vérifié. La bibliothèque commune attend des dossiers physiques contenant `SKILL.md` ; la commande de synchronisation ordinaire ne suit ni ne supprime les jonctions malformées.
 
 ```powershell
 agent-commons repair-central --dry-run
@@ -554,11 +524,14 @@ agent-commons sync --skills-only --dry-run
 agent-commons sync --skills-only
 ```
 
-Repair is read-only unless `--yes` is supplied. Only a central junction
-pointing to itself with **one unique, physical** matching source under
-`~/.agents/skills/.sources/` is eligible. The complete source is staged as
-a physical directory, and the old junction is moved to
-`~/.agents/backups/central-repair-*/` for manual recovery. Real central
-folders, valid external links, dangling links with other targets, ambiguous
-sources and unreadable sources are **never overwritten**. The command does
-not execute third-party skills. Inspect remaining doctor findings manually.
+Sans `--yes`, cette réparation est une simple prévisualisation. Une jonction centrale pointant sur elle-même ne peut être remplacée que si **une seule source physique** sans ambiguïté est trouvée dans `~/.agents/skills/.sources/`. Le contenu est préparé dans un dossier physique et l'ancienne jonction archivée sous `~/.agents/backups/central-repair-*/`. Les vrais dossiers, liens valides, liens cassés sans source correspondante et sources ambiguës restent intacts. Aucun script tiers n'est exécuté. Examinez manuellement les problèmes restants.
+
+---
+
+<div align="center">
+
+**Une source de vérité. Moins de configurations divergentes. Plus de temps pour créer.**
+
+Par [@neosoda](https://github.com/neosoda) · [Licence MIT](LICENSE) · [Releases](https://github.com/neosoda/agent-commons/releases)
+
+</div>
