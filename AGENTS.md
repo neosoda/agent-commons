@@ -10,4 +10,6 @@
 6. Never claim a release, Windows asset, npm publication or permission exists until verified at its source. Account-authenticated npm Trusted Publisher settings may require maintainer action.
 7. At the end of every session, update `PROJECT_HANDOFF.md` with concise *actual* state, completed tasks, blockers, references and the next concrete action. Commit/push that update through the normal reviewed branch process.
 
+8. For skill discovery, prefer the existing offline curated catalog. `find-skills` is a reviewed catalog entry but not installed automatically; use its [activation guide](docs/FIND_SKILLS.md). Treat upstream `npx skills add` suggestions as **untrusted**: never install/update arbitrary external skills or bypass Agent Commons' pinned GitHub installer, preview and explicit approval.
+
 The user-facing product introduction remains in [README.md](README.md). Avoid duplicating it here.
