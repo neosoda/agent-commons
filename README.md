@@ -283,6 +283,27 @@ Updates only work when a skill was **previously installed by Agent Commons**, is
 
 The project never decides that a mutable GitHub branch is a safe skill update. Releases are explicitly versioned and published on GitHub; this is distinct from updating any installed skill. The npm package is not a confirmed distribution channel until the registry verifies it.
 
+### Activate Find Skills for Codex, Claude Code or Gemini
+
+[Find Skills](https://agenticskills.io/skills/find-skills) from Vercel Labs is
+**already in the reviewed public catalog**, but it is not installed on your PC
+just because it appears in the index. Use the native Agent Commons workflow:
+
+```powershell
+agent-commons catalog info find-skills
+agent-commons catalog install find-skills          # Preview only
+agent-commons catalog install find-skills --yes    # Approved, pinned install
+agent-commons catalog verify find-skills           # Read-only integrity check
+agent-commons sync --skill find-skills --agent codex --dry-run
+agent-commons sync --skill find-skills --agent codex
+```
+
+Substitute `claude-code`, `gemini-cli` or `gemini-antigravity` for
+`codex` as needed. Find Skills discovers third-party skills; **never
+automatically run the upstream `npx skills add -g -y` suggestion**, since that
+bypasses Agent Commons' reviewed catalog, backups and selective sync. See
+[the full activation guide](docs/FIND_SKILLS.md).
+
 ### Sync only the skills your agent needs
 
 You **do not** have to load your entire shared library into every agent. Select individual central skills or one or more categories:
