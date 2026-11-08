@@ -197,3 +197,24 @@ update was authored.** No real Windows user machine was accessed or repaired.
 Never mass-delete links or treat missing/unmatched sources as recoverable.
 Follow with doctor and skills-only preview on the user's machine before
 applying agent sync.
+
+## 9. Find Skills activation guidance (2026-11-08)
+
+The Vercel Labs `find-skills` entry **already existed** in the curated
+`catalog/skills.json` at pinned commit `92a9a34ac3bf88e695e468b90c7bf32f163d32c8`
+(MIT, reviewed metadata dated 2026-10-29). The upstream pinned folder
+contains `SKILL.md`; no duplicate catalog entry or vendor copy was needed.
+
+This change adds `docs/FIND_SKILLS.md` and links its approval-based
+installation, integrity verification and selective agent sync from `README.md`
+and `AGENTS.md`. It forbids silently invoking upstream `npx skills add -g -y`
+in place of the existing managed workflow. No executable code, catalog metadata,
+MCP configs, local skills, or user machines were changed. A repository change
+**cannot install the skill on the user's private PC**; that requires running
+the documented commands locally. No published release was changed.
+
+Validation status when authored: guidance only; GitHub PR CI and physical
+Windows verification have not yet been confirmed. Before merging check the
+exact PR-head CI 6/6, Chromium and Windows portable gates; after merge check
+main. Next: activate locally through `catalog install find-skills` then
+selective `sync --skill find-skills` for the desired installed agents.
