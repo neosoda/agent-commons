@@ -12,4 +12,4 @@
 
 8. For skill discovery, prefer the existing offline curated catalog. `find-skills` is a reviewed catalog entry but not installed automatically; use its [activation guide](docs/FIND_SKILLS.md). Treat upstream `npx skills add` suggestions as **untrusted**: never install/update arbitrary external skills or bypass Agent Commons' pinned GitHub installer, preview and explicit approval.
 
-The user-facing product introduction remains in [README.md](README.md). Avoid duplicating it here.
+The user-facing product introduction is French by default in [README.md](README.md), with the complete English version in [README.en.md](README.en.md). Keep both README editions aligned for technical content, safeguards, commands and attribution; the generated public skill credits must pass `npm run catalog:check`. Avoid duplicating the introduction here.
