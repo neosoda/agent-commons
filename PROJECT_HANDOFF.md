@@ -238,3 +238,20 @@ or MCP configurations modified.
 `docs/complete-upstream-credits-20261108` pending PR validation. Exact-head
 CI matrix 6/6, Chromium and Windows portable required before merging; verify
 main branch after merge.
+
+## 11. Documentation bilingue (2026-11-08)
+
+French is now the default GitHub landing page in `README.md`, translated from
+the complete prior English documentation including CLI, data-safety limitations,
+Windows portable installation and all third-party credits. Original English
+documentation is preserved as `README.en.md` (plus a language switcher in
+both files). Relative links continue to resolve from the repository root.
+
+`scripts/build-catalog.mjs` now regenerates and checks **both** README credit
+sections using the curated public manifest. Future content, security and
+behavior changes must be kept in sync in the two languages. `AGENTS.md`
+records this requirement. No executable runtime or skill sync changes.
+
+**At authorship:** changes are on `docs/bilingual-readme-fr-default-20261108`.
+PR head CI 6/6, Chromium QA, Windows portable qualification and post-merge
+main validation remain required. No local workstation was accessed.
