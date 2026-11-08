@@ -475,7 +475,7 @@ Agent Commons is an independent project by [@neosoda](https://github.com/neosoda
 | [DefinitelyTyped / @types/node](https://github.com/DefinitelyTyped/DefinitelyTyped) | Node.js type definitions (development dependency) | MIT |
 | [Undici / undici-types](https://github.com/nodejs/undici) | Transitive development type dependency | MIT |
 | [Playwright](https://github.com/microsoft/playwright) | Chromium browser tests in CI; **not** a production dependency | Apache-2.0 |
-| [actions/checkout](https://github.com/actions/checkout), [actions/setup-node](https://github.com/actions/setup-node), [actions/upload-artifact](https://github.com/actions/upload-artifact) | GitHub Actions checkout, Node setup and test artifacts | Refer to each upstream repository |
+| [actions/checkout](https://github.com/actions/checkout), [actions/setup-node](https://github.com/actions/setup-node), [actions/upload-artifact](https://github.com/actions/upload-artifact), [actions/download-artifact](https://github.com/actions/download-artifact) | GitHub Actions checkout, Node setup and test artifacts | Refer to each upstream repository |
 
 Runtime and npm dependency license labels above match the checked-in package manifest / lockfile or official upstream license. Dependencies are separate from the public skill catalog.
 
