@@ -13,7 +13,7 @@
 **The local-first home for your AI coding agents.**  
 Share skills, keep MCP configurations in sync, and protect existing setups.
 
-[**Get started**](#quick-start) · [How it works](#how-it-works) · [Compatibility](#compatibility) · [Safety](#designed-to-be-safe) · [Contribute](CONTRIBUTING.md)
+[**Get started**](#quick-start) · [How it works](#how-it-works) · [Compatibility](#compatibility) · [Safety](#designed-to-be-safe) · [Credits](#credits-and-upstream-projects) · [Contribute](CONTRIBUTING.md)
 
 </div>
 
@@ -460,6 +460,59 @@ MCP for skills-only environments is **not yet implemented**. Actual agent direct
 
 > [!CAUTION]
 > A filesystem synchronizer can replace files. Always inspect `sync --dry-run`, keep an independent backup of important agent configurations, and treat `--force` and `restore` as deliberate changes. This project is pre-1.0 software.
+
+## Credits and upstream projects
+
+Agent Commons is an independent project by [@neosoda](https://github.com/neosoda) under the [MIT license](LICENSE). It builds on community standards, open-source tooling and the work of skill authors. **Thank you to all these maintainers.** This section separates dependencies we actually use from inspiration and skill references.
+
+### Dependencies and build / test tools
+
+| Project | Role in Agent Commons | License |
+|:--|:--|:--|
+| [Node.js](https://github.com/nodejs/node) | Runtime; official binary bundled in the Windows portable build | MIT |
+| [JSONC Parser](https://github.com/microsoft/node-jsonc-parser) | Production dependency for JSONC configuration parsing and editing | MIT |
+| [TypeScript](https://github.com/microsoft/TypeScript) | Source language and compiler (development dependency) | Apache-2.0 |
+| [DefinitelyTyped / @types/node](https://github.com/DefinitelyTyped/DefinitelyTyped) | Node.js type definitions (development dependency) | MIT |
+| [Undici / undici-types](https://github.com/nodejs/undici) | Transitive development type dependency | MIT |
+| [Playwright](https://github.com/microsoft/playwright) | Chromium browser tests in CI; **not** a production dependency | Apache-2.0 |
+| [actions/checkout](https://github.com/actions/checkout), [actions/setup-node](https://github.com/actions/setup-node), [actions/upload-artifact](https://github.com/actions/upload-artifact), [actions/download-artifact](https://github.com/actions/download-artifact) | GitHub Actions checkout, Node setup and test artifacts | Refer to each upstream repository |
+
+Runtime and npm dependency license labels above match the checked-in package manifest / lockfile or official upstream license. Dependencies are separate from the public skill catalog.
+
+### Design references (not bundled)
+
+- [Everything Claude Code (ECC)](https://github.com/affaan-m/ECC) by affaan-m — inspiration for the lightweight, offline, task-based skill router; **no ECC skills or hooks are copied**.
+- [Vercel Skills](https://github.com/vercel-labs/skills) by Vercel — external skill discovery ecosystem and the upstream [Find Skills](https://agenticskills.io/skills/find-skills) skill; Agent Commons uses its **own** curated installer and does **not** bundle or automatically run `npx skills add`.
+- [Model Context Protocol](https://github.com/modelcontextprotocol/specification) — interoperability specification for MCP configuration; the reference specification is **not a bundled dependency**.
+
+### Upstream repositories referenced by the public Skill Hub
+
+<!-- BEGIN GENERATED SKILL REPOSITORY CREDITS -->
+The curated public catalog references **103 skills across 16 upstream repositories**. These are **metadata-only references**: Agent Commons does not bundle or automatically install their skills. Licenses are recorded per pinned skill in [the full index](docs/skills/README.md); repositories with more than one license must be checked per skill.
+
+| Upstream repository | Author / maintainer | Skill references | Declared license(s) |
+|:--|:--|--:|:--|
+| [anthropics/skills](https://github.com/anthropics/skills) | Anthropic | 4 | Apache-2.0 |
+| [cathrynlavery/diagram-design](https://github.com/cathrynlavery/diagram-design) | Cathryn Lavery | 1 | MIT |
+| [cloudflare/security-audit-skill](https://github.com/cloudflare/security-audit-skill) | Cloudflare | 1 | MIT |
+| [heygen-com/hyperframes](https://github.com/heygen-com/hyperframes) | HeyGen | 21 | Apache-2.0 |
+| [Jakeschincariol/founder-skill](https://github.com/Jakeschincariol/founder-skill) | Jake Schincariol | 11 | MIT |
+| [JuliusBrussee/caveman](https://github.com/JuliusBrussee/caveman) | JuliusBrussee | 22 | Apache-2.0 |
+| [latent-spaces/brag](https://github.com/latent-spaces/brag) | latent-spaces | 1 | MIT |
+| [morellid/ai-act-skill](https://github.com/morellid/ai-act-skill) | Davide Morelli | 1 | MIT |
+| [nextlevelbuilder/ui-ux-pro-max-skill](https://github.com/nextlevelbuilder/ui-ux-pro-max-skill) | Next Level Builder | 7 | Apache-2.0 / MIT |
+| [noamdorr/saas-product-demo-video](https://github.com/noamdorr/saas-product-demo-video) | Noam Dorr | 1 | MIT |
+| [nutlope/hallmark](https://github.com/nutlope/hallmark) | nutlope | 1 | MIT |
+| [pbakaus/impeccable](https://github.com/pbakaus/impeccable) | pbakaus | 1 | Apache-2.0 |
+| [thedotmack/claude-mem](https://github.com/thedotmack/claude-mem) | thedotmack | 28 | Apache-2.0 |
+| [vercel-labs/skills](https://github.com/vercel-labs/skills) | Vercel | 1 | MIT |
+| [viettranx/3dviz-pro-max](https://github.com/viettranx/3dviz-pro-max) | viettranx | 1 | MIT |
+| [Vincentwei1021/video-shotcraft](https://github.com/Vincentwei1021/video-shotcraft) | Vincentwei1021 | 1 | Apache-2.0 |
+<!-- END GENERATED SKILL REPOSITORY CREDITS -->
+
+Each individual skill, its author, **pinned source commit**, applicable license evidence and lifecycle status is linked in [the complete skill attribution index](docs/skills/README.md) and [catalog/skills.json](catalog/skills.json). Some entries are archived. Being listed does **not** imply a code audit, installation, endorsement or redistribution of third-party content.
+
+Private skills installed on your own machine are **not inventoried or credited publicly**: use `agent-commons catalog review` to check their provenance locally without publishing private paths or repositories.
 
 ## Development
 
