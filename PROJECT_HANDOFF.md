@@ -218,3 +218,23 @@ Windows verification have not yet been confirmed. Before merging check the
 exact PR-head CI 6/6, Chromium and Windows portable gates; after merge check
 main. Next: activate locally through `catalog install find-skills` then
 selective `sync --skill find-skills` for the desired installed agents.
+
+## 10. Upstream credits and README drift protection (2026-11-08)
+
+Added a prominent `Credits and upstream projects` section in `README.md` for
+runtime/dev/test dependencies, design inspirations and all **16 upstream
+repositories representing 103 reviewed skill references**. Each repository is
+credited by upstream URL, maintainer, number of skill references and manifest
+license; per-skill pinned commits and exact license evidence remain in
+`docs/skills/README.md`. Private local skill libraries are excluded.
+
+Extended `scripts/build-catalog.mjs` to generate the README's marked
+upstream table from the validated public catalog; `catalog:check` now fails
+when a manifest change leaves README credits out of date. Documentation and
+build-time verification only: no third-party skill files, local agent settings
+or MCP configurations modified.
+
+**At authorship:** work on branch
+`docs/complete-upstream-credits-20261108` pending PR validation. Exact-head
+CI matrix 6/6, Chromium and Windows portable required before merging; verify
+main branch after merge.
