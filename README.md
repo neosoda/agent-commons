@@ -10,7 +10,7 @@
 [![Dernière version](https://img.shields.io/github/v/release/neosoda/agent-commons?label=version&color=7c83ff)](https://github.com/neosoda/agent-commons/releases)
 [![Node 22+](https://img.shields.io/badge/node-22%2B-75D7C9?logo=nodedotjs&logoColor=white)](https://nodejs.org)
 [![Licence MIT](https://img.shields.io/github/license/neosoda/agent-commons?color=91A0FF)](LICENSE)
-[![Windows · macOS · Linux](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-263550)](#compatibilite)
+[![Windows · macOS · Linux](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-263550)](#compatibilité)
 
 **Le point central, local et sécurisé, pour vos agents IA de développement.**  
 Partagez vos skills, synchronisez les configurations MCP et préservez vos installations existantes.
