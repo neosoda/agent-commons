@@ -14,6 +14,7 @@ import type { EnvironmentContext, SyncReport } from '../types.js';
 import { renderWebUi } from './ui.js';
 import { applyMcpEdit, mcpEditorOverview, previewMcpEdit, type McpEditorRequest } from './mcp-editor.js';
 import { syncInputRevision, type SyncPreviewKind } from './sync-revision.js';
+import { inspectMcpControlCenter, previewMcpProfile, saveMcpProfile, deleteMcpProfile, runMcpProfileSync } from '../mcp/control-center.js';
 
 const IDENTIFIER = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const SNAPSHOT = /^snapshot-\d{8}-\d{6}-[a-f0-9]{6}$/;
@@ -119,7 +120,18 @@ const PUBLIC_ERRORS = new Set([
   'Home directory must be physical.',
   'Workspace changed since preview. Preview again before applying.',
   'Synchronization preview expired or missing. Preview again before applying.',
-  'Workspace too large for safe synchronization preview.'
+  'Workspace too large for safe synchronization preview.',
+  'MCP profile changed since preview.',
+  'MCP profile preview required.',
+  'Invalid custom MCP profile name.',
+  'Invalid MCP profile selection.',
+  'Invalid MCP profile.',
+  'Unknown MCP profile.',
+  'Cannot combine untrusted OSINT and sensitive infrastructure MCP.',
+  'MCP profile references unconfigured server.',
+  'Central MCP configuration is invalid.',
+  'MCP profile targets unavailable clients.',
+  'No configured MCP servers match this profile.'
 ]);
 function publicError(error: unknown, _ctx: EnvironmentContext): string {
   const message = error instanceof Error ? error.message : '';
@@ -216,8 +228,8 @@ export async function startWebServer(options: WebOptions = {}): Promise<WebInsta
   let origin = '';
   // One-time, short-lived approvals bound to an exact filesystem/plan snapshot.
   // Kept only in this process; restart invalidates outstanding confirmations.
-  const syncTickets = new Map<string, {kind: SyncPreviewKind; revision: string; plan: string; expires: number}>();
-  const previewSync = (kind: SyncPreviewKind, run: () => SyncReport): {previewToken:string; report:object} => {
+  const syncTickets = new Map<string, {kind: SyncPreviewKind; scope: string; revision: string; plan: string; expires: number}>();
+  const previewSync = (kind: SyncPreviewKind, run: () => SyncReport, scope = ''): {previewToken:string; report:object} => {
     const revision = syncInputRevision(ctx, kind);
     const report = run();
     if (revision !== syncInputRevision(ctx, kind)) {
@@ -230,18 +242,18 @@ export async function startWebServer(options: WebOptions = {}): Promise<WebInsta
     if (syncTickets.size >= 32) syncTickets.delete(syncTickets.keys().next().value!);
     const previewToken = crypto.randomBytes(24).toString('hex');
     syncTickets.set(previewToken, {
-      kind, revision, plan: JSON.stringify(summary), expires: Date.now() + 5 * 60 * 1000
+      kind, scope, revision, plan: JSON.stringify(summary), expires: Date.now() + 5 * 60 * 1000
     });
     return {previewToken, report: summary};
   };
-  const checkSyncTicket = (kind: SyncPreviewKind, body: JsonValue, run: () => SyncReport): SyncReport => {
+  const checkSyncTicket = (kind: SyncPreviewKind, body: JsonValue, run: () => SyncReport, scope = ''): SyncReport => {
     const token = body.previewToken;
     if (typeof token !== 'string' || !/^[a-f0-9]{48}$/.test(token)) {
       throw new Error('Synchronization preview expired or missing. Preview again before applying.');
     }
     const ticket = syncTickets.get(token);
     syncTickets.delete(token); // A confirmation is single-use, including on failed validation.
-    if (!ticket || ticket.kind !== kind || ticket.expires < Date.now()) {
+    if (!ticket || ticket.kind !== kind || ticket.scope !== scope || ticket.expires < Date.now()) {
       throw new Error('Synchronization preview expired or missing. Preview again before applying.');
     }
     const revision = syncInputRevision(ctx, kind);
@@ -286,6 +298,9 @@ export async function startWebServer(options: WebOptions = {}): Promise<WebInsta
       }
       if (req.method === 'GET' && path.pathname === '/api/state') {
         json(res, 200, safeState(ctx)); return;
+      }
+      if (req.method === 'GET' && path.pathname === '/api/mcp-center') {
+        json(res, 200, inspectMcpControlCenter(ctx)); return;
       }
       if (req.method === 'GET' && path.pathname === '/api/mcp') {
         json(res, 200, mcpEditorOverview(ctx)); return;
@@ -380,6 +395,36 @@ export async function startWebServer(options: WebOptions = {}): Promise<WebInsta
             json(res, 200, {plan: previewMcpEdit(ctx, request)}); return;
           }
           json(res, 200, {result: applyMcpEdit(ctx, request)}); return;
+        }
+        if (action === 'mcp-profile-preview' || action === 'mcp-profile-save') {
+          const name = checkedId(body.name);
+          const value = { agents: checkedList(body.agents), servers: checkedList(body.servers) };
+          if (action === 'mcp-profile-preview') {
+            json(res, 200, {plan: previewMcpProfile(ctx, name, value)}); return;
+          }
+          requireApproval(body);
+          const revision = typeof body.expectedRevision === 'string' ? body.expectedRevision : '';
+          json(res, 200, {saved:true,plan:saveMcpProfile(ctx,name,value,revision)}); return;
+        }
+        if (action === 'mcp-profile-delete') {
+          requireApproval(body);
+          deleteMcpProfile(ctx,checkedId(body.name),
+            typeof body.expectedRevision === 'string' ? body.expectedRevision : '');
+          json(res, 200, {deleted:true}); return;
+        }
+        if (action === 'mcp-profile-sync-preview' || action === 'mcp-profile-sync-apply') {
+          const name = checkedId(body.name);
+          const agents = checkedList(body.agents);
+          const scope = JSON.stringify([name,[...agents].sort()]);
+          const preview = () => runMcpProfileSync(ctx,name,agents,true);
+          if (action === 'mcp-profile-sync-preview') {
+            const {previewToken,report} = previewSync('mcp',preview,scope);
+            json(res,200,{...report,previewToken}); return;
+          }
+          requireApproval(body);
+          const plan = checkSyncTicket('mcp',body,preview,scope);
+          if (plan.errors.length) throw new Error('Sync preview reported errors; refusing to apply.');
+          json(res,200,summarize(runMcpProfileSync(ctx,name,agents,false),ctx)); return;
         }
         if (action === 'backup') {
           requireApproval(body);
