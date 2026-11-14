@@ -214,7 +214,7 @@ La commande `restore` remplace les chemins gérés par les versions sauvegardée
 
 ## Explorer les skills — catalogue public
 
-**174 skills externes** disposent actuellement de références vérifiées pour leur source et leur licence. Retrouvez-les dans [l'index public](docs/skills/README.md).
+**181 skills externes** disposent actuellement de références vérifiées pour leur source et leur licence. Retrouvez-les dans [l'index public](docs/skills/README.md).
 
 ```bash
 node dist/cli/index.js catalog list
@@ -231,6 +231,21 @@ La consultation utilise `catalog/skills.json` **hors ligne** ; l'option `--json`
 Les commandes `catalog` et `catalog --json` recensent séparément la **bibliothèque locale privée**, avec les informations des éventuels fichiers de verrouillage. Ne publiez pas ces rapports sans les relire. **14 skills historiques HyperFrames** restent indiqués comme archivés et pointent vers leur dernier commit vérifié avant retrait. Tous les skills locaux n'apparaissent pas nécessairement dans le catalogue public.
 
 Consultez la [politique du catalogue](docs/SKILL_CATALOG.md) et les [catégories](catalog/categories.json).
+
+### Chief of Staff, Anatomy et Marketing Psychology
+
+**7 nouvelles références** viennent compléter le catalogue : les trois projets demandés, plus **quatre skills compagnons** nécessaires à Chief of Staff. Le total atteint **181 skills, issus de 20 dépôts**.
+
+```bash
+agent-commons catalog info chief-of-staff
+agent-commons catalog info anatomy
+agent-commons catalog info marketing-psychology
+agent-commons catalog install anatomy       # Prévisualisation sans écriture
+agent-commons catalog install anatomy --yes # Installation explicite
+agent-commons sync --skill anatomy --agent codex --dry-run
+```
+
+**Anatomy** utilise une sélection vérifiée de **126 fichiers sources (~1,9 Mio)**, en excluant les PDF et HTML de démonstration générés ; les limites de sécurité restent inchangées. **Chief of Staff** est expérimental et repose sur des fonctionnalités d'agents compatibles. [Guide FR](docs/CURATED_SKILLS.md) · [English](docs/CURATED_SKILLS.en.md).
 
 ### Collection Everything Claude Code (ECC)
 
@@ -488,7 +503,7 @@ Les licences indiquées pour les dépendances npm proviennent du manifeste, du l
 ### Dépôts référencés dans le catalogue public
 
 <!-- BEGIN GENERATED SKILL REPOSITORY CREDITS -->
-Le catalogue public référence **174 skills provenant de 17 dépôts sources**. Il s'agit **uniquement de métadonnées** : Agent Commons ne regroupe pas et n'installe pas automatiquement ces skills. Les licences sont indiquées pour chaque skill épinglé dans [l'index complet](docs/skills/README.md) ; si plusieurs licences figurent pour un dépôt, vérifiez celle applicable à chaque skill.
+Le catalogue public référence **181 skills provenant de 20 dépôts sources**. Il s'agit **uniquement de métadonnées** : Agent Commons ne regroupe pas et n'installe pas automatiquement ces skills. Les licences sont indiquées pour chaque skill épinglé dans [l'index complet](docs/skills/README.md) ; si plusieurs licences figurent pour un dépôt, vérifiez celle applicable à chaque skill.
 
 | Dépôt source | Auteur / responsable | Skills référencés | Licence(s) déclarée(s) |
 |:--|:--|--:|:--|
@@ -496,10 +511,12 @@ Le catalogue public référence **174 skills provenant de 17 dépôts sources**.
 | [anthropics/skills](https://github.com/anthropics/skills) | Anthropic | 4 | Apache-2.0 |
 | [cathrynlavery/diagram-design](https://github.com/cathrynlavery/diagram-design) | Cathryn Lavery | 1 | MIT |
 | [cloudflare/security-audit-skill](https://github.com/cloudflare/security-audit-skill) | Cloudflare | 1 | MIT |
+| [coreyhaines31/marketingskills](https://github.com/coreyhaines31/marketingskills) | Corey Haines | 1 | MIT |
 | [heygen-com/hyperframes](https://github.com/heygen-com/hyperframes) | HeyGen | 21 | Apache-2.0 |
 | [Jakeschincariol/founder-skill](https://github.com/Jakeschincariol/founder-skill) | Jake Schincariol | 11 | MIT |
 | [JuliusBrussee/caveman](https://github.com/JuliusBrussee/caveman) | JuliusBrussee | 22 | Apache-2.0 |
 | [latent-spaces/brag](https://github.com/latent-spaces/brag) | latent-spaces | 1 | MIT |
+| [mattpocock/skills](https://github.com/mattpocock/skills) | Matt Pocock | 5 | MIT |
 | [morellid/ai-act-skill](https://github.com/morellid/ai-act-skill) | Davide Morelli | 1 | MIT |
 | [nextlevelbuilder/ui-ux-pro-max-skill](https://github.com/nextlevelbuilder/ui-ux-pro-max-skill) | Next Level Builder | 7 | Apache-2.0 / MIT |
 | [noamdorr/saas-product-demo-video](https://github.com/noamdorr/saas-product-demo-video) | Noam Dorr | 1 | MIT |
@@ -509,6 +526,7 @@ Le catalogue public référence **174 skills provenant de 17 dépôts sources**.
 | [vercel-labs/skills](https://github.com/vercel-labs/skills) | Vercel | 1 | MIT |
 | [viettranx/3dviz-pro-max](https://github.com/viettranx/3dviz-pro-max) | viettranx | 1 | MIT |
 | [Vincentwei1021/video-shotcraft](https://github.com/Vincentwei1021/video-shotcraft) | Vincentwei1021 | 1 | Apache-2.0 |
+| [wheresryan22/anatomy](https://github.com/wheresryan22/anatomy) | Ryan (wheresryan22) | 1 | MIT |
 <!-- END GENERATED SKILL REPOSITORY CREDITS -->
 
 Pour chaque skill, son auteur, son **commit source épinglé**, la preuve de licence applicable et son statut (actif ou archivé) figurent dans [l'index d'attribution complet](docs/skills/README.md) et dans [catalog/skills.json](catalog/skills.json). Une référence ne signifie **ni audit du code, ni installation, ni approbation, ni redistribution**.

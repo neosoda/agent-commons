@@ -262,6 +262,77 @@
       ]
     },
     {
+      "id": "anatomy",
+      "name": "Anatomy",
+      "description": "Create precise interactive isometric SVG, WebGL and 3D figures that explain technical systems. Curated source-only installation excludes generated HTML and PDFs.",
+      "category": "design",
+      "author": "Ryan (wheresryan22)",
+      "repository": "https://github.com/wheresryan22/anatomy",
+      "source": "https://github.com/wheresryan22/anatomy/tree/1482e8469b0a9e0d8cc18ea2740a01423d29ae80",
+      "path": ".",
+      "ref": "1482e8469b0a9e0d8cc18ea2740a01423d29ae80",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/wheresryan22/anatomy/blob/1482e8469b0a9e0d8cc18ea2740a01423d29ae80/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-14",
+        "licenseChecked": "2026-11-14",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "isometric",
+        "visualization",
+        "interactive",
+        "webgl"
+      ],
+      "installPaths": [
+        "SKILL.md",
+        "LICENSE",
+        "agents",
+        "kit",
+        "references",
+        "scripts",
+        "examples/arcade-cabinet/arcade-cabinet.css",
+        "examples/arcade-cabinet/build.mjs",
+        "examples/arcade-cabinet/live.js",
+        "examples/arcade-cabinet/parts.mjs",
+        "examples/arcade-cabinet/screen.mjs",
+        "examples/arcade-cabinet/sheet.mjs",
+        "examples/desk-computer/build.mjs",
+        "examples/dial-indicator/build.mjs",
+        "examples/push-button/build.mjs",
+        "examples/push-button/sheet.mjs",
+        "examples/raptor-engine/build.mjs",
+        "examples/raptor-engine/live.js",
+        "examples/raptor-engine/raptor.css",
+        "examples/raptor-engine/sheet.mjs",
+        "examples/ripple-tank/build.mjs",
+        "examples/ripple-tank/live.js",
+        "examples/ripple-tank/model.mjs",
+        "examples/ripple-tank/ripple.css",
+        "examples/spot-plate/art.tsx",
+        "examples/spot-plate/drops.ts",
+        "examples/spot-plate/fan.ts",
+        "examples/spot-plate/figure.tsx",
+        "examples/spot-plate/geometry.ts",
+        "examples/spot-plate/live.tsx",
+        "examples/spot-plate/rig.ts",
+        "examples/spot-plate/spot-plate.css",
+        "examples/test-rig/art.tsx",
+        "examples/test-rig/figure.tsx",
+        "examples/test-rig/geometry.ts",
+        "examples/test-rig/live.tsx",
+        "examples/test-rig/pose.ts",
+        "examples/test-rig/rig.ts",
+        "examples/test-rig/stretch.css",
+        "examples/test-rig/view.ts",
+        "examples/turning-dial/build.mjs",
+        "examples/turning-dial/dial.css",
+        "examples/turning-dial/live.js",
+        "examples/turning-dial/stress.mjs"
+      ]
+    },
+    {
       "id": "api-design",
       "name": "Api Design",
       "description": "Design usable APIs with coherent resources, pagination, error handling and versioning.",
@@ -885,6 +956,34 @@
         "ecc",
         "everything-claude-code",
         "development"
+      ]
+    },
+    {
+      "id": "chief-of-staff",
+      "name": "Chief of Staff",
+      "description": "Coordinate long-running goals through specialist subagents, retrospectives, issue tracking and durable knowledge. Experimental upstream skill requiring compatible agent features.",
+      "category": "ai-automation",
+      "author": "Matt Pocock",
+      "repository": "https://github.com/mattpocock/skills",
+      "source": "https://github.com/mattpocock/skills/tree/5863806dd4e15c63174bee4e7515a4256792ecfa/skills/in-progress/chief-of-staff",
+      "path": "skills/in-progress/chief-of-staff",
+      "ref": "5863806dd4e15c63174bee4e7515a4256792ecfa",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/mattpocock/skills/blob/5863806dd4e15c63174bee4e7515a4256792ecfa/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-14",
+        "licenseChecked": "2026-11-14",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [
+        "retro",
+        "to-spec",
+        "to-tickets",
+        "implement-spec"
+      ],
+      "tags": [
+        "agent-orchestration",
+        "experimental"
       ]
     },
     {
@@ -2311,6 +2410,28 @@
       "dependencies": []
     },
     {
+      "id": "implement-spec",
+      "name": "Implement Spec",
+      "description": "Orchestrate coding agents to implement a specification and tracked tickets on an integration branch.",
+      "category": "development",
+      "author": "Matt Pocock",
+      "repository": "https://github.com/mattpocock/skills",
+      "source": "https://github.com/mattpocock/skills/tree/5863806dd4e15c63174bee4e7515a4256792ecfa/skills/engineering/implement-spec",
+      "path": "skills/engineering/implement-spec",
+      "ref": "5863806dd4e15c63174bee4e7515a4256792ecfa",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/mattpocock/skills/blob/5863806dd4e15c63174bee4e7515a4256792ecfa/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-14",
+        "licenseChecked": "2026-11-14",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "agent-orchestration"
+      ]
+    },
+    {
       "id": "investigate-first",
       "name": "Investigate First",
       "description": "Diagnose ambiguous failures before editing. Use for unknown causes, intermittent behavior, performance regressions, or investigations needing evidence-ranked hypotheses.",
@@ -2519,6 +2640,30 @@
       "tags": [
         "ai-automation",
         "claude-mem"
+      ]
+    },
+    {
+      "id": "marketing-psychology",
+      "name": "Marketing Psychology",
+      "description": "Apply psychological mental models and ethical persuasion to positioning, buyer behavior and marketing decisions.",
+      "category": "productivity",
+      "author": "Corey Haines",
+      "repository": "https://github.com/coreyhaines31/marketingskills",
+      "source": "https://github.com/coreyhaines31/marketingskills/tree/1f837447b20bb6f0e72d87b80ece1c221c362c7d/skills/marketing-psychology",
+      "path": "skills/marketing-psychology",
+      "ref": "1f837447b20bb6f0e72d87b80ece1c221c362c7d",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/coreyhaines31/marketingskills/blob/1f837447b20bb6f0e72d87b80ece1c221c362c7d/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-14",
+        "licenseChecked": "2026-11-14",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "marketing",
+        "psychology",
+        "ethical"
       ]
     },
     {
@@ -3333,6 +3478,28 @@
       ]
     },
     {
+      "id": "retro",
+      "name": "Retro",
+      "description": "Review a coding session to identify improvements to development workflows and automated checks.",
+      "category": "development",
+      "author": "Matt Pocock",
+      "repository": "https://github.com/mattpocock/skills",
+      "source": "https://github.com/mattpocock/skills/tree/5863806dd4e15c63174bee4e7515a4256792ecfa/skills/engineering/retro",
+      "path": "skills/engineering/retro",
+      "ref": "5863806dd4e15c63174bee4e7515a4256792ecfa",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/mattpocock/skills/blob/5863806dd4e15c63174bee4e7515a4256792ecfa/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-14",
+        "licenseChecked": "2026-11-14",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "retrospective"
+      ]
+    },
+    {
       "id": "saas-product-demo-video",
       "name": "Saas Product Demo Video",
       "description": "Build, refine or reskin a short SaaS product film in Remotion, cut to the beat of its soundtrack, from the product's real screens, brand and copy. Use when the user wants a product demo, launch video, explainer or social reel of their software made in code; wants an existing product film changed, reskinned or critiqued; or has a product with no interface to record and needs schematic UI. Covers 16:9 and 9:16, b-roll under motion graphics, sound effects and checked renders. No",
@@ -3775,6 +3942,50 @@
       "tags": [
         "documentation",
         "claude-mem"
+      ]
+    },
+    {
+      "id": "to-spec",
+      "name": "To Spec",
+      "description": "Turn a conversation into a structured implementation specification for a configured issue tracker.",
+      "category": "documentation",
+      "author": "Matt Pocock",
+      "repository": "https://github.com/mattpocock/skills",
+      "source": "https://github.com/mattpocock/skills/tree/5863806dd4e15c63174bee4e7515a4256792ecfa/skills/engineering/to-spec",
+      "path": "skills/engineering/to-spec",
+      "ref": "5863806dd4e15c63174bee4e7515a4256792ecfa",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/mattpocock/skills/blob/5863806dd4e15c63174bee4e7515a4256792ecfa/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-14",
+        "licenseChecked": "2026-11-14",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "specification"
+      ]
+    },
+    {
+      "id": "to-tickets",
+      "name": "To Tickets",
+      "description": "Convert plans into dependent tracer-bullet implementation tickets for a configured issue tracker.",
+      "category": "productivity",
+      "author": "Matt Pocock",
+      "repository": "https://github.com/mattpocock/skills",
+      "source": "https://github.com/mattpocock/skills/tree/5863806dd4e15c63174bee4e7515a4256792ecfa/skills/engineering/to-tickets",
+      "path": "skills/engineering/to-tickets",
+      "ref": "5863806dd4e15c63174bee4e7515a4256792ecfa",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/mattpocock/skills/blob/5863806dd4e15c63174bee4e7515a4256792ecfa/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-14",
+        "licenseChecked": "2026-11-14",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "planning"
       ]
     },
     {
