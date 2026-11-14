@@ -222,7 +222,7 @@ node dist/cli/index.js restore snapshot-<id>
 
 ## Explore Skills — public Skill Hub
 
-**174 upstream skills** currently have verified source and license references. Browse them directly on GitHub in the [public Skills index](docs/skills/README.md).
+**181 upstream skills** currently have verified source and license references. Browse them directly on GitHub in the [public Skills index](docs/skills/README.md).
 
 ```bash
 node dist/cli/index.js catalog list
@@ -239,6 +239,21 @@ All browsing is **offline** using [catalog/skills.json](catalog/skills.json); `-
 The separate `catalog` / `catalog --json` commands still inventory your **local private library**, using lockfile provenance if available. Do **not** commit those local reports without review. Private/local skill reports are never bundled or published; public upstream references are verified individually. **14 historical HyperFrames skills are marked archived** and link to the last verified pre-retirement commit. Not every installed local skill is available in this public catalog.
 
 See [catalog policy](docs/SKILL_CATALOG.md) and [categories](catalog/categories.json).
+
+### Chief of Staff, Anatomy and Marketing Psychology
+
+**7 additional catalog entries** cover the three requested projects and **four companion skills** needed by Chief of Staff, for **181 skills across 20 repositories**.
+
+```bash
+agent-commons catalog info chief-of-staff
+agent-commons catalog info anatomy
+agent-commons catalog info marketing-psychology
+agent-commons catalog install anatomy       # Read-only preview
+agent-commons catalog install anatomy --yes # Explicit installation
+agent-commons sync --skill anatomy --agent codex --dry-run
+```
+
+**Anatomy** uses a reviewed subset of **126 source files (~1.9 MiB)** without generated PDFs and HTML; security limits are unchanged. **Chief of Staff** is experimental and requires compatible agent capabilities. [English guide](docs/CURATED_SKILLS.en.md) · [Français](docs/CURATED_SKILLS.md).
 
 ### Everything Claude Code (ECC) collection
 
@@ -505,7 +520,7 @@ Runtime and npm dependency license labels above match the checked-in package man
 ### Upstream repositories referenced by the public Skill Hub
 
 <!-- BEGIN GENERATED SKILL REPOSITORY CREDITS -->
-The curated public catalog references **174 skills across 17 upstream repositories**. These are **metadata-only references**: Agent Commons does not bundle or automatically install their skills. Licenses are recorded per pinned skill in [the full index](docs/skills/README.md); repositories with more than one license must be checked per skill.
+The curated public catalog references **181 skills across 20 upstream repositories**. These are **metadata-only references**: Agent Commons does not bundle or automatically install their skills. Licenses are recorded per pinned skill in [the full index](docs/skills/README.md); repositories with more than one license must be checked per skill.
 
 | Upstream repository | Author / maintainer | Skill references | Declared license(s) |
 |:--|:--|--:|:--|
@@ -513,10 +528,12 @@ The curated public catalog references **174 skills across 17 upstream repositori
 | [anthropics/skills](https://github.com/anthropics/skills) | Anthropic | 4 | Apache-2.0 |
 | [cathrynlavery/diagram-design](https://github.com/cathrynlavery/diagram-design) | Cathryn Lavery | 1 | MIT |
 | [cloudflare/security-audit-skill](https://github.com/cloudflare/security-audit-skill) | Cloudflare | 1 | MIT |
+| [coreyhaines31/marketingskills](https://github.com/coreyhaines31/marketingskills) | Corey Haines | 1 | MIT |
 | [heygen-com/hyperframes](https://github.com/heygen-com/hyperframes) | HeyGen | 21 | Apache-2.0 |
 | [Jakeschincariol/founder-skill](https://github.com/Jakeschincariol/founder-skill) | Jake Schincariol | 11 | MIT |
 | [JuliusBrussee/caveman](https://github.com/JuliusBrussee/caveman) | JuliusBrussee | 22 | Apache-2.0 |
 | [latent-spaces/brag](https://github.com/latent-spaces/brag) | latent-spaces | 1 | MIT |
+| [mattpocock/skills](https://github.com/mattpocock/skills) | Matt Pocock | 5 | MIT |
 | [morellid/ai-act-skill](https://github.com/morellid/ai-act-skill) | Davide Morelli | 1 | MIT |
 | [nextlevelbuilder/ui-ux-pro-max-skill](https://github.com/nextlevelbuilder/ui-ux-pro-max-skill) | Next Level Builder | 7 | Apache-2.0 / MIT |
 | [noamdorr/saas-product-demo-video](https://github.com/noamdorr/saas-product-demo-video) | Noam Dorr | 1 | MIT |
@@ -526,6 +543,7 @@ The curated public catalog references **174 skills across 17 upstream repositori
 | [vercel-labs/skills](https://github.com/vercel-labs/skills) | Vercel | 1 | MIT |
 | [viettranx/3dviz-pro-max](https://github.com/viettranx/3dviz-pro-max) | viettranx | 1 | MIT |
 | [Vincentwei1021/video-shotcraft](https://github.com/Vincentwei1021/video-shotcraft) | Vincentwei1021 | 1 | Apache-2.0 |
+| [wheresryan22/anatomy](https://github.com/wheresryan22/anatomy) | Ryan (wheresryan22) | 1 | MIT |
 <!-- END GENERATED SKILL REPOSITORY CREDITS -->
 
 Each individual skill, its author, **pinned source commit**, applicable license evidence and lifecycle status is linked in [the complete skill attribution index](docs/skills/README.md) and [catalog/skills.json](catalog/skills.json). Some entries are archived. Being listed does **not** imply a code audit, installation, endorsement or redistribution of third-party content.
