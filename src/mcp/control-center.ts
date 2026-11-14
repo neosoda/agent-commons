@@ -7,6 +7,7 @@ import path from 'node:path';
 import crypto from 'node:crypto';
 import { detectAgents } from '../agents/detector.js';
 import { inspectPath, writeFileAtomicSync } from '../core/links.js';
+import { SnapshotSession, restoreBackup } from '../core/backup.js';
 import { loadCentralMcpManifest, inspectAgentMcpConfig } from '../sync/mcp.js';
 import { runSync } from '../commands/sync.js';
 import type { EnvironmentContext, SyncReport } from '../types.js';
@@ -89,6 +90,26 @@ export function previewMcpProfile(ctx: EnvironmentContext, name: string, value: 
   return { name, profile, before, revision: current.revision,
     changed: JSON.stringify(profile) !== JSON.stringify(before) };
 }
+/** Save through the existing recoverable snapshot path. */
+function persistMcpProfiles(ctx: EnvironmentContext, data: McpProfiles, expectedRevision: string): string {
+  const session = new SnapshotSession(ctx, 'manual');
+  session.recordPathBeforeModify('commons', 'mcp-profile', fileAt(ctx));
+  const snapshot = session.commitManifest();
+  try {
+    if (readMcpProfiles(ctx).revision !== expectedRevision) {
+      throw new Error('MCP profile changed since preview.');
+    }
+    writeFileAtomicSync(fileAt(ctx), JSON.stringify(data, null, 2) + '\n');
+    readMcpProfiles(ctx); // Validate the saved file before treating it as committed.
+  } catch (error) {
+    try { restoreBackup(ctx, snapshot.id); }
+    catch (rollback) {
+      throw new Error('MCP profile save failed and snapshot restore is incomplete.', {cause: rollback});
+    }
+    throw error;
+  }
+  return snapshot.id;
+}
 export function saveMcpProfile(ctx: EnvironmentContext,name: string,value: unknown,
                                expectedRevision: string) {
   if (!/^[a-f0-9]{64}$/.test(expectedRevision)) throw new Error('MCP profile preview required.');
@@ -99,8 +120,8 @@ export function saveMcpProfile(ctx: EnvironmentContext,name: string,value: unkno
   updated.data.profiles[name] = plan.profile;
   if (inspectPath(ctx.commonsDir).state === 'missing') fs.mkdirSync(ctx.commonsDir);
   checkPaths(ctx);
-  writeFileAtomicSync(fileAt(ctx),JSON.stringify(updated.data,null,2)+'\n');
-  return plan;
+  const snapshotId = persistMcpProfiles(ctx, updated.data, expectedRevision);
+  return {...plan, snapshotId};
 }
 export function deleteMcpProfile(ctx: EnvironmentContext,name: string,expectedRevision: string) {
   if (!VALID.test(name) || Object.hasOwn(MCP_PRESETS,name)) throw new Error('Invalid custom MCP profile name.');
@@ -108,7 +129,7 @@ export function deleteMcpProfile(ctx: EnvironmentContext,name: string,expectedRe
   if (state.revision !== expectedRevision) throw new Error('MCP profile changed since preview.');
   if (!Object.hasOwn(state.data.profiles,name)) throw new Error('Unknown MCP profile.');
   delete state.data.profiles[name];
-  writeFileAtomicSync(fileAt(ctx),JSON.stringify(state.data,null,2)+'\n');
+  return { snapshotId: persistMcpProfiles(ctx, state.data, expectedRevision) };
 }
 export function inspectMcpControlCenter(ctx: EnvironmentContext) {
   const agents = detectAgents(ctx);
@@ -140,6 +161,9 @@ export function runMcpProfileSync(ctx: EnvironmentContext,name: string,
   if (!preset && !custom) throw new Error('Unknown MCP profile.');
   const profile = validate(ctx,preset ? {servers:[...preset],agents:targetAgents} : custom);
   const installed = detectAgents(ctx,profile.agents);
+  if (installed.some(a => inspectAgentMcpConfig(a).status === 'corrupted')) {
+    throw new Error('Selected MCP client configuration is invalid.');
+  }
   if (installed.length!==profile.agents.length || installed.some(a=>!a.installed||!a.mcpFormat)) {
     throw new Error('MCP profile targets unavailable clients.');
   }
