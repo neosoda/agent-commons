@@ -7,11 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Added — MCP Control Center (v0.4.0 development)
+## [0.4.0] — 2026-11-14 (GitHub)
+
+### Added — MCP Control Center
 - Native LM Studio MCP configuration support on Windows/Linux/macOS (MCP-only).
 - Offline reviewed eight-server MCP catalog with safe version metadata, three presets and custom per-client MCP profiles.
 - Selective non-destructive MCP sync with one-use preview, client inventory, security limits, and dedicated Skill Hub page.
 - Synthetic tests for LM Studio native preservation, scoped sync and secret exclusion.
+- Snapshot recovery for custom MCP profile creation, edits and deletion, with exact revision checks.
+- Skill Hub custom MCP profile editing/deletion and guarded confirmation.
+
+### Fixed
+- Windows portable build uses system-selected loopback ports instead of a random possibly reserved range.
+- npm and Windows portable packaging includes the compiled `dist/mcp` modules.
+
+### Distribution
+- GitHub-only v0.4.0 release: versioned source plus verified Windows x64 ZIP and `.sha256` asset. npm publication is **not** part of this release.
 
 ### Not yet available
 - Automated package installation, update/uninstall, full native configuration import and live launch diagnostics.
