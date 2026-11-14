@@ -114,7 +114,7 @@ export function saveMcpProfile(ctx: EnvironmentContext,name: string,value: unkno
                                expectedRevision: string) {
   if (!/^[a-f0-9]{64}$/.test(expectedRevision)) throw new Error('MCP profile preview required.');
   const plan = previewMcpProfile(ctx,name,value,expectedRevision);
-  if (!plan.changed) return plan;
+  if (!plan.changed) return {...plan, snapshotId:null};
   const updated = readMcpProfiles(ctx);
   if (updated.revision !== expectedRevision) throw new Error('MCP profile changed since preview.');
   updated.data.profiles[name] = plan.profile;
