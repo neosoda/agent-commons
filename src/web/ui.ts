@@ -84,6 +84,13 @@ const mcpGroups={'playwright':'web','fetch':'web','web-search':'web','osint':'we
 const mcpGroupNames={web:'Web & research',dev:'Development & Git',infra:'Infrastructure & files',other:'Other MCPs'};
 const skillSamples={
  'threat-model':['Utilise threat-model quick pour identifier les menaces de cette API et prioriser les remédiations.','Use threat-model deep to analyze this login flow with concrete mitigations.'],
+ 'video-engine':['Utilise video-engine pour scénariser une leçon narrée, synchroniser les animations aux mots, puis vérifier la lisibilité avant rendu. Demande mon accord avant tout TTS payant.','Use video-engine for a narrated 9:16 explainer with synchronized subtitles and frame QA.'],
+ 'remotion-production':['Utilise remotion-production pour planifier les médias et la bande-son de cette vidéo ; explique les fournisseurs et coûts avant tout appel externe.'],
+ 'create-video':['Utilise create-video pour préparer une vidéo de présentation de 30 secondes avec aperçu Remotion, sans rendu avant validation.'],
+ 'create-short':['Utilise create-short pour construire un Reel vertical 9:16 avec sous-titres et accroche ; ne publie rien automatiquement.'],
+ 'add-captions':['Utilise add-captions avec mon fichier SRT pour créer des sous-titres lisibles et compatibles avec les zones de sécurité mobile.'],
+ 'review-video':['Utilise review-video pour faire une première revue locale des images fixes et me proposer des corrections, sans analyse distante sans accord.'],
+ 'setup':['Explique les prérequis Remotion Superpowers et les cinq MCP externes sans installer de dépendances ou lire mes clés.'],
  'saas-product-demo-video':['Utilise saas-product-demo-video pour créer une démo 16:9 de 30 secondes à partir des vrais écrans de mon application. Commence par les deux premières scènes.','Use saas-product-demo-video to make a 9:16 social reel from the existing demo.'],
  'lemo-opuscar':['Utilise lemo-opuscar pour concevoir une courte vidéo de présentation. Demande mon accord avant toute installation.'],
  'find-skills':['Utilise find-skills pour sélectionner trois skills utiles à ce projet. Ne les installe pas.'],
