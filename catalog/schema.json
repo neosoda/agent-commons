@@ -136,6 +136,20 @@
               "archived"
             ],
             "description": "Optional historical lifecycle status; archived sources are preserved at a pinned commit, not actively maintained."
+          },
+          "installPaths": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 150,
+            "uniqueItems": true,
+            "description": "Optional reviewed allowlist of files or directory prefixes from a pinned Git tree; a root SKILL.md entry is mandatory.",
+            "contains": {
+              "const": "SKILL.md"
+            },
+            "items": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9_.-]+(?:/[A-Za-z0-9_.-]+)*$"
+            }
           }
         }
       }

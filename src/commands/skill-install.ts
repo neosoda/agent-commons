@@ -116,11 +116,19 @@ async function previewPinnedFiles(
 
   const prefix = skill.path === '.' ? '' : skill.path + '/';
   const files: InstallFile[] = [];
+  const selection = skill.installPaths;
+  const matched = new Set<string>();
   let totalBytes = 0;
   for (const raw of response.tree) {
     if (!isRecord(raw) || typeof raw.path !== 'string' || !raw.path.startsWith(prefix)) continue;
     const relativePath = raw.path.slice(prefix.length);
     if (!relativePath) continue;
+    // A reviewed catalog entry may select only the functional source subset of
+    // a large upstream repository (e.g. Anatomy without pre-rendered PDFs).
+    // The selection is validated offline, pinned to an immutable Git commit and
+    // cannot be overridden by the caller.
+    if (selection && !selection.some(part =>
+      relativePath === part || relativePath.startsWith(part + '/'))) continue;
     if (!entryPathSafe(relativePath)) {
       throw new Error('Unsafe path in upstream skill tree.');
     }
@@ -137,9 +145,15 @@ async function previewPinnedFiles(
     }
     totalBytes += raw.size;
     files.push({ relativePath, sha: raw.sha, size: raw.size });
+    for (const part of selection ?? []) {
+      if (relativePath === part || relativePath.startsWith(part + '/')) matched.add(part);
+    }
     if (files.length > MAX_FILES || totalBytes > MAX_TOTAL_BYTES) {
       throw new Error('Skill exceeds safe installation limits.');
     }
+  }
+  if (selection && matched.size !== selection.length) {
+    throw new Error('Reviewed install selection is missing files in the pinned upstream revision.');
   }
   files.sort((a, b) => a.relativePath.localeCompare(b.relativePath));
   if (!files.some(x => x.relativePath === 'SKILL.md')) {

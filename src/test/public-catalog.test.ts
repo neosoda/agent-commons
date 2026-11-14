@@ -45,6 +45,21 @@ describe('Public Skill Hub: source attribution, safe filtering and offline behav
     assert.throws(() => validatePublicCatalog(unsafe, categories), /Invalid public catalog skill/);
   });
 
+  it('validates reviewed source-only install paths for large upstream skills', () => {
+    const { catalog, categories } = readPublicCatalog();
+    const anatomy = catalog.skills.find(skill => skill.id === 'anatomy');
+    assert.ok(anatomy?.installPaths?.includes('SKILL.md'));
+    assert.ok(anatomy.installPaths.includes('kit'));
+    assert.ok(anatomy.installPaths.some(path => path.startsWith('examples/')));
+    assert.equal(validatePublicCatalog(catalog, categories).skills.length, catalog.skills.length);
+
+    for (const bad of [['../outside'], ['kit'], ['SKILL.md', 'kit', 'kit']]) {
+      const modified = structuredClone(catalog);
+      modified.skills.find(skill => skill.id === 'anatomy')!.installPaths = bad;
+      assert.throws(() => validatePublicCatalog(modified, categories), /Invalid public catalog skill/);
+    }
+  });
+
   it('searches the bundled public catalog offline with filters', () => {
     const ctx = createEnvironmentContext({ homeDir: home });
     const all = searchPublicCatalog(ctx);

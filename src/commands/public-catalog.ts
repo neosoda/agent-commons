@@ -8,6 +8,8 @@ export interface PublicSkill {
   name: string;
   description: string;
   lifecycle?: 'active' | 'archived';
+  /** Optional reviewed subset of upstream files/directories for large repository-root skills. */
+  installPaths?: string[];
   category: string;
   author: string;
   repository: string;
@@ -96,7 +98,7 @@ export function validatePublicCatalog(input: unknown, categories: unknown): Publ
   const seenOrigins = new Set<string>();
   for (const raw of input.skills) {
     if (!isRecord(raw) ||
-        !['author,category,dependencies,description,id,license,licenseEvidence,name,path,ref,repository,review,source,tags', 'author,category,dependencies,description,id,license,licenseEvidence,lifecycle,name,path,ref,repository,review,source,tags'].includes(Object.keys(raw).sort().join(',')) ||
+        !['author,category,dependencies,description,id,license,licenseEvidence,name,path,ref,repository,review,source,tags', 'author,category,dependencies,description,id,license,licenseEvidence,lifecycle,name,path,ref,repository,review,source,tags', 'author,category,dependencies,description,id,installPaths,license,licenseEvidence,name,path,ref,repository,review,source,tags', 'author,category,dependencies,description,id,installPaths,license,licenseEvidence,lifecycle,name,path,ref,repository,review,source,tags'].includes(Object.keys(raw).sort().join(',')) ||
         (raw.lifecycle !== undefined && raw.lifecycle !== 'active' && raw.lifecycle !== 'archived') ||
         typeof raw.id !== 'string' || !ID_PATTERN.test(raw.id) || seen.has(raw.id) ||
         !isSafeText(raw.name, 3) || !isSafeText(raw.description, 10) ||
@@ -104,6 +106,11 @@ export function validatePublicCatalog(input: unknown, categories: unknown): Publ
         !verifyUrl(raw.repository) || !verifyUrl(raw.source, raw.repository) ||
         !verifyUrl(raw.licenseEvidence, raw.repository) ||
         !(raw.path === '.' || isSafeRelativePath(raw.path)) ||
+        (raw.installPaths !== undefined && (!Array.isArray(raw.installPaths) ||
+          raw.installPaths.length === 0 || raw.installPaths.length > 150 ||
+          !raw.installPaths.includes('SKILL.md') ||
+          !raw.installPaths.every((part: unknown) => isSafeRelativePath(part)) ||
+          new Set(raw.installPaths).size !== raw.installPaths.length)) ||
         typeof raw.ref !== 'string' || !SHA_PATTERN.test(raw.ref) ||
         !isSafeText(raw.license, 2) ||
         raw.source !== (raw.path === '.' ? sourcePrefix(raw.repository as string, raw.ref).slice(0, -1) : sourcePrefix(raw.repository as string, raw.ref) + raw.path) ||

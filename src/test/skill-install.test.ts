@@ -101,6 +101,51 @@ describe('Pinned GitHub installer: inspect-before-consent, no overwrite, integri
     assert.equal(listBackups(ctx).length, 0);
   });
 
+  it('previews and installs a reviewed Anatomy subset, ignoring excluded heavy artifacts', async () => {
+    const ctx = createEnvironmentContext({ homeDir: home });
+    const anatomy = readPublicCatalog().catalog.skills.find(x => x.id === 'anatomy');
+    assert.ok(anatomy?.installPaths);
+    const source = Buffer.from('---\nname: anatomy\n---\n# Figure\n');
+    const blobSha = crypto.createHash('sha1')
+      .update('blob ' + source.length + '\0').update(source).digest('hex');
+    const chosen = anatomy.installPaths.map(part => part.includes('/') || part.includes('.')
+      ? part : part + '/sample.mjs');
+    const tree = chosen.map(part => ({ path: part, type: 'blob', mode: '100644',
+      sha: blobSha, size: source.length }));
+    const excluded = { path: 'examples/raptor-engine/output.pdf', type: 'blob',
+      mode: '100644', sha: blobSha, size: 9 * 1024 * 1024 };
+    const mock: FetchJson = async url => url.includes('/git/trees/')
+      ? { truncated: false, tree: [...tree, excluded] }
+      : { sha: blobSha, size: source.length, encoding: 'base64',
+        content: source.toString('base64') };
+    const preview = await previewCatalogInstall(ctx, 'anatomy', mock);
+    assert.equal(preview.files.length, chosen.length);
+    assert.ok(!preview.files.some(file => file.relativePath.endsWith('.pdf')));
+    const result = await installCatalogSkill(ctx, 'anatomy', { yes: true, fetchJson: mock });
+    assert.equal(result.installed, true);
+    assert.equal(fs.readFileSync(path.join(ctx.centralSkillsDir, 'anatomy', 'SKILL.md'), 'utf8'),
+      source.toString());
+    await assert.rejects(() => previewCatalogInstall(ctx, 'anatomy', mock), /already exists/);
+  });
+
+  it('fails closed when a curated upstream selection is missing or linked', async () => {
+    const ctx = createEnvironmentContext({ homeDir: home });
+    const anatomy = readPublicCatalog().catalog.skills.find(x => x.id === 'anatomy');
+    assert.ok(anatomy?.installPaths);
+    const paths = anatomy.installPaths.map(part => part.includes('/') || part.includes('.')
+      ? part : part + '/sample.mjs');
+    const baseTree = paths.map(path => ({ path, type: 'blob',
+      mode: '100644', sha, size: skillContent.length }));
+    const treeFetch = (tree: Array<Record<string, unknown>>): FetchJson => async () =>
+      ({ truncated: false, tree });
+    await assert.rejects(() => previewCatalogInstall(ctx, 'anatomy',
+      treeFetch(baseTree.slice(0, -1))), /selection is missing/);
+    await assert.rejects(() => previewCatalogInstall(ctx, 'anatomy',
+      treeFetch([...baseTree, { path: 'kit/linked', type: 'blob', mode: '120000',
+        sha, size: skillContent.length }])), /linked entry/);
+    assert.equal(fs.existsSync(ctx.commonsDir), false);
+  });
+
   it('rejects archived catalog entries without contacting upstream', async () => {
     const ctx = createEnvironmentContext({ homeDir: home });
     const old = readPublicCatalog().catalog.skills.find(x => x.lifecycle === 'archived');
