@@ -1,4 +1,4 @@
-# MCP Control Center — target 0.4.0
+# MCP Control Center — v0.4.0
 
 The MCP Control Center is part of the existing local Skill Hub (agent-commons web).
 It is not another service; the UI stays bound to 127.0.0.1.
