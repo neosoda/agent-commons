@@ -103,7 +103,7 @@ export interface McpSyncResultItem {
 
 export interface BackupEntry {
   agentId: string;
-  kind: 'mcp-config' | 'skill-entry' | 'central-skill';
+  kind: 'mcp-config' | 'mcp-profile' | 'skill-entry' | 'central-skill';
   originalPath: string;
   stateBefore: 'missing' | 'file' | 'directory' | 'link';
   backupRelativePath?: string;

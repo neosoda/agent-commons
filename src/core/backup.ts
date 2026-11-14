@@ -140,6 +140,13 @@ export function createFullBackup(
     session.recordPathBeforeModify('commons', 'mcp-config', ctx.centralMcpPath);
   }
 
+  // Include custom MCP profiles in snapshots, even when missing at capture time.
+  // Missing-file entries allow a restore to undo creation of a new profile file.
+  const profilesPath = path.join(ctx.commonsDir, 'mcp-profiles.json');
+  if (['file', 'missing'].includes(inspectPath(profilesPath).state)) {
+    session.recordPathBeforeModify('commons', 'mcp-profile', profilesPath);
+  }
+
   if (inspectPath(ctx.centralSkillsDir).state === 'directory') {
     const centralEntries = fs.readdirSync(ctx.centralSkillsDir);
     for (const name of centralEntries) {
@@ -263,7 +270,7 @@ function preflightRestore(
   for (const entry of manifest.entries) {
     if (!entry || typeof entry.originalPath !== 'string' ||
         typeof entry.agentId !== 'string' ||
-        !['central-skill', 'skill-entry', 'mcp-config'].includes(entry.kind) ||
+        !['central-skill', 'skill-entry', 'mcp-config', 'mcp-profile'].includes(entry.kind) ||
         !['missing', 'link', 'file', 'directory'].includes(entry.stateBefore)) {
       throw new Error('Invalid backup entry in snapshot manifest.');
     }
@@ -279,7 +286,9 @@ function preflightRestore(
         entry.agentId === 'commons' &&
         isImmediateSkill(ctx.centralSkillsDir)) ||
       (entry.kind === 'skill-entry' &&
-        Boolean(agent && isImmediateSkill(agent.skillsDirPath))) ||
+        Boolean(agent && agent.definition.skillsSupported !== false && isImmediateSkill(agent.skillsDirPath))) ||
+      (entry.kind === 'mcp-profile' && entry.agentId === 'commons' &&
+        arePathsEqual(targetPath, path.join(ctx.commonsDir, 'mcp-profiles.json'), ctx.platform)) ||
       (entry.kind === 'mcp-config' &&
         ((entry.agentId === 'commons' &&
           arePathsEqual(targetPath, ctx.centralMcpPath, ctx.platform)) ||
