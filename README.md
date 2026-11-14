@@ -619,6 +619,12 @@ agent-commons sync --skill saas-product-demo-video --agent codex
 
 Invocation : **Claude Code** `/saas-product-demo-video`, **Codex** `$saas-product-demo-video`. Pour **Gemini CLI**, utiliser la découverte native des skills. Produire un film exige séparément Node.js, Remotion et Python/librosa, avec d'autres outils selon les besoins : ni le téléchargement de dépendances ni le rendu ne sont réalisés par Agent Commons. [Guide FR](docs/SAAS_PRODUCT_DEMO_VIDEO.md) · [EN](docs/SAAS_PRODUCT_DEMO_VIDEO.en.md).
 
+## Catalogue interactif — Skills & MCP
+
+Le **Skill Hub local** réunit désormais la découverte des **skills et des serveurs MCP** : onglets *Skills / MCP / Tous*, recherche, catégories, état **disponible / installé / configuré**, fiches d’utilisation et **prompts d’exemple à copier**. Il affiche aussi les skills et MCP détectés localement, même s’ils ne figurent pas dans les références publiques (clairement signalés comme locaux/non vérifiés).
+
+Le catalogue reste **en lecture seule** : consulter une fiche ou copier un prompt ne télécharge rien et ne démarre aucun MCP. Les installations et synchronisations conservent leur aperçu et confirmation. [Guide](docs/INTERACTIVE_CATALOG.md).
+
 ## MCP Control Center — v0.4.0
 
 **Version GitHub publiée :** [v0.4.0](https://github.com/neosoda/agent-commons/releases/tag/v0.4.0), archive Windows x64 et SHA-256 vérifiés. [Preuve de publication](docs/releases/v0.4.0.md).
