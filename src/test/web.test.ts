@@ -69,8 +69,13 @@ describe('local Skill Hub HTTP security and user workflows', () => {
     const response = await fetch(instance.url);
     const page = await response.text();
     assert.equal(response.status, 200);
-    assert.match(page, /Skill catalog/);
+    assert.match(page, /Skills & MCP/);
     assert.match(page, /Profile editor/);
+    assert.match(page, /data-kind="skill" aria-pressed="true"/);
+    assert.match(page, /data-kind="mcp" aria-pressed="false"/);
+    assert.match(page, /data-kind="all" aria-pressed="false"/);
+    assert.match(page, /Copy prompt/);
+    assert.match(page, /Configured centrally/);
     assert.match(response.headers.get('content-security-policy') ?? '', /default-src 'none'/);
     assert.match(response.headers.get('content-security-policy') ?? '', /frame-ancestors 'none'/);
     assert.equal(response.headers.get('x-frame-options'), 'DENY');
@@ -83,7 +88,7 @@ describe('local Skill Hub HTTP security and user workflows', () => {
     const scripts = [...page.matchAll(/<script nonce="sample-nonce">([\s\S]*?)<\/script>/g)];
     assert.equal(scripts.length, 1, 'exactly one inline application script');
     assert.doesNotThrow(() => new vm.Script(scripts[0]![1]!));
-    for (const section of ['overview', 'catalog', 'agents', 'integrity', 'backups']) {
+    for (const section of ['overview', 'catalog', 'agents', 'mcp-center', 'integrity', 'backups']) {
       assert.ok(page.includes('id="page-' + section + '"'), 'missing page ' + section);
       assert.ok(page.includes('data-page="' + section + '"'), 'missing navigation ' + section);
     }

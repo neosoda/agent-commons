@@ -139,15 +139,31 @@ try {
     assert.ok(await opener.evaluate(el => el === document.activeElement),
       'Escape restores focus to the invoking control');
     assert.equal(await page.locator('.layout').evaluate(el => el.inert), false);
+    // Switch to MCP catalog, inspect a reference and jump to the existing configuration center.
+    await page.locator('[data-kind="mcp"]').click();
+    assert.equal(await page.locator('[data-kind="mcp"]').getAttribute('aria-pressed'),'true');
+    await page.locator('#catalog-cards .skill-card').first().waitFor();
+    assert.match(await page.locator('#catalog-count').innerText(),/MCP servers/);
+    const mcpOpener=page.locator('#catalog-cards .skill-card button').first();
+    await mcpOpener.click();
+    const mcpDialog=page.getByRole('dialog');
+    assert.ok(await mcpDialog.getByText('Example prompts').isVisible());
+    assert.ok(await mcpDialog.getByRole('button',{name:'Copy prompt 1'}).isVisible());
+    await mcpDialog.getByRole('button',{name:'Configure MCP'}).click();
+    assert.equal(await page.locator('#page-mcp-center').isVisible(),true);
+    await page.locator('[data-page="catalog"]').click();
+    await page.locator('[data-kind="all"]').click();
+    assert.match(await page.locator('#catalog-count').innerText(),/tools ·/);
+    await page.locator('[data-kind="skill"]').click();
   }
   // FR/EN is a local-only preference; test language changes, persistence and
   // dynamic catalog actions before returning to the English MCP smoke path.
   await page.locator('#language-select').selectOption('fr');
   assert.equal(await page.locator('html').getAttribute('lang'),'fr');
-  assert.equal(await page.locator('[data-page="catalog"] span').last().innerText(),'Catalogue de compétences');
+  assert.equal(await page.locator('[data-page="catalog"] span').last().innerText(),'Catalogue Skills & MCP');
   await page.locator('[data-page="catalog"]').click();
   assert.equal(await page.locator('#catalog-search').getAttribute('placeholder'),
-    'Rechercher compétences, tags, auteurs…');
+    'Rechercher noms, catégories et usages…');
   assert.equal(await page.locator('#catalog-cards .skill-card button').first().innerText(),'Voir les détails');
   assert.equal(await page.evaluate(() => localStorage.getItem('agent-commons-ui-language')),'fr');
   assert.match(await page.locator('#catalog-count').innerText(),/compétences · références épinglées/);
