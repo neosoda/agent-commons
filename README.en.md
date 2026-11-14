@@ -642,6 +642,19 @@ In **Claude Code**: `/threat-model`, `/threat-model deep api`, `/threat-model qu
 
 Native Markdown/JSON reports are written under the **target project's** `threat-model/` directory. Treat these as sensitive: add `threat-model/` to that repository's `.git/info/exclude` or `.gitignore` before analysis (Agent Commons itself already ignores it). [English guide](docs/GRIM_PROMPTER.en.md) · [FR](docs/GRIM_PROMPTER.md). No extra runtime or infrastructure.
 
+## SaaS Product Demo Video — product demo films
+
+[SaaS Product Demo Video](https://github.com/noamdorr/saas-product-demo-video) by **Noam Dorr (MIT)** creates or refines 20–60-second SaaS product films using real product UI, music-synced animation and 16:9 or 9:16 exports. The catalog now pins **upstream v2**, retaining all 92 files: the native skill, Remotion scaffold, references, components and tools. **Catalog discovery never automatically downloads, executes or loads these files.**
+
+```bash
+agent-commons catalog install saas-product-demo-video           # preview
+agent-commons catalog install saas-product-demo-video --yes     # approved install
+agent-commons sync --skill saas-product-demo-video --agent codex --dry-run
+agent-commons sync --skill saas-product-demo-video --agent codex
+```
+
+Invocation: **Claude Code** `/saas-product-demo-video`, **Codex** `$saas-product-demo-video`; for **Gemini CLI**, use native skill discovery. Production separately requires Node.js, Remotion, Python/librosa, and optional tools; Agent Commons performs neither dependency installation nor rendering. [English guide](docs/SAAS_PRODUCT_DEMO_VIDEO.en.md) · [FR](docs/SAAS_PRODUCT_DEMO_VIDEO.md).
+
 ## MCP Control Center — v0.4.0
 
 **Published GitHub version:** [v0.4.0](https://github.com/neosoda/agent-commons/releases/tag/v0.4.0), with verified Windows x64 portable ZIP and SHA-256. [Release verification record](docs/releases/v0.4.0.md).
