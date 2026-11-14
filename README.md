@@ -592,6 +592,8 @@ Sans `--yes`, cette réparation est une simple prévisualisation. Une jonction c
 
 ## MCP Control Center — v0.4.0
 
+**Version GitHub publiée :** [v0.4.0](https://github.com/neosoda/agent-commons/releases/tag/v0.4.0), archive Windows x64 et SHA-256 vérifiés. [Preuve de publication](docs/releases/v0.4.0.md).
+
 Le Skill Hub propose désormais une page **MCP Control Center** : inventaire local des MCP, catalogue de huit références vérifiées, profils OSINT / Développement / Infrastructure, profils personnalisés, et synchronisation sélective après aperçu et validation. **LM Studio** est reconnu nativement via le fichier `~/.lmstudio/mcp.json` (Windows : `%USERPROFILE%\.lmstudio\mcp.json`) sans lui créer de faux dossier de skills.
 
 Les MCP natifs sont préservés, les conflits ne sont pas écrasés et les changements passent par les sauvegardes existantes. Les profils limitent les **nouveaux serveurs synchronisés** ; ils ne désactivent pas les MCP que le client expose déjà au modèle. **L'installation automatique, les mises à jour et la désinstallation de packages tiers ne sont pas implémentées.** Le catalogue ne télécharge ni n'exécute de serveurs.
