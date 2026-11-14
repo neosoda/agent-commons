@@ -2,7 +2,7 @@ import path from 'node:path';
 import type { AgentDefinition } from '../types.js';
 
 /**
- * Verified catalog of the 17 supported AI coding agents and their exact directory conventions.
+ * Verified catalog of supported AI agents and their exact directory conventions.
  * An agent only declares `mcpConfig` when its file-based MCP schema is implemented and tested.
  */
 export const AGENT_REGISTRY: readonly AgentDefinition[] = [
@@ -139,6 +139,17 @@ export const AGENT_REGISTRY: readonly AgentDefinition[] = [
     skillsDir: (ctx) => path.join(ctx.homeDir, '.kiro', 'skills'),
     mcpConfig: {
       path: (ctx) => path.join(ctx.homeDir, '.kiro', 'settings', 'mcp.json'),
+      format: 'standard-json'
+    }
+  },
+  {
+    id: 'lm-studio',
+    name: 'LM Studio',
+    detectPaths: ctx => [path.join(ctx.homeDir, '.lmstudio')],
+    skillsSupported: false,
+    skillsDir: ctx => path.join(ctx.homeDir, '.lmstudio', 'skills'),
+    mcpConfig: {
+      path: ctx => path.join(ctx.homeDir, '.lmstudio', 'mcp.json'),
       format: 'standard-json'
     }
   },

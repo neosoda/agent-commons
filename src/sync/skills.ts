@@ -71,7 +71,7 @@ export function syncSkillsForAgents(
   const adopt = Boolean(options.adopt);
   const selected = options.skillFilter === undefined ? null : new Set(options.skillFilter);
 
-  const installedAgents = agents.filter((a) => a.installed);
+  const installedAgents = agents.filter((a) => a.installed && a.definition.skillsSupported !== false);
 
   // Guard against centralSkillsDir itself being a symlink/file
   const centralDirInfo = inspectPath(ctx.centralSkillsDir);

@@ -22,7 +22,7 @@ export function runList(ctx: EnvironmentContext, agentFilter?: string[]): ListRe
     const localPhysicalSkills: string[] = [];
     const brokenLinks: string[] = [];
 
-    if (agent.installed && inspectPath(agent.skillsDirPath).state === 'directory') {
+    if (agent.installed && agent.definition.skillsSupported !== false && inspectPath(agent.skillsDirPath).state === 'directory') {
       const entries = fs.readdirSync(agent.skillsDirPath).sort();
       for (const name of entries) {
         if (!isValidIdentifier(name)) continue;
@@ -46,7 +46,7 @@ export function runList(ctx: EnvironmentContext, agentFilter?: string[]): ListRe
       id: agent.definition.id,
       name: agent.definition.name,
       installed: agent.installed,
-      skillsSupported: true,
+      skillsSupported: agent.definition.skillsSupported !== false,
       mcpSupported: Boolean(agent.definition.mcpConfig),
       linkedSkills,
       localPhysicalSkills,

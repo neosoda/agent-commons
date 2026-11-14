@@ -21,6 +21,7 @@ export interface AgentDefinition {
   name: string;
   detectPaths: (ctx: EnvironmentContext) => string[];
   skillsDir: (ctx: EnvironmentContext) => string;
+  skillsSupported?: boolean;
   mcpConfig?: AgentMcpConfigDef;
 }
 
@@ -129,6 +130,7 @@ export interface SyncOptions {
   agentFilter?: string[];
   skillsOnly?: boolean;
   mcpOnly?: boolean;
+  mcpServerFilterByAgent?: Record<string, string[]>;
 }
 
 export interface SyncReport {
