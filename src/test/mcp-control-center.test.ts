@@ -102,7 +102,7 @@ describe('MCP Control Center synthetic-only regression',()=>{
       const snapshot=next.snapshotId!;
       const before=createFullBackup(ctx);
       const other={servers:['playwright'],agents:['lm-studio']};
-      saveMcpProfile(ctx,'development',other,readMcpProfiles(ctx).revision);
+      saveMcpProfile(ctx,'extra-dev',other,readMcpProfiles(ctx).revision);
       restoreBackup(ctx,before.id);
       assert.deepEqual(Object.keys(readMcpProfiles(ctx).data.profiles),['browser']);
       assert.ok(fs.existsSync(path.join(ctx.backupsDir,snapshot)));
