@@ -545,7 +545,7 @@ Runtime and npm dependency license labels above match the checked-in package man
 ### Upstream repositories referenced by the public Skill Hub
 
 <!-- BEGIN GENERATED SKILL REPOSITORY CREDITS -->
-The curated public catalog references **183 skills across 22 upstream repositories**. These are **metadata-only references**: Agent Commons does not bundle or automatically install their skills. Licenses are recorded per pinned skill in [the full index](docs/skills/README.md); repositories with more than one license must be checked per skill.
+The curated public catalog references **199 skills across 24 upstream repositories**. These are **metadata-only references**: Agent Commons does not bundle or automatically install their skills. Licenses are recorded per pinned skill in [the full index](docs/skills/README.md); repositories with more than one license must be checked per skill.
 
 | Upstream repository | Author / maintainer | Skill references | Declared license(s) |
 |:--|:--|--:|:--|
@@ -554,6 +554,7 @@ The curated public catalog references **183 skills across 22 upstream repositori
 | [cathrynlavery/diagram-design](https://github.com/cathrynlavery/diagram-design) | Cathryn Lavery | 1 | MIT |
 | [cloudflare/security-audit-skill](https://github.com/cloudflare/security-audit-skill) | Cloudflare | 1 | MIT |
 | [coreyhaines31/marketingskills](https://github.com/coreyhaines31/marketingskills) | Corey Haines | 1 | MIT |
+| [DojoCodingLabs/remotion-superpowers](https://github.com/DojoCodingLabs/remotion-superpowers) | Dojo Coding Labs | 15 | MIT |
 | [heygen-com/hyperframes](https://github.com/heygen-com/hyperframes) | HeyGen | 21 | Apache-2.0 |
 | [Jakeschincariol/founder-skill](https://github.com/Jakeschincariol/founder-skill) | Jake Schincariol | 11 | MIT |
 | [jmanico/grim-prompter](https://github.com/jmanico/grim-prompter) | Jim Manico / Manicode Security | 1 | MIT |
@@ -563,6 +564,7 @@ The curated public catalog references **183 skills across 22 upstream repositori
 | [mattpocock/skills](https://github.com/mattpocock/skills) | Matt Pocock | 5 | MIT |
 | [morellid/ai-act-skill](https://github.com/morellid/ai-act-skill) | Davide Morelli | 1 | MIT |
 | [nextlevelbuilder/ui-ux-pro-max-skill](https://github.com/nextlevelbuilder/ui-ux-pro-max-skill) | Next Level Builder | 7 | Apache-2.0 / MIT |
+| [ninjasweb/video-engine-skill](https://github.com/ninjasweb/video-engine-skill) | ninjasweb | 1 | MIT |
 | [noamdorr/saas-product-demo-video](https://github.com/noamdorr/saas-product-demo-video) | Noam Dorr | 1 | MIT |
 | [nutlope/hallmark](https://github.com/nutlope/hallmark) | nutlope | 1 | MIT |
 | [pbakaus/impeccable](https://github.com/pbakaus/impeccable) | pbakaus | 1 | Apache-2.0 |
@@ -654,6 +656,22 @@ agent-commons sync --skill saas-product-demo-video --agent codex
 ```
 
 Invocation: **Claude Code** `/saas-product-demo-video`, **Codex** `$saas-product-demo-video`; for **Gemini CLI**, use native skill discovery. Production separately requires Node.js, Remotion, Python/librosa, and optional tools; Agent Commons performs neither dependency installation nor rendering. [English guide](docs/SAAS_PRODUCT_DEMO_VIDEO.en.md) · [FR](docs/SAAS_PRODUCT_DEMO_VIDEO.md).
+
+## Video Engine and Remotion Superpowers — focused video skills
+
+Two MIT repositories are available as **pinned metadata only**: [Video Engine](https://github.com/ninjasweb/video-engine-skill) by ninjasweb for audio-first word-aligned narration, and [Remotion Superpowers](https://github.com/DojoCodingLabs/remotion-superpowers) by Dojo Coding Labs, with **15 separate skills** covering production, shorts, voiceovers, captions, assets, transitions and QA.
+
+```bash
+agent-commons catalog search remotion-superpowers
+agent-commons catalog install video-engine          # read-only preview
+agent-commons catalog install video-engine --yes    # explicit approved install
+agent-commons catalog install remotion-production --yes
+agent-commons skills route "Make a narrated educational video" --json
+agent-commons skills load video-engine              # on-demand instructions
+agent-commons sync --skill video-engine --agent codex --dry-run
+```
+
+All **16 new references** are independently installable and loaded only when needed. Dojo's **5 optional external MCP servers** (ElevenLabs, remotion-media, TwelveLabs, Pexels and Replicate) are not installed, configured or launched. Every provider call, cost or code execution requires separate approval. [English guide](docs/VIDEO_SKILLS.en.md) · [FR](docs/VIDEO_SKILLS.md).
 
 ## Interactive catalog — Skills & MCP
 
