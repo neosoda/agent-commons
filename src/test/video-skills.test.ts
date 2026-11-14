@@ -24,7 +24,7 @@ function mockedSource(prefix: string, files: Map<string, Buffer>): FetchJson {
     if (url.includes('/git/trees/')) return {
       truncated: false,
       tree: [
-        { path: '.mcp.json', type: 'blob', mode: '100644', size: 2, sha: 'f'.repeat(40) },
+        ...(prefix ? [{ path: '.mcp.json', type: 'blob', mode: '100644', size: 2, sha: 'f'.repeat(40) }] : []),
         ...[...files].map(([name, bytes]) => ({
           path: prefix + name, type: 'blob', mode: '100644', sha: hash(bytes), size: bytes.length
         }))
