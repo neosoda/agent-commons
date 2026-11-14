@@ -65,7 +65,7 @@ const HTML = String.raw`<!doctype html>
 <div class="filter-row"><select class="field" id="center-profile" aria-label="Choose MCP profile"></select><button class="btn" id="center-sync-preview">Preview MCP sync</button><button class="btn primary" id="center-sync-apply">Apply MCP sync</button></div>
 <h3>Target clients</h3><div id="center-agents" class="filter-row"></div><pre class="result-box hidden mt-16" id="center-report" role="status" aria-live="polite"></pre></div>
 <div class="panel"><h2>Custom profile editor</h2><p class="dim">Save a named selection for installed MCP clients. An explicit preview and confirmation are mandatory.</p>
-<div class="filter-row"><input class="field" id="center-custom-name" placeholder="Profile name (e.g. documentation)" aria-label="Custom MCP profile name"><button class="btn primary" id="center-custom-save">Preview and save profile</button></div>
+<div class="filter-row"><input class="field" id="center-custom-name" placeholder="Profile name (e.g. documentation)" aria-label="Custom MCP profile name"><button class="btn primary" id="center-custom-save">Preview and save profile</button><button class="btn danger" id="center-custom-delete">Delete profile</button></div>
 <div id="center-servers" class="filter-row"></div></div>
 </section>
 <section class="page" id="page-integrity"><div class="eyebrow">READ-ONLY · OFFLINE</div><h1>Skill integrity</h1><p class="dim">Inspect local managed skills for changed Git blobs, missing files, extra files, unsafe links and invalid receipts. Matching hashes do not certify that third-party code is safe.</p><div class="panel"><div class="actions"><button class="btn" id="verify-again">Run verification</button><button class="btn" id="doctor-run">Run agent diagnostics</button></div><pre class="result-box hidden mt-16" id="doctor-report" role="status" aria-live="polite"></pre><div id="integrity-items" class="mt-15"></div></div></section>
@@ -94,6 +94,9 @@ Object.assign(FR,{
   'Preview MCP sync':'Prévisualiser la synchronisation MCP',
   'Apply MCP sync':'Appliquer la synchronisation MCP',
   'Preview and save profile':'Prévisualiser et enregistrer le profil',
+  'Delete profile':'Supprimer le profil',
+  'Delete MCP profile':'Supprimer le profil MCP',
+  'Profile removed':'Profil supprimé',
   'Profile name (e.g. documentation)':'Nom du profil (ex. documentation)',
   'Custom MCP profile name':'Nom du profil MCP personnalisé',
   'Browse vetted references, inspect native MCP clients, build allowlists and synchronize only selected servers. No third-party package runs automatically.':'Consultez les références vérifiées, les clients MCP et les listes autorisées. Aucun paquet tiers n’est exécuté automatiquement.',
@@ -465,12 +468,12 @@ function renderMcpCenter(){
     const option=node('option',name);option.value=name;select.append(option);
   }
   select.value=[...select.options].some(o=>o.value===previous)?previous:(select.options[0]?.value||'');
-  renderCenterTargets();
   const servers=$('center-servers');clear(servers);
   centerState.centralNames.forEach(name=>{
     const label=node('label',null,'check'),input=node('input');input.type='checkbox';input.value=name;input.className='center-server-check';
     label.append(input,rawNode('span',name));servers.append(label);
   });
+  renderCenterTargets();
   translateUI();
 }
 function centerTargets(){return [...$('center-agents').querySelectorAll('input:checked')].map(input=>input.value)}
@@ -479,6 +482,10 @@ function renderCenterTargets(){
   if(!centerState)return;
   const profile=$('center-profile').value;
   const selected=centerState.profiles.data.profiles[profile]?.agents||[];
+  const custom=centerState.profiles.data.profiles[profile];
+  $('center-custom-name').value=custom?profile:'';
+  $('center-custom-delete').disabled=!custom;
+  document.querySelectorAll('.center-server-check').forEach(input=>input.checked=!!custom?.servers.includes(input.value));
   const target=$('center-agents');clear(target);
   centerState.clients.filter(c=>c.installed).forEach(client=>{
     const label=node('label',null,'check'),input=node('input');input.type='checkbox';input.value=client.id;
@@ -507,6 +514,16 @@ async function centerSync(apply){
 $('center-profile').onchange=renderCenterTargets;
 $('center-sync-preview').onclick=()=>centerSync(false);
 $('center-sync-apply').onclick=()=>centerSync(true);
+$('center-custom-delete').onclick=()=>{
+  const name=$('center-profile').value;
+  if(!centerState.profiles.data.profiles[name])return;
+  const revision=centerState.profiles.revision;
+  modal('Delete MCP profile',name+' · Existing client MCP entries are preserved.',
+    'Delete profile',async()=>{
+      await request('/api/action',{action:'mcp-profile-delete',name,approved:true,expectedRevision:revision});
+      showToast('Profile removed');await refresh();
+    },name);
+};
 $('center-custom-save').onclick=async()=>{
   const name=$('center-custom-name').value.trim(),agents=centerTargets(),servers=centerServers();
   if(!name||!agents.length||!servers.length){showToast('Select a name, clients and central servers.',true);return}
