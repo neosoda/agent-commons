@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added — Video Engine and Remotion Superpowers (catalog only)
+- 16 pinned MIT source references: ninjasweb Video Engine plus 15 distinct Dojo Coding Labs Remotion Superpowers skills.
+- New lazy Skill Hub examples, selective installation and routing guidance, FR/EN docs and upstream credits.
+- The optional Dojo MCP servers remain external, not installed or launched; no runtime dependencies, automatic execution or release.
+
 ## [0.4.0] — 2026-11-14 (GitHub)
 
 ### Added — MCP Control Center
