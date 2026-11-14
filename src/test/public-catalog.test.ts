@@ -48,7 +48,9 @@ describe('Public Skill Hub: source attribution, safe filtering and offline behav
   it('validates reviewed source-only install paths for large upstream skills', () => {
     const { catalog, categories } = readPublicCatalog();
     const anatomy = catalog.skills.find(skill => skill.id === 'anatomy');
-    assert.ok(anatomy?.installPaths?.includes('SKILL.md'));
+    assert.ok(anatomy);
+    assert.ok(anatomy.installPaths);
+    assert.ok(anatomy.installPaths.includes('SKILL.md'));
     assert.ok(anatomy.installPaths.includes('kit'));
     assert.ok(anatomy.installPaths.some(path => path.startsWith('examples/')));
     assert.equal(validatePublicCatalog(catalog, categories).skills.length, catalog.skills.length);
