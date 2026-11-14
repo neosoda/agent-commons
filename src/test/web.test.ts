@@ -33,6 +33,38 @@ describe('local Skill Hub HTTP security and user workflows', () => {
     });
   }
 
+  it('exposes safe MCP inventory, enforces profile preview tokens and preserves unrelated LM Studio servers', async () => {
+    const lm = path.join(home,'.lmstudio','mcp.json');
+    fs.mkdirSync(path.dirname(lm),{recursive:true});
+    fs.mkdirSync(path.join(home,'.agents'),{recursive:true});
+    fs.writeFileSync(lm,JSON.stringify({mcpServers:{foreign:{command:'hidden-custom-binary',env:{SECRET:'private-value'}}}}));
+    fs.writeFileSync(path.join(home,'.agents','mcp.json'),
+      JSON.stringify({mcpServers:{playwright:{command:'node',args:['--version']}}}));
+    const inventory = await fetch(instance.url+'/api/mcp-center');
+    assert.equal(inventory.status,200);
+    const data=await inventory.text();
+    assert.ok(data.includes('lm-studio'));
+    assert.doesNotMatch(data,/hidden-custom-binary|private-value|agent-commons-web-/);
+    const plan=await post({action:'mcp-profile-sync-preview',name:'development',agents:['lm-studio']});
+    assert.equal(plan.status,200);
+    const preview=await plan.json() as {previewToken:string;errors:string[]};
+    assert.deepEqual(preview.errors,[]);
+    const denied=await post({action:'mcp-profile-sync-apply',name:'development',agents:['lm-studio'],
+      previewToken:preview.previewToken});
+    assert.equal(denied.status,400);
+    const second=await post({action:'mcp-profile-sync-preview',name:'development',agents:['lm-studio']});
+    const valid=await second.json() as {previewToken:string};
+    const applied=await post({action:'mcp-profile-sync-apply',name:'development',agents:['lm-studio'],
+      previewToken:valid.previewToken,approved:true});
+    assert.equal(applied.status,200);
+    const native=JSON.parse(fs.readFileSync(lm,'utf8'));
+    assert.ok(native.mcpServers.playwright);
+    assert.equal(native.mcpServers.foreign.env.SECRET,'private-value');
+    const replay=await post({action:'mcp-profile-sync-apply',name:'development',agents:['lm-studio'],
+      previewToken:valid.previewToken,approved:true});
+    assert.equal(replay.status,400);
+  });
+
   it('serves the dashboard with strict security headers, no CDN and an ephemeral token', async () => {
     const response = await fetch(instance.url);
     const page = await response.text();
