@@ -245,7 +245,7 @@ node dist/cli/index.js restore snapshot-<id>
 
 ## Explore Skills — public Skill Hub
 
-**182 upstream skills** currently have verified source and license references. Browse them directly on GitHub in the [public Skills index](docs/skills/README.md).
+**199 upstream skills** currently have verified source and license references. Browse them directly on GitHub in the [public Skills index](docs/skills/README.md).
 
 ```bash
 node dist/cli/index.js catalog list
@@ -265,7 +265,7 @@ See [catalog policy](docs/SKILL_CATALOG.md) and [categories](catalog/categories.
 
 ### Chief of Staff, Anatomy and Marketing Psychology
 
-**7 additional catalog entries** cover the three requested projects and **four companion skills** needed by Chief of Staff, for **181 skills across 20 repositories**.
+**7 additional catalog entries** cover the three requested projects and **four companion skills** needed by Chief of Staff, (a historical milestone of **181 skills across 20 repositories**).
 
 ```bash
 agent-commons catalog info chief-of-staff
