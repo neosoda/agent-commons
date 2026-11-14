@@ -1,6 +1,6 @@
 # Agent Commons — PROJECT_HANDOFF
 
-> **Operational handoff, last reviewed: 2026-11-14 (v0.4.0 release preparation).** Read this file before modifying the repository; then check live `main`, release/tag, PRs, issues and GitHub Actions **by exact commit SHA**. Historical SHA and run IDs below are a snapshot, not a promise of current status. This review used the connected GitHub repository only; it did **not** inspect the user's Windows PC, npm account or private agent configurations.
+> **Operational handoff, last verified: 2026-11-14 (v0.4.0 published).** Read this file before modifying the repository; then check live `main`, release/tag, PRs, issues and GitHub Actions **by exact commit SHA**. Historical SHA and run IDs below are a snapshot, not a promise of current status. This review used the connected GitHub repository only; it did **not** inspect the user's Windows PC, npm account or private agent configurations.
 
 ## 1. Product, distribution and safety boundaries
 
@@ -15,10 +15,12 @@ handling, safe backup/restore), `src/commands` (CLI), `src/web` (local
 HTTP and framework-free Skill Hub), `src/security`, `src/test`, `scripts`.
 Public catalog assets in `catalog`; end-user documentation in `README.md`.
 
+**Current published stable version:** [GitHub **v0.4.0**](https://github.com/neosoda/agent-commons/releases/tag/v0.4.0), tagged exactly at `9a952793f2f6c9a665e3f960f3610c027d961f7c`; Windows ZIP (36,485,546 bytes) plus matching SHA-256 are published. Verified ZIP SHA-256: `b333ddf4ac7aecc135f23914cf6ddb2ca8aad52817033c5f27ef7aca44859522`. [Full release verification](docs/releases/v0.4.0.md).
+
 **Previous published stable version (before v0.4.0):** [GitHub **v0.3.1**](https://github.com/neosoda/agent-commons/releases/tag/v0.3.1),
 tag at `9c1735aed0226dfa0eff4165753368c2daf2aa02`, ZIP Windows x64 and
 matching SHA-256 uploaded. Historical [v0.3.0](https://github.com/neosoda/agent-commons/releases/tag/v0.3.0) remains unchanged. [Published release record](docs/releases/v0.3.0.md).
-The current v0.3.1 ZIP's SHA-256 is
+The historical v0.3.1 ZIP's SHA-256 is
 `9f78bd4ee06f913e2f0b1d1492718282b498b08e03735cfd49bde01e9b345c7d`.
 Never move a published tag or silently modify a release asset.
 
@@ -290,22 +292,22 @@ Branche `feat/lemo-opuscar-catalog-20261114` (PR à ouvrir) : ajout d'une réfé
 
 **Security:** maintain loopback, Host/Origin, CSRF, CSP, no web-triggered process execution; never return command/env/secret values; refuse corrupt native configs; preserve unmanaged and custom client fields. Native client extras remain enabled even when excluded from a profile — these allowlists only restrict managed additions.
 
-**Not implemented / not to claim:** automatic npm/PyPI provisioning, controlled package upgrades/uninstall, broad import of native configurations into the central manifest, live MCP process health, full version reconciliation. Catalog entries for unverified OSINT/Web Search remain disabled. No local personal agent or actual Windows PC was accessed; no v0.4.0 release/npm publication.
+**Not implemented / not to claim:** automatic npm/PyPI provisioning, controlled package upgrades/uninstall, broad import of native configurations into the central manifest, live MCP process health, full version reconciliation. Catalog entries for unverified OSINT/Web Search remain disabled. No local personal agent or actual Windows PC was accessed; at implementation merge time v0.4.0 had not yet been released. It was subsequently published on GitHub; no npm publication.
 
 **Actual controls passed on exact PR head:** CI [run 43584559727](https://github.com/neosoda/agent-commons/actions/runs/43584559727) (six OS/Node jobs, including `npm ci`, `typecheck`, `npm test`, `npm audit --audit-level=high`, `npm pack --dry-run`); Chromium [43584559756](https://github.com/neosoda/agent-commons/actions/runs/43584559756); Windows portable [43584559776](https://github.com/neosoda/agent-commons/actions/runs/43584559776).
 
-**Post-merge `main` validation passed** at `a57b2611ae77198f6066d8e893814c75ae92d75e`: CI [43584665618](https://github.com/neosoda/agent-commons/actions/runs/43584665618) (6/6), Chromium [43584665686](https://github.com/neosoda/agent-commons/actions/runs/43584665686), Windows portable [43584665615](https://github.com/neosoda/agent-commons/actions/runs/43584665615). No release or npm publication; no actual user MCP files changed by this work.
+**Post-merge `main` validation passed** at `a57b2611ae77198f6066d8e893814c75ae92d75e`: CI [43584665618](https://github.com/neosoda/agent-commons/actions/runs/43584665618) (6/6), Chromium [43584665686](https://github.com/neosoda/agent-commons/actions/runs/43584665686), Windows portable [43584665615](https://github.com/neosoda/agent-commons/actions/runs/43584665615). At that time no new release or npm publication; no actual user MCP files changed by this work. v0.4.0 was subsequently published on GitHub.
 
 **Next work:** implement separately approved, provenance-verified package lifecycle with per-server permissions and native config reconciliation; retain deny-by-default. Existing custom-profile saves and deletes now create recoverable snapshots; the existing backup system includes persisted profile files. All tests use temporary homes.
 
 
-## 17. v0.4.0 release preparation (2026-11-14)
+## 17. v0.4.0 published release (2026-11-14)
 
-- Current release branch: `release/v0.4.0-20261114`, based on the verified post-MCP-merge `main` `e17d24abcf0fd02722b34b9ee8f5284aee12af09`. Release candidate is version `0.4.0` in both `package.json` and `package-lock.json`. No unrelated branches or users' local MCP configurations are modified.
+- Release preparation branch: `release/v0.4.0-20261114` (PR [#67](https://github.com/neosoda/agent-commons/pull/67), squash merged at `9a952793f2f6c9a665e3f960f3610c027d961f7c`), based on the verified post-MCP-merge `main` `e17d24abcf0fd02722b34b9ee8f5284aee12af09`. Release version is `0.4.0` in both `package.json` and `package-lock.json`. No unrelated branches or users' local MCP configurations are modified.
 - FR/EN README, SECURITY, CHANGELOG and MCP guides aligned with 18 registered environments (including the MCP-only LM Studio client), 182 reviewed catalog skills, and accurately limited profile semantics. Distinguish managed additions from native server deactivation; third-party MCP package installation remains unimplemented.
 - Release notes: `docs/releases/v0.4.0-release-notes.md`. One-shot workflow `.github/workflows/release-v0.4.0.yml` verifies the **exact merged `main` SHA**, six matrix CI jobs, Chromium, Windows portable, and the extracted ZIP/SHA-256 before it creates the GitHub tag/release and attaches both assets. It must not silently replace any existing version.
-- **Do not claim v0.4.0 published until GitHub release/tag and both assets are checked.** GitHub token-created releases do not trigger follow-up `release.published` workflows. npm publication is excluded, and its separate workflow remains guarded.
-- **After successful publication:** verify tag target, release body and both assets with checksum; retire the one-shot workflow in a separate reviewed PR; update this handoff with actual run, tag, asset digest and latest main state. Manual physical Windows and screen-reader acceptance remain separate from CI.
+- **Verified published:** [GitHub v0.4.0](https://github.com/neosoda/agent-commons/releases/tag/v0.4.0) at exact tag commit `9a952793f2f6c9a665e3f960f3610c027d961f7c`. ZIP 36,485,546 bytes, SHA-256 `b333ddf4ac7aecc135f23914cf6ddb2ca8aad52817033c5f27ef7aca44859522` (the same in the Windows build log and GitHub asset digest). No npm publication. GitHub token-created releases do not trigger downstream `release.published` workflows.
+- **Successful exact-main validation:** CI [43585791633](https://github.com/neosoda/agent-commons/actions/runs/43585791633) (6/6), Chromium [43585791635](https://github.com/neosoda/agent-commons/actions/runs/43585791635), Windows portable [43585791647](https://github.com/neosoda/agent-commons/actions/runs/43585791647); publication workflow [43585863084](https://github.com/neosoda/agent-commons/actions/runs/43585863084) verified release SHA and archive checksum and attached both assets. [Public verification record](docs/releases/v0.4.0.md). One-shot release bridge retired in follow-up reviewed PR; ongoing release-assets workflow remains for manual releases. Physical Windows and NVDA/VoiceOver acceptance remain unverified.
 
 
 ## 18. Grim Prompter threat modeling (2026-11-14; pending CI/PR)

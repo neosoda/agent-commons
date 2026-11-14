@@ -591,7 +591,6 @@ Sans `--yes`, cette réparation est une simple prévisualisation. Une jonction c
 
 ---
 
-
 ## Grim Prompter — modélisation des menaces à la demande
 
 [Grim Prompter](https://github.com/jmanico/grim-prompter) (Jim Manico / Manicode Security, licence MIT) est référencé dans le catalogue sous **`threat-model`**. Une installation explicite télécharge la bibliothèque épinglée, avec son skill amont intact, ses 36 architectures, 29 méthodes, workflows RGPD/LINDDUN et analyse de changements Git. **Seules les métadonnées sont consultées par défaut ; aucun prompt complet n'est injecté ou chargé sans invocation.** Aucun service MCP, sous-agent, audit à chaque commit ni correctif automatique.
@@ -608,6 +607,8 @@ Dans **Claude Code** : `/threat-model`, `/threat-model deep api`, `/threat-model
 Les rapports natifs Markdown/JSON vont dans `threat-model/` du **projet analysé** et sont sensibles : ajoutez `threat-model/` au `.git/info/exclude` du dépôt cible ou à son `.gitignore` avant l'analyse. Celui d'Agent Commons l'exclut déjà. [Guide FR](docs/GRIM_PROMPTER.md) · [EN](docs/GRIM_PROMPTER.en.md). Aucun nouvel exécutable ni nouvelle infrastructure.
 
 ## MCP Control Center — v0.4.0
+
+**Version GitHub publiée :** [v0.4.0](https://github.com/neosoda/agent-commons/releases/tag/v0.4.0), archive Windows x64 et SHA-256 vérifiés. [Preuve de publication](docs/releases/v0.4.0.md).
 
 Le Skill Hub propose désormais une page **MCP Control Center** : inventaire local des MCP, catalogue de huit références vérifiées, profils OSINT / Développement / Infrastructure, profils personnalisés, et synchronisation sélective après aperçu et validation. **LM Studio** est reconnu nativement via le fichier `~/.lmstudio/mcp.json` (Windows : `%USERPROFILE%\.lmstudio\mcp.json`) sans lui créer de faux dossier de skills.
 
