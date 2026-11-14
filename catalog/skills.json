@@ -25,6 +25,124 @@
       ]
     },
     {
+      "id": "add-captions",
+      "name": "Add Captions (Remotion Superpowers)",
+      "description": "Add synchronized, platform-safe captions to Remotion from local transcription or SRT.",
+      "category": "design",
+      "author": "Dojo Coding Labs",
+      "repository": "https://github.com/DojoCodingLabs/remotion-superpowers",
+      "source": "https://github.com/DojoCodingLabs/remotion-superpowers/tree/970efd2d2f4ce2492231a31ee684c2ead883f4bc/skills/add-captions",
+      "path": "skills/add-captions",
+      "ref": "970efd2d2f4ce2492231a31ee684c2ead883f4bc",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/DojoCodingLabs/remotion-superpowers/blob/970efd2d2f4ce2492231a31ee684c2ead883f4bc/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-14",
+        "licenseChecked": "2026-11-14",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [
+        "remotion-production"
+      ],
+      "tags": [
+        "video",
+        "remotion",
+        "remotion-superpowers",
+        "captions",
+        "subtitles",
+        "tiktok",
+        "audio"
+      ]
+    },
+    {
+      "id": "add-music",
+      "name": "Add Music (Remotion Superpowers)",
+      "description": "Arrange licensed background music, fades and audio levels for Remotion scenes.",
+      "category": "design",
+      "author": "Dojo Coding Labs",
+      "repository": "https://github.com/DojoCodingLabs/remotion-superpowers",
+      "source": "https://github.com/DojoCodingLabs/remotion-superpowers/tree/970efd2d2f4ce2492231a31ee684c2ead883f4bc/skills/add-music",
+      "path": "skills/add-music",
+      "ref": "970efd2d2f4ce2492231a31ee684c2ead883f4bc",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/DojoCodingLabs/remotion-superpowers/blob/970efd2d2f4ce2492231a31ee684c2ead883f4bc/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-14",
+        "licenseChecked": "2026-11-14",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [
+        "remotion-production"
+      ],
+      "tags": [
+        "video",
+        "remotion",
+        "remotion-superpowers",
+        "music",
+        "soundtrack",
+        "audio"
+      ]
+    },
+    {
+      "id": "add-transitions",
+      "name": "Add Transitions (Remotion Superpowers)",
+      "description": "Build Remotion transitions including fades, wipes, slides and light leaks.",
+      "category": "design",
+      "author": "Dojo Coding Labs",
+      "repository": "https://github.com/DojoCodingLabs/remotion-superpowers",
+      "source": "https://github.com/DojoCodingLabs/remotion-superpowers/tree/970efd2d2f4ce2492231a31ee684c2ead883f4bc/skills/add-transitions",
+      "path": "skills/add-transitions",
+      "ref": "970efd2d2f4ce2492231a31ee684c2ead883f4bc",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/DojoCodingLabs/remotion-superpowers/blob/970efd2d2f4ce2492231a31ee684c2ead883f4bc/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-14",
+        "licenseChecked": "2026-11-14",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [
+        "remotion-production"
+      ],
+      "tags": [
+        "video",
+        "remotion",
+        "remotion-superpowers",
+        "transitions",
+        "animation",
+        "editing"
+      ]
+    },
+    {
+      "id": "add-voiceover",
+      "name": "Add Voiceover (Remotion Superpowers)",
+      "description": "Plan and sync scene-by-scene narrated audio via approved external TTS.",
+      "category": "design",
+      "author": "Dojo Coding Labs",
+      "repository": "https://github.com/DojoCodingLabs/remotion-superpowers",
+      "source": "https://github.com/DojoCodingLabs/remotion-superpowers/tree/970efd2d2f4ce2492231a31ee684c2ead883f4bc/skills/add-voiceover",
+      "path": "skills/add-voiceover",
+      "ref": "970efd2d2f4ce2492231a31ee684c2ead883f4bc",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/DojoCodingLabs/remotion-superpowers/blob/970efd2d2f4ce2492231a31ee684c2ead883f4bc/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-14",
+        "licenseChecked": "2026-11-14",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [
+        "remotion-production"
+      ],
+      "tags": [
+        "video",
+        "remotion",
+        "remotion-superpowers",
+        "voiceover",
+        "narration",
+        "tts",
+        "audio"
+      ]
+    },
+    {
       "id": "agent-architecture-audit",
       "name": "Agent Architecture Audit",
       "description": "Audit AI agent architecture, component boundaries, tool usage, context management and reliability risks.",
@@ -259,6 +377,35 @@
         "ecc",
         "everything-claude-code",
         "development"
+      ]
+    },
+    {
+      "id": "analyze-footage",
+      "name": "Analyze Footage (Remotion Superpowers)",
+      "description": "Analyze supplied footage and retrieve timestamped moments via approved AI services.",
+      "category": "design",
+      "author": "Dojo Coding Labs",
+      "repository": "https://github.com/DojoCodingLabs/remotion-superpowers",
+      "source": "https://github.com/DojoCodingLabs/remotion-superpowers/tree/970efd2d2f4ce2492231a31ee684c2ead883f4bc/skills/analyze-footage",
+      "path": "skills/analyze-footage",
+      "ref": "970efd2d2f4ce2492231a31ee684c2ead883f4bc",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/DojoCodingLabs/remotion-superpowers/blob/970efd2d2f4ce2492231a31ee684c2ead883f4bc/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-14",
+        "licenseChecked": "2026-11-14",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [
+        "remotion-production"
+      ],
+      "tags": [
+        "video",
+        "remotion",
+        "remotion-superpowers",
+        "analysis",
+        "footage",
+        "ai"
       ]
     },
     {
@@ -1153,6 +1300,68 @@
       ]
     },
     {
+      "id": "create-short",
+      "name": "Create Short (Remotion Superpowers)",
+      "description": "Plan vertical 9:16 short-form videos, Reels and Shorts with hooks and captions.",
+      "category": "design",
+      "author": "Dojo Coding Labs",
+      "repository": "https://github.com/DojoCodingLabs/remotion-superpowers",
+      "source": "https://github.com/DojoCodingLabs/remotion-superpowers/tree/970efd2d2f4ce2492231a31ee684c2ead883f4bc/skills/create-short",
+      "path": "skills/create-short",
+      "ref": "970efd2d2f4ce2492231a31ee684c2ead883f4bc",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/DojoCodingLabs/remotion-superpowers/blob/970efd2d2f4ce2492231a31ee684c2ead883f4bc/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-14",
+        "licenseChecked": "2026-11-14",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [
+        "remotion-production",
+        "add-captions"
+      ],
+      "tags": [
+        "video",
+        "remotion",
+        "remotion-superpowers",
+        "short",
+        "reels",
+        "tiktok",
+        "captions",
+        "vertical"
+      ]
+    },
+    {
+      "id": "create-video",
+      "name": "Create Video (Remotion Superpowers)",
+      "description": "Orchestrate a Remotion production from brief to Studio preview and approved MP4 render.",
+      "category": "design",
+      "author": "Dojo Coding Labs",
+      "repository": "https://github.com/DojoCodingLabs/remotion-superpowers",
+      "source": "https://github.com/DojoCodingLabs/remotion-superpowers/tree/970efd2d2f4ce2492231a31ee684c2ead883f4bc/skills/create-video",
+      "path": "skills/create-video",
+      "ref": "970efd2d2f4ce2492231a31ee684c2ead883f4bc",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/DojoCodingLabs/remotion-superpowers/blob/970efd2d2f4ce2492231a31ee684c2ead883f4bc/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-14",
+        "licenseChecked": "2026-11-14",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [
+        "remotion-production"
+      ],
+      "tags": [
+        "video",
+        "remotion",
+        "remotion-superpowers",
+        "production",
+        "workflow",
+        "studio",
+        "animation"
+      ]
+    },
+    {
       "id": "database-migrations",
       "name": "Database Migrations",
       "description": "Plan safe database schema migrations, backfills, rollback and compatibility windows.",
@@ -1530,6 +1739,36 @@
         "design",
         "hyperframes",
         "video"
+      ]
+    },
+    {
+      "id": "find-footage",
+      "name": "Find Footage (Remotion Superpowers)",
+      "description": "Locate stock footage via an approved Pexels provider for Remotion compositions.",
+      "category": "design",
+      "author": "Dojo Coding Labs",
+      "repository": "https://github.com/DojoCodingLabs/remotion-superpowers",
+      "source": "https://github.com/DojoCodingLabs/remotion-superpowers/tree/970efd2d2f4ce2492231a31ee684c2ead883f4bc/skills/find-footage",
+      "path": "skills/find-footage",
+      "ref": "970efd2d2f4ce2492231a31ee684c2ead883f4bc",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/DojoCodingLabs/remotion-superpowers/blob/970efd2d2f4ce2492231a31ee684c2ead883f4bc/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-14",
+        "licenseChecked": "2026-11-14",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [
+        "remotion-production"
+      ],
+      "tags": [
+        "video",
+        "remotion",
+        "remotion-superpowers",
+        "stock",
+        "footage",
+        "pexels",
+        "search"
       ]
     },
     {
@@ -1925,6 +2164,64 @@
         "design",
         "hyperframes",
         "video"
+      ]
+    },
+    {
+      "id": "generate-clip",
+      "name": "Generate Clip (Remotion Superpowers)",
+      "description": "Create generative video clips for a Remotion project using an approved API provider.",
+      "category": "design",
+      "author": "Dojo Coding Labs",
+      "repository": "https://github.com/DojoCodingLabs/remotion-superpowers",
+      "source": "https://github.com/DojoCodingLabs/remotion-superpowers/tree/970efd2d2f4ce2492231a31ee684c2ead883f4bc/skills/generate-clip",
+      "path": "skills/generate-clip",
+      "ref": "970efd2d2f4ce2492231a31ee684c2ead883f4bc",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/DojoCodingLabs/remotion-superpowers/blob/970efd2d2f4ce2492231a31ee684c2ead883f4bc/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-14",
+        "licenseChecked": "2026-11-14",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [
+        "remotion-production"
+      ],
+      "tags": [
+        "video",
+        "remotion",
+        "remotion-superpowers",
+        "video-generation",
+        "ai",
+        "clip"
+      ]
+    },
+    {
+      "id": "generate-image",
+      "name": "Generate Image (Remotion Superpowers)",
+      "description": "Generate backgrounds, illustrations and thumbnails for Remotion on request.",
+      "category": "design",
+      "author": "Dojo Coding Labs",
+      "repository": "https://github.com/DojoCodingLabs/remotion-superpowers",
+      "source": "https://github.com/DojoCodingLabs/remotion-superpowers/tree/970efd2d2f4ce2492231a31ee684c2ead883f4bc/skills/generate-image",
+      "path": "skills/generate-image",
+      "ref": "970efd2d2f4ce2492231a31ee684c2ead883f4bc",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/DojoCodingLabs/remotion-superpowers/blob/970efd2d2f4ce2492231a31ee684c2ead883f4bc/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-14",
+        "licenseChecked": "2026-11-14",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [
+        "remotion-production"
+      ],
+      "tags": [
+        "video",
+        "remotion",
+        "remotion-superpowers",
+        "image-generation",
+        "thumbnail",
+        "ai"
       ]
     },
     {
@@ -3465,6 +3762,33 @@
       ]
     },
     {
+      "id": "remotion-production",
+      "name": "Remotion Production (Remotion Superpowers)",
+      "description": "Orchestrate media sourcing, voice, soundtrack, captions and QA with task-specific Remotion rules.",
+      "category": "design",
+      "author": "Dojo Coding Labs",
+      "repository": "https://github.com/DojoCodingLabs/remotion-superpowers",
+      "source": "https://github.com/DojoCodingLabs/remotion-superpowers/tree/970efd2d2f4ce2492231a31ee684c2ead883f4bc/skills/remotion-production",
+      "path": "skills/remotion-production",
+      "ref": "970efd2d2f4ce2492231a31ee684c2ead883f4bc",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/DojoCodingLabs/remotion-superpowers/blob/970efd2d2f4ce2492231a31ee684c2ead883f4bc/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-14",
+        "licenseChecked": "2026-11-14",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "video",
+        "remotion",
+        "remotion-superpowers",
+        "orchestration",
+        "production",
+        "media"
+      ]
+    },
+    {
       "id": "remotion-to-hyperframes",
       "name": "Remotion To Hyperframes",
       "description": "Bring existing video code or footage into HyperFrames and verify it frame by frame against the original - Remotion first, also Motion Canvas, Lottie, Three.js, p5.js, canvas or plain HTML/CSS animation, or renders from Manim, After Effects or Blender. Use to port, convert, migrate or reuse work made with another tool.",
@@ -3532,6 +3856,35 @@
       "dependencies": [],
       "tags": [
         "retrospective"
+      ]
+    },
+    {
+      "id": "review-video",
+      "name": "Review Video (Remotion Superpowers)",
+      "description": "Review video frames and optional external analysis for pacing, readability, audio sync and QA.",
+      "category": "design",
+      "author": "Dojo Coding Labs",
+      "repository": "https://github.com/DojoCodingLabs/remotion-superpowers",
+      "source": "https://github.com/DojoCodingLabs/remotion-superpowers/tree/970efd2d2f4ce2492231a31ee684c2ead883f4bc/skills/review-video",
+      "path": "skills/review-video",
+      "ref": "970efd2d2f4ce2492231a31ee684c2ead883f4bc",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/DojoCodingLabs/remotion-superpowers/blob/970efd2d2f4ce2492231a31ee684c2ead883f4bc/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-14",
+        "licenseChecked": "2026-11-14",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [
+        "remotion-production"
+      ],
+      "tags": [
+        "video",
+        "remotion",
+        "remotion-superpowers",
+        "review",
+        "analysis",
+        "qa"
       ]
     },
     {
@@ -3677,6 +4030,62 @@
         "ecc",
         "everything-claude-code",
         "security"
+      ]
+    },
+    {
+      "id": "setup",
+      "name": "Setup (Remotion Superpowers)",
+      "description": "Consent-based Remotion setup guide for tools, official skills and optional MCP providers.",
+      "category": "design",
+      "author": "Dojo Coding Labs",
+      "repository": "https://github.com/DojoCodingLabs/remotion-superpowers",
+      "source": "https://github.com/DojoCodingLabs/remotion-superpowers/tree/970efd2d2f4ce2492231a31ee684c2ead883f4bc/skills/setup",
+      "path": "skills/setup",
+      "ref": "970efd2d2f4ce2492231a31ee684c2ead883f4bc",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/DojoCodingLabs/remotion-superpowers/blob/970efd2d2f4ce2492231a31ee684c2ead883f4bc/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-14",
+        "licenseChecked": "2026-11-14",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [
+        "setup-guide"
+      ],
+      "tags": [
+        "video",
+        "remotion",
+        "remotion-superpowers",
+        "setup",
+        "configuration",
+        "install"
+      ]
+    },
+    {
+      "id": "setup-guide",
+      "name": "Setup Guide (Remotion Superpowers)",
+      "description": "Reference guide for Remotion Superpowers setup, providers, API keys and troubleshooting.",
+      "category": "design",
+      "author": "Dojo Coding Labs",
+      "repository": "https://github.com/DojoCodingLabs/remotion-superpowers",
+      "source": "https://github.com/DojoCodingLabs/remotion-superpowers/tree/970efd2d2f4ce2492231a31ee684c2ead883f4bc/skills/setup-guide",
+      "path": "skills/setup-guide",
+      "ref": "970efd2d2f4ce2492231a31ee684c2ead883f4bc",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/DojoCodingLabs/remotion-superpowers/blob/970efd2d2f4ce2492231a31ee684c2ead883f4bc/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-14",
+        "licenseChecked": "2026-11-14",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "video",
+        "remotion",
+        "remotion-superpowers",
+        "setup",
+        "guide",
+        "configuration"
       ]
     },
     {
@@ -4075,6 +4484,36 @@
       ]
     },
     {
+      "id": "transcribe",
+      "name": "Transcribe (Remotion Superpowers)",
+      "description": "Create timestamped transcripts, word captions and SRT files from audio or video.",
+      "category": "design",
+      "author": "Dojo Coding Labs",
+      "repository": "https://github.com/DojoCodingLabs/remotion-superpowers",
+      "source": "https://github.com/DojoCodingLabs/remotion-superpowers/tree/970efd2d2f4ce2492231a31ee684c2ead883f4bc/skills/transcribe",
+      "path": "skills/transcribe",
+      "ref": "970efd2d2f4ce2492231a31ee684c2ead883f4bc",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/DojoCodingLabs/remotion-superpowers/blob/970efd2d2f4ce2492231a31ee684c2ead883f4bc/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-14",
+        "licenseChecked": "2026-11-14",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [
+        "remotion-production"
+      ],
+      "tags": [
+        "video",
+        "remotion",
+        "remotion-superpowers",
+        "transcription",
+        "captions",
+        "srt",
+        "audio"
+      ]
+    },
+    {
       "id": "typescript-patterns",
       "name": "Typescript Patterns",
       "description": "Apply robust TypeScript type modeling, validation and application design conventions.",
@@ -4260,6 +4699,34 @@
       "tags": [
         "development",
         "claude-mem"
+      ]
+    },
+    {
+      "id": "video-engine",
+      "name": "Video Engine",
+      "description": "Audio-first narrated video pipeline with word alignment, deterministic Remotion/SVG animation, subtitles, QA and MP4 export.",
+      "category": "design",
+      "author": "ninjasweb",
+      "repository": "https://github.com/ninjasweb/video-engine-skill",
+      "source": "https://github.com/ninjasweb/video-engine-skill/tree/cf35b05a9ecf3e878eff30c9ffaa8a911248d7c5",
+      "path": ".",
+      "ref": "cf35b05a9ecf3e878eff30c9ffaa8a911248d7c5",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/ninjasweb/video-engine-skill/blob/cf35b05a9ecf3e878eff30c9ffaa8a911248d7c5/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-14",
+        "licenseChecked": "2026-11-14",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "video",
+        "narration",
+        "remotion",
+        "audio",
+        "alignment",
+        "captions",
+        "explainer"
       ]
     },
     {
