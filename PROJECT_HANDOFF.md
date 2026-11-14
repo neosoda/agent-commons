@@ -275,8 +275,14 @@ Branch `feat/smart-skill-router-20261114` extends, rather than replaces, the off
 
 **At authorship:** code/tests/docs added, exact-head CI and PR verification pending. Never claim merged/released or Windows/macOS QA until checked. Before merge require six CI jobs, Chromium and Windows portable checks on the exact PR SHA. No private workstation was accessed. A future dedicated MCP bridge would require separate design and client-specific validation.
 
+## 15. Lemo-Opuscar — catalogue sélectif (2026-11-14)
 
-## 15. MCP Control Center v0.4.0 — implementation work (2026-11-14)
+Branche `feat/lemo-opuscar-catalog-20261114` (PR à ouvrir) : ajout d'une référence épinglée au commit `3a7132b996be0241c1ea0ab180d519f06e6f10b6` de [lemomo-ai/lemo-opuscar](https://github.com/lemomo-ai/lemo-opuscar). Entrée `lemo-opuscar` : installation sur accord des seuls `SKILL.md` et `scripts/setup.sh` (13 223 octets). Le reste des 99 styles et la toolchain vidéo demeurent externes, non téléchargés lors du listing/routage, ni exécutés par Agent Commons. Métadonnées de licences mixtes CC BY-NC 4.0 (Markdown) et MIT (code), attribution générée FR/EN et guides `docs/LEMO_OPUSCAR*.md`.
+
+**Important :** le `setup.sh` amont peut cloner/mettre à jour `main` et installer des dépendances lors de sa première invocation ; l'épinglage du catalogue ne couvre pas ce runtime. Usage avec accord explicite, ou clone runtime épinglé manuellement. Aucun accès à l'environnement privé, aucune exécution des scripts tiers ; aucune release créée. **À vérifier avant fusion :** `npm ci`, typecheck, tests + catalogue généré, audit high et pack dry-run, puis CI 6/6 + Chromium + Windows portable sur SHA exact de PR. Ne pas déclarer validé avant constat.
+
+
+## 16. MCP Control Center v0.4.0 — implementation work (2026-11-14)
 
 **Branch:** `feat/mcp-control-center-v040`; **PR:** https://github.com/neosoda/agent-commons/pull/64 (draft until exact-head gates pass). Initial base: `f127ace2af0a3821b392fb3fdc397dd7a6753f84`; main has advanced during implementation and must be rechecked for conflicts.
 

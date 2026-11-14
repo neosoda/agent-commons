@@ -278,6 +278,8 @@ agent-commons sync --skill anatomy --agent codex --dry-run
 
 **Anatomy** uses a reviewed subset of **126 source files (~1.9 MiB)** without generated PDFs and HTML; security limits are unchanged. **Chief of Staff** is experimental and requires compatible agent capabilities. [English guide](docs/CURATED_SKILLS.en.md) · [Français](docs/CURATED_SKILLS.md).
 
+**New — Films and animation (Lemo-Opuscar):** optional creative skill with 99 styles, no downloads during discovery. Install/sync on request; its separate video toolchain is prepared only when used. [Guide and precautions](docs/LEMO_OPUSCAR.en.md).
+
 ### Everything Claude Code (ECC) collection
 
 **71 selected ECC skills** for agents, infrastructure, web projects and audits are now discoverable in the Skill Hub, without overriding existing profiles or importing ECC hooks.
@@ -543,7 +545,7 @@ Runtime and npm dependency license labels above match the checked-in package man
 ### Upstream repositories referenced by the public Skill Hub
 
 <!-- BEGIN GENERATED SKILL REPOSITORY CREDITS -->
-The curated public catalog references **181 skills across 20 upstream repositories**. These are **metadata-only references**: Agent Commons does not bundle or automatically install their skills. Licenses are recorded per pinned skill in [the full index](docs/skills/README.md); repositories with more than one license must be checked per skill.
+The curated public catalog references **182 skills across 21 upstream repositories**. These are **metadata-only references**: Agent Commons does not bundle or automatically install their skills. Licenses are recorded per pinned skill in [the full index](docs/skills/README.md); repositories with more than one license must be checked per skill.
 
 | Upstream repository | Author / maintainer | Skill references | Declared license(s) |
 |:--|:--|--:|:--|
@@ -556,6 +558,7 @@ The curated public catalog references **181 skills across 20 upstream repositori
 | [Jakeschincariol/founder-skill](https://github.com/Jakeschincariol/founder-skill) | Jake Schincariol | 11 | MIT |
 | [JuliusBrussee/caveman](https://github.com/JuliusBrussee/caveman) | JuliusBrussee | 22 | Apache-2.0 |
 | [latent-spaces/brag](https://github.com/latent-spaces/brag) | latent-spaces | 1 | MIT |
+| [lemomo-ai/lemo-opuscar](https://github.com/lemomo-ai/lemo-opuscar) | Lemomo / LemoLab | 1 | CC-BY-NC-4.0 (skill/docs); MIT (script) |
 | [mattpocock/skills](https://github.com/mattpocock/skills) | Matt Pocock | 5 | MIT |
 | [morellid/ai-act-skill](https://github.com/morellid/ai-act-skill) | Davide Morelli | 1 | MIT |
 | [nextlevelbuilder/ui-ux-pro-max-skill](https://github.com/nextlevelbuilder/ui-ux-pro-max-skill) | Next Level Builder | 7 | Apache-2.0 / MIT |

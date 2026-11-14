@@ -2596,6 +2596,41 @@
       ]
     },
     {
+      "id": "lemo-opuscar",
+      "name": "Lemo-Opuscar",
+      "description": "Direct and render original short films, animated explainers and motion-design videos in 99 selectable visual styles; separate creative library is fetched only after user-initiated use.",
+      "category": "design",
+      "author": "Lemomo / LemoLab",
+      "repository": "https://github.com/lemomo-ai/lemo-opuscar",
+      "source": "https://github.com/lemomo-ai/lemo-opuscar/tree/3a7132b996be0241c1ea0ab180d519f06e6f10b6/plugin/skills/lemo-opuscar",
+      "path": "plugin/skills/lemo-opuscar",
+      "ref": "3a7132b996be0241c1ea0ab180d519f06e6f10b6",
+      "license": "CC-BY-NC-4.0 (skill/docs); MIT (script)",
+      "licenseEvidence": "https://github.com/lemomo-ai/lemo-opuscar/blob/3a7132b996be0241c1ea0ab180d519f06e6f10b6/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-14",
+        "licenseChecked": "2026-11-14",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [
+        "Git and POSIX sh (Git Bash on Windows)",
+        "For rendering: Node.js 20 or newer, ffmpeg 7 or newer, Python 3.11 or newer",
+        "On explicit use, upstream setup may download its library, npm and Python packages, and Chromium"
+      ],
+      "tags": [
+        "video",
+        "film",
+        "animation",
+        "motion-design",
+        "explainers",
+        "creative"
+      ],
+      "installPaths": [
+        "SKILL.md",
+        "scripts/setup.sh"
+      ]
+    },
+    {
       "id": "living-docs-governance",
       "name": "Living Docs Governance",
       "description": "Keep project documentation roles, decision histories and source-of-truth mappings coherent.",
