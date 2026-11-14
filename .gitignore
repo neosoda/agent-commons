@@ -27,3 +27,6 @@ Thumbs.db
 /catalog-review*.json
 /catalogue-skills*.json
 /skills-review*.json
+
+# Threat-model analysis outputs (sensitive, local only)
+/threat-model/

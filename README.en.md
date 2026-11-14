@@ -545,7 +545,7 @@ Runtime and npm dependency license labels above match the checked-in package man
 ### Upstream repositories referenced by the public Skill Hub
 
 <!-- BEGIN GENERATED SKILL REPOSITORY CREDITS -->
-The curated public catalog references **182 skills across 21 upstream repositories**. These are **metadata-only references**: Agent Commons does not bundle or automatically install their skills. Licenses are recorded per pinned skill in [the full index](docs/skills/README.md); repositories with more than one license must be checked per skill.
+The curated public catalog references **183 skills across 22 upstream repositories**. These are **metadata-only references**: Agent Commons does not bundle or automatically install their skills. Licenses are recorded per pinned skill in [the full index](docs/skills/README.md); repositories with more than one license must be checked per skill.
 
 | Upstream repository | Author / maintainer | Skill references | Declared license(s) |
 |:--|:--|--:|:--|
@@ -556,6 +556,7 @@ The curated public catalog references **182 skills across 21 upstream repositori
 | [coreyhaines31/marketingskills](https://github.com/coreyhaines31/marketingskills) | Corey Haines | 1 | MIT |
 | [heygen-com/hyperframes](https://github.com/heygen-com/hyperframes) | HeyGen | 21 | Apache-2.0 |
 | [Jakeschincariol/founder-skill](https://github.com/Jakeschincariol/founder-skill) | Jake Schincariol | 11 | MIT |
+| [jmanico/grim-prompter](https://github.com/jmanico/grim-prompter) | Jim Manico / Manicode Security | 1 | MIT |
 | [JuliusBrussee/caveman](https://github.com/JuliusBrussee/caveman) | JuliusBrussee | 22 | Apache-2.0 |
 | [latent-spaces/brag](https://github.com/latent-spaces/brag) | latent-spaces | 1 | MIT |
 | [lemomo-ai/lemo-opuscar](https://github.com/lemomo-ai/lemo-opuscar) | Lemomo / LemoLab | 1 | CC-BY-NC-4.0 (skill/docs); MIT (script) |
@@ -625,6 +626,22 @@ folders, valid external links, dangling links with other targets, ambiguous
 sources and unreadable sources are **never overwritten**. The command does
 not execute third-party skills. Inspect remaining doctor findings manually.
 
+
+
+## Grim Prompter — on-demand threat modeling
+
+[Grim Prompter](https://github.com/jmanico/grim-prompter) (Jim Manico / Manicode Security, MIT) is a reviewed **`threat-model`** catalog entry. Explicit installation downloads the pinned upstream library, preserving its original skill, 36 architecture workflows, 29 method prompts, GDPR/LINDDUN and Git change reviews. **Discovery is metadata-only; no full prompt is loaded or injected until invoked.** No MCP service, subagent orchestration, per-commit audit or automatic fixes.
+
+```bash
+agent-commons catalog install threat-model           # network-backed preview only
+agent-commons catalog install threat-model --yes     # explicit pinned installation
+agent-commons sync --skill threat-model --agent codex --dry-run
+agent-commons sync --skill threat-model --agent codex
+```
+
+In **Claude Code**: `/threat-model`, `/threat-model deep api`, `/threat-model quick privacy`, `/threat-model change main...feature`. In **Codex**: `$threat-model`, `$threat-model deep api`. In **Gemini CLI** and other skills-aware clients, use their actual native skills invocation or ask “use the threat-model skill to review this API”; slash commands are not portable. `quick` is the default, `deep` is opt-in, and `change` requires a previous JSON baseline plus a Git revision range.
+
+Native Markdown/JSON reports are written under the **target project's** `threat-model/` directory. Treat these as sensitive: add `threat-model/` to that repository's `.git/info/exclude` or `.gitignore` before analysis (Agent Commons itself already ignores it). [English guide](docs/GRIM_PROMPTER.en.md) · [FR](docs/GRIM_PROMPTER.md). No extra runtime or infrastructure.
 
 ## MCP Control Center — v0.4.0
 

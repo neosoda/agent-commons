@@ -239,7 +239,7 @@ La commande `restore` remplace les chemins gérés par les versions sauvegardée
 
 ## Explorer les skills — catalogue public
 
-**182 skills externes** disposent actuellement de références vérifiées pour leur source et leur licence. Retrouvez-les dans [l'index public](docs/skills/README.md).
+**183 skills externes** disposent actuellement de références vérifiées pour leur source et leur licence. Retrouvez-les dans [l'index public](docs/skills/README.md).
 
 ```bash
 node dist/cli/index.js catalog list
@@ -530,7 +530,7 @@ Les licences indiquées pour les dépendances npm proviennent du manifeste, du l
 ### Dépôts référencés dans le catalogue public
 
 <!-- BEGIN GENERATED SKILL REPOSITORY CREDITS -->
-Le catalogue public référence **182 skills provenant de 21 dépôts sources**. Il s'agit **uniquement de métadonnées** : Agent Commons ne regroupe pas et n'installe pas automatiquement ces skills. Les licences sont indiquées pour chaque skill épinglé dans [l'index complet](docs/skills/README.md) ; si plusieurs licences figurent pour un dépôt, vérifiez celle applicable à chaque skill.
+Le catalogue public référence **183 skills provenant de 22 dépôts sources**. Il s'agit **uniquement de métadonnées** : Agent Commons ne regroupe pas et n'installe pas automatiquement ces skills. Les licences sont indiquées pour chaque skill épinglé dans [l'index complet](docs/skills/README.md) ; si plusieurs licences figurent pour un dépôt, vérifiez celle applicable à chaque skill.
 
 | Dépôt source | Auteur / responsable | Skills référencés | Licence(s) déclarée(s) |
 |:--|:--|--:|:--|
@@ -541,6 +541,7 @@ Le catalogue public référence **182 skills provenant de 21 dépôts sources**.
 | [coreyhaines31/marketingskills](https://github.com/coreyhaines31/marketingskills) | Corey Haines | 1 | MIT |
 | [heygen-com/hyperframes](https://github.com/heygen-com/hyperframes) | HeyGen | 21 | Apache-2.0 |
 | [Jakeschincariol/founder-skill](https://github.com/Jakeschincariol/founder-skill) | Jake Schincariol | 11 | MIT |
+| [jmanico/grim-prompter](https://github.com/jmanico/grim-prompter) | Jim Manico / Manicode Security | 1 | MIT |
 | [JuliusBrussee/caveman](https://github.com/JuliusBrussee/caveman) | JuliusBrussee | 22 | Apache-2.0 |
 | [latent-spaces/brag](https://github.com/latent-spaces/brag) | latent-spaces | 1 | MIT |
 | [lemomo-ai/lemo-opuscar](https://github.com/lemomo-ai/lemo-opuscar) | Lemomo / LemoLab | 1 | CC-BY-NC-4.0 (skill/docs); MIT (script) |
@@ -589,6 +590,22 @@ agent-commons sync --skills-only
 Sans `--yes`, cette réparation est une simple prévisualisation. Une jonction centrale pointant sur elle-même ne peut être remplacée que si **une seule source physique** sans ambiguïté est trouvée dans `~/.agents/skills/.sources/`. Le contenu est préparé dans un dossier physique et l'ancienne jonction archivée sous `~/.agents/backups/central-repair-*/`. Les vrais dossiers, liens valides, liens cassés sans source correspondante et sources ambiguës restent intacts. Aucun script tiers n'est exécuté. Examinez manuellement les problèmes restants.
 
 ---
+
+
+## Grim Prompter — modélisation des menaces à la demande
+
+[Grim Prompter](https://github.com/jmanico/grim-prompter) (Jim Manico / Manicode Security, licence MIT) est référencé dans le catalogue sous **`threat-model`**. Une installation explicite télécharge la bibliothèque épinglée, avec son skill amont intact, ses 36 architectures, 29 méthodes, workflows RGPD/LINDDUN et analyse de changements Git. **Seules les métadonnées sont consultées par défaut ; aucun prompt complet n'est injecté ou chargé sans invocation.** Aucun service MCP, sous-agent, audit à chaque commit ni correctif automatique.
+
+```bash
+agent-commons catalog install threat-model            # aperçu ; réseau, aucune écriture
+agent-commons catalog install threat-model --yes      # téléchargement épinglé, après accord
+agent-commons sync --skill threat-model --agent codex --dry-run
+agent-commons sync --skill threat-model --agent codex
+```
+
+Dans **Claude Code** : `/threat-model`, `/threat-model deep api`, `/threat-model quick privacy`, `/threat-model change main...feature`. Dans **Codex** : `$threat-model`, `$threat-model deep api`. Pour **Gemini CLI** ou un autre agent compatible skills, invoquez son skill par son interface native ou demandez « utilise le skill threat-model pour analyser cette API » ; la syntaxe slash n'est pas universelle. Le mode `quick` est implicite, `deep` explicite. Une revue `change` nécessite le rapport JSON précédent et la plage Git.
+
+Les rapports natifs Markdown/JSON vont dans `threat-model/` du **projet analysé** et sont sensibles : ajoutez `threat-model/` au `.git/info/exclude` du dépôt cible ou à son `.gitignore` avant l'analyse. Celui d'Agent Commons l'exclut déjà. [Guide FR](docs/GRIM_PROMPTER.md) · [EN](docs/GRIM_PROMPTER.en.md). Aucun nouvel exécutable ni nouvelle infrastructure.
 
 ## MCP Control Center — v0.4.0
 
