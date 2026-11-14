@@ -259,7 +259,7 @@ Consultez la [politique du catalogue](docs/SKILL_CATALOG.md) et les [catégories
 
 ### Chief of Staff, Anatomy et Marketing Psychology
 
-**7 nouvelles références** viennent compléter le catalogue : les trois projets demandés, plus **quatre skills compagnons** nécessaires à Chief of Staff. Le total atteint **181 skills, issus de 20 dépôts**.
+**7 nouvelles références** viennent compléter le catalogue : les trois projets demandés, plus **quatre skills compagnons** nécessaires à Chief of Staff. Cette étape avait porté le catalogue à **181 skills, issus de 20 dépôts** ; consultez le total actuel ci-dessus.
 
 ```bash
 agent-commons catalog info chief-of-staff
