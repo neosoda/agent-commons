@@ -159,7 +159,7 @@ export function createFullBackup(
       session.recordPathBeforeModify(agent.definition.id, 'mcp-config', agent.mcpConfigPath);
     }
 
-    if (inspectPath(agent.skillsDirPath).state === 'directory') {
+    if (agent.definition.skillsSupported !== false && inspectPath(agent.skillsDirPath).state === 'directory') {
       const skillEntries = fs.readdirSync(agent.skillsDirPath);
       for (const name of skillEntries) {
         const entryPath = path.join(agent.skillsDirPath, name);

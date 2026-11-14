@@ -317,7 +317,10 @@ export function syncMcpForAgents(
     }
 
     const desiredForAgent: Array<[string, McpServerOverride]> = [];
+    const selected = options.mcpServerFilterByAgent;
+    if (selected && !Object.prototype.hasOwnProperty.call(selected, agent.definition.id)) continue;
     for (const [serverName, spec] of serverEntries) {
+      if (selected && !selected[agent.definition.id]!.includes(serverName)) continue;
       const resolved = resolveServerSpecForAgent(spec, agent.definition.id);
       if (resolved) {
         desiredForAgent.push([serverName, resolved]);

@@ -52,7 +52,7 @@ function probeLinkCapability(platform: NodeJS.Platform): { ok: boolean; error?: 
 }
 
 /**
- * Runs a comprehensive, read-only health check across the central library and all 17 agents.
+ * Runs a comprehensive, read-only health check across the central library and supported agents.
  */
 export function runDoctor(ctx: EnvironmentContext, agentFilter?: string[]): DoctorReport {
   const issues: string[] = [];
@@ -100,7 +100,7 @@ export function runDoctor(ctx: EnvironmentContext, agentFilter?: string[]): Doct
     let physicalCount = 0;
     let conflictCount = 0;
 
-    if (agent.installed) {
+    if (agent.installed && agent.definition.skillsSupported !== false) {
       const skillsDirInfo = inspectPath(agent.skillsDirPath);
       if (skillsDirInfo.state === 'link' || skillsDirInfo.state === 'file') {
         conflictCount++;
@@ -171,7 +171,7 @@ export function runDoctor(ctx: EnvironmentContext, agentFilter?: string[]): Doct
       id: agent.definition.id,
       name: agent.definition.name,
       installed: agent.installed,
-      skillsSupported: true,
+      skillsSupported: agent.definition.skillsSupported !== false,
       mcpSupported: Boolean(agent.definition.mcpConfig),
       mcpFormat: agent.mcpFormat,
       skillsDir: agent.skillsDirPath,
