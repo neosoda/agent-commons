@@ -6,6 +6,7 @@ import { describe, it } from 'node:test';
 import { createEnvironmentContext } from '../core/context.js';
 import { detectAgents } from '../agents/detector.js';
 import { runSync } from '../commands/sync.js';
+import { createFullBackup, restoreBackup } from '../core/backup.js';
 import { inspectMcpControlCenter, previewMcpProfile, saveMcpProfile,
   readMcpProfiles, runMcpProfileSync } from '../mcp/control-center.js';
 
@@ -60,8 +61,7 @@ describe('MCP Control Center synthetic-only regression',()=>{
     fixture(home=>{
       const ctx=createEnvironmentContext({homeDir:home});
       prepare(home,{playwright:server('node')},'{invalid json');
-      const report=runMcpProfileSync(ctx,'osint',['lm-studio'],false);
-      assert.ok(report.mcpResults.some(r=>r.action==='corrupted-config'));
+      assert.throws(()=>runMcpProfileSync(ctx,'osint',['lm-studio'],false),/Selected MCP client configuration is invalid/);
       assert.equal(fs.readFileSync(path.join(home,'.lmstudio','mcp.json'),'utf8'),'{invalid json');
     });
   });
@@ -84,6 +84,28 @@ describe('MCP Control Center synthetic-only regression',()=>{
       assert.deepEqual(readMcpProfiles(ctx).data.profiles.browser?.servers,['playwright']);
       assert.throws(()=>saveMcpProfile(ctx,'browser',request,plan.revision),/changed since preview/);
       assert.throws(()=>previewMcpProfile(ctx,'bad',{servers:['does-not-exist'],agents:['lm-studio']}),/unconfigured/);
+    });
+  });
+  it('restores custom profiles from existing and missing snapshot state',()=>{
+    fixture(home=>{
+      const ctx=createEnvironmentContext({homeDir:home});
+      prepare(home,{playwright:server('node')},'{"mcpServers":{}}');
+      const initial=createFullBackup(ctx);
+      const first={servers:['playwright'],agents:['lm-studio']};
+      const draft=previewMcpProfile(ctx,'browser',first);
+      const saved=saveMcpProfile(ctx,'browser',first,draft.revision);
+      assert.ok(saved.snapshotId);
+      assert.ok(readMcpProfiles(ctx).data.profiles.browser);
+      restoreBackup(ctx,initial.id);
+      assert.equal(fs.existsSync(path.join(home,'.agents','mcp-profiles.json')),false);
+      const next=saveMcpProfile(ctx,'browser',first,readMcpProfiles(ctx).revision);
+      const snapshot=next.snapshotId!;
+      const before=createFullBackup(ctx);
+      const other={servers:['playwright'],agents:['lm-studio']};
+      saveMcpProfile(ctx,'development',other,readMcpProfiles(ctx).revision);
+      restoreBackup(ctx,before.id);
+      assert.deepEqual(Object.keys(readMcpProfiles(ctx).data.profiles),['browser']);
+      assert.ok(fs.existsSync(path.join(ctx.backupsDir,snapshot)));
     });
   });
   it('reports inventory without returning private command, env or paths',()=>{

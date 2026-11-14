@@ -131,6 +131,7 @@ const PUBLIC_ERRORS = new Set([
   'MCP profile references unconfigured server.',
   'Central MCP configuration is invalid.',
   'MCP profile targets unavailable clients.',
+  'Selected MCP client configuration is invalid.',
   'No configured MCP servers match this profile.'
 ]);
 function publicError(error: unknown, _ctx: EnvironmentContext): string {
