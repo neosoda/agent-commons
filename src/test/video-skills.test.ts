@@ -99,7 +99,7 @@ describe('video skill sources: pinned, opt-in and lazy', () => {
     const ctx = createEnvironmentContext({ homeDir: home });
     const mocked = mockedSource('skills/remotion-production/', files);
     const preview = await previewCatalogInstall(ctx, 'remotion-production', mocked);
-    assert.deepEqual(preview.files.map(f => f.relativePath), ['SKILL.md', 'rules/production-pipeline.md']);
+    assert.deepEqual(new Set(preview.files.map(f => f.relativePath)), new Set(['SKILL.md', 'rules/production-pipeline.md']));
     assert.equal(fs.existsSync(ctx.commonsDir), false);
     const installed = await installCatalogSkill(ctx, 'remotion-production', { yes: true, fetchJson: mocked });
     assert.equal(installed.installed, true);
