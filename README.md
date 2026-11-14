@@ -21,7 +21,7 @@ Partagez vos skills, synchronisez les configurations MCP et préservez vos insta
 
 ---
 
-## Fini de configurer dix-sept fois la même chose
+## Fini de configurer chaque agent séparément
 
 Claude Code, Codex, Cursor, Gemini, OpenCode et les autres agents de développement utilisent chacun leurs propres skills et outils. **Agent Commons réunit leurs configurations dans une source commune**, tout en conservant les formats natifs des logiciels.
 
@@ -29,7 +29,7 @@ Claude Code, Codex, Cursor, Gemini, OpenCode et les autres agents de développem
 |:--|:--|:--|
 | Réutilisez les dossiers `SKILL.md` grâce aux liens système, sans copies inutiles. | Déclarez les serveurs MCP partagés et synchronisez-les dans les fichiers JSON, JSONC ou TOML de chaque agent compatible. | Prévisualisez les changements, conservez les conflits, réalisez des sauvegardes et restaurez un état précédent. |
 
-**En bref :** 17 environnements d'agents reconnus · 9 adaptateurs Skills + MCP · 8 adaptateurs Skills uniquement · CI sous Windows, macOS et Linux.
+**En bref :** 18 environnements reconnus · 9 adaptateurs Skills + MCP · 8 adaptateurs Skills uniquement · 1 client MCP uniquement (LM Studio) · CI sous Windows, macOS et Linux.
 
 > [!NOTE]
 > **Distribution :** consultez les [releases GitHub](https://github.com/neosoda/agent-commons/releases) pour la dernière version effectivement publiée et les archives Windows portables. Le paquet npm facultatif ne doit être considéré comme disponible qu'après [vérification de sa publication sur npm](https://www.npmjs.com/package/@neosoda/agent-commons). Ne présumez pas que `npx @neosoda/agent-commons` fonctionne avant cette vérification.
@@ -239,7 +239,7 @@ La commande `restore` remplace les chemins gérés par les versions sauvegardée
 
 ## Explorer les skills — catalogue public
 
-**181 skills externes** disposent actuellement de références vérifiées pour leur source et leur licence. Retrouvez-les dans [l'index public](docs/skills/README.md).
+**182 skills externes** disposent actuellement de références vérifiées pour leur source et leur licence. Retrouvez-les dans [l'index public](docs/skills/README.md).
 
 ```bash
 node dist/cli/index.js catalog list
@@ -465,7 +465,7 @@ La commande `node dist/cli/index.js --help` fournit l'aide complète et `node di
 
 ## Compatibilité
 
-**17 environnements d'agents enregistrés** dans le code. Cela signifie que leurs chemins et formats sont couverts par les tests automatisés, pas que leurs applications propriétaires sont lancées et validées de bout en bout par la CI.
+**18 environnements d'agents enregistrés** dans le code. Cela signifie que leurs chemins et formats sont couverts par les tests automatisés, pas que leurs applications propriétaires sont lancées et validées de bout en bout par la CI.
 
 ### Skills + MCP (9)
 
@@ -590,7 +590,7 @@ Sans `--yes`, cette réparation est une simple prévisualisation. Une jonction c
 
 ---
 
-## MCP Control Center — cible de développement 0.4.0 (non publiée)
+## MCP Control Center — v0.4.0
 
 Le Skill Hub propose désormais une page **MCP Control Center** : inventaire local des MCP, catalogue de huit références vérifiées, profils OSINT / Développement / Infrastructure, profils personnalisés, et synchronisation sélective après aperçu et validation. **LM Studio** est reconnu nativement via le fichier `~/.lmstudio/mcp.json` (Windows : `%USERPROFILE%\.lmstudio\mcp.json`) sans lui créer de faux dossier de skills.
 
