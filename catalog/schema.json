@@ -142,16 +142,41 @@
             "minItems": 1,
             "maxItems": 150,
             "uniqueItems": true,
-            "description": "Optional reviewed allowlist of files or directory prefixes from a pinned Git tree; a root SKILL.md entry is mandatory.",
-            "contains": {
-              "const": "SKILL.md"
-            },
+            "description": "Optional reviewed allowlist of pinned source files/directories; either SKILL.md or the declared nested entrypoint must be included.",
             "items": {
               "type": "string",
               "pattern": "^[A-Za-z0-9_.-]+(?:/[A-Za-z0-9_.-]+)*$"
             }
+          },
+          "entrypoint": {
+            "type": "string",
+            "pattern": "^skills/[a-z0-9-]+/SKILL\\.md$",
+            "description": "Optional nested source SKILL.md; a deterministic root bridge is generated at explicit install time."
           }
-        }
+        },
+        "allOf": [
+          {
+            "if": {
+              "required": [
+                "entrypoint"
+              ]
+            },
+            "then": {
+              "required": [
+                "installPaths"
+              ]
+            },
+            "else": {
+              "properties": {
+                "installPaths": {
+                  "contains": {
+                    "const": "SKILL.md"
+                  }
+                }
+              }
+            }
+          }
+        ]
       }
     }
   }
