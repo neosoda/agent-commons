@@ -90,13 +90,12 @@ describe('MCP Control Center synthetic-only regression',()=>{
     fixture(home=>{
       const ctx=createEnvironmentContext({homeDir:home});
       prepare(home,{playwright:server('node')},'{"mcpServers":{}}');
-      const initial=createFullBackup(ctx);
       const first={servers:['playwright'],agents:['lm-studio']};
       const draft=previewMcpProfile(ctx,'browser',first);
       const saved=saveMcpProfile(ctx,'browser',first,draft.revision);
       assert.ok(saved.snapshotId);
       assert.ok(readMcpProfiles(ctx).data.profiles.browser);
-      restoreBackup(ctx,initial.id);
+      restoreBackup(ctx,saved.snapshotId!);
       assert.equal(fs.existsSync(path.join(home,'.agents','mcp-profiles.json')),false);
       const next=saveMcpProfile(ctx,'browser',first,readMcpProfiles(ctx).revision);
       const snapshot=next.snapshotId!;

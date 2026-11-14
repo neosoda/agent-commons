@@ -140,13 +140,6 @@ export function createFullBackup(
     session.recordPathBeforeModify('commons', 'mcp-config', ctx.centralMcpPath);
   }
 
-  // Include custom MCP profiles in snapshots, even when missing at capture time.
-  // Missing-file entries allow a restore to undo creation of a new profile file.
-  const profilesPath = path.join(ctx.commonsDir, 'mcp-profiles.json');
-  if (['file', 'missing'].includes(inspectPath(profilesPath).state)) {
-    session.recordPathBeforeModify('commons', 'mcp-profile', profilesPath);
-  }
-
   if (inspectPath(ctx.centralSkillsDir).state === 'directory') {
     const centralEntries = fs.readdirSync(ctx.centralSkillsDir);
     for (const name of centralEntries) {
@@ -175,6 +168,12 @@ export function createFullBackup(
     }
   }
 
+  // Existing manual snapshots retain native MCP entries first for compatibility.
+  // A newly created profile is reversible through its own pre-save snapshot.
+  const profilesPath = path.join(ctx.commonsDir, 'mcp-profiles.json');
+  if (inspectPath(profilesPath).state === 'file') {
+    session.recordPathBeforeModify('commons', 'mcp-profile', profilesPath);
+  }
   return session.commitManifest();
 }
 
