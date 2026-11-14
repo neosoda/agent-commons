@@ -425,11 +425,11 @@ function skillDetails(s){
       labelStatus(!s.installed?'available':audit?.status||'unmanaged')));
   if(managed)details.append(row('Installed revision',short(audit.commit),labelStatus(audit.commit===s.ref?'intact':'outdated')));
   box.append(details);
-  addUsage(box,s,'skill');
   if(s.installed&&!managed)box.append(node('p','This existing directory cannot be updated or removed by the managed catalog installer. Agent Commons preserves local and modified data.','copy'));
   const links=node('div',null,'links'),link=node('a','Review upstream source');
   link.href=s.source;link.target='_blank';link.rel='noopener noreferrer';links.append(link);
   const license=node('a','License evidence');license.href=s.licenseEvidence;license.target='_blank';license.rel='noopener noreferrer';links.append(license);box.append(links);
+  addUsage(box,s,'skill');
   const actions=node('div',null,'modal-buttons'),close=node('button','Close','btn');
   close.onclick=closeDialog;actions.append(close);
   if(managed){
