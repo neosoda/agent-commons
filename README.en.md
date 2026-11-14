@@ -628,6 +628,8 @@ not execute third-party skills. Inspect remaining doctor findings manually.
 
 ## MCP Control Center — v0.4.0
 
+**Published GitHub version:** [v0.4.0](https://github.com/neosoda/agent-commons/releases/tag/v0.4.0), with verified Windows x64 portable ZIP and SHA-256. [Release verification record](docs/releases/v0.4.0.md).
+
 The existing Skill Hub now includes an **MCP Control Center** page: local MCP inventory, eight reviewed catalog references, OSINT / Development / Infrastructure presets, custom profiles, and selective sync after preview and approval. **LM Studio** is recognized at `~/.lmstudio/mcp.json` (Windows: `%USERPROFILE%\.lmstudio\mcp.json`) without a fictional skills directory.
 
 Existing native MCP servers and conflicts are preserved, and updates use the existing snapshot/restore path. Profiles limit **new servers being synchronized**; they do not disable tools already exposed by clients. **Third-party package installation, update and removal are not yet implemented.** Browsing the catalog never downloads or executes server code.
