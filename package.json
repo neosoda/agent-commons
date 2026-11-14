@@ -38,6 +38,7 @@
   "files": [
     "catalog",
     "dist/agents",
+    "dist/mcp",
     "dist/cli",
     "dist/commands",
     "dist/core",
