@@ -267,3 +267,16 @@ This is metadata-only: no ECC code, hooks, dependencies, MCP config or private a
 Branch `feat/curated-skills-chief-anatomy-marketing-20261114`: seven new references (chief-of-staff, retro, to-spec, to-tickets, implement-spec, anatomy, marketing-psychology). Pinned commits: mattpocock/skills `5863806dd4e15c63174bee4e7515a4256792ecfa`, wheresryan22/anatomy `1482e8469b0a9e0d8cc18ea2740a01423d29ae80`, coreyhaines31/marketingskills `1f837447b20bb6f0e72d87b80ece1c221c362c7d`, licenses MIT. Catalogue: 174 -> 181 entries, 17 -> 20 repositories. Chief of Staff is experimental and requires manual dependencies/host compatibility.
 
 Anatomy uses reviewed `installPaths` for 126 source files (1,881,405 bytes), excluding generated HTML/PDF; it retains the original install limits and hash/backup/no-overwrite requirements. Source subset selection is fail-closed and tested for missing paths, symlinks and invalid selectors. French and English guides and credits updated. **Pending:** exact PR-head CI six-matrix + Chromium + Windows ZIP, then merge and verify main CI. No local agent installations or physical Windows tests are claimed.
+
+
+## 12. MCP Control Center v0.4.0 — implementation work (2026-11-14)
+
+**Branch:** `feat/mcp-control-center-v040`; **PR:** https://github.com/neosoda/agent-commons/pull/64 (draft until exact-head gates pass). Initial base: `f127ace2af0a3821b392fb3fdc397dd7a6753f84`; main has advanced during implementation and must be rechecked for conflicts.
+
+**Implemented on branch:** LM Studio native `~/.lmstudio/mcp.json` registration on Windows/Linux/macOS (MCP-only, no skills writes); selective `mcpServerFilterByAgent` merge using the existing conflict-preserving snapshot/rollback machinery; reviewed offline eight-server metadata catalog (pin known versions, mark unverified packages unavailable); custom MCP profile persistence/revisions with OSINT/Docker segregation; presets OSINT, Development and Infrastructure; read-only secure inventory and Skill Hub MCP Control Center with preview-bound sync, FR/EN labels and a synthetic regression suite.
+
+**Security:** maintain loopback, Host/Origin, CSRF, CSP, no web-triggered process execution; never return command/env/secret values; refuse corrupt native configs; preserve unmanaged and custom client fields. Native client extras remain enabled even when excluded from a profile — these allowlists only restrict managed additions.
+
+**Not implemented / not to claim:** automatic npm/PyPI provisioning, controlled package upgrades/uninstall, broad import of native configurations into the central manifest, live MCP process health, full version reconciliation. Catalog entries for unverified OSINT/Web Search remain disabled. No local personal agent or actual Windows PC was accessed; no v0.4.0 release/npm publication.
+
+**Required before merging:** npm ci, typecheck, tests, npm audit high, pack dry-run; exact PR head CI 6/6, Chromium and Windows portable, then post-merge main checks. Record actual final SHA and run IDs after the merge; do not assume success.

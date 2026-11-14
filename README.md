@@ -562,6 +562,17 @@ Sans `--yes`, cette réparation est une simple prévisualisation. Une jonction c
 
 ---
 
+
+## MCP Control Center — cible de développement 0.4.0 (non publiée)
+
+Le Skill Hub propose désormais une page **MCP Control Center** : inventaire local des MCP, catalogue de huit références vérifiées, profils OSINT / Développement / Infrastructure, profils personnalisés, et synchronisation sélective après aperçu et validation. **LM Studio** est reconnu nativement via le fichier `~/.lmstudio/mcp.json` (Windows : `%USERPROFILE%\.lmstudio\mcp.json`) sans lui créer de faux dossier de skills.
+
+Les MCP natifs sont préservés, les conflits ne sont pas écrasés et les changements passent par les sauvegardes existantes. Les profils limitent les **nouveaux serveurs synchronisés** ; ils ne désactivent pas les MCP que le client expose déjà au modèle. **L'installation automatique, les mises à jour et la désinstallation de packages tiers ne sont pas implémentées.** Le catalogue ne télécharge ni n'exécute de serveurs.
+
+[Guide complet MCP et LM Studio](docs/MCP_CONTROL_CENTER.md) · [Guide Windows](docs/MCP_WINDOWS.md)
+
+**Crédits MCP** : [Microsoft Playwright](https://github.com/microsoft/playwright-mcp), [Model Context Protocol](https://github.com/modelcontextprotocol/servers), [Docker MCP Gateway](https://github.com/docker/mcp-gateway), [GitHub MCP Server](https://github.com/github/github-mcp-server) et [LM Studio](https://lmstudio.ai/docs/app/mcp). Les auteurs conservent leurs droits et licences ; aucune source tierce n'est vendored.
+
 <div align="center">
 
 **Une source de vérité. Moins de configurations divergentes. Plus de temps pour créer.**

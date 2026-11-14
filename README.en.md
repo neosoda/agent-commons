@@ -598,3 +598,14 @@ a physical directory, and the old junction is moved to
 folders, valid external links, dangling links with other targets, ambiguous
 sources and unreadable sources are **never overwritten**. The command does
 not execute third-party skills. Inspect remaining doctor findings manually.
+
+
+## MCP Control Center — 0.4.0 development target (unreleased)
+
+The existing Skill Hub now includes an **MCP Control Center** page: local MCP inventory, eight reviewed catalog references, OSINT / Development / Infrastructure presets, custom profiles, and selective sync after preview and approval. **LM Studio** is recognized at `~/.lmstudio/mcp.json` (Windows: `%USERPROFILE%\.lmstudio\mcp.json`) without a fictional skills directory.
+
+Existing native MCP servers and conflicts are preserved, and updates use the existing snapshot/restore path. Profiles limit **new servers being synchronized**; they do not disable tools already exposed by clients. **Third-party package installation, update and removal are not yet implemented.** Browsing the catalog never downloads or executes server code.
+
+[Full MCP / LM Studio guide](docs/MCP_CONTROL_CENTER.md) · [Windows guide](docs/MCP_WINDOWS.md)
+
+**MCP credits**: [Microsoft Playwright](https://github.com/microsoft/playwright-mcp), [Model Context Protocol](https://github.com/modelcontextprotocol/servers), [Docker MCP Gateway](https://github.com/docker/mcp-gateway), [GitHub MCP Server](https://github.com/github/github-mcp-server) and [LM Studio](https://lmstudio.ai/docs/app/mcp). No upstream source is vendored; upstream authors retain their respective licenses.

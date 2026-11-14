@@ -47,3 +47,12 @@ Do not post secret values or exploitable details in a public issue.
 
 Provide the affected version, platform/Node version, reproduction steps using
 an isolated `--home` directory and a minimized example that contains no real secrets.
+
+
+## MCP Control Center safety boundaries (0.4.0 development)
+
+- LM Studio integration uses the documented native MCP JSON file only, never a cache copy. It does not create skill directories, and will not replace unrelated native MCP entries.
+- MCP catalog browsing is strictly read-only; no third-party package download/installation or arbitrary Docker process can be initiated from the catalog UI.
+- MCP profiles authorize only **selected additions** from the central manifest; they do **not** disable unselected tools on a client, and are not an isolation mechanism.
+- A custom profile cannot mix untrusted Web Search/OSINT/Fetch tools with the privileged Docker MCP Gateway. Server-side access control (filesystem roots, Docker profiles, API permissions) must be enforced separately.
+- Per-client synchronization requires a fresh one-time, revision-checked preview and explicit approval, using existing snapshots and safe rollback. No existing secrets, commands, environment values or native configuration paths are sent to the browser.
