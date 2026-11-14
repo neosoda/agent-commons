@@ -1,6 +1,6 @@
 # Agent Commons — PROJECT_HANDOFF
 
-> **Operational handoff, last verified: 2026-10-30.** Read this file before modifying the repository; then check live `main`, release/tag, PRs, issues and GitHub Actions **by exact commit SHA**. Historical SHA and run IDs below are a snapshot, not a promise of current status. This review used the connected GitHub repository only; it did **not** inspect the user's Windows PC, npm account or private agent configurations.
+> **Operational handoff, last reviewed: 2026-11-14 (v0.4.0 release preparation).** Read this file before modifying the repository; then check live `main`, release/tag, PRs, issues and GitHub Actions **by exact commit SHA**. Historical SHA and run IDs below are a snapshot, not a promise of current status. This review used the connected GitHub repository only; it did **not** inspect the user's Windows PC, npm account or private agent configurations.
 
 ## 1. Product, distribution and safety boundaries
 
@@ -9,13 +9,13 @@ a shared skill library, central MCP manifest, per-agent profiles, optional
 curated public GitHub skill installer, explicit sync, backups and safe recovery.
 
 **Architecture:** TypeScript strict, Node.js >=22, native ESM, `jsonc-parser` as
-the only runtime package. Source: `src/agents` (17 known environments),
+the only runtime package. Source: `src/agents` (18 registered environments, including MCP-only LM Studio),
 `src/sync` (skills/JSON/JSONC/TOML MCP adapters), `src/core` (link/junction
 handling, safe backup/restore), `src/commands` (CLI), `src/web` (local
 HTTP and framework-free Skill Hub), `src/security`, `src/test`, `scripts`.
 Public catalog assets in `catalog`; end-user documentation in `README.md`.
 
-**Published stable version:** [GitHub **v0.3.1**](https://github.com/neosoda/agent-commons/releases/tag/v0.3.1),
+**Previous published stable version (before v0.4.0):** [GitHub **v0.3.1**](https://github.com/neosoda/agent-commons/releases/tag/v0.3.1),
 tag at `9c1735aed0226dfa0eff4165753368c2daf2aa02`, ZIP Windows x64 and
 matching SHA-256 uploaded. Historical [v0.3.0](https://github.com/neosoda/agent-commons/releases/tag/v0.3.0) remains unchanged. [Published release record](docs/releases/v0.3.0.md).
 The current v0.3.1 ZIP's SHA-256 is
@@ -297,3 +297,12 @@ Branche `feat/lemo-opuscar-catalog-20261114` (PR à ouvrir) : ajout d'une réfé
 **Post-merge `main` validation passed** at `a57b2611ae77198f6066d8e893814c75ae92d75e`: CI [43584665618](https://github.com/neosoda/agent-commons/actions/runs/43584665618) (6/6), Chromium [43584665686](https://github.com/neosoda/agent-commons/actions/runs/43584665686), Windows portable [43584665615](https://github.com/neosoda/agent-commons/actions/runs/43584665615). No release or npm publication; no actual user MCP files changed by this work.
 
 **Next work:** implement separately approved, provenance-verified package lifecycle with per-server permissions and native config reconciliation; retain deny-by-default. Existing custom-profile saves and deletes now create recoverable snapshots; the existing backup system includes persisted profile files. All tests use temporary homes.
+
+
+## 17. v0.4.0 release preparation (2026-11-14)
+
+- Current release branch: `release/v0.4.0-20261114`, based on the verified post-MCP-merge `main` `e17d24abcf0fd02722b34b9ee8f5284aee12af09`. Release candidate is version `0.4.0` in both `package.json` and `package-lock.json`. No unrelated branches or users' local MCP configurations are modified.
+- FR/EN README, SECURITY, CHANGELOG and MCP guides aligned with 18 registered environments (including the MCP-only LM Studio client), 182 reviewed catalog skills, and accurately limited profile semantics. Distinguish managed additions from native server deactivation; third-party MCP package installation remains unimplemented.
+- Release notes: `docs/releases/v0.4.0-release-notes.md`. One-shot workflow `.github/workflows/release-v0.4.0.yml` verifies the **exact merged `main` SHA**, six matrix CI jobs, Chromium, Windows portable, and the extracted ZIP/SHA-256 before it creates the GitHub tag/release and attaches both assets. It must not silently replace any existing version.
+- **Do not claim v0.4.0 published until GitHub release/tag and both assets are checked.** GitHub token-created releases do not trigger follow-up `release.published` workflows. npm publication is excluded, and its separate workflow remains guarded.
+- **After successful publication:** verify tag target, release body and both assets with checksum; retire the one-shot workflow in a separate reviewed PR; update this handoff with actual run, tag, asset digest and latest main state. Manual physical Windows and screen-reader acceptance remain separate from CI.

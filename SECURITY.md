@@ -9,8 +9,9 @@ preview first, use a backup, and keep independent recovery copies for important 
 
 | Version | Security fixes |
 |---|---|
-| 0.3.x | Supported (current) |
-| 0.2.x | Superseded; upgrade to 0.3.x |
+| 0.4.x | Supported (current) |
+| 0.3.x | Superseded; upgrade to 0.4.x |
+| 0.2.x | Unsupported; upgrade to 0.4.x |
 | 0.1.x | Unsupported |
 
 ## Security boundaries and guarantees
@@ -49,7 +50,7 @@ Provide the affected version, platform/Node version, reproduction steps using
 an isolated `--home` directory and a minimized example that contains no real secrets.
 
 
-## MCP Control Center safety boundaries (0.4.0 development)
+## MCP Control Center safety boundaries (v0.4.0)
 
 - LM Studio integration uses the documented native MCP JSON file only, never a cache copy. It does not create skill directories, and will not replace unrelated native MCP entries.
 - MCP catalog browsing is strictly read-only; no third-party package download/installation or arbitrary Docker process can be initiated from the catalog UI.

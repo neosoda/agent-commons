@@ -21,7 +21,7 @@ Share skills, keep MCP configurations in sync, and protect existing setups.
 
 ---
 
-## Stop configuring the same thing seventeen times.
+## Stop configuring each agent separately.
 
 Claude Code, Codex, Cursor, Gemini, OpenCode and other coding agents all want their own skills and tools. Agent Commons gives them **a shared source of truth**—without forcing you to abandon their native configurations.
 
@@ -29,7 +29,7 @@ Claude Code, Codex, Cursor, Gemini, OpenCode and other coding agents all want th
 |:--|:--|:--|
 | Reuse the same `SKILL.md` folders through filesystem links—no needless copies. | Add shared servers to each supported agent's native JSON, JSONC or TOML configuration. | Preview changes, keep conflicts intact, capture snapshots and restore previous state. |
 
-**At a glance:** 17 registered agent environments · 9 with Skills + MCP adapters · 8 with Skills synchronization · Windows, macOS and Linux CI.
+**At a glance:** 18 registered agent environments · 9 with Skills + MCP adapters · 8 Skills-only environments · 1 MCP-only client (LM Studio) · Windows, macOS and Linux CI.
 
 > [!NOTE]
 > **Distribution:** See [GitHub Releases](https://github.com/neosoda/agent-commons/releases) for the latest published version and Windows portable assets. The optional npm package is available only after [its first verified registry publication](https://www.npmjs.com/package/@neosoda/agent-commons); if npm has not published it yet, use the source instructions below. Never assume `npx @neosoda/agent-commons` works until the registry confirms the version.
@@ -151,7 +151,7 @@ The **Windows portable ZIP** is built and verified by the [Windows portable CI w
 3. Double-click `AgentCommonsPortable\Start-AgentCommons.cmd`.
 4. The Skill Hub opens locally in your browser. Close the console with Ctrl+C to stop it.
 
-The ZIP contains the compiled npm distribution, its production dependencies, and a pinned official **Node.js 24.22.2 LTS executable**. The v0.3.0 packaging gate also re-extracts the final ZIP into a clean path containing spaces, boots its embedded runtime against a synthetic home directory, checks the reported CLI version and verifies the archive checksum. The build checks the Node executable against the SHA-256 manifest published by nodejs.org, launches the package's CLI and verifies a real HTTP 200 response from its local dashboard before uploading it. The ZIP also includes a SHA-256 checksum; it is **not code-signed**. No administrator privileges, Docker, Node installation, Windows service or public network binding are required.
+The ZIP contains the compiled npm distribution, its production dependencies, and a pinned official **Node.js 24.22.2 LTS executable**. The Windows packaging gate also re-extracts the final ZIP into a clean path containing spaces, boots its embedded runtime against a synthetic home directory, checks the reported CLI version and verifies the archive checksum. The build checks the Node executable against the SHA-256 manifest published by nodejs.org, launches the package's CLI and verifies a real HTTP 200 response from its local dashboard before uploading it. The ZIP also includes a SHA-256 checksum; it is **not code-signed**. No administrator privileges, Docker, Node installation, Windows service or public network binding are required.
 
 For operators who already have Node.js 22+, `npm run web` remains available from the checked-out source.
 
@@ -245,7 +245,7 @@ node dist/cli/index.js restore snapshot-<id>
 
 ## Explore Skills — public Skill Hub
 
-**181 upstream skills** currently have verified source and license references. Browse them directly on GitHub in the [public Skills index](docs/skills/README.md).
+**182 upstream skills** currently have verified source and license references. Browse them directly on GitHub in the [public Skills index](docs/skills/README.md).
 
 ```bash
 node dist/cli/index.js catalog list
@@ -480,7 +480,7 @@ Use `node dist/cli/index.js --help` for the full help, or `node dist/cli/index.j
 
 ## Compatibility
 
-**17 registered environments** in the source registry. This means their paths and file formats have automated coverage—not that their proprietary applications are launched and end-to-end verified in CI.
+**18 registered environments** in the source registry. This means their paths and file formats have automated coverage—not that their proprietary applications are launched and end-to-end verified in CI.
 
 ### Skills + MCP (9)
 
@@ -626,7 +626,7 @@ sources and unreadable sources are **never overwritten**. The command does
 not execute third-party skills. Inspect remaining doctor findings manually.
 
 
-## MCP Control Center — 0.4.0 development target (unreleased)
+## MCP Control Center — v0.4.0
 
 The existing Skill Hub now includes an **MCP Control Center** page: local MCP inventory, eight reviewed catalog references, OSINT / Development / Infrastructure presets, custom profiles, and selective sync after preview and approval. **LM Studio** is recognized at `~/.lmstudio/mcp.json` (Windows: `%USERPROFILE%\.lmstudio\mcp.json`) without a fictional skills directory.
 
