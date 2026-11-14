@@ -222,7 +222,7 @@ node dist/cli/index.js restore snapshot-<id>
 
 ## Explore Skills — public Skill Hub
 
-**103 upstream skills** currently have verified source and license references. Browse them directly on GitHub in the [public Skills index](docs/skills/README.md).
+**174 upstream skills** currently have verified source and license references. Browse them directly on GitHub in the [public Skills index](docs/skills/README.md).
 
 ```bash
 node dist/cli/index.js catalog list
@@ -239,6 +239,21 @@ All browsing is **offline** using [catalog/skills.json](catalog/skills.json); `-
 The separate `catalog` / `catalog --json` commands still inventory your **local private library**, using lockfile provenance if available. Do **not** commit those local reports without review. Private/local skill reports are never bundled or published; public upstream references are verified individually. **14 historical HyperFrames skills are marked archived** and link to the last verified pre-retirement commit. Not every installed local skill is available in this public catalog.
 
 See [catalog policy](docs/SKILL_CATALOG.md) and [categories](catalog/categories.json).
+
+### Everything Claude Code (ECC) collection
+
+**71 selected ECC skills** for agents, infrastructure, web projects and audits are now discoverable in the Skill Hub, without overriding existing profiles or importing ECC hooks.
+
+```bash
+agent-commons catalog search ecc
+agent-commons catalog info homelab-vlan-segmentation
+agent-commons catalog install homelab-vlan-segmentation       # Preview
+agent-commons catalog install homelab-vlan-segmentation --yes # Explicit approval
+agent-commons sync --skill homelab-vlan-segmentation --agent codex --dry-run
+```
+
+[English guide](docs/ECC.en.md) · [Guide français](docs/ECC.md). These references cause **no automatic install or sync**.
+
 
 ---
 
@@ -483,17 +498,18 @@ Runtime and npm dependency license labels above match the checked-in package man
 
 ### Design references (not bundled)
 
-- [Everything Claude Code (ECC)](https://github.com/affaan-m/ECC) by affaan-m — inspiration for the lightweight, offline, task-based skill router; **no ECC skills or hooks are copied**.
+- [Everything Claude Code (ECC)](https://github.com/affaan-m/ECC) by **Affaan Mustafa and ECC contributors** — inspiration and **71 pinned MIT skill references**; no ECC code or hooks are bundled.
 - [Vercel Skills](https://github.com/vercel-labs/skills) by Vercel — external skill discovery ecosystem and the upstream [Find Skills](https://agenticskills.io/skills/find-skills) skill; Agent Commons uses its **own** curated installer and does **not** bundle or automatically run `npx skills add`.
 - [Model Context Protocol](https://github.com/modelcontextprotocol/specification) — interoperability specification for MCP configuration; the reference specification is **not a bundled dependency**.
 
 ### Upstream repositories referenced by the public Skill Hub
 
 <!-- BEGIN GENERATED SKILL REPOSITORY CREDITS -->
-The curated public catalog references **103 skills across 16 upstream repositories**. These are **metadata-only references**: Agent Commons does not bundle or automatically install their skills. Licenses are recorded per pinned skill in [the full index](docs/skills/README.md); repositories with more than one license must be checked per skill.
+The curated public catalog references **174 skills across 17 upstream repositories**. These are **metadata-only references**: Agent Commons does not bundle or automatically install their skills. Licenses are recorded per pinned skill in [the full index](docs/skills/README.md); repositories with more than one license must be checked per skill.
 
 | Upstream repository | Author / maintainer | Skill references | Declared license(s) |
 |:--|:--|--:|:--|
+| [affaan-m/ECC](https://github.com/affaan-m/ECC) | Affaan Mustafa / ECC contributors | 71 | MIT |
 | [anthropics/skills](https://github.com/anthropics/skills) | Anthropic | 4 | Apache-2.0 |
 | [cathrynlavery/diagram-design](https://github.com/cathrynlavery/diagram-design) | Cathryn Lavery | 1 | MIT |
 | [cloudflare/security-audit-skill](https://github.com/cloudflare/security-audit-skill) | Cloudflare | 1 | MIT |
