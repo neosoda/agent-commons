@@ -85,6 +85,29 @@ read-only feature draws on lightweight agent-routing ideas from ECC without
 bundling ECC itself. Token counts are rough estimates, not measured provider
 usage. See [Lightweight skill routing](docs/CONTEXT_ROUTING.md).
 
+
+### Smart Skill Router — autonomous selection, targeted loading
+
+The existing `context` command remains available. New `skills` commands
+automatically rank **metadata only**, indicate absent catalog references,
+and explicitly load local instructions within a configurable token budget.
+
+```bash
+agent-commons skills route "Fix my Docker Compose" --json
+agent-commons skills route "Coordinate several agents" --explain
+agent-commons skills deps chief-of-staff
+agent-commons skills load chief-of-staff --json
+```
+
+`skills route` loads **no** `SKILL.md` content and installs nothing.
+Only `skills load` reads a physically installed skill file. Orchestrators may
+chain calls via JSON or the TypeScript API; native client prompt injection
+is **not** enabled. Optional configuration: `~/.agents/skill-router.json`.
+Defaults are at most 3 skills and an approximate 4,000-token context budget.
+Dependencies, overlaps and unsafe paths are handled; reference resources are
+loaded only when explicitly requested. [Full guide](docs/CONTEXT_ROUTING.md).
+
+
 ## Local Skill Hub — browser dashboard
 
 **New:** a responsive, dependency-free local interface to manage Agent Commons without memorizing commands.

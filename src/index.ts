@@ -73,3 +73,6 @@ export type { IntegrityStatus, IntegrityIssue, SkillIntegrity, CatalogIntegrityR
 
 export { routeSkills } from './commands/skill-router.js';
 export type { SkillRouteOptions, SkillRouteReport, RoutedSkill } from './commands/skill-router.js';
+
+export { discoverSkills, rankSkills, routeSmartSkills, loadSkill, loadSkills, resolveSkillDependencies, readSkillRouterConfig } from './commands/smart-skill-router.js';
+export type { SkillMetadata, RankedSkill, SmartRouteReport, SmartRouteOptions, LoadedSkill, SkillDependency, SmartSkillRouterConfig } from './commands/smart-skill-router.js';

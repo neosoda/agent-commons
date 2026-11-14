@@ -80,6 +80,31 @@ node dist/cli/index.js context "test the API" --expand --budget 4000 --json
 
 Par défaut, seul un court classement de métadonnées est renvoyé. `--expand` inclut le contenu complet des `SKILL.md` sélectionnés, sous réserve du budget estimé. Cette recherche hors ligne, en lecture seule, s'inspire d'idées de routage léger issues d'ECC, **sans intégrer ECC**. Le nombre de tokens est approximé, et non mesuré chez les fournisseurs. Consultez le [routage des skills](docs/CONTEXT_ROUTING.md).
 
+
+### Smart Skill Router — sélection autonome, chargement ciblé
+
+Le routeur existant `context` reste disponible. Les commandes `skills` ajoutent
+un classement automatique **des métadonnées uniquement**, un aperçu des skills
+absents et un chargement **explicite** des instructions locales, avec budget
+de tokens configurable.
+
+```bash
+agent-commons skills route "Corrige mon Docker Compose" --json
+agent-commons skills route "Coordonne plusieurs agents" --explain
+agent-commons skills deps chief-of-staff
+agent-commons skills load chief-of-staff --json
+```
+
+`skills route` ne charge **aucun** `SKILL.md` et n'installe rien. Seul
+`skills load` lit le fichier d'un skill déjà installé. Un orchestrateur peut
+enchaîner ces appels via leur sortie JSON ou l'API TypeScript, sans service
+supplémentaire. Les agents natifs ne reçoivent pas d'injection automatique de
+contexte. Configuration facultative : `~/.agents/skill-router.json` ; 3 skills
+maximum et environ 4 000 tokens de contexte par défaut. Dépendances, collisions
+et chemins dangereux sont contrôlés ; les ressources restent chargées à la demande.
+[Documentation détaillée](docs/CONTEXT_ROUTING.md).
+
+
 ## Skill Hub local — interface web
 
 Une interface locale, responsive et sans framework frontend supplémentaire permet de gérer Agent Commons sans mémoriser toutes ses commandes.
@@ -561,7 +586,6 @@ agent-commons sync --skills-only
 Sans `--yes`, cette réparation est une simple prévisualisation. Une jonction centrale pointant sur elle-même ne peut être remplacée que si **une seule source physique** sans ambiguïté est trouvée dans `~/.agents/skills/.sources/`. Le contenu est préparé dans un dossier physique et l'ancienne jonction archivée sous `~/.agents/backups/central-repair-*/`. Les vrais dossiers, liens valides, liens cassés sans source correspondante et sources ambiguës restent intacts. Aucun script tiers n'est exécuté. Examinez manuellement les problèmes restants.
 
 ---
-
 
 ## MCP Control Center — cible de développement 0.4.0 (non publiée)
 

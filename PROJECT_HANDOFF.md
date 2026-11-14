@@ -269,7 +269,14 @@ Branch `feat/curated-skills-chief-anatomy-marketing-20261114`: seven new referen
 Anatomy uses reviewed `installPaths` for 126 source files (1,881,405 bytes), excluding generated HTML/PDF; it retains the original install limits and hash/backup/no-overwrite requirements. Source subset selection is fail-closed and tested for missing paths, symlinks and invalid selectors. French and English guides and credits updated. **Pending:** exact PR-head CI six-matrix + Chromium + Windows ZIP, then merge and verify main CI. No local agent installations or physical Windows tests are claimed.
 
 
-## 12. MCP Control Center v0.4.0 — implementation work (2026-11-14)
+## 14. Smart Skill Router — implementation branch (2026-11-14)
+
+Branch `feat/smart-skill-router-20261114` extends, rather than replaces, the offline `context` router. `src/commands/smart-skill-router.ts` adds local/catalog metadata discovery, deterministic ranking, duplicate filtering, bounded manual or automatic selection, absent-skill hints, dependency inspection and explicit local-only `loadSkill`/`loadSkills`. CLI `skills route/load/deps` emits JSON for agents, with TS exports. Optional `~/.agents/skill-router.json` enforces safe defaults. No automatic prompt injection, remote fetch/install, script execution, server, new dependency, or native client hook. Existing `context` remains backward compatible.
+
+**At authorship:** code/tests/docs added, exact-head CI and PR verification pending. Never claim merged/released or Windows/macOS QA until checked. Before merge require six CI jobs, Chromium and Windows portable checks on the exact PR SHA. No private workstation was accessed. A future dedicated MCP bridge would require separate design and client-specific validation.
+
+
+## 15. MCP Control Center v0.4.0 — implementation work (2026-11-14)
 
 **Branch:** `feat/mcp-control-center-v040`; **PR:** https://github.com/neosoda/agent-commons/pull/64 (draft until exact-head gates pass). Initial base: `f127ace2af0a3821b392fb3fdc397dd7a6753f84`; main has advanced during implementation and must be rechecked for conflicts.
 

@@ -11,6 +11,7 @@ import { installCatalogSkill, uninstallCatalogSkill, updateCatalogSkill, listCat
 import { verifyCatalogSkills } from '../commands/skill-verify.js';
 import { runList } from '../commands/list.js';
 import { routeSkills } from '../commands/skill-router.js';
+import { routeSmartSkills, loadSkill, resolveSkillDependencies } from '../commands/smart-skill-router.js';
 import { runSync } from '../commands/sync.js';
 import { discoverCentralSkills } from '../sync/skills.js';
 import { readSavedProfiles, saveAgentProfile, clearAgentProfile, runSavedProfilesSync } from '../commands/saved-profiles.js';
@@ -35,7 +36,10 @@ COMMANDS:
   list                    List central skills, MCP servers, agent inventories, and backups
   catalog                 Inventory local skills / explore curated public skill metadata
   profiles                Save per-agent skill choices locally (never auto-applied)
-  context <task>          Recommend only relevant skills within a token budget (offline)
+  context <task>          Legacy lightweight metadata/context recommendations
+  skills route <task>     Rank local skills without loading instructions
+  skills load <id>        Explicitly load one local SKILL.md or resource
+  skills deps <id>        Inspect dependencies without installing anything
   web                     Open local browser dashboard for skills, profiles and backups
   sync                    Synchronize skills and MCP configurations to installed agents
   backup                  Create a point-in-time snapshot of all agent skills and MCP configs
@@ -65,6 +69,8 @@ EXAMPLES:
   agent-commons list
   agent-commons catalog
   agent-commons context "review TypeScript security" --agent codex --budget 800
+  agent-commons skills route "Audite la sécurité de mon application" --json
+  agent-commons skills load security-review
   agent-commons catalog --json
   agent-commons catalog list
   agent-commons catalog search playwright
@@ -161,6 +167,23 @@ Usage: agent-commons profiles <list|show|set|clear> [agent-id] [options]
 Profiles are stored in ~/.agents/agent-profiles.json. Saving does NOT sync.
 Use sync --saved-profiles --dry-run to inspect and sync --saved-profiles to apply.
 No MCP changes, no automatic removal of old links, no network access.
+`.trim();
+    case 'skills':
+      return `
+Usage: agent-commons skills <route|load|deps> [arguments] [options]
+
+  skills route "<task>" [--agent <id>] [--limit <n>] [--budget <tokens>]
+  skills route --json "<task>"     Read-only selection and absent-skill hints
+  skills route --explain "<task>"  Show why a skill matched
+  skills load <id>                Explicitly read local SKILL.md (bounded)
+  skills load <id> --resource references/guide.md
+  skills deps <id>                List metadata dependencies, never auto-load
+
+  --json                         Machine-readable output for agent tools
+  --home <path>                  Use an isolated local HOME
+
+Router config: ~/.agents/skill-router.json (optional, read-only).
+No network, automatic installation, native prompt injection or execution.
 `.trim();
     case 'context':
       return `
@@ -269,6 +292,8 @@ export function runCli(argv: string[] = process.argv.slice(2)): number {
         profile: { type: 'string', multiple: true },
         'saved-profiles': { type: 'boolean', default: false },
         expand: { type: 'boolean', default: false },
+        explain: { type: 'boolean', default: false },
+        resource: { type: 'string' },
         budget: { type: 'string' },
         limit: { type: 'string' }
       }
@@ -596,6 +621,51 @@ export function runCli(argv: string[] = process.argv.slice(2)): number {
       }
       console.error('Unknown catalog subcommand: ' + redactSecrets(subcommand));
       return 1;
+    }
+
+    if (command === 'skills') {
+      const action = positionals[1];
+      if (action === 'route') {
+        const task = positionals.slice(2).join(' ').trim();
+        if (!task || (values.agent?.length ?? 0) > 1) {
+          throw new Error('Usage: skills route "<task>" [--agent <id>] [--budget <tokens>] [--limit <n>]');
+        }
+        const report = routeSmartSkills(ctx, task, {
+          agent: values.agent?.[0],
+          budget: values.budget === undefined ? undefined : Number(values.budget),
+          limit: values.limit === undefined ? undefined : Number(values.limit)
+        });
+        if (values.json) console.log(JSON.stringify(report, null, 2));
+        else {
+          console.log('=== Smart Skill Router (offline, metadata only) ===');
+          console.log('Available: ' + report.available + ' | selected: ' + report.selected.length +
+            ' | ~' + report.estimatedTokens + '/' + report.budget + ' metadata tokens');
+          for (const item of report.selected) {
+            console.log('  [selected] ' + item.id + ' (~' + item.estimatedMetadataTokens +
+              ' tokens)' + (values.explain ? ' — ' + item.reason + ', score ' + item.score : ''));
+          }
+          for (const item of report.absent) {
+            console.log('  [absent] ' + item.id + ' (catalog only; not installed)');
+          }
+          console.log(report.note);
+        }
+        return 0;
+      }
+      if (action === 'load' && positionals.length === 3) {
+        const loaded = loadSkill(ctx, positionals[2]!, values.resource ?? 'SKILL.md',
+          values.budget === undefined ? undefined : Number(values.budget));
+        if (values.json) console.log(JSON.stringify(loaded, null, 2));
+        else console.log(loaded.content);
+        return 0;
+      }
+      if (action === 'deps' && positionals.length === 3) {
+        const deps = resolveSkillDependencies(ctx, positionals[2]!);
+        if (values.json) console.log(JSON.stringify(deps, null, 2));
+        else for (const dep of deps) console.log('  [' + dep.status + '] ' + dep.id);
+        if (!values.json && deps.length === 0) console.log('No declared catalog dependencies.');
+        return 0;
+      }
+      throw new Error('Usage: skills <route|load|deps> (see skills --help)');
     }
 
     if (command === 'context') {
