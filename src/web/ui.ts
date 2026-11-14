@@ -287,8 +287,130 @@ function labelStatus(s){const b=node('span',s,'tag '+(s==='intact'||s==='install
 function row(title,detail,right){const e=node('div',null,'row-item');const l=node('div');l.append(node('strong',title),node('small',detail));e.append(l);if(right)e.append(right);return e}
 function renderMetrics(){const installed=state.inventory.agents.filter(a=>a.installed);const values=[['Public skills',state.catalog.length],['Shared skills',state.inventory.centralSkills.length],['Active agents',installed.length],['MCP servers',state.inventory.centralMcpServers.length]];clear($('metrics'));values.forEach(([name,count])=>{const card=node('div',null,'metric');card.append(node('div',count,'value'),node('div',name,'label'));$('metrics').append(card)})}
 function renderOverview(){renderMetrics();clear($('overview-agents'));const agents=state.inventory.agents.filter(a=>a.installed);if(!agents.length)$('overview-agents').append(node('p','No supported agents detected on this machine.','dim'));agents.slice(0,8).forEach(a=>{const element=row(a.name,a.linkedSkills.length+' linked skills · '+a.mcpServers.length+' MCP servers',labelStatus('installed'));element.querySelector('strong').dataset.noI18n='true';$('overview-agents').append(element)});clear($('overview-health'));const bad=state.integrity.results.filter(s=>s.status!=='intact');$('overview-health').append(row('Managed skills checked',state.integrity.scanned+' reviewed-catalog installations',labelStatus(bad.length?'attention':'intact')));$('overview-health').append(row('Integrity warnings',bad.length+' items needing attention',bad.length?labelStatus('untracked'):labelStatus('intact')));$('overview-health').append(row('Local backups',state.inventory.backups.length+' available snapshots',null))}
-function renderCatalog(){const categories=$('catalog-category');const selected=categories.value;clear(categories);const all=node('option','All categories');all.value='';categories.append(all);state.categories.forEach(c=>{const op=rawNode('option',c.label);op.value=c.id;categories.append(op)});categories.value=selected;filterCatalog()}
-function filterCatalog(){if(!state)return;const q=$('catalog-search').value.trim().toLowerCase(),cat=$('catalog-category').value,status=$('catalog-status').value;const results=state.catalog.filter(s=>(!q||[s.id,s.name,s.description,s.author,s.category,...s.tags].join(' ').toLowerCase().includes(q))&&(!cat||s.category===cat)&&(!status||(status==='installed'?s.installed:!s.installed)));$('catalog-count').textContent=results.length+' skills · pinned upstream metadata';const target=$('catalog-cards');clear(target);if(!results.length){target.append(node('div','No skills match these filters.','empty'));translateUI();return}results.forEach(s=>{const card=node('article',null,'skill-card');const header=node('div');header.append(rawNode('span',s.category,'tag'));if(s.lifecycle==='archived')header.append(node('span','Archived','tag warn'));card.append(header,rawNode('h3',s.name),rawNode('p',s.description));const bottom=node('div',null,'bottom');const audit=state.integrity.results.find(item=>item.skill===s.id);bottom.append(labelStatus(!s.installed?'available':audit?.status==='intact'?'installed':audit?.status||'local'));const button=node('button','View details','btn small');button.dataset.focusKey='catalog:'+s.id;button.setAttribute('aria-label','View details for '+s.name);button.addEventListener('click',()=>skillDetails(s));bottom.append(button);card.append(bottom);target.append(card)});translateUI()}
+function discoveredTools(){
+  const tools=state.catalog.map(s=>({kind:'skill',id:s.id,name:s.name,description:s.description,category:s.category,
+    categoryName:state.categories.find(c=>c.id===s.category)?.label||s.category,installed:s.installed,skill:s,tags:s.tags,author:s.author}));
+  const knownSkills=new Set(tools.map(item=>item.id));
+  for(const name of state.inventory.centralSkills)if(!knownSkills.has(name))tools.push({
+    kind:'skill',id:name,name,description:'Local skill found in shared library.',category:'local-skill',
+    categoryName:'Local skills',installed:true,local:true,tags:[]});
+  const curated=centerState?.catalog||[],knownMcp=new Set();
+  for(const m of curated){
+    knownMcp.add(m.id);
+    const group=mcpGroups[m.id]||'other';
+    tools.push({kind:'mcp',id:m.id,name:m.name,description:m.description,category:'mcp-'+group,categoryName:mcpGroupNames[group],
+      installed:m.configured||m.detected,configured:m.configured,detected:m.detected,unavailable:m.installation==='unavailable',
+      source:m.repository,requirements:m.requirements,risk:m.risk,tags:[m.maintainer||'',m.risk]});
+  }
+  const central=new Set(centerState?.centralNames||[]),native=new Set();
+  for(const client of centerState?.clients||[])if(client.installed)for(const name of client.servers)native.add(name);
+  for(const name of [...new Set([...central,...native])].sort())if(!knownMcp.has(name))tools.push({
+    kind:'mcp',id:name,name,description:'Local MCP server name found in configuration.',category:'mcp-other',
+    categoryName:mcpGroupNames.other,installed:true,configured:central.has(name),detected:native.has(name),local:true,tags:[]});
+  return tools;
+}
+function renderCatalog(){filterCatalog()}
+function filterCatalog(){
+  if(!state)return;
+  const all=discoveredTools(),scope=all.filter(item=>catalogKind==='all'||item.kind===catalogKind);
+  const select=$('catalog-category'),previous=select.value,groups=new Map(scope.map(item=>[item.category,item.categoryName]));
+  clear(select);const any=node('option','All categories');any.value='';select.append(any);
+  for(const [id,label] of [...groups].sort((a,b)=>a[1].localeCompare(b[1]))){const option=rawNode('option',label);option.value=id;select.append(option)}
+  select.value=groups.has(previous)?previous:'';
+  const query=$('catalog-search').value.trim().toLowerCase(),cat=select.value,status=$('catalog-status').value;
+  const matches=scope.filter(item=>(!cat||cat===item.category)&&(!status||(status==='installed'?item.installed:!item.installed))&&
+    (!query||[item.id,item.name,item.description,item.categoryName,item.author||'',...(item.tags||[])].join(' ').toLowerCase().includes(query)));
+  const skills=matches.filter(item=>item.kind==='skill').length,mcps=matches.length-skills;
+  $('catalog-count').textContent=catalogKind==='skill'?skills+' skills · pinned upstream metadata':
+    catalogKind==='mcp'?mcps+' MCP servers · local inventory and reviewed references':
+    matches.length+' tools · '+skills+' skills · '+mcps+' MCP';
+  const target=$('catalog-cards');clear(target);
+  if(!matches.length)target.append(node('div','No tools match these filters.','empty'));
+  for(const item of matches){
+    const card=node('article',null,'skill-card'),header=node('div');
+    header.append(node('span',item.kind==='skill'?'Skill':'MCP','tag'),rawNode('span',item.categoryName,'tag'));
+    if(item.local)header.append(node('span','Local only','tag warn'));
+    if(item.skill?.lifecycle==='archived')header.append(node('span','Archived','tag warn'));
+    card.append(header,rawNode('h3',item.name),rawNode('p',item.description));
+    const bottom=node('div',null,'bottom');
+    const audit=item.kind==='skill'?state.integrity.results.find(row=>row.skill===item.id):null;
+    const status=item.kind==='skill'?(!item.installed?'available':audit?.status==='intact'?'installed':audit?.status||'local'):
+      item.configured?'Configured centrally':item.detected?'Detected in client':item.unavailable?'Provider not vetted':'Reference only';
+    bottom.append(labelStatus(status));
+    const button=node('button','View details','btn small');
+    button.dataset.focusKey='catalog:'+item.kind+':'+item.id;
+    button.setAttribute('aria-label','View details for '+item.name);
+    button.onclick=()=>item.kind==='mcp'?mcpDetails(item):item.local?localSkillDetails(item):skillDetails(item.skill);
+    bottom.append(button);card.append(bottom);target.append(card);
+  }
+  translateUI();
+}
+function promptExamples(item,kind){
+  const fixed=(kind==='skill'?skillSamples:mcpSamples)[item.id];
+  if(fixed)return fixed;
+  if(kind==='mcp')return language==='fr'
+    ?['Quels outils ce serveur MCP ('+item.id+') expose-t-il dans cet agent ? Explique leurs permissions avant toute action.']
+    :['Which tools does MCP server '+item.id+' expose to this agent? Explain permissions before taking any action.'];
+  return language==='fr'
+    ?['Utilise le skill '+item.id+' pour [objectif précis] dans ce projet. Charge seulement les références nécessaires et ne modifie rien sans validation.']
+    :['Use the '+item.id+' skill for [specific goal] in this project. Load only needed references and ask before modifying anything.'];
+}
+function addUsage(box,item,kind){
+  const area=node('section',null,'catalog-usage');area.append(node('h3','How to use'));
+  const info=kind==='mcp'?'Configuration is not proof that an MCP server is running. Open MCP Control Center to inspect and preview sync.':
+    item.local?'Local skill found; its origin has not been reviewed.':
+    'Browse safely; an installed skill is not necessarily linked to an agent. Preview installation and agent sync separately.';
+  area.append(node('p',info));
+  const command=kind==='mcp'?(language==='fr'?'Centre MCP → configurer → prévisualiser → confirmer la synchronisation':
+    'MCP Control Center → configure → preview → confirm sync'):
+    item.local?'agent-commons sync --skill '+item.id+' --agent codex --dry-run':
+    'agent-commons catalog install '+item.id+'\nagent-commons catalog install '+item.id+' --yes\nagent-commons sync --skill '+item.id+' --agent codex --dry-run';
+  area.append(rawNode('pre',command,'catalog-command'));
+  if(kind==='skill')area.append(rawNode('p',language==='fr'?'Dans Codex : $'+item.id+' · Claude Code : /'+item.id:
+    'In Codex: $'+item.id+' · Claude Code: /'+item.id));
+  area.append(node('h3','Example prompts'));
+  promptExamples(item,kind).forEach((prompt,i)=>{
+    const sample=node('div',null,'catalog-prompt'),paragraph=rawNode('p',prompt),copy=node('button','Copy prompt','btn small');
+    copy.setAttribute('aria-label','Copy prompt '+(i+1));
+    copy.onclick=async()=>{
+      try{
+        if(!navigator.clipboard?.writeText)throw Error('Clipboard unavailable');
+        await navigator.clipboard.writeText(prompt);showToast('Prompt copied');
+      }catch{
+        const field=node('textarea');field.className='field';field.value=prompt;field.readOnly=true;
+        field.setAttribute('aria-label','Prompt to copy');sample.replaceChild(field,paragraph);
+        field.focus();field.select();showToast('Clipboard unavailable; select the prompt to copy.',true);
+      }
+    };
+    sample.append(paragraph,copy);area.append(sample);
+  });
+  box.append(area);
+}
+function localSkillDetails(item){
+  const bg=node('div',null,'modal-backdrop'),box=node('section',null,'modal');
+  box.setAttribute('role','dialog');box.setAttribute('aria-modal','true');
+  box.append(rawNode('h2',item.name),node('p','Local skill found; its origin has not been reviewed.','copy'));
+  addUsage(box,item,'skill');
+  const buttons=node('div',null,'modal-buttons'),close=node('button','Close','btn');
+  close.onclick=closeDialog;buttons.append(close);box.append(buttons);showDialog(bg,box,close);
+  bg.onclick=e=>{if(e.target===bg)closeDialog()};
+}
+function mcpDetails(item){
+  const bg=node('div',null,'modal-backdrop'),box=node('section',null,'modal');
+  box.setAttribute('role','dialog');box.setAttribute('aria-modal','true');
+  box.append(rawNode('div',item.categoryName,'eyebrow'),rawNode('h2',item.name),rawNode('p',item.description,'copy'));
+  const status=item.configured?'Configured centrally':item.detected?'Detected in client':item.unavailable?'Provider not vetted':'Reference only';
+  box.append(row('Status',status,labelStatus(status)));
+  if(item.risk)box.append(row('Risk',item.risk),row('Requirements',(item.requirements||[]).join(', ')||'None'));
+  if(item.local)box.append(node('p','Local MCP name found; commands and credentials are not displayed.','copy'));
+  addUsage(box,item,'mcp');
+  if(item.source){const links=node('div',null,'links'),link=node('a','Review upstream source');
+    link.href=item.source;link.target='_blank';link.rel='noopener noreferrer';links.append(link);box.append(links)}
+  const buttons=node('div',null,'modal-buttons'),close=node('button','Close','btn'),configure=node('button','Configure MCP','btn primary');
+  close.onclick=closeDialog;configure.onclick=()=>{closeDialog();go('mcp-center')};
+  buttons.append(close,configure);box.append(buttons);showDialog(bg,box,close);
+  bg.onclick=e=>{if(e.target===bg)closeDialog()};
+}
 function skillDetails(s){
   const root=$('modal-root');clear(root);
   const bg=node('div',null,'modal-backdrop'),box=node('section',null,'modal');
@@ -303,6 +425,7 @@ function skillDetails(s){
       labelStatus(!s.installed?'available':audit?.status||'unmanaged')));
   if(managed)details.append(row('Installed revision',short(audit.commit),labelStatus(audit.commit===s.ref?'intact':'outdated')));
   box.append(details);
+  addUsage(box,s,'skill');
   if(s.installed&&!managed)box.append(node('p','This existing directory cannot be updated or removed by the managed catalog installer. Agent Commons preserves local and modified data.','copy'));
   const links=node('div',null,'links'),link=node('a','Review upstream source');
   link.href=s.source;link.target='_blank';link.rel='noopener noreferrer';links.append(link);
@@ -468,6 +591,13 @@ $('language-select').onchange=e=>setLanguage(e.target.value);
 $('refresh').onclick=()=>refresh(true);
 $('mcp-add').onclick=()=>mcpDialog('create');
 $('catalog-search').oninput=filterCatalog;$('catalog-category').onchange=filterCatalog;$('catalog-status').onchange=filterCatalog;
+document.querySelectorAll('[data-kind]').forEach(button=>button.onclick=()=>{
+  catalogKind=button.dataset.kind;$('catalog-category').value='';
+  document.querySelectorAll('[data-kind]').forEach(tab=>{
+    const active=tab===button;tab.classList.toggle('active',active);tab.setAttribute('aria-pressed',String(active));
+  });
+  filterCatalog();
+});
 $('profile-agent').onchange=e=>{selectedAgent=e.target.value;$('profile-skill-search').value='';renderProfileEditor()};
 $('profile-skill-search').oninput=renderProfileEditor;
 $('profile-save').onclick=async()=>{
