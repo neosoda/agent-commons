@@ -11,7 +11,7 @@ Start `agent-commons web` and select **Skills & MCP**.
 
 An installed skill in the central library is **not necessarily linked to any client**. Preview `catalog install <id>` before approving `--yes`, and preview `sync --skill <id> --agent codex --dry-run` before linking. Prompt examples are local UI copy, **never injected** into running agents.
 
-A configured/detected MCP is **not necessarily running**, and may not be available in every client. The catalog reveals **no private paths, command lines, configuration values, tokens or env vars**; providers marked not vetted are not install recommendations. Examples cover threat modeling, product demos, skill discovery, Docker and UX as well as all eight reviewed MCP references; other entries receive a concise generic prompt.
+A configured/detected MCP is **not necessarily running**, and may not be available in every client. The catalog reveals **no private paths, command lines, configuration values, tokens or env vars**; providers marked not vetted are not install recommendations. Examples cover Video Engine and Remotion Superpowers (production, shorts, captions and review), threat modeling, product demos, skill discovery, Docker and UX as well as all eight reviewed MCP references; other entries receive a concise generic prompt.
 
 No new runtime services, dependencies, background sync, network scans, third-party execution or telemetry. All operations remain opt-in and guarded.
 

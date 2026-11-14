@@ -239,7 +239,7 @@ La commande `restore` remplace les chemins gérés par les versions sauvegardée
 
 ## Explorer les skills — catalogue public
 
-**183 skills externes** disposent actuellement de références vérifiées pour leur source et leur licence. Retrouvez-les dans [l'index public](docs/skills/README.md).
+**199 skills externes** disposent actuellement de références vérifiées pour leur source et leur licence. Retrouvez-les dans [l'index public](docs/skills/README.md).
 
 ```bash
 node dist/cli/index.js catalog list
@@ -259,7 +259,7 @@ Consultez la [politique du catalogue](docs/SKILL_CATALOG.md) et les [catégories
 
 ### Chief of Staff, Anatomy et Marketing Psychology
 
-**7 nouvelles références** viennent compléter le catalogue : les trois projets demandés, plus **quatre skills compagnons** nécessaires à Chief of Staff. Le total atteint **181 skills, issus de 20 dépôts**.
+**7 nouvelles références** viennent compléter le catalogue : les trois projets demandés, plus **quatre skills compagnons** nécessaires à Chief of Staff. Cette étape avait porté le catalogue à **181 skills, issus de 20 dépôts** ; consultez le total actuel ci-dessus.
 
 ```bash
 agent-commons catalog info chief-of-staff
@@ -530,7 +530,7 @@ Les licences indiquées pour les dépendances npm proviennent du manifeste, du l
 ### Dépôts référencés dans le catalogue public
 
 <!-- BEGIN GENERATED SKILL REPOSITORY CREDITS -->
-Le catalogue public référence **183 skills provenant de 22 dépôts sources**. Il s'agit **uniquement de métadonnées** : Agent Commons ne regroupe pas et n'installe pas automatiquement ces skills. Les licences sont indiquées pour chaque skill épinglé dans [l'index complet](docs/skills/README.md) ; si plusieurs licences figurent pour un dépôt, vérifiez celle applicable à chaque skill.
+Le catalogue public référence **199 skills provenant de 24 dépôts sources**. Il s'agit **uniquement de métadonnées** : Agent Commons ne regroupe pas et n'installe pas automatiquement ces skills. Les licences sont indiquées pour chaque skill épinglé dans [l'index complet](docs/skills/README.md) ; si plusieurs licences figurent pour un dépôt, vérifiez celle applicable à chaque skill.
 
 | Dépôt source | Auteur / responsable | Skills référencés | Licence(s) déclarée(s) |
 |:--|:--|--:|:--|
@@ -539,6 +539,7 @@ Le catalogue public référence **183 skills provenant de 22 dépôts sources**.
 | [cathrynlavery/diagram-design](https://github.com/cathrynlavery/diagram-design) | Cathryn Lavery | 1 | MIT |
 | [cloudflare/security-audit-skill](https://github.com/cloudflare/security-audit-skill) | Cloudflare | 1 | MIT |
 | [coreyhaines31/marketingskills](https://github.com/coreyhaines31/marketingskills) | Corey Haines | 1 | MIT |
+| [DojoCodingLabs/remotion-superpowers](https://github.com/DojoCodingLabs/remotion-superpowers) | Dojo Coding Labs | 15 | MIT |
 | [heygen-com/hyperframes](https://github.com/heygen-com/hyperframes) | HeyGen | 21 | Apache-2.0 |
 | [Jakeschincariol/founder-skill](https://github.com/Jakeschincariol/founder-skill) | Jake Schincariol | 11 | MIT |
 | [jmanico/grim-prompter](https://github.com/jmanico/grim-prompter) | Jim Manico / Manicode Security | 1 | MIT |
@@ -548,6 +549,7 @@ Le catalogue public référence **183 skills provenant de 22 dépôts sources**.
 | [mattpocock/skills](https://github.com/mattpocock/skills) | Matt Pocock | 5 | MIT |
 | [morellid/ai-act-skill](https://github.com/morellid/ai-act-skill) | Davide Morelli | 1 | MIT |
 | [nextlevelbuilder/ui-ux-pro-max-skill](https://github.com/nextlevelbuilder/ui-ux-pro-max-skill) | Next Level Builder | 7 | Apache-2.0 / MIT |
+| [ninjasweb/video-engine-skill](https://github.com/ninjasweb/video-engine-skill) | ninjasweb | 1 | MIT |
 | [noamdorr/saas-product-demo-video](https://github.com/noamdorr/saas-product-demo-video) | Noam Dorr | 1 | MIT |
 | [nutlope/hallmark](https://github.com/nutlope/hallmark) | nutlope | 1 | MIT |
 | [pbakaus/impeccable](https://github.com/pbakaus/impeccable) | pbakaus | 1 | Apache-2.0 |
@@ -618,6 +620,22 @@ agent-commons sync --skill saas-product-demo-video --agent codex
 ```
 
 Invocation : **Claude Code** `/saas-product-demo-video`, **Codex** `$saas-product-demo-video`. Pour **Gemini CLI**, utiliser la découverte native des skills. Produire un film exige séparément Node.js, Remotion et Python/librosa, avec d'autres outils selon les besoins : ni le téléchargement de dépendances ni le rendu ne sont réalisés par Agent Commons. [Guide FR](docs/SAAS_PRODUCT_DEMO_VIDEO.md) · [EN](docs/SAAS_PRODUCT_DEMO_VIDEO.en.md).
+
+## Video Engine et Remotion Superpowers — création vidéo ciblée
+
+Deux dépôts MIT sont référencés **sans embarquer leurs fichiers** : [Video Engine](https://github.com/ninjasweb/video-engine-skill) (ninjasweb), pour les vidéos narrées synchronisées sur les mots, et [Remotion Superpowers](https://github.com/DojoCodingLabs/remotion-superpowers) (Dojo Coding Labs), avec **15 skills distincts** : création, shorts, voix, sous-titres, médias, transitions et contrôle qualité.
+
+```bash
+agent-commons catalog search remotion-superpowers
+agent-commons catalog install video-engine          # prévisualisation seule
+agent-commons catalog install video-engine --yes    # installation approuvée
+agent-commons catalog install remotion-production --yes
+agent-commons skills route "Réalise une capsule pédagogique narrée" --json
+agent-commons skills load video-engine              # instructions sur demande
+agent-commons sync --skill video-engine --agent codex --dry-run
+```
+
+**16 nouveaux skills épinglés**, chargés individuellement pour préserver les tokens. Les **5 MCP externes** suggérés par Dojo (ElevenLabs, remotion-media, TwelveLabs, Pexels et Replicate) restent des références non installées et non configurées : toute API, dépense ou exécution exige un accord séparé. [Guide FR](docs/VIDEO_SKILLS.md) · [EN](docs/VIDEO_SKILLS.en.md).
 
 ## Catalogue interactif — Skills & MCP
 
