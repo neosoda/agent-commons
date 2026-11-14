@@ -5,7 +5,7 @@ import { AGENT_REGISTRY } from '../agents/registry.js';
 import { detectAgents } from '../agents/detector.js';
 import type { EnvironmentContext } from '../types.js';
 
-export type SyncPreviewKind = 'skills' | 'all';
+export type SyncPreviewKind = 'skills' | 'all' | 'mcp';
 
 /**
  * Fingerprint every managed input that can influence a web synchronization.
@@ -57,10 +57,11 @@ export function syncInputRevision(ctx: EnvironmentContext, kind: SyncPreviewKind
   hash.update(agents.map(agent => agent.definition.id).sort().join(',') + '\n');
   check(ctx.centralSkillsDir, true);
   if (kind === 'skills') check(path.join(ctx.commonsDir, 'agent-profiles.json'), false);
-  if (kind === 'all') check(ctx.centralMcpPath, false);
+  if (kind === 'all' || kind === 'mcp') check(ctx.centralMcpPath, false);
+  if (kind === 'mcp') check(path.join(ctx.commonsDir, 'mcp-profiles.json'), false);
   for (const agent of agents) {
     check(agent.skillsDirPath, true);
-    if (kind === 'all' && agent.mcpConfigPath) check(agent.mcpConfigPath, false);
+    if ((kind === 'all' || kind === 'mcp') && agent.mcpConfigPath) check(agent.mcpConfigPath, false);
   }
   return hash.digest('hex');
 }

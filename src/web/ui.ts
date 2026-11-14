@@ -31,6 +31,7 @@ const HTML = String.raw`<!doctype html>
 <button data-page="overview" aria-controls="page-overview" class="active" aria-current="page"><span aria-hidden="true">⌂</span> <span>Overview</span></button>
 <button data-page="catalog" aria-controls="page-catalog"><span aria-hidden="true">◈</span> <span>Skill catalog</span></button>
 <button data-page="agents" aria-controls="page-agents"><span aria-hidden="true">▤</span> <span>My agents</span></button>
+<button data-page="mcp-center" aria-controls="page-mcp-center"><span aria-hidden="true">⚙</span> <span>MCP Control Center</span></button>
 <button data-page="integrity" aria-controls="page-integrity"><span aria-hidden="true">◇</span> <span>Integrity</span></button>
 <button data-page="backups" aria-controls="page-backups"><span aria-hidden="true">↶</span> <span>Backups</span></button>
 </nav>
@@ -53,6 +54,20 @@ const HTML = String.raw`<!doctype html>
 <div class="panel"><h3>Synchronization</h3><p>Preview exactly what would change. Applies saved profiles to installed agents; does not change MCP settings or automatically unlink other skills.</p><div class="actions"><button class="btn" id="sync-preview">Preview sync</button><button class="btn primary" id="sync-apply">Apply saved profiles</button></div><pre class="result-box hidden" id="sync-report" role="status" aria-live="polite"></pre></div>
 <div class="panel"><div class="section-head"><h3>Shared MCP servers</h3><button class="btn primary small" id="mcp-add">+ Add MCP server</button></div><p>Add MCP servers, edit agent routing or remove entries. Existing commands and environment values stay private. Every change requires a preview and confirmation; synchronization remains separate.</p><div id="mcp-items"></div><div class="actions mt-18"><button class="btn" id="full-sync-preview">Preview skills + MCP sync</button><button class="btn primary" id="full-sync-apply">Apply skills + MCP sync</button></div><pre class="result-box hidden mt-16" id="full-sync-report" role="status" aria-live="polite"></pre></div>
 </section>
+<section class="page" id="page-mcp-center">
+<div class="eyebrow">REVIEWED · LOCAL FIRST</div><h1>MCP Control Center</h1>
+<p class="dim">Browse vetted references, inspect native MCP clients, build allowlists and synchronize only selected servers. No third-party package runs automatically.</p>
+<div class="split">
+<div class="panel"><h2>MCP catalog</h2><div id="center-catalog"></div></div>
+<div class="panel"><h2>Client inventory</h2><div id="center-clients"></div></div>
+</div>
+<div class="panel"><h2>MCP profiles</h2><p class="dim">Profiles add configured servers; they never remove other native MCPs. Servers not configured centrally are skipped.</p>
+<div class="filter-row"><select class="field" id="center-profile" aria-label="Choose MCP profile"></select><button class="btn" id="center-sync-preview">Preview MCP sync</button><button class="btn primary" id="center-sync-apply">Apply MCP sync</button></div>
+<h3>Target clients</h3><div id="center-agents" class="filter-row"></div><pre class="result-box hidden mt-16" id="center-report" role="status" aria-live="polite"></pre></div>
+<div class="panel"><h2>Custom profile editor</h2><p class="dim">Save a named selection for installed MCP clients. An explicit preview and confirmation are mandatory.</p>
+<div class="filter-row"><input class="field" id="center-custom-name" placeholder="Profile name (e.g. documentation)" aria-label="Custom MCP profile name"><button class="btn primary" id="center-custom-save">Preview and save profile</button><button class="btn danger" id="center-custom-delete">Delete profile</button></div>
+<div id="center-servers" class="filter-row"></div></div>
+</section>
 <section class="page" id="page-integrity"><div class="eyebrow">READ-ONLY · OFFLINE</div><h1>Skill integrity</h1><p class="dim">Inspect local managed skills for changed Git blobs, missing files, extra files, unsafe links and invalid receipts. Matching hashes do not certify that third-party code is safe.</p><div class="panel"><div class="actions"><button class="btn" id="verify-again">Run verification</button><button class="btn" id="doctor-run">Run agent diagnostics</button></div><pre class="result-box hidden mt-16" id="doctor-report" role="status" aria-live="polite"></pre><div id="integrity-items" class="mt-15"></div></div></section>
 <section class="page" id="page-backups"><div class="eyebrow">RECOVERY</div><h1>Snapshots & recovery</h1><p class="dim">Review stored snapshots, create a backup or restore a previous state. Restoring replaces saved managed paths and requires explicit confirmation.</p><div class="panel"><h3>Backup now</h3><p>Create a full point-in-time snapshot of agent skills and MCP configurations.</p><button class="btn primary" id="backup-create">Create backup</button></div><div class="panel"><h3>Available snapshots</h3><div id="backup-items"></div></div></section>
 <div class="footer">Agent Commons · Local web UI · No telemetry · No background sync · Source/license review ≠ code security audit</div>
@@ -62,12 +77,31 @@ const HTML = String.raw`<!doctype html>
 'use strict';
 const csrf=document.querySelector('meta[name="csrf-token"]').content;
 const $=id=>document.getElementById(id);
-let state=null, mcpState=null, activePage='overview', selectedAgent='', busy=false, profileSavePending=false, profileDrafts=Object.create(null);
+let state=null, mcpState=null, centerState=null, activePage='overview', selectedAgent='', busy=false, profileSavePending=false, profileDrafts=Object.create(null);
 const short=x=>String(x||'').slice(0,10);
 // UI-only translation. Never store data or server content; persist only "en"/"fr".
 const FR={"Skip to main content":"Aller au contenu principal","Workspace":"Espace de travail","Overview":"Accueil","Skill catalog":"Catalogue de compétences","My agents":"Mes agents","Integrity":"Intégrité","Backups":"Sauvegardes","Local workspace":"Espace local","127.0.0.1 only · no cloud account":"127.0.0.1 uniquement · sans compte cloud","YOUR AI WORKSPACE / CONTROL CENTER":"VOTRE ESPACE IA / CENTRE DE CONTRÔLE","● Local-first":"● Local uniquement","↻ Refresh":"↻ Actualiser","ONE LIBRARY · EVERY AGENT":"UNE BIBLIOTHÈQUE · TOUS LES AGENTS","Your AI toolkit.":"Vos outils IA.","One place to manage it.":"Un seul endroit pour tout gérer.","Discover skills, organize profiles and synchronize your agents. You stay in control: preview changes before applying them.":"Découvrez des compétences, organisez vos profils et synchronisez vos agents. Gardez le contrôle : prévisualisez les changements avant de les appliquer.","Explore skills":"Explorer les compétences","Manage agents":"Gérer les agents","Connected agents":"Agents connectés","Installed environments detected on this machine.":"Environnements installés détectés sur cet ordinateur.","Workspace health":"État de l'espace de travail","Quick read of locally managed skills.":"Vue rapide des compétences gérées localement.","View integrity report":"Voir le rapport d'intégrité","PUBLIC, PINNED REFERENCES":"RÉFÉRENCES PUBLIQUES ÉPINGLÉES","Review upstream sources and choose what belongs in your library.":"Examinez les sources et choisissez ce qui entre dans votre bibliothèque.","All categories":"Toutes les catégories","All statuses":"Tous les statuts","Installed":"Installé","Not installed":"Non installé","PERSONALIZED PER AGENT":"PERSONNALISÉ PAR AGENT","Create a local selection of central skills and catalog categories for each installed agent. Saving a profile never synchronizes it automatically.":"Choisissez des compétences et des catégories pour chaque agent installé. Enregistrer un profil ne déclenche jamais de synchronisation automatique.","Profile editor":"Éditeur de profils","Explicit sync only":"Synchronisation explicite uniquement","Individual skills":"Compétences individuelles","Only skills already present in your shared library can be linked.":"Seules les compétences déjà présentes dans la bibliothèque peuvent être liées.","Category profiles":"Profils par catégorie","Categories expand to installed skills at sync time.":"Les catégories sont développées en compétences installées lors de la synchronisation.","Save profile":"Enregistrer le profil","Clear saved profile":"Effacer le profil","Synchronization":"Synchronisation","Preview exactly what would change. Applies saved profiles to installed agents; does not change MCP settings or automatically unlink other skills.":"Prévisualisez les modifications. Applique les profils aux agents installés sans modifier les paramètres MCP ni retirer automatiquement d'autres compétences.","Preview sync":"Prévisualiser la synchronisation","Apply saved profiles":"Appliquer les profils","Shared MCP servers":"Serveurs MCP partagés","+ Add MCP server":"+ Ajouter un serveur MCP","Add MCP servers, edit agent routing or remove entries. Existing commands and environment values stay private. Every change requires a preview and confirmation; synchronization remains separate.":"Ajoutez des serveurs MCP, modifiez leur affectation aux agents ou supprimez-les. Les commandes et variables existantes restent privées. Chaque modification nécessite un aperçu et une confirmation.","Preview skills + MCP sync":"Prévisualiser compétences + MCP","Apply skills + MCP sync":"Synchroniser compétences + MCP","READ-ONLY · OFFLINE":"LECTURE SEULE · HORS LIGNE","Skill integrity":"Intégrité des compétences","Inspect local managed skills for changed Git blobs, missing files, extra files, unsafe links and invalid receipts. Matching hashes do not certify that third-party code is safe.":"Vérifiez les fichiers modifiés, manquants, supplémentaires, les liens dangereux et les reçus invalides. Des empreintes conformes ne garantissent pas la sécurité du code tiers.","Run verification":"Lancer la vérification","Run agent diagnostics":"Diagnostiquer les agents","RECOVERY":"RÉCUPÉRATION","Snapshots & recovery":"Instantanés et récupération","Review stored snapshots, create a backup or restore a previous state. Restoring replaces saved managed paths and requires explicit confirmation.":"Examinez les instantanés, créez une sauvegarde ou restaurez un état précédent. La restauration remplace des chemins gérés et exige une confirmation explicite.","Backup now":"Sauvegarder maintenant","Create a full point-in-time snapshot of agent skills and MCP configurations.":"Créez un instantané complet des compétences et configurations MCP.","Create backup":"Créer une sauvegarde","Available snapshots":"Instantanés disponibles","Search skills, tags, authors…":"Rechercher compétences, tags, auteurs…","Search skills":"Rechercher des compétences","Filter by category":"Filtrer par catégorie","Filter by installation":"Filtrer selon l'installation","Choose agent":"Choisir un agent","Filter locally installed skills…":"Filtrer les compétences locales…","Filter skills":"Filtrer les compétences","Interface language":"Langue de l'interface","Agent Commons · Local web UI · No telemetry · No background sync · Source/license review ≠ code security audit":"Agent Commons · Interface Web locale · Sans télémétrie · Sans synchronisation en arrière-plan · Vérification des sources/licences ≠ audit de sécurité","Public skills":"Compétences publiques","Shared skills":"Compétences partagées","Active agents":"Agents actifs","MCP servers":"Serveurs MCP","View details":"Voir les détails","Archived":"Archivé","No skills match these filters.":"Aucune compétence ne correspond à ces filtres.","No supported agents detected on this machine.":"Aucun agent compatible détecté sur cet ordinateur.","Managed skills checked":"Compétences contrôlées","Integrity warnings":"Alertes d'intégrité","Local backups":"Sauvegardes locales","License":"Licence","Pinned Git revision":"Révision Git épinglée","Status":"Statut","Installed revision":"Révision installée","Verified managed installation":"Installation gérée vérifiée","Review upstream source":"Consulter la source","License evidence":"Justificatif de licence","Close":"Fermer","Preview pinned update":"Prévisualiser la mise à jour","Preview removal":"Prévisualiser la suppression","Preview installation":"Prévisualiser l'installation","Cancel":"Annuler","Apply change":"Appliquer","Preview change":"Prévisualiser","New MCP server":"Nouveau serveur MCP","Add MCP server":"Ajouter un serveur MCP","Edit MCP routing":"Modifier les agents MCP","Server ID":"Identifiant du serveur","Transport":"Transport","Executable":"Exécutable","Arguments (one per line)":"Arguments (un par ligne)","HTTP(S) endpoint":"Adresse HTTP(S)","Enabled":"Activé","Include agents (empty = all)":"Inclure des agents (vide = tous)","Exclude agents":"Exclure des agents","Routing…":"Affectation…","Remove…":"Supprimer…","Restore…":"Restaurer…","Create full backup":"Créer une sauvegarde complète","Clear profile":"Effacer le profil","Apply sync":"Appliquer la synchronisation","Synchronize skills + MCP":"Synchroniser compétences + MCP","Apply full sync":"Appliquer la synchronisation complète","Restore":"Restaurer","No snapshots yet.":"Aucun instantané pour le moment.","Nothing available yet.":"Aucun élément disponible.","No shared MCP servers. Add a server to begin.":"Aucun serveur MCP partagé. Ajoutez-en un pour commencer.","No managed public-catalog skill installations found.":"Aucune compétence gérée du catalogue public trouvée.","Workspace and integrity results updated.":"Espace de travail et résultats d'intégrité actualisés.","Refreshing local workspace…":"Actualisation de l'espace local…","Workspace refresh failed.":"Échec de l'actualisation de l'espace de travail.","Invalid MCP server identifier.":"Identifiant MCP invalide.","Profile saved (not synced)":"Profil enregistré (non synchronisé)","Choose at least one skill or category.":"Choisissez au moins une compétence ou catégorie.","Saved profile cleared":"Profil enregistré effacé","Snapshot restored":"Instantané restauré","Profiles synchronized":"Profils synchronisés","Full synchronization completed":"Synchronisation complète terminée","Reviewing pinned skill…":"Examen de la compétence épinglée…","No changes.":"Aucune modification.","Local operation failed. Check Agent Commons CLI diagnostics for details.":"Échec d'une opération locale. Consultez le diagnostic CLI pour les détails.","Type confirmation text":"Saisir le texte de confirmation","This existing directory cannot be updated or removed by the managed catalog installer. Agent Commons preserves local and modified data.":"Ce dossier ne peut être ni mis à jour ni supprimé par le catalogue. Agent Commons préserve les données locales et modifiées.","Do not paste tokens in commands or URLs. Use environment references in the central manifest for secrets.":"Ne collez pas de jetons dans les commandes ou URL. Utilisez des références de variables d'environnement pour les secrets.","Existing commands, secrets and custom options are preserved. Only agent routing can change.":"Les commandes, secrets et options personnalisées sont préservés. Seule l'affectation des agents peut changer."};
 
 Object.assign(FR,{
+  'MCP Control Center':'Centre de contrôle MCP',
+  'REVIEWED · LOCAL FIRST':'VÉRIFIÉ · LOCAL',
+  'MCP catalog':'Catalogue MCP',
+  'Client inventory':'Inventaire des clients',
+  'MCP profiles':'Profils MCP',
+  'Custom profile editor':'Éditeur de profil personnalisé',
+  'Choose MCP profile':'Choisir un profil MCP',
+  'Target clients':'Clients cibles',
+  'Preview MCP sync':'Prévisualiser la synchronisation MCP',
+  'Apply MCP sync':'Appliquer la synchronisation MCP',
+  'Preview and save profile':'Prévisualiser et enregistrer le profil',
+  'Delete profile':'Supprimer le profil',
+  'Delete MCP profile':'Supprimer le profil MCP',
+  'Profile removed':'Profil supprimé',
+  'Profile name (e.g. documentation)':'Nom du profil (ex. documentation)',
+  'Custom MCP profile name':'Nom du profil MCP personnalisé',
+  'Browse vetted references, inspect native MCP clients, build allowlists and synchronize only selected servers. No third-party package runs automatically.':'Consultez les références vérifiées, les clients MCP et les listes autorisées. Aucun paquet tiers n’est exécuté automatiquement.',
+  'Profiles add configured servers; they never remove other native MCPs. Servers not configured centrally are skipped.':'Les profils ajoutent les serveurs configurés sans retirer les MCP natifs. Les serveurs absents du manifeste central sont ignorés.',
+  'Save a named selection for installed MCP clients. An explicit preview and confirmation are mandatory.':'Enregistrez une sélection pour les clients MCP installés, avec aperçu et validation obligatoires.',
   'MCP editor unavailable. Check the manifest, then Refresh.':'Éditeur MCP indisponible. Vérifiez le manifeste, puis actualisez.',
   'This only removes the saved selection; existing links stay untouched.':'Supprime uniquement le profil enregistré, sans modifier les liens existants.',
   'Capture agent skill and MCP state now. This may take a moment on large local libraries.':'Enregistrez maintenant les compétences et les configurations MCP. Les grandes bibliothèques peuvent prendre un moment.',
@@ -349,21 +383,22 @@ function mcpDialog(operation,server){
 function readSelections(container){return [...container.querySelectorAll('input[type="checkbox"]:checked')].map(e=>e.value)}
 function choicesInto(container,items,selected){clear(container);if(!items.length){container.append(node('p','Nothing available yet.','dim'));return}items.forEach(item=>{const row=node('label',null,'check');const input=node('input');input.type='checkbox';input.value=item.id;input.dataset.focusKey='profile:'+container.id+':'+item.id;input.checked=selected.includes(item.id);row.append(input,rawNode('span',item.label));container.append(row)})}
 function renderProfileEditor(){if(!state)return;const saved=state.profiles.profiles[selectedAgent]||{skills:[],categories:[]};const draft=profileDrafts[selectedAgent]||(profileDrafts[selectedAgent]={skills:[...saved.skills],categories:[...saved.categories]});const query=$('profile-skill-search').value.toLowerCase().trim();choicesInto($('profile-skills'),state.inventory.centralSkills.filter(id=>!query||id.toLowerCase().includes(query)).map(id=>({id,label:id})),draft.skills);choicesInto($('profile-categories'),state.categories.map(c=>({id:c.id,label:c.label})),draft.categories);for(const [container,key] of [[$('profile-skills'),'skills'],[$('profile-categories'),'categories']]){container.querySelectorAll('input[type="checkbox"]').forEach(check=>check.addEventListener('change',()=>{const all=new Set(draft[key]);if(check.checked)all.add(check.value);else all.delete(check.value);draft[key]=[...all].sort()}))}$('profile-save').disabled=!selectedAgent||profileSavePending;$('profile-clear').disabled=profileSavePending||!state.profiles.profiles[selectedAgent]}
-function formatSync(r){const lines=['Mode: '+(r.dryRun?'PREVIEW':'APPLIED'),'Agents: '+r.detectedAgentsCount,'Skill operations: '+r.skillResults.length,'MCP operations: '+r.mcpResults.length,'Snapshot: '+(r.snapshotId||'none')];r.skillResults.forEach(s=>{if(s.action!=='already-synced')lines.push('['+s.agentId+'] '+s.skillName+': '+s.action)});r.errors.forEach(e=>lines.push('ERROR: '+e));if(!r.skillResults.length&&!r.errors.length)lines.push('No skill changes proposed.');return lines.join('\n')}
+function formatSync(r){const lines=['Mode: '+(r.dryRun?'PREVIEW':'APPLIED'),'Agents: '+r.detectedAgentsCount,'Skill operations: '+r.skillResults.length,'MCP operations: '+r.mcpResults.length,'Snapshot: '+(r.snapshotId||'none')];r.skillResults.forEach(s=>{if(s.action!=='already-synced')lines.push('['+s.agentId+'] '+s.skillName+': '+s.action)});r.mcpResults.forEach(s=>lines.push('['+s.agentId+'] '+s.serverName+': '+s.action));r.errors.forEach(e=>lines.push('ERROR: '+e));if(!r.skillResults.length&&!r.errors.length)lines.push('No skill changes proposed.');return lines.join('\n')}
 function showSync(r){const p=$('sync-report');p.classList.remove('hidden');p.textContent=formatSync(r)}
 function renderIntegrity(){clear($('integrity-items'));if(!state.integrity.scanned){$('integrity-items').append(node('div','No managed public-catalog skill installations found.','empty'));return}state.integrity.results.forEach(r=>{const e=row(r.skill,r.checkedFiles+' files checked · '+(r.commit?short(r.commit):'no receipt'),labelStatus(r.status));e.querySelector('strong').dataset.noI18n='true';$('integrity-items').append(e);if(r.issues.length){const issues=node('div',r.issues.map(i=>i.type+': '+i.reason+(i.path?' ('+i.path+')':'')).join('\n'),'result-box');$('integrity-items').append(issues)}})}
 function renderBackups(){clear($('backup-items'));if(!state.inventory.backups.length){$('backup-items').append(node('div','No snapshots yet.','empty'));return}state.inventory.backups.forEach(b=>{const btn=node('button','Restore…','btn danger small');btn.dataset.focusKey='restore:'+b.id;btn.setAttribute('aria-label','Restore snapshot '+b.id);btn.onclick=()=>modal('Restore '+b.id,'This replaces managed paths with their historical state. Create a fresh backup first, and verify that this is the intended snapshot.','Restore',async()=>{await request('/api/action',{action:'restore',snapshot:b.id,approved:true});showToast('Snapshot restored');await refresh()},b.id);$('backup-items').append(row(b.id,b.createdAt+' · '+b.reason+' · '+b.entriesCount+' entries',btn))})}
-function renderAll(){renderOverview();renderCatalog();renderAgents();renderMcp();renderIntegrity();renderBackups();translateUI()}
+function renderAll(){renderOverview();renderCatalog();renderAgents();renderMcp();renderMcpCenter();renderIntegrity();renderBackups();translateUI()}
 let refreshGeneration=0;
 async function refresh(announce=false){
   const generation=++refreshGeneration;
   if(announce){$('workspace-status').textContent='Refreshing local workspace…';translateUI()}
   try{
     const nextState=await request('/api/state');
-    let nextMcp=null,mcpError=null;
+    let nextMcp=null,nextCenter=null,mcpError=null;
     try{nextMcp=await request('/api/mcp')}catch(err){mcpError=err}
+    try{nextCenter=await request('/api/mcp-center')}catch(err){mcpError=mcpError||err}
     if(generation!==refreshGeneration)return; // An older response must never replace newer state.
-    state=nextState;mcpState=nextMcp;
+    state=nextState;mcpState=nextMcp;centerState=nextCenter;
     const focused=document.activeElement;
     const focusedInDynamic=!!focused?.closest('#catalog-cards,#mcp-items,#backup-items,#profile-skills,#profile-categories');
     const focusKey=focusedInDynamic?focused?.dataset?.focusKey:null;
@@ -415,6 +450,93 @@ $('profile-clear').onclick=()=>{
     delete profileDrafts[agent];showToast('Saved profile cleared');await refresh()
   })
 };
+
+function renderMcpCenter(){
+  if(!centerState)return;
+  const catalog=$('center-catalog');clear(catalog);
+  centerState.catalog.forEach(entry=>{
+    const status=entry.configured?'configured':entry.installation==='unavailable'?'not vetted':'reference only';
+    const item=row(entry.name,entry.description+' · '+(entry.version||'manual')+' · '+entry.risk+' · '+status,labelStatus(entry.configured?'installed':'untracked'));
+    const link=node('a','Official source');link.href=entry.repository;link.rel='noreferrer noopener';link.target='_blank';
+    item.append(link);catalog.append(item);
+  });
+  const clients=$('center-clients');clear(clients);
+  centerState.clients.forEach(c=>clients.append(row(c.name,(c.installed?c.servers.length+' native MCP':'not detected')+' · '+c.status,
+    labelStatus(c.status==='corrupted'?'unsafe':c.installed?'installed':'missing'))));
+  const select=$('center-profile'),previous=select.value;clear(select);
+  for(const name of [...Object.keys(centerState.presets),...Object.keys(centerState.profiles.data.profiles)]){
+    const option=node('option',name);option.value=name;select.append(option);
+  }
+  select.value=[...select.options].some(o=>o.value===previous)?previous:(select.options[0]?.value||'');
+  const servers=$('center-servers');clear(servers);
+  centerState.centralNames.forEach(name=>{
+    const label=node('label',null,'check'),input=node('input');input.type='checkbox';input.value=name;input.className='center-server-check';
+    label.append(input,rawNode('span',name));servers.append(label);
+  });
+  renderCenterTargets();
+  translateUI();
+}
+function centerTargets(){return [...$('center-agents').querySelectorAll('input:checked')].map(input=>input.value)}
+function centerServers(){return [...$('center-servers').querySelectorAll('input:checked')].map(input=>input.value)}
+function renderCenterTargets(){
+  if(!centerState)return;
+  const profile=$('center-profile').value;
+  const selected=centerState.profiles.data.profiles[profile]?.agents||[];
+  const custom=centerState.profiles.data.profiles[profile];
+  $('center-custom-name').value=custom?profile:'';
+  $('center-custom-delete').disabled=!custom;
+  document.querySelectorAll('.center-server-check').forEach(input=>input.checked=!!custom?.servers.includes(input.value));
+  const target=$('center-agents');clear(target);
+  centerState.clients.filter(c=>c.installed).forEach(client=>{
+    const label=node('label',null,'check'),input=node('input');input.type='checkbox';input.value=client.id;
+    input.checked=selected.includes(client.id);
+    label.append(input,rawNode('span',client.name));target.append(label);
+  });
+  translateUI();
+}
+async function centerSync(apply){
+  const name=$('center-profile').value,agents=centerTargets();
+  if(!name||!agents.length){showToast('Select at least one MCP client.',true);return}
+  try{
+    const preview=await request('/api/action',{action:'mcp-profile-sync-preview',name,agents});
+    const report=$('center-report');report.classList.remove('hidden');report.textContent=formatSync(preview);
+    if(!apply)return;
+    if(preview.errors.length){showToast('Preview reported errors; apply is blocked.',true);return}
+    modal('Apply MCP profile',name+' · '+preview.mcpResults.length+' MCP operations. Existing native servers are preserved.',
+      'Apply MCP sync',async()=>{
+        const result=await request('/api/action',{action:'mcp-profile-sync-apply',name,agents,approved:true,previewToken:preview.previewToken});
+        report.textContent=formatSync(result);
+        if(result.errors.length)throw Error('MCP sync returned errors.');
+        showToast('MCP profile synchronized');await refresh();
+      },'SYNC');
+  }catch(err){showToast(err.message,true)}
+}
+$('center-profile').onchange=renderCenterTargets;
+$('center-sync-preview').onclick=()=>centerSync(false);
+$('center-sync-apply').onclick=()=>centerSync(true);
+$('center-custom-delete').onclick=()=>{
+  const name=$('center-profile').value;
+  if(!centerState.profiles.data.profiles[name])return;
+  const revision=centerState.profiles.revision;
+  modal('Delete MCP profile',name+' · Existing client MCP entries are preserved.',
+    'Delete profile',async()=>{
+      await request('/api/action',{action:'mcp-profile-delete',name,approved:true,expectedRevision:revision});
+      showToast('Profile removed');await refresh();
+    },name);
+};
+$('center-custom-save').onclick=async()=>{
+  const name=$('center-custom-name').value.trim(),agents=centerTargets(),servers=centerServers();
+  if(!name||!agents.length||!servers.length){showToast('Select a name, clients and central servers.',true);return}
+  try{
+    const preview=(await request('/api/action',{action:'mcp-profile-preview',name,agents,servers})).plan;
+    modal('Save MCP profile',name+' · '+servers.length+' allowed servers · '+agents.length+' clients. No client files change now.',
+      'Save profile',async()=>{
+        await request('/api/action',{action:'mcp-profile-save',name,agents,servers,approved:true,expectedRevision:preview.revision});
+        showToast('MCP profile saved');await refresh();
+      });
+  }catch(err){showToast(err.message,true)}
+};
+
 let syncPreviewGeneration=0,fullSyncPreviewGeneration=0;
 async function guardedPreview(button,kind,run){
   if(button.disabled)return;

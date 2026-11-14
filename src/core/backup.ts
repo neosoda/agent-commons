@@ -159,7 +159,7 @@ export function createFullBackup(
       session.recordPathBeforeModify(agent.definition.id, 'mcp-config', agent.mcpConfigPath);
     }
 
-    if (inspectPath(agent.skillsDirPath).state === 'directory') {
+    if (agent.definition.skillsSupported !== false && inspectPath(agent.skillsDirPath).state === 'directory') {
       const skillEntries = fs.readdirSync(agent.skillsDirPath);
       for (const name of skillEntries) {
         const entryPath = path.join(agent.skillsDirPath, name);
@@ -168,6 +168,12 @@ export function createFullBackup(
     }
   }
 
+  // Existing manual snapshots retain native MCP entries first for compatibility.
+  // A newly created profile is reversible through its own pre-save snapshot.
+  const profilesPath = path.join(ctx.commonsDir, 'mcp-profiles.json');
+  if (inspectPath(profilesPath).state === 'file') {
+    session.recordPathBeforeModify('commons', 'mcp-profile', profilesPath);
+  }
   return session.commitManifest();
 }
 
@@ -263,7 +269,7 @@ function preflightRestore(
   for (const entry of manifest.entries) {
     if (!entry || typeof entry.originalPath !== 'string' ||
         typeof entry.agentId !== 'string' ||
-        !['central-skill', 'skill-entry', 'mcp-config'].includes(entry.kind) ||
+        !['central-skill', 'skill-entry', 'mcp-config', 'mcp-profile'].includes(entry.kind) ||
         !['missing', 'link', 'file', 'directory'].includes(entry.stateBefore)) {
       throw new Error('Invalid backup entry in snapshot manifest.');
     }
@@ -279,7 +285,9 @@ function preflightRestore(
         entry.agentId === 'commons' &&
         isImmediateSkill(ctx.centralSkillsDir)) ||
       (entry.kind === 'skill-entry' &&
-        Boolean(agent && isImmediateSkill(agent.skillsDirPath))) ||
+        Boolean(agent && agent.definition.skillsSupported !== false && isImmediateSkill(agent.skillsDirPath))) ||
+      (entry.kind === 'mcp-profile' && entry.agentId === 'commons' &&
+        arePathsEqual(targetPath, path.join(ctx.commonsDir, 'mcp-profiles.json'), ctx.platform)) ||
       (entry.kind === 'mcp-config' &&
         ((entry.agentId === 'commons' &&
           arePathsEqual(targetPath, ctx.centralMcpPath, ctx.platform)) ||

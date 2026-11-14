@@ -280,3 +280,16 @@ Branch `feat/smart-skill-router-20261114` extends, rather than replaces, the off
 Branche `feat/lemo-opuscar-catalog-20261114` (PR à ouvrir) : ajout d'une référence épinglée au commit `3a7132b996be0241c1ea0ab180d519f06e6f10b6` de [lemomo-ai/lemo-opuscar](https://github.com/lemomo-ai/lemo-opuscar). Entrée `lemo-opuscar` : installation sur accord des seuls `SKILL.md` et `scripts/setup.sh` (13 223 octets). Le reste des 99 styles et la toolchain vidéo demeurent externes, non téléchargés lors du listing/routage, ni exécutés par Agent Commons. Métadonnées de licences mixtes CC BY-NC 4.0 (Markdown) et MIT (code), attribution générée FR/EN et guides `docs/LEMO_OPUSCAR*.md`.
 
 **Important :** le `setup.sh` amont peut cloner/mettre à jour `main` et installer des dépendances lors de sa première invocation ; l'épinglage du catalogue ne couvre pas ce runtime. Usage avec accord explicite, ou clone runtime épinglé manuellement. Aucun accès à l'environnement privé, aucune exécution des scripts tiers ; aucune release créée. **À vérifier avant fusion :** `npm ci`, typecheck, tests + catalogue généré, audit high et pack dry-run, puis CI 6/6 + Chromium + Windows portable sur SHA exact de PR. Ne pas déclarer validé avant constat.
+
+
+## 16. MCP Control Center v0.4.0 — implementation work (2026-11-14)
+
+**Branch:** `feat/mcp-control-center-v040`; **PR:** https://github.com/neosoda/agent-commons/pull/64 (draft until exact-head gates pass). Initial base: `f127ace2af0a3821b392fb3fdc397dd7a6753f84`; main has advanced during implementation and must be rechecked for conflicts.
+
+**Implemented on branch:** LM Studio native `~/.lmstudio/mcp.json` registration on Windows/Linux/macOS (MCP-only, no skills writes); selective `mcpServerFilterByAgent` merge using the existing conflict-preserving snapshot/rollback machinery; reviewed offline eight-server metadata catalog (pin known versions, mark unverified packages unavailable); custom MCP profile persistence/revisions with OSINT/Docker segregation; presets OSINT, Development and Infrastructure; read-only secure inventory and Skill Hub MCP Control Center with preview-bound sync, FR/EN labels and a synthetic regression suite.
+
+**Security:** maintain loopback, Host/Origin, CSRF, CSP, no web-triggered process execution; never return command/env/secret values; refuse corrupt native configs; preserve unmanaged and custom client fields. Native client extras remain enabled even when excluded from a profile — these allowlists only restrict managed additions.
+
+**Not implemented / not to claim:** automatic npm/PyPI provisioning, controlled package upgrades/uninstall, broad import of native configurations into the central manifest, live MCP process health, full version reconciliation. Catalog entries for unverified OSINT/Web Search remain disabled. No local personal agent or actual Windows PC was accessed; no v0.4.0 release/npm publication.
+
+**Required before merging:** npm ci, typecheck, tests, npm audit high, pack dry-run; exact PR head CI 6/6, Chromium and Windows portable, then post-merge main checks. Record actual final SHA and run IDs after the merge; do not assume success.

@@ -2,6 +2,17 @@
 param([string]$OutDirectory = 'artifacts/portable')
 $ErrorActionPreference = 'Stop'
 $ProgressPreference = 'SilentlyContinue'
+# Ask Windows for an actually available local port; fixed random ranges may
+# overlap excluded Hyper-V/WinNAT ranges and fail with EACCES on CI hosts.
+function Get-AvailableLoopbackPort {
+  $listener = [System.Net.Sockets.TcpListener]::new([System.Net.IPAddress]::Loopback, 0)
+  try {
+    $listener.Start()
+    return ([System.Net.IPEndPoint]$listener.LocalEndpoint).Port
+  } finally {
+    $listener.Stop()
+  }
+}
 $nodeVersion = 'v24.22.2'
 $official = 'https://nodejs.org/dist/' + $nodeVersion
 $root = (Get-Location).Path
@@ -82,7 +93,7 @@ Write-Host 'Smoke-testing bundled runtime and local HTTP dashboard...'
 $cli = Join-Path $app 'node_modules\@neosoda\agent-commons\dist\cli\index.js'
 & $nodeExe $cli --help | Out-Null
 if ($LASTEXITCODE -ne 0) { throw 'Portable CLI boot failed.' }
-$port = Get-Random -Minimum 44000 -Maximum 55000
+$port = Get-AvailableLoopbackPort
 $argumentString = ('"' + $cli + '" web --no-open --port ' + $port)
 $server = Start-Process -FilePath $nodeExe -ArgumentList $argumentString -PassThru -NoNewWindow
 try {
@@ -134,7 +145,7 @@ try {
   if ($LASTEXITCODE -ne 0 -or $extractedManifest.version -ne $expectedVersion -or $zipCliVersion -ne $expectedVersion) {
     throw ('ZIP version mismatch: package=' + $extractedManifest.version + ', CLI=' + $zipCliVersion + ', expected=' + $expectedVersion)
   }
-  $cleanPort = Get-Random -Minimum 44000 -Maximum 55000
+  $cleanPort = Get-AvailableLoopbackPort
   $cleanArgs = ('"' + $embeddedCli + '" web --no-open --home "' + $smokeHome + '" --port ' + $cleanPort)
   $extractedServer = Start-Process -FilePath $embeddedNode -ArgumentList $cleanArgs -PassThru -NoNewWindow
   $healthy = $false

@@ -3,7 +3,7 @@ import { AGENT_REGISTRY } from './registry.js';
 import type { DetectedAgent, EnvironmentContext } from '../types.js';
 
 /**
- * Detects which of the 17 registered AI coding agents are installed on the local environment.
+ * Detects which of the registered AI clients are installed on the local environment.
  */
 export function detectAgents(ctx: EnvironmentContext, agentFilter?: string[]): DetectedAgent[] {
   const normalizedFilter =

@@ -21,6 +21,7 @@ export interface AgentDefinition {
   name: string;
   detectPaths: (ctx: EnvironmentContext) => string[];
   skillsDir: (ctx: EnvironmentContext) => string;
+  skillsSupported?: boolean;
   mcpConfig?: AgentMcpConfigDef;
 }
 
@@ -102,7 +103,7 @@ export interface McpSyncResultItem {
 
 export interface BackupEntry {
   agentId: string;
-  kind: 'mcp-config' | 'skill-entry' | 'central-skill';
+  kind: 'mcp-config' | 'mcp-profile' | 'skill-entry' | 'central-skill';
   originalPath: string;
   stateBefore: 'missing' | 'file' | 'directory' | 'link';
   backupRelativePath?: string;
@@ -129,6 +130,7 @@ export interface SyncOptions {
   agentFilter?: string[];
   skillsOnly?: boolean;
   mcpOnly?: boolean;
+  mcpServerFilterByAgent?: Record<string, string[]>;
 }
 
 export interface SyncReport {

@@ -52,11 +52,11 @@ describe('Agent Commons - Intensive Hardening & Security Test Suite', () => {
     }
   });
 
-  describe('1. Agent Detection (All 17 Environments & Virgin Environment)', () => {
+  describe('1. Agent Detection (All 18 Environments & Virgin Environment)', () => {
     it('handles a completely virgin environment gracefully (doctor, list, sync)', () => {
       const ctx = createEnvironmentContext({ homeDir: sandboxDir });
       const detected = detectAgents(ctx);
-      assert.equal(detected.length, 17);
+      assert.equal(detected.length, 18);
       assert.equal(detected.filter((a) => a.installed).length, 0);
 
       const doc = runDoctor(ctx);
@@ -74,7 +74,7 @@ describe('Agent Commons - Intensive Hardening & Security Test Suite', () => {
       assert.equal(sync.snapshotId, null);
     });
 
-    it('detects all 17 registered agents when their directories exist', () => {
+    it('detects all 18 registered agents when their directories exist', () => {
       const ctx = createEnvironmentContext({ homeDir: sandboxDir });
 
       for (const def of AGENT_REGISTRY) {
@@ -88,7 +88,7 @@ describe('Agent Commons - Intensive Hardening & Security Test Suite', () => {
       }
 
       const detected = detectAgents(ctx);
-      assert.equal(detected.length, 17);
+      assert.equal(detected.length, 18);
       for (const agent of detected) {
         assert.equal(
           agent.installed,
@@ -215,7 +215,7 @@ describe('Agent Commons - Intensive Hardening & Security Test Suite', () => {
   });
 
   describe('4. Idempotent Skills Synchronization & Conflict Handling', () => {
-    it('synchronizes skills across all 17 agents and is strictly idempotent across 3 consecutive runs', () => {
+    it('synchronizes skills across supported agents and is strictly idempotent across 3 consecutive runs', () => {
       const ctx = createEnvironmentContext({ homeDir: sandboxDir });
       writeSkill(ctx.centralSkillsDir, 'alpha-skill', '# Alpha');
       writeSkill(ctx.centralSkillsDir, 'beta-skill', '# Beta');
@@ -230,7 +230,7 @@ describe('Agent Commons - Intensive Hardening & Security Test Suite', () => {
         }
       }
 
-      // Run 1: creates 34 links (17 agents * 2 skills)
+      // Run 1: creates 34 links (17 skill-compatible agents * 2 skills)
       const report1 = runSync(ctx);
       assert.equal(report1.errors.length, 0);
       assert.equal(
