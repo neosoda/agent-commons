@@ -272,6 +272,8 @@ agent-commons sync --skill anatomy --agent codex --dry-run
 
 **Anatomy** utilise une sélection vérifiée de **126 fichiers sources (~1,9 Mio)**, en excluant les PDF et HTML de démonstration générés ; les limites de sécurité restent inchangées. **Chief of Staff** est expérimental et repose sur des fonctionnalités d'agents compatibles. [Guide FR](docs/CURATED_SKILLS.md) · [English](docs/CURATED_SKILLS.en.md).
 
+**Nouveau — Films et animations (Lemo-Opuscar) :** skill créatif optionnel, 99 styles sans téléchargement à la découverte. Installation et synchronisation sur demande, puis préparation séparée des outils vidéo. [Guide et précautions](docs/LEMO_OPUSCAR.md).
+
 ### Collection Everything Claude Code (ECC)
 
 **71 skills ECC sélectionnés** pour nos agents, infrastructures, projets web et audits sont désormais accessibles dans le Skill Hub, sans écraser les profils existants ni importer les hooks ECC.
@@ -528,7 +530,7 @@ Les licences indiquées pour les dépendances npm proviennent du manifeste, du l
 ### Dépôts référencés dans le catalogue public
 
 <!-- BEGIN GENERATED SKILL REPOSITORY CREDITS -->
-Le catalogue public référence **181 skills provenant de 20 dépôts sources**. Il s'agit **uniquement de métadonnées** : Agent Commons ne regroupe pas et n'installe pas automatiquement ces skills. Les licences sont indiquées pour chaque skill épinglé dans [l'index complet](docs/skills/README.md) ; si plusieurs licences figurent pour un dépôt, vérifiez celle applicable à chaque skill.
+Le catalogue public référence **182 skills provenant de 21 dépôts sources**. Il s'agit **uniquement de métadonnées** : Agent Commons ne regroupe pas et n'installe pas automatiquement ces skills. Les licences sont indiquées pour chaque skill épinglé dans [l'index complet](docs/skills/README.md) ; si plusieurs licences figurent pour un dépôt, vérifiez celle applicable à chaque skill.
 
 | Dépôt source | Auteur / responsable | Skills référencés | Licence(s) déclarée(s) |
 |:--|:--|--:|:--|
@@ -541,6 +543,7 @@ Le catalogue public référence **181 skills provenant de 20 dépôts sources**.
 | [Jakeschincariol/founder-skill](https://github.com/Jakeschincariol/founder-skill) | Jake Schincariol | 11 | MIT |
 | [JuliusBrussee/caveman](https://github.com/JuliusBrussee/caveman) | JuliusBrussee | 22 | Apache-2.0 |
 | [latent-spaces/brag](https://github.com/latent-spaces/brag) | latent-spaces | 1 | MIT |
+| [lemomo-ai/lemo-opuscar](https://github.com/lemomo-ai/lemo-opuscar) | Lemomo / LemoLab | 1 | CC-BY-NC-4.0 (skill/docs); MIT (script) |
 | [mattpocock/skills](https://github.com/mattpocock/skills) | Matt Pocock | 5 | MIT |
 | [morellid/ai-act-skill](https://github.com/morellid/ai-act-skill) | Davide Morelli | 1 | MIT |
 | [nextlevelbuilder/ui-ux-pro-max-skill](https://github.com/nextlevelbuilder/ui-ux-pro-max-skill) | Next Level Builder | 7 | Apache-2.0 / MIT |
