@@ -11,8 +11,10 @@ const ID = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const SEGMENT = /^[A-Za-z0-9_. -]+$/;
 const SHA = /^[a-f0-9]{40}$/;
 const MAX_FILES = 150;
+const MAX_LIBRARY_FILES = 400;
 const MAX_BYTES = 1024 * 1024;
 const MAX_TOTAL = 8 * 1024 * 1024;
+const MAX_LIBRARY_TOTAL = 16 * 1024 * 1024;
 const MAX_ENTRIES = 2048;
 
 export type IntegrityStatus = 'intact' | 'modified' | 'untracked' | 'missing' | 'unmanaged' | 'unsafe';
@@ -55,7 +57,7 @@ function assertRoots(ctx: EnvironmentContext): void {
     }
   }
 }
-function auditOne(ctx: EnvironmentContext, id: string, sources: Map<string, { repository: string; path: string }>): SkillIntegrity {
+function auditOne(ctx: EnvironmentContext, id: string, sources: Map<string, { repository: string; path: string; entrypoint?: string }>): SkillIntegrity {
   const issues: IntegrityIssue[] = [];
   const report: SkillIntegrity = { skill: id, status: 'intact', commit: null, checkedFiles: 0, issues };
   const add = (type: IntegrityIssue['type'], reason: string, relative?: string): void => {
@@ -83,13 +85,14 @@ function auditOne(ctx: EnvironmentContext, id: string, sources: Map<string, { re
             receipt.skill !== id || typeof receipt.repository !== 'string' ||
             typeof receipt.source !== 'string' || typeof receipt.commit !== 'string' ||
             !SHA.test(receipt.commit) || !Array.isArray(receipt.files) ||
-            receipt.files.length < 1 || receipt.files.length > MAX_FILES) {
+            receipt.files.length < 1 || receipt.files.length > MAX_LIBRARY_FILES) {
           add('unsafe', 'Malformed or untrusted management receipt.');
         } else {
           const known = sources.get(id);
           const expectedSource = known && known.repository + '/tree/' + receipt.commit +
             (known.path === '.' ? '' : '/' + known.path);
-          if (!known || known.repository !== receipt.repository || receipt.source !== expectedSource) {
+          if (!known || known.repository !== receipt.repository || receipt.source !== expectedSource ||
+              receipt.files.length > (known.entrypoint ? MAX_LIBRARY_FILES : MAX_FILES)) {
             add('unsafe', 'Receipt provenance differs from reviewed catalog source.');
           } else {
             report.commit = receipt.commit;
@@ -134,8 +137,8 @@ function auditOne(ctx: EnvironmentContext, id: string, sources: Map<string, { re
                       continue;
                     }
                     seen.add(key);
-                    if (stat.size > MAX_BYTES || ++report.checkedFiles > MAX_FILES ||
-                        (total += stat.size) > MAX_TOTAL) {
+                    if (stat.size > MAX_BYTES || ++report.checkedFiles > (known.entrypoint ? MAX_LIBRARY_FILES : MAX_FILES) ||
+                        (total += stat.size) > (known.entrypoint ? MAX_LIBRARY_TOTAL : MAX_TOTAL)) {
                       add('unsafe', 'Managed skill exceeds file/size limits.');
                       continue;
                     }
@@ -170,7 +173,7 @@ export function verifyCatalogSkills(ctx: EnvironmentContext, id?: string): Catal
   if (id !== undefined && !ID.test(id)) throw new Error('Invalid skill identifier.');
   const catalog = readPublicCatalog().catalog;
   const sources = new Map(catalog.skills.map(skill =>
-    [skill.id, { repository: skill.repository, path: skill.path }] as const));
+    [skill.id, { repository: skill.repository, path: skill.path, entrypoint: skill.entrypoint }] as const));
   // Include installed catalog entries, plus managed receipts for catalog IDs.
   // Unknown/local-only skill folders are not implicitly inspected or disclosed.
   const ids = id ? [id] : catalog.skills
