@@ -175,11 +175,67 @@ function decodeVerifiedBlob(input: unknown, file: InstallFile): Buffer {
   const encoded = input.content.replace(/\s/g, '');
   if (!/^[A-Za-z0-9+/]*={0,2}$/.test(encoded)) throw new Error('Invalid upstream blob encoding.');
   const bytes = Buffer.from(encoded, 'base64');
+  return verifyDownloadedBytes(bytes, file);
+}
+
+/** Both blob-API and immutable raw downloads must match the pinned Git blob. */
+function verifyDownloadedBytes(bytes: Buffer, file: InstallFile): Buffer {
   if (bytes.length !== file.size) throw new Error('Downloaded blob size mismatch.');
   const expectedHash = crypto.createHash('sha1')
     .update('blob ' + bytes.length + '\0').update(bytes).digest('hex');
   if (expectedHash !== file.sha) throw new Error('Downloaded blob hash mismatch.');
   return bytes;
+}
+
+/**
+ * Use GitHub's immutable raw-content host for real downloads; one API call per
+ * blob would exhaust GitHub's unauthenticated REST limit for larger skills.
+ * Still verify the exact Git blob SHA-1 obtained from the pinned Git tree.
+ * Injected fetchJson is used by tests and custom callers as before.
+ */
+async function fetchPinnedBytes(
+  skill: PublicSkill, file: InstallFile, fetchJson: FetchJson
+): Promise<Buffer> {
+  const { owner, name } = canonicalGitHubRepository(skill.repository);
+  if (fetchJson !== githubJson) {
+    const api = 'https://api.github.com/repos/' + owner + '/' + name +
+      '/git/blobs/' + file.sha;
+    return decodeVerifiedBlob(await fetchJson(api), file);
+  }
+  const prefix = skill.path === '.' ? '' : skill.path + '/';
+  const url = 'https://raw.githubusercontent.com/' + owner + '/' + name +
+    '/' + skill.ref + '/' + prefix + file.relativePath;
+  const response = await fetch(url, {
+    headers: { 'Accept': 'application/octet-stream', 'User-Agent': 'agent-commons' },
+    redirect: 'error',
+    signal: AbortSignal.timeout(20000)
+  });
+  if (!response.ok) {
+    throw new Error('Pinned GitHub source download failed (HTTP ' + response.status + ').');
+  }
+  const length = response.headers.get('content-length');
+  if (length !== null && Number(length) > MAX_FILE_BYTES) {
+    throw new Error('Pinned GitHub file exceeds the maximum download size.');
+  }
+  const bytes = Buffer.from(await response.arrayBuffer());
+  return verifyDownloadedBytes(bytes, file);
+}
+
+/** Bounded parallel downloads keep larger vetted skills responsive. */
+async function stagePinnedFiles(
+  staging: string, skill: PublicSkill, files: InstallFile[], fetchJson: FetchJson
+): Promise<void> {
+  const batchSize = 6;
+  for (let offset = 0; offset < files.length; offset += batchSize) {
+    const batch = files.slice(offset, offset + batchSize);
+    const content = await Promise.all(batch.map(file => fetchPinnedBytes(skill, file, fetchJson)));
+    for (let index = 0; index < batch.length; index++) {
+      const file = batch[index]!;
+      const destination = path.join(staging, ...file.relativePath.split('/'));
+      fs.mkdirSync(path.dirname(destination), { recursive: true });
+      fs.writeFileSync(destination, content[index]!, { flag: 'wx', mode: 0o600 });
+    }
+  }
 }
 
 /**
@@ -202,19 +258,12 @@ export async function installCatalogSkill(
     throw new Error('Skill appeared during preflight; refusing to overwrite it.');
   }
   const skill = currentSkill(ctx, id);
-  const { owner, name } = canonicalGitHubRepository(skill.repository);
+  canonicalGitHubRepository(skill.repository);
   fs.mkdirSync(ctx.commonsDir, { recursive: true });
   const staging = fs.mkdtempSync(path.join(ctx.commonsDir, '.agent-commons-stage-'));
   let moved = false;
   try {
-    for (const file of preview.files) {
-      const remote = 'https://api.github.com/repos/' + owner + '/' + name +
-        '/git/blobs/' + file.sha;
-      const bytes = decodeVerifiedBlob(await fetchJson(remote), file);
-      const destination = path.join(staging, ...file.relativePath.split('/'));
-      fs.mkdirSync(path.dirname(destination), { recursive: true });
-      fs.writeFileSync(destination, bytes, { flag: 'wx', mode: 0o600 });
-    }
+    await stagePinnedFiles(staging, skill, preview.files, fetchJson);
     const receipt = {
       schemaVersion: 1, skill: id, repository: skill.repository,
       source: skill.source, commit: skill.ref, managedBy: 'agent-commons',
@@ -514,19 +563,12 @@ export async function updateCatalogSkill(
   const preview = await previewCatalogUpdate(ctx, id, fetchJson);
   if (!options.yes) return { preview, updated: false, snapshotId: null };
   const skill = currentSkill(ctx, id);
-  const { owner, name } = canonicalGitHubRepository(skill.repository);
+  canonicalGitHubRepository(skill.repository);
   assertPhysicalRoots(ctx);
   const staging = fs.mkdtempSync(path.join(ctx.commonsDir, '.agent-commons-stage-'));
   let staged = true;
   try {
-    for (const file of preview.files) {
-      const remote = 'https://api.github.com/repos/' + owner + '/' + name +
-        '/git/blobs/' + file.sha;
-      const bytes = decodeVerifiedBlob(await fetchJson(remote), file);
-      const destination = path.join(staging, ...file.relativePath.split('/'));
-      fs.mkdirSync(path.dirname(destination), { recursive: true });
-      fs.writeFileSync(destination, bytes, { flag: 'wx', mode: 0o600 });
-    }
+    await stagePinnedFiles(staging, skill, preview.files, fetchJson);
     const receipt = {
       schemaVersion: 1, skill: id, repository: skill.repository,
       source: skill.source, commit: skill.ref, managedBy: 'agent-commons',
