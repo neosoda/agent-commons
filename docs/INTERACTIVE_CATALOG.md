@@ -13,6 +13,6 @@ Pour les skills, `catalog install <id>` affiche l'aperçu, `--yes` confirme le t
 
 Un MCP **configuré** ou **détecté** n'est pas forcément en cours d'exécution ni accessible à tous les clients. Le catalogue n'affiche **aucun chemin privé, aucune commande, variable d'environnement ou clé**. Un MCP marqué « fournisseur non vérifié » n'est pas une recommandation d'installation.
 
-La sélection comprend des exemples concrets pour Grim Prompter, les vidéos SaaS Remotion, Lemo-Opuscar, find-skills, Docker et UI/UX, ainsi que les huit MCP publics du catalogue ; les autres entrées ont un modèle de prompt générique à adapter. L'interface est entièrement locale, sans dépendance ni service externe ; aucune opération de gestion n'est déclenchée par la navigation ou la copie.
+La sélection comprend des exemples concrets pour Video Engine, Remotion Superpowers (production, shorts, sous-titres, revue), Grim Prompter, les vidéos SaaS Remotion, Lemo-Opuscar, find-skills, Docker et UI/UX, ainsi que les huit MCP publics du catalogue ; les autres entrées ont un modèle de prompt générique à adapter. L'interface est entièrement locale, sans dépendance ni service externe ; aucune opération de gestion n'est déclenchée par la navigation ou la copie.
 
 [Guide anglais](INTERACTIVE_CATALOG.en.md) · [README FR](../README.md).
