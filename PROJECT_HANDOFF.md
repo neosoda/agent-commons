@@ -255,3 +255,9 @@ records this requirement. No executable runtime or skill sync changes.
 **At authorship:** changes are on `docs/bilingual-readme-fr-default-20261108`.
 PR head CI 6/6, Chromium QA, Windows portable qualification and post-merge
 main validation remain required. No local workstation was accessed.
+
+## 12. ECC curated catalog collection (2026-11-14; PR pending)
+
+Branch `feat/ecc-curated-skill-integration-20261114` from main `44627efec04b64aaf323d3c8666988dac4a43fc6`: **71 ECC skills** referenced at fixed [upstream](https://github.com/affaan-m/ECC) revision `d2ef2680594f9a17526a6e1a2e18b3d242c5d17b` (MIT). Every selected source contains a root `SKILL.md` and meets current file-count and file-size installer limits. `context-and-decisions` has a separate MIT license file, linked in its catalog entry. French and English README, catalog index, upstream credits and new bilingual guides updated.
+
+This is metadata-only: no ECC code, hooks, dependencies, MCP config or private agent settings are changed. Discovery is `catalog search ecc`; preview/install/verify/sync use the existing guarded commands. **Pending:** CI against exact PR head (six matrix jobs, Chromium, Windows portable), local npm typecheck/test/audit/pack, PR merge and post-merge main CI. No tests, installations, user PC state or releases are claimed as verified. See `docs/ECC.md`.

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-29",
+  "generatedAt": "2026-11-14",
   "skills": [
     {
       "id": "3dviz-pro-max",
@@ -22,6 +22,30 @@
       "dependencies": [],
       "tags": [
         "design"
+      ]
+    },
+    {
+      "id": "agent-architecture-audit",
+      "name": "Agent Architecture Audit",
+      "description": "Audit AI agent architecture, component boundaries, tool usage, context management and reliability risks.",
+      "category": "ai-automation",
+      "author": "Affaan Mustafa / ECC contributors",
+      "repository": "https://github.com/affaan-m/ECC",
+      "source": "https://github.com/affaan-m/ECC/tree/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/skills/agent-architecture-audit",
+      "path": "skills/agent-architecture-audit",
+      "ref": "d2ef2680594f9a17526a6e1a2e18b3d242c5d17b",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/affaan-m/ECC/blob/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-14",
+        "licenseChecked": "2026-11-14",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ecc",
+        "everything-claude-code",
+        "ai-automation"
       ]
     },
     {
@@ -48,6 +72,150 @@
       ]
     },
     {
+      "id": "agent-eval",
+      "name": "Agent Eval",
+      "description": "Design evaluations for AI agents with repeatable tasks, metrics, failure analysis and regression evidence.",
+      "category": "ai-automation",
+      "author": "Affaan Mustafa / ECC contributors",
+      "repository": "https://github.com/affaan-m/ECC",
+      "source": "https://github.com/affaan-m/ECC/tree/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/skills/agent-eval",
+      "path": "skills/agent-eval",
+      "ref": "d2ef2680594f9a17526a6e1a2e18b3d242c5d17b",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/affaan-m/ECC/blob/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-14",
+        "licenseChecked": "2026-11-14",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ecc",
+        "everything-claude-code",
+        "ai-automation"
+      ]
+    },
+    {
+      "id": "agent-harness-construction",
+      "name": "Agent Harness Construction",
+      "description": "Design agent action spaces, tool contracts and observation formats for dependable task completion.",
+      "category": "ai-automation",
+      "author": "Affaan Mustafa / ECC contributors",
+      "repository": "https://github.com/affaan-m/ECC",
+      "source": "https://github.com/affaan-m/ECC/tree/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/skills/agent-harness-construction",
+      "path": "skills/agent-harness-construction",
+      "ref": "d2ef2680594f9a17526a6e1a2e18b3d242c5d17b",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/affaan-m/ECC/blob/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-14",
+        "licenseChecked": "2026-11-14",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ecc",
+        "everything-claude-code",
+        "ai-automation"
+      ]
+    },
+    {
+      "id": "agent-introspection-debugging",
+      "name": "Agent Introspection Debugging",
+      "description": "Investigate agent behavior using execution traces, evidence and disciplined debugging.",
+      "category": "ai-automation",
+      "author": "Affaan Mustafa / ECC contributors",
+      "repository": "https://github.com/affaan-m/ECC",
+      "source": "https://github.com/affaan-m/ECC/tree/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/skills/agent-introspection-debugging",
+      "path": "skills/agent-introspection-debugging",
+      "ref": "d2ef2680594f9a17526a6e1a2e18b3d242c5d17b",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/affaan-m/ECC/blob/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-14",
+        "licenseChecked": "2026-11-14",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ecc",
+        "everything-claude-code",
+        "ai-automation"
+      ]
+    },
+    {
+      "id": "agent-security-hardening",
+      "name": "Agent Security Hardening",
+      "description": "Harden agent workflows, tools and permissions against unsafe execution and data exposure.",
+      "category": "security",
+      "author": "Affaan Mustafa / ECC contributors",
+      "repository": "https://github.com/affaan-m/ECC",
+      "source": "https://github.com/affaan-m/ECC/tree/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/skills/agent-security-hardening",
+      "path": "skills/agent-security-hardening",
+      "ref": "d2ef2680594f9a17526a6e1a2e18b3d242c5d17b",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/affaan-m/ECC/blob/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-14",
+        "licenseChecked": "2026-11-14",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ecc",
+        "everything-claude-code",
+        "security"
+      ]
+    },
+    {
+      "id": "agent-self-evaluation",
+      "name": "Agent Self Evaluation",
+      "description": "Review an agent's own results against explicit acceptance criteria and verifiable evidence.",
+      "category": "ai-automation",
+      "author": "Affaan Mustafa / ECC contributors",
+      "repository": "https://github.com/affaan-m/ECC",
+      "source": "https://github.com/affaan-m/ECC/tree/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/skills/agent-self-evaluation",
+      "path": "skills/agent-self-evaluation",
+      "ref": "d2ef2680594f9a17526a6e1a2e18b3d242c5d17b",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/affaan-m/ECC/blob/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-14",
+        "licenseChecked": "2026-11-14",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ecc",
+        "everything-claude-code",
+        "ai-automation"
+      ]
+    },
+    {
+      "id": "agentic-engineering",
+      "name": "Agentic Engineering",
+      "description": "Apply software engineering principles to agents, workflows, tools and automated development.",
+      "category": "ai-automation",
+      "author": "Affaan Mustafa / ECC contributors",
+      "repository": "https://github.com/affaan-m/ECC",
+      "source": "https://github.com/affaan-m/ECC/tree/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/skills/agentic-engineering",
+      "path": "skills/agentic-engineering",
+      "ref": "d2ef2680594f9a17526a6e1a2e18b3d242c5d17b",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/affaan-m/ECC/blob/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-14",
+        "licenseChecked": "2026-11-14",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ecc",
+        "everything-claude-code",
+        "ai-automation"
+      ]
+    },
+    {
       "id": "ai-act-compliance",
       "name": "Ai Act Compliance",
       "description": "Supports compliance with the EU Artificial Intelligence Act (Regulation (EU) 2024/1689). Use when the user needs to classify an AI system under the AI Act risk categories (prohibited, high-risk, limited, minimal, GPAI), check provider or deployer obligations for high-risk systems, evaluate GPAI model obligations including systemic risk thresholds, verify transparency obligations under Article 50, or run a fundamental rights impact assessment (FRIA) under Article 27. Target us",
@@ -67,6 +235,78 @@
       "dependencies": [],
       "tags": [
         "security"
+      ]
+    },
+    {
+      "id": "ai-regression-testing",
+      "name": "Ai Regression Testing",
+      "description": "Add repeatable regression checks for code written or reviewed with AI assistance.",
+      "category": "development",
+      "author": "Affaan Mustafa / ECC contributors",
+      "repository": "https://github.com/affaan-m/ECC",
+      "source": "https://github.com/affaan-m/ECC/tree/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/skills/ai-regression-testing",
+      "path": "skills/ai-regression-testing",
+      "ref": "d2ef2680594f9a17526a6e1a2e18b3d242c5d17b",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/affaan-m/ECC/blob/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-14",
+        "licenseChecked": "2026-11-14",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ecc",
+        "everything-claude-code",
+        "development"
+      ]
+    },
+    {
+      "id": "api-design",
+      "name": "Api Design",
+      "description": "Design usable APIs with coherent resources, pagination, error handling and versioning.",
+      "category": "development",
+      "author": "Affaan Mustafa / ECC contributors",
+      "repository": "https://github.com/affaan-m/ECC",
+      "source": "https://github.com/affaan-m/ECC/tree/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/skills/api-design",
+      "path": "skills/api-design",
+      "ref": "d2ef2680594f9a17526a6e1a2e18b3d242c5d17b",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/affaan-m/ECC/blob/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-14",
+        "licenseChecked": "2026-11-14",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ecc",
+        "everything-claude-code",
+        "development"
+      ]
+    },
+    {
+      "id": "architecture-decision-records",
+      "name": "Architecture Decision Records",
+      "description": "Document consequential architecture decisions, evidence, trade-offs and alternatives.",
+      "category": "documentation",
+      "author": "Affaan Mustafa / ECC contributors",
+      "repository": "https://github.com/affaan-m/ECC",
+      "source": "https://github.com/affaan-m/ECC/tree/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/skills/architecture-decision-records",
+      "path": "skills/architecture-decision-records",
+      "ref": "d2ef2680594f9a17526a6e1a2e18b3d242c5d17b",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/affaan-m/ECC/blob/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-14",
+        "licenseChecked": "2026-11-14",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ecc",
+        "everything-claude-code",
+        "documentation"
       ]
     },
     {
@@ -93,6 +333,30 @@
       ]
     },
     {
+      "id": "backend-patterns",
+      "name": "Backend Patterns",
+      "description": "Apply maintainable backend patterns for services, routing, data access and APIs.",
+      "category": "development",
+      "author": "Affaan Mustafa / ECC contributors",
+      "repository": "https://github.com/affaan-m/ECC",
+      "source": "https://github.com/affaan-m/ECC/tree/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/skills/backend-patterns",
+      "path": "skills/backend-patterns",
+      "ref": "d2ef2680594f9a17526a6e1a2e18b3d242c5d17b",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/affaan-m/ECC/blob/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-14",
+        "licenseChecked": "2026-11-14",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ecc",
+        "everything-claude-code",
+        "development"
+      ]
+    },
+    {
       "id": "banner-design",
       "name": "Banner Design",
       "description": "Design banners for social media, ads, website heroes, creative assets, and print. Multiple art direction options with optional generated or supplied visuals. Actions: design, create, generate banner. Platforms: Facebook, Twitter/X, LinkedIn, YouTube, Instagram, Google Display, website hero, print. Styles: minimalist, gradient, bold typography, photo-based, illustrated, geometric, retro, glassmorphism, 3D, neon, duotone, editorial, collage.",
@@ -113,6 +377,30 @@
       "tags": [
         "design",
         "ui-ux"
+      ]
+    },
+    {
+      "id": "benchmark-methodology",
+      "name": "Benchmark Methodology",
+      "description": "Plan fair, reproducible performance and quality benchmarks with useful measurements.",
+      "category": "ai-automation",
+      "author": "Affaan Mustafa / ECC contributors",
+      "repository": "https://github.com/affaan-m/ECC",
+      "source": "https://github.com/affaan-m/ECC/tree/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/skills/benchmark-methodology",
+      "path": "skills/benchmark-methodology",
+      "ref": "d2ef2680594f9a17526a6e1a2e18b3d242c5d17b",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/affaan-m/ECC/blob/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-14",
+        "licenseChecked": "2026-11-14",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ecc",
+        "everything-claude-code",
+        "ai-automation"
       ]
     },
     {
@@ -158,6 +446,30 @@
       "tags": [
         "design",
         "ui-ux"
+      ]
+    },
+    {
+      "id": "browser-qa",
+      "name": "Browser Qa",
+      "description": "Run browser-oriented visual, accessibility and functional checks before shipping web changes.",
+      "category": "development",
+      "author": "Affaan Mustafa / ECC contributors",
+      "repository": "https://github.com/affaan-m/ECC",
+      "source": "https://github.com/affaan-m/ECC/tree/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/skills/browser-qa",
+      "path": "skills/browser-qa",
+      "ref": "d2ef2680594f9a17526a6e1a2e18b3d242c5d17b",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/affaan-m/ECC/blob/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-14",
+        "licenseChecked": "2026-11-14",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ecc",
+        "everything-claude-code",
+        "development"
       ]
     },
     {
@@ -552,6 +864,30 @@
       ]
     },
     {
+      "id": "change-impact",
+      "name": "Change Impact",
+      "description": "Analyze the scope and dependencies of changes before implementation and deployment.",
+      "category": "development",
+      "author": "Affaan Mustafa / ECC contributors",
+      "repository": "https://github.com/affaan-m/ECC",
+      "source": "https://github.com/affaan-m/ECC/tree/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/skills/change-impact",
+      "path": "skills/change-impact",
+      "ref": "d2ef2680594f9a17526a6e1a2e18b3d242c5d17b",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/affaan-m/ECC/blob/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-14",
+        "licenseChecked": "2026-11-14",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ecc",
+        "everything-claude-code",
+        "development"
+      ]
+    },
+    {
       "id": "childhood",
       "name": "Childhood",
       "description": "Babysit a shipped release after merge, publication, or deployment. Verify published packages, production behavior, installed plugins, and late CI or user reports until the observation window is clean; use babysit for PR readiness before release.",
@@ -595,6 +931,198 @@
       "tags": [
         "devops",
         "claude-mem"
+      ]
+    },
+    {
+      "id": "coding-standards",
+      "name": "Coding Standards",
+      "description": "Keep code consistent through naming, readability, maintainability and review conventions.",
+      "category": "development",
+      "author": "Affaan Mustafa / ECC contributors",
+      "repository": "https://github.com/affaan-m/ECC",
+      "source": "https://github.com/affaan-m/ECC/tree/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/skills/coding-standards",
+      "path": "skills/coding-standards",
+      "ref": "d2ef2680594f9a17526a6e1a2e18b3d242c5d17b",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/affaan-m/ECC/blob/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-14",
+        "licenseChecked": "2026-11-14",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ecc",
+        "everything-claude-code",
+        "development"
+      ]
+    },
+    {
+      "id": "context-and-decisions",
+      "name": "Context And Decisions",
+      "description": "Clarify stable domain terminology separately from architectural decision records.",
+      "category": "documentation",
+      "author": "Affaan Mustafa / ECC contributors",
+      "repository": "https://github.com/affaan-m/ECC",
+      "source": "https://github.com/affaan-m/ECC/tree/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/skills/context-and-decisions",
+      "path": "skills/context-and-decisions",
+      "ref": "d2ef2680594f9a17526a6e1a2e18b3d242c5d17b",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/affaan-m/ECC/blob/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/skills/context-and-decisions/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-14",
+        "licenseChecked": "2026-11-14",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ecc",
+        "everything-claude-code",
+        "documentation"
+      ]
+    },
+    {
+      "id": "context-budget",
+      "name": "Context Budget",
+      "description": "Manage agent context windows and token budgets while preserving task-critical information.",
+      "category": "ai-automation",
+      "author": "Affaan Mustafa / ECC contributors",
+      "repository": "https://github.com/affaan-m/ECC",
+      "source": "https://github.com/affaan-m/ECC/tree/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/skills/context-budget",
+      "path": "skills/context-budget",
+      "ref": "d2ef2680594f9a17526a6e1a2e18b3d242c5d17b",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/affaan-m/ECC/blob/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-14",
+        "licenseChecked": "2026-11-14",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ecc",
+        "everything-claude-code",
+        "ai-automation"
+      ]
+    },
+    {
+      "id": "continuous-learning-v2",
+      "name": "Continuous Learning V2",
+      "description": "Explore ECC approaches to capturing and refining reusable patterns from past agent sessions.",
+      "category": "ai-automation",
+      "author": "Affaan Mustafa / ECC contributors",
+      "repository": "https://github.com/affaan-m/ECC",
+      "source": "https://github.com/affaan-m/ECC/tree/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/skills/continuous-learning-v2",
+      "path": "skills/continuous-learning-v2",
+      "ref": "d2ef2680594f9a17526a6e1a2e18b3d242c5d17b",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/affaan-m/ECC/blob/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-14",
+        "licenseChecked": "2026-11-14",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ecc",
+        "everything-claude-code",
+        "ai-automation"
+      ]
+    },
+    {
+      "id": "cost-aware-llm-pipeline",
+      "name": "Cost Aware Llm Pipeline",
+      "description": "Design LLM pipelines with explicit token, latency, provider and quality trade-offs.",
+      "category": "ai-automation",
+      "author": "Affaan Mustafa / ECC contributors",
+      "repository": "https://github.com/affaan-m/ECC",
+      "source": "https://github.com/affaan-m/ECC/tree/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/skills/cost-aware-llm-pipeline",
+      "path": "skills/cost-aware-llm-pipeline",
+      "ref": "d2ef2680594f9a17526a6e1a2e18b3d242c5d17b",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/affaan-m/ECC/blob/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-14",
+        "licenseChecked": "2026-11-14",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ecc",
+        "everything-claude-code",
+        "ai-automation"
+      ]
+    },
+    {
+      "id": "database-migrations",
+      "name": "Database Migrations",
+      "description": "Plan safe database schema migrations, backfills, rollback and compatibility windows.",
+      "category": "development",
+      "author": "Affaan Mustafa / ECC contributors",
+      "repository": "https://github.com/affaan-m/ECC",
+      "source": "https://github.com/affaan-m/ECC/tree/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/skills/database-migrations",
+      "path": "skills/database-migrations",
+      "ref": "d2ef2680594f9a17526a6e1a2e18b3d242c5d17b",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/affaan-m/ECC/blob/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-14",
+        "licenseChecked": "2026-11-14",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ecc",
+        "everything-claude-code",
+        "development"
+      ]
+    },
+    {
+      "id": "delivery-gate",
+      "name": "Delivery Gate",
+      "description": "Define release readiness gates and evidence required before delivery.",
+      "category": "devops",
+      "author": "Affaan Mustafa / ECC contributors",
+      "repository": "https://github.com/affaan-m/ECC",
+      "source": "https://github.com/affaan-m/ECC/tree/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/skills/delivery-gate",
+      "path": "skills/delivery-gate",
+      "ref": "d2ef2680594f9a17526a6e1a2e18b3d242c5d17b",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/affaan-m/ECC/blob/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-14",
+        "licenseChecked": "2026-11-14",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ecc",
+        "everything-claude-code",
+        "devops"
+      ]
+    },
+    {
+      "id": "deployment-patterns",
+      "name": "Deployment Patterns",
+      "description": "Plan deployments, environment configuration, health checks and rollback strategy.",
+      "category": "devops",
+      "author": "Affaan Mustafa / ECC contributors",
+      "repository": "https://github.com/affaan-m/ECC",
+      "source": "https://github.com/affaan-m/ECC/tree/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/skills/deployment-patterns",
+      "path": "skills/deployment-patterns",
+      "ref": "d2ef2680594f9a17526a6e1a2e18b3d242c5d17b",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/affaan-m/ECC/blob/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-14",
+        "licenseChecked": "2026-11-14",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ecc",
+        "everything-claude-code",
+        "devops"
       ]
     },
     {
@@ -712,6 +1240,102 @@
       ]
     },
     {
+      "id": "docker-patterns",
+      "name": "Docker Patterns",
+      "description": "Build and operate Docker images and Compose stacks with reproducible configuration.",
+      "category": "devops",
+      "author": "Affaan Mustafa / ECC contributors",
+      "repository": "https://github.com/affaan-m/ECC",
+      "source": "https://github.com/affaan-m/ECC/tree/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/skills/docker-patterns",
+      "path": "skills/docker-patterns",
+      "ref": "d2ef2680594f9a17526a6e1a2e18b3d242c5d17b",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/affaan-m/ECC/blob/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-14",
+        "licenseChecked": "2026-11-14",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ecc",
+        "everything-claude-code",
+        "devops"
+      ]
+    },
+    {
+      "id": "docs-governance",
+      "name": "Docs Governance",
+      "description": "Route documentation governance tasks and run evidence-based documentation integrity audits.",
+      "category": "documentation",
+      "author": "Affaan Mustafa / ECC contributors",
+      "repository": "https://github.com/affaan-m/ECC",
+      "source": "https://github.com/affaan-m/ECC/tree/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/skills/docs-governance",
+      "path": "skills/docs-governance",
+      "ref": "d2ef2680594f9a17526a6e1a2e18b3d242c5d17b",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/affaan-m/ECC/blob/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-14",
+        "licenseChecked": "2026-11-14",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ecc",
+        "everything-claude-code",
+        "documentation"
+      ]
+    },
+    {
+      "id": "e2e-testing",
+      "name": "E2e Testing",
+      "description": "Plan end-to-end tests covering critical user journeys and relevant environments.",
+      "category": "development",
+      "author": "Affaan Mustafa / ECC contributors",
+      "repository": "https://github.com/affaan-m/ECC",
+      "source": "https://github.com/affaan-m/ECC/tree/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/skills/e2e-testing",
+      "path": "skills/e2e-testing",
+      "ref": "d2ef2680594f9a17526a6e1a2e18b3d242c5d17b",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/affaan-m/ECC/blob/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-14",
+        "licenseChecked": "2026-11-14",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ecc",
+        "everything-claude-code",
+        "development"
+      ]
+    },
+    {
+      "id": "ecc-design-system",
+      "name": "Design System",
+      "description": "Establish reusable design tokens and components for coherent product interfaces.",
+      "category": "design",
+      "author": "Affaan Mustafa / ECC contributors",
+      "repository": "https://github.com/affaan-m/ECC",
+      "source": "https://github.com/affaan-m/ECC/tree/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/skills/design-system",
+      "path": "skills/design-system",
+      "ref": "d2ef2680594f9a17526a6e1a2e18b3d242c5d17b",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/affaan-m/ECC/blob/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-14",
+        "licenseChecked": "2026-11-14",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ecc",
+        "everything-claude-code",
+        "design"
+      ]
+    },
+    {
       "id": "embedded-captions",
       "name": "Embedded Captions",
       "description": "Archived upstream: Add captions or subtitles to an existing single-subject talking-head video without editing the footage. Use for plain verbatim captions, cinematic captions embedded behind the subject, VFX captions, “炸/特效/酷炫字幕,” or a named identity from the 35-style catalog. Route by visual identity, not by backend engine. The quiet `anchor` rail is the default; embed every word only when the user explicitly wants a fully cinematic treatment. ",
@@ -734,6 +1358,30 @@
         "design",
         "hyperframes",
         "video"
+      ]
+    },
+    {
+      "id": "eval-harness",
+      "name": "Eval Harness",
+      "description": "Build evaluation harnesses for measuring agent and prompt behavior across repeatable scenarios.",
+      "category": "ai-automation",
+      "author": "Affaan Mustafa / ECC contributors",
+      "repository": "https://github.com/affaan-m/ECC",
+      "source": "https://github.com/affaan-m/ECC/tree/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/skills/eval-harness",
+      "path": "skills/eval-harness",
+      "ref": "d2ef2680594f9a17526a6e1a2e18b3d242c5d17b",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/affaan-m/ECC/blob/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-14",
+        "licenseChecked": "2026-11-14",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ecc",
+        "everything-claude-code",
+        "ai-automation"
       ]
     },
     {
@@ -1061,6 +1709,30 @@
       ]
     },
     {
+      "id": "frontend-a11y",
+      "name": "Frontend A11y",
+      "description": "Improve frontend accessibility, keyboard navigation and screen reader semantics.",
+      "category": "design",
+      "author": "Affaan Mustafa / ECC contributors",
+      "repository": "https://github.com/affaan-m/ECC",
+      "source": "https://github.com/affaan-m/ECC/tree/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/skills/frontend-a11y",
+      "path": "skills/frontend-a11y",
+      "ref": "d2ef2680594f9a17526a6e1a2e18b3d242c5d17b",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/affaan-m/ECC/blob/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-14",
+        "licenseChecked": "2026-11-14",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ecc",
+        "everything-claude-code",
+        "design"
+      ]
+    },
+    {
       "id": "frontend-design",
       "name": "Frontend Design",
       "description": "Design distinctive frontend interfaces with intentional visual direction.",
@@ -1081,6 +1753,54 @@
       "tags": [
         "design",
         "anthropic"
+      ]
+    },
+    {
+      "id": "frontend-design-direction",
+      "name": "Frontend Design Direction",
+      "description": "Define coherent product-specific visual direction for modern web user interfaces.",
+      "category": "design",
+      "author": "Affaan Mustafa / ECC contributors",
+      "repository": "https://github.com/affaan-m/ECC",
+      "source": "https://github.com/affaan-m/ECC/tree/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/skills/frontend-design-direction",
+      "path": "skills/frontend-design-direction",
+      "ref": "d2ef2680594f9a17526a6e1a2e18b3d242c5d17b",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/affaan-m/ECC/blob/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-14",
+        "licenseChecked": "2026-11-14",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ecc",
+        "everything-claude-code",
+        "design"
+      ]
+    },
+    {
+      "id": "frontend-patterns",
+      "name": "Frontend Patterns",
+      "description": "Build maintainable frontend applications with reusable components and clear state management.",
+      "category": "development",
+      "author": "Affaan Mustafa / ECC contributors",
+      "repository": "https://github.com/affaan-m/ECC",
+      "source": "https://github.com/affaan-m/ECC/tree/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/skills/frontend-patterns",
+      "path": "skills/frontend-patterns",
+      "ref": "d2ef2680594f9a17526a6e1a2e18b3d242c5d17b",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/affaan-m/ECC/blob/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-14",
+        "licenseChecked": "2026-11-14",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ecc",
+        "everything-claude-code",
+        "development"
       ]
     },
     {
@@ -1106,6 +1826,54 @@
         "design",
         "hyperframes",
         "video"
+      ]
+    },
+    {
+      "id": "git-workflow",
+      "name": "Git Workflow",
+      "description": "Apply Git branching, clean commits, pull request and conflict resolution practices.",
+      "category": "development",
+      "author": "Affaan Mustafa / ECC contributors",
+      "repository": "https://github.com/affaan-m/ECC",
+      "source": "https://github.com/affaan-m/ECC/tree/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/skills/git-workflow",
+      "path": "skills/git-workflow",
+      "ref": "d2ef2680594f9a17526a6e1a2e18b3d242c5d17b",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/affaan-m/ECC/blob/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-14",
+        "licenseChecked": "2026-11-14",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ecc",
+        "everything-claude-code",
+        "development"
+      ]
+    },
+    {
+      "id": "github-ops",
+      "name": "Github Ops",
+      "description": "Organize GitHub issues, branches, pull requests and repository operations responsibly.",
+      "category": "development",
+      "author": "Affaan Mustafa / ECC contributors",
+      "repository": "https://github.com/affaan-m/ECC",
+      "source": "https://github.com/affaan-m/ECC/tree/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/skills/github-ops",
+      "path": "skills/github-ops",
+      "ref": "d2ef2680594f9a17526a6e1a2e18b3d242c5d17b",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/affaan-m/ECC/blob/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-14",
+        "licenseChecked": "2026-11-14",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ecc",
+        "everything-claude-code",
+        "development"
       ]
     },
     {
@@ -1151,6 +1919,126 @@
       "tags": [
         "ai-automation",
         "claude-mem"
+      ]
+    },
+    {
+      "id": "homelab-network-readiness",
+      "name": "Homelab Network Readiness",
+      "description": "Check homelab prerequisites before changing VLANs, DNS, firewall rules or VPN access.",
+      "category": "devops",
+      "author": "Affaan Mustafa / ECC contributors",
+      "repository": "https://github.com/affaan-m/ECC",
+      "source": "https://github.com/affaan-m/ECC/tree/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/skills/homelab-network-readiness",
+      "path": "skills/homelab-network-readiness",
+      "ref": "d2ef2680594f9a17526a6e1a2e18b3d242c5d17b",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/affaan-m/ECC/blob/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-14",
+        "licenseChecked": "2026-11-14",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ecc",
+        "everything-claude-code",
+        "devops"
+      ]
+    },
+    {
+      "id": "homelab-network-setup",
+      "name": "Homelab Network Setup",
+      "description": "Plan and configure home lab networks using staged, reviewable changes.",
+      "category": "devops",
+      "author": "Affaan Mustafa / ECC contributors",
+      "repository": "https://github.com/affaan-m/ECC",
+      "source": "https://github.com/affaan-m/ECC/tree/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/skills/homelab-network-setup",
+      "path": "skills/homelab-network-setup",
+      "ref": "d2ef2680594f9a17526a6e1a2e18b3d242c5d17b",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/affaan-m/ECC/blob/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-14",
+        "licenseChecked": "2026-11-14",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ecc",
+        "everything-claude-code",
+        "devops"
+      ]
+    },
+    {
+      "id": "homelab-pihole-dns",
+      "name": "Homelab Pihole Dns",
+      "description": "Plan local DNS filtering and network resolver deployment with Pi-hole.",
+      "category": "devops",
+      "author": "Affaan Mustafa / ECC contributors",
+      "repository": "https://github.com/affaan-m/ECC",
+      "source": "https://github.com/affaan-m/ECC/tree/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/skills/homelab-pihole-dns",
+      "path": "skills/homelab-pihole-dns",
+      "ref": "d2ef2680594f9a17526a6e1a2e18b3d242c5d17b",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/affaan-m/ECC/blob/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-14",
+        "licenseChecked": "2026-11-14",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ecc",
+        "everything-claude-code",
+        "devops"
+      ]
+    },
+    {
+      "id": "homelab-vlan-segmentation",
+      "name": "Homelab Vlan Segmentation",
+      "description": "Segment home networks into trusted, IoT, guest and server VLANs with firewall isolation.",
+      "category": "devops",
+      "author": "Affaan Mustafa / ECC contributors",
+      "repository": "https://github.com/affaan-m/ECC",
+      "source": "https://github.com/affaan-m/ECC/tree/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/skills/homelab-vlan-segmentation",
+      "path": "skills/homelab-vlan-segmentation",
+      "ref": "d2ef2680594f9a17526a6e1a2e18b3d242c5d17b",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/affaan-m/ECC/blob/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-14",
+        "licenseChecked": "2026-11-14",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ecc",
+        "everything-claude-code",
+        "devops"
+      ]
+    },
+    {
+      "id": "homelab-wireguard-vpn",
+      "name": "Homelab Wireguard Vpn",
+      "description": "Plan secure WireGuard remote access to a home or lab network.",
+      "category": "devops",
+      "author": "Affaan Mustafa / ECC contributors",
+      "repository": "https://github.com/affaan-m/ECC",
+      "source": "https://github.com/affaan-m/ECC/tree/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/skills/homelab-wireguard-vpn",
+      "path": "skills/homelab-wireguard-vpn",
+      "ref": "d2ef2680594f9a17526a6e1a2e18b3d242c5d17b",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/affaan-m/ECC/blob/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-14",
+        "licenseChecked": "2026-11-14",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ecc",
+        "everything-claude-code",
+        "devops"
       ]
     },
     {
@@ -1446,6 +2334,30 @@
       ]
     },
     {
+      "id": "iterative-retrieval",
+      "name": "Iterative Retrieval",
+      "description": "Retrieve relevant context incrementally instead of loading entire repositories into agent context.",
+      "category": "ai-automation",
+      "author": "Affaan Mustafa / ECC contributors",
+      "repository": "https://github.com/affaan-m/ECC",
+      "source": "https://github.com/affaan-m/ECC/tree/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/skills/iterative-retrieval",
+      "path": "skills/iterative-retrieval",
+      "ref": "d2ef2680594f9a17526a6e1a2e18b3d242c5d17b",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/affaan-m/ECC/blob/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-14",
+        "licenseChecked": "2026-11-14",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ecc",
+        "everything-claude-code",
+        "ai-automation"
+      ]
+    },
+    {
       "id": "knowledge-agent",
       "name": "Knowledge Agent",
       "description": "Build and query AI-powered knowledge bases from claude-mem observations. Use when users want to create focused \"brains\" from their observation history, ask questions about past work patterns, or compile expertise on specific topics.",
@@ -1466,6 +2378,54 @@
       "tags": [
         "ai-automation",
         "claude-mem"
+      ]
+    },
+    {
+      "id": "knowledge-ops",
+      "name": "Knowledge Ops",
+      "description": "Organize project knowledge, decision context and documentation ownership.",
+      "category": "documentation",
+      "author": "Affaan Mustafa / ECC contributors",
+      "repository": "https://github.com/affaan-m/ECC",
+      "source": "https://github.com/affaan-m/ECC/tree/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/skills/knowledge-ops",
+      "path": "skills/knowledge-ops",
+      "ref": "d2ef2680594f9a17526a6e1a2e18b3d242c5d17b",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/affaan-m/ECC/blob/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-14",
+        "licenseChecked": "2026-11-14",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ecc",
+        "everything-claude-code",
+        "documentation"
+      ]
+    },
+    {
+      "id": "kubernetes-patterns",
+      "name": "Kubernetes Patterns",
+      "description": "Design and operate Kubernetes workloads with reliable configuration and deployment patterns.",
+      "category": "development",
+      "author": "Affaan Mustafa / ECC contributors",
+      "repository": "https://github.com/affaan-m/ECC",
+      "source": "https://github.com/affaan-m/ECC/tree/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/skills/kubernetes-patterns",
+      "path": "skills/kubernetes-patterns",
+      "ref": "d2ef2680594f9a17526a6e1a2e18b3d242c5d17b",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/affaan-m/ECC/blob/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-14",
+        "licenseChecked": "2026-11-14",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ecc",
+        "everything-claude-code",
+        "development"
       ]
     },
     {
@@ -1515,6 +2475,30 @@
       ]
     },
     {
+      "id": "living-docs-governance",
+      "name": "Living Docs Governance",
+      "description": "Keep project documentation roles, decision histories and source-of-truth mappings coherent.",
+      "category": "documentation",
+      "author": "Affaan Mustafa / ECC contributors",
+      "repository": "https://github.com/affaan-m/ECC",
+      "source": "https://github.com/affaan-m/ECC/tree/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/skills/living-docs-governance",
+      "path": "skills/living-docs-governance",
+      "ref": "d2ef2680594f9a17526a6e1a2e18b3d242c5d17b",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/affaan-m/ECC/blob/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-14",
+        "licenseChecked": "2026-11-14",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ecc",
+        "everything-claude-code",
+        "documentation"
+      ]
+    },
+    {
       "id": "make-plan",
       "name": "Make Plan",
       "description": "Create a detailed, phased implementation plan with documentation discovery. Use when asked to plan a feature, task, or multi-step implementation — especially before executing with do.",
@@ -1558,6 +2542,54 @@
       "tags": [
         "ai-automation",
         "anthropic"
+      ]
+    },
+    {
+      "id": "mcp-dependency-review",
+      "name": "Mcp Dependency Review",
+      "description": "Review Model Context Protocol server dependencies, trust boundaries and installation risks.",
+      "category": "ai-automation",
+      "author": "Affaan Mustafa / ECC contributors",
+      "repository": "https://github.com/affaan-m/ECC",
+      "source": "https://github.com/affaan-m/ECC/tree/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/skills/mcp-dependency-review",
+      "path": "skills/mcp-dependency-review",
+      "ref": "d2ef2680594f9a17526a6e1a2e18b3d242c5d17b",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/affaan-m/ECC/blob/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-14",
+        "licenseChecked": "2026-11-14",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ecc",
+        "everything-claude-code",
+        "ai-automation"
+      ]
+    },
+    {
+      "id": "mcp-server-patterns",
+      "name": "Mcp Server Patterns",
+      "description": "Design MCP servers and tools with stable interfaces and predictable access contracts.",
+      "category": "ai-automation",
+      "author": "Affaan Mustafa / ECC contributors",
+      "repository": "https://github.com/affaan-m/ECC",
+      "source": "https://github.com/affaan-m/ECC/tree/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/skills/mcp-server-patterns",
+      "path": "skills/mcp-server-patterns",
+      "ref": "d2ef2680594f9a17526a6e1a2e18b3d242c5d17b",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/affaan-m/ECC/blob/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-14",
+        "licenseChecked": "2026-11-14",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ecc",
+        "everything-claude-code",
+        "ai-automation"
       ]
     },
     {
@@ -1700,6 +2732,54 @@
       ]
     },
     {
+      "id": "module-governance",
+      "name": "Module Governance",
+      "description": "Review module ownership, context boundaries and documentation obligations.",
+      "category": "documentation",
+      "author": "Affaan Mustafa / ECC contributors",
+      "repository": "https://github.com/affaan-m/ECC",
+      "source": "https://github.com/affaan-m/ECC/tree/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/skills/module-governance",
+      "path": "skills/module-governance",
+      "ref": "d2ef2680594f9a17526a6e1a2e18b3d242c5d17b",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/affaan-m/ECC/blob/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-14",
+        "licenseChecked": "2026-11-14",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ecc",
+        "everything-claude-code",
+        "documentation"
+      ]
+    },
+    {
+      "id": "module-regression",
+      "name": "Module Regression",
+      "description": "Record and verify important regressions at well-defined module boundaries.",
+      "category": "development",
+      "author": "Affaan Mustafa / ECC contributors",
+      "repository": "https://github.com/affaan-m/ECC",
+      "source": "https://github.com/affaan-m/ECC/tree/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/skills/module-regression",
+      "path": "skills/module-regression",
+      "ref": "d2ef2680594f9a17526a6e1a2e18b3d242c5d17b",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/affaan-m/ECC/blob/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-14",
+        "licenseChecked": "2026-11-14",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ecc",
+        "everything-claude-code",
+        "development"
+      ]
+    },
+    {
       "id": "motion-graphics",
       "name": "Motion Graphics",
       "description": "Archived upstream: Use when creating a short, design-led motion graphic where motion is the message — kinetic typography, stat count-up, chart/data-viz hit, logo sting / brand lockup, lower-third / callout / social overlay, animated map (highlight regions, connect places, zoom to a location), animated tweet / news-article / headline, webpage / UI animation (scroll, cursor, callouts), or fusing a real image's geometry into a chart. Usually under ",
@@ -1750,6 +2830,126 @@
       ]
     },
     {
+      "id": "netmiko-ssh-automation",
+      "name": "Netmiko Ssh Automation",
+      "description": "Automate supported network device SSH workflows using Netmiko with operational safeguards.",
+      "category": "devops",
+      "author": "Affaan Mustafa / ECC contributors",
+      "repository": "https://github.com/affaan-m/ECC",
+      "source": "https://github.com/affaan-m/ECC/tree/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/skills/netmiko-ssh-automation",
+      "path": "skills/netmiko-ssh-automation",
+      "ref": "d2ef2680594f9a17526a6e1a2e18b3d242c5d17b",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/affaan-m/ECC/blob/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-14",
+        "licenseChecked": "2026-11-14",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ecc",
+        "everything-claude-code",
+        "devops"
+      ]
+    },
+    {
+      "id": "network-bgp-diagnostics",
+      "name": "Network Bgp Diagnostics",
+      "description": "Diagnose BGP routing sessions, policies and reachability problems.",
+      "category": "devops",
+      "author": "Affaan Mustafa / ECC contributors",
+      "repository": "https://github.com/affaan-m/ECC",
+      "source": "https://github.com/affaan-m/ECC/tree/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/skills/network-bgp-diagnostics",
+      "path": "skills/network-bgp-diagnostics",
+      "ref": "d2ef2680594f9a17526a6e1a2e18b3d242c5d17b",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/affaan-m/ECC/blob/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-14",
+        "licenseChecked": "2026-11-14",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ecc",
+        "everything-claude-code",
+        "devops"
+      ]
+    },
+    {
+      "id": "network-config-validation",
+      "name": "Network Config Validation",
+      "description": "Review switch and router configuration before changes for unsafe commands and address conflicts.",
+      "category": "devops",
+      "author": "Affaan Mustafa / ECC contributors",
+      "repository": "https://github.com/affaan-m/ECC",
+      "source": "https://github.com/affaan-m/ECC/tree/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/skills/network-config-validation",
+      "path": "skills/network-config-validation",
+      "ref": "d2ef2680594f9a17526a6e1a2e18b3d242c5d17b",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/affaan-m/ECC/blob/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-14",
+        "licenseChecked": "2026-11-14",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ecc",
+        "everything-claude-code",
+        "devops"
+      ]
+    },
+    {
+      "id": "network-interface-health",
+      "name": "Network Interface Health",
+      "description": "Investigate interface state, errors and link conditions on network equipment.",
+      "category": "devops",
+      "author": "Affaan Mustafa / ECC contributors",
+      "repository": "https://github.com/affaan-m/ECC",
+      "source": "https://github.com/affaan-m/ECC/tree/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/skills/network-interface-health",
+      "path": "skills/network-interface-health",
+      "ref": "d2ef2680594f9a17526a6e1a2e18b3d242c5d17b",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/affaan-m/ECC/blob/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-14",
+        "licenseChecked": "2026-11-14",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ecc",
+        "everything-claude-code",
+        "devops"
+      ]
+    },
+    {
+      "id": "nextjs-turbopack",
+      "name": "Nextjs Turbopack",
+      "description": "Work with Next.js Turbopack development, build and troubleshooting conventions.",
+      "category": "development",
+      "author": "Affaan Mustafa / ECC contributors",
+      "repository": "https://github.com/affaan-m/ECC",
+      "source": "https://github.com/affaan-m/ECC/tree/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/skills/nextjs-turbopack",
+      "path": "skills/nextjs-turbopack",
+      "ref": "d2ef2680594f9a17526a6e1a2e18b3d242c5d17b",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/affaan-m/ECC/blob/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-14",
+        "licenseChecked": "2026-11-14",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ecc",
+        "everything-claude-code",
+        "development"
+      ]
+    },
+    {
       "id": "oh-my-issues",
       "name": "Oh My Issues",
       "description": "Cluster a GitHub issue backlog by root cause into a small set of plan-master issues, redirect children with a standardized comment, and bundle architectural-fix PRs that close clusters atomically. Use when an issue tracker has accumulated dozens of reports that share underlying defects, when asked to triage / consolidate / cluster / dedupe issues, when asked to build a plan series or roadmap from open issues, or when routing a new incoming bug into an existing plan.",
@@ -1773,6 +2973,54 @@
       ]
     },
     {
+      "id": "operator-approval-loop",
+      "name": "Operator Approval Loop",
+      "description": "Require human approval of outbound agent messages with durable draft and delivery records.",
+      "category": "ai-automation",
+      "author": "Affaan Mustafa / ECC contributors",
+      "repository": "https://github.com/affaan-m/ECC",
+      "source": "https://github.com/affaan-m/ECC/tree/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/skills/operator-approval-loop",
+      "path": "skills/operator-approval-loop",
+      "ref": "d2ef2680594f9a17526a6e1a2e18b3d242c5d17b",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/affaan-m/ECC/blob/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-14",
+        "licenseChecked": "2026-11-14",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ecc",
+        "everything-claude-code",
+        "ai-automation"
+      ]
+    },
+    {
+      "id": "parallel-execution-optimizer",
+      "name": "Parallel Execution Optimizer",
+      "description": "Coordinate independent tasks in parallel while controlling dependencies and resource contention.",
+      "category": "ai-automation",
+      "author": "Affaan Mustafa / ECC contributors",
+      "repository": "https://github.com/affaan-m/ECC",
+      "source": "https://github.com/affaan-m/ECC/tree/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/skills/parallel-execution-optimizer",
+      "path": "skills/parallel-execution-optimizer",
+      "ref": "d2ef2680594f9a17526a6e1a2e18b3d242c5d17b",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/affaan-m/ECC/blob/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-14",
+        "licenseChecked": "2026-11-14",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ecc",
+        "everything-claude-code",
+        "ai-automation"
+      ]
+    },
+    {
       "id": "pathfinder",
       "name": "Pathfinder",
       "description": "Map a codebase into feature-grouped flowcharts, identify duplicated concerns across features, and propose a unified architecture. Use when asked to \"find the ideal path,\" unify duplicated systems, or audit architecture before a refactor. Emits a proposed unified flowchart plus per-system /make-plan prompts.",
@@ -1793,6 +3041,54 @@
       "tags": [
         "ai-automation",
         "claude-mem"
+      ]
+    },
+    {
+      "id": "plan-orchestrate",
+      "name": "Plan Orchestrate",
+      "description": "Break complex objectives into ordered tasks, owners and checkpoints for agent orchestration.",
+      "category": "ai-automation",
+      "author": "Affaan Mustafa / ECC contributors",
+      "repository": "https://github.com/affaan-m/ECC",
+      "source": "https://github.com/affaan-m/ECC/tree/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/skills/plan-orchestrate",
+      "path": "skills/plan-orchestrate",
+      "ref": "d2ef2680594f9a17526a6e1a2e18b3d242c5d17b",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/affaan-m/ECC/blob/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-14",
+        "licenseChecked": "2026-11-14",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ecc",
+        "everything-claude-code",
+        "ai-automation"
+      ]
+    },
+    {
+      "id": "postgres-patterns",
+      "name": "Postgres Patterns",
+      "description": "Apply practical PostgreSQL schema, query and performance patterns.",
+      "category": "development",
+      "author": "Affaan Mustafa / ECC contributors",
+      "repository": "https://github.com/affaan-m/ECC",
+      "source": "https://github.com/affaan-m/ECC/tree/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/skills/postgres-patterns",
+      "path": "skills/postgres-patterns",
+      "ref": "d2ef2680594f9a17526a6e1a2e18b3d242c5d17b",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/affaan-m/ECC/blob/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-14",
+        "licenseChecked": "2026-11-14",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ecc",
+        "everything-claude-code",
+        "development"
       ]
     },
     {
@@ -1821,6 +3117,30 @@
       ]
     },
     {
+      "id": "prisma-patterns",
+      "name": "Prisma Patterns",
+      "description": "Structure Prisma schemas, queries and migrations for maintainable applications.",
+      "category": "development",
+      "author": "Affaan Mustafa / ECC contributors",
+      "repository": "https://github.com/affaan-m/ECC",
+      "source": "https://github.com/affaan-m/ECC/tree/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/skills/prisma-patterns",
+      "path": "skills/prisma-patterns",
+      "ref": "d2ef2680594f9a17526a6e1a2e18b3d242c5d17b",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/affaan-m/ECC/blob/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-14",
+        "licenseChecked": "2026-11-14",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ecc",
+        "everything-claude-code",
+        "development"
+      ]
+    },
+    {
       "id": "product-launch-video",
       "name": "Product Launch Video",
       "description": "Archived upstream: Turn a product or marketing URL, pasted script, or brief into a product launch / promo video — SaaS promos, feature reveals, product demos, app and company launches. Use when the user wants to market, launch, promote, or reveal a product; the default for any commercial URL. Site tours / showcases of a website route here too — the brief carries the show-it-as-is intent. Unclear → /hyperframes.",
@@ -1843,6 +3163,102 @@
         "design",
         "hyperframes",
         "video"
+      ]
+    },
+    {
+      "id": "production-audit",
+      "name": "Production Audit",
+      "description": "Review an application's readiness and operational risks before production changes.",
+      "category": "devops",
+      "author": "Affaan Mustafa / ECC contributors",
+      "repository": "https://github.com/affaan-m/ECC",
+      "source": "https://github.com/affaan-m/ECC/tree/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/skills/production-audit",
+      "path": "skills/production-audit",
+      "ref": "d2ef2680594f9a17526a6e1a2e18b3d242c5d17b",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/affaan-m/ECC/blob/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-14",
+        "licenseChecked": "2026-11-14",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ecc",
+        "everything-claude-code",
+        "devops"
+      ]
+    },
+    {
+      "id": "prompt-optimizer",
+      "name": "Prompt Optimizer",
+      "description": "Review and refine prompts, clarifying task intent, context and expected outcomes.",
+      "category": "ai-automation",
+      "author": "Affaan Mustafa / ECC contributors",
+      "repository": "https://github.com/affaan-m/ECC",
+      "source": "https://github.com/affaan-m/ECC/tree/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/skills/prompt-optimizer",
+      "path": "skills/prompt-optimizer",
+      "ref": "d2ef2680594f9a17526a6e1a2e18b3d242c5d17b",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/affaan-m/ECC/blob/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-14",
+        "licenseChecked": "2026-11-14",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ecc",
+        "everything-claude-code",
+        "ai-automation"
+      ]
+    },
+    {
+      "id": "python-patterns",
+      "name": "Python Patterns",
+      "description": "Use clear and maintainable Python architecture, style and implementation patterns.",
+      "category": "development",
+      "author": "Affaan Mustafa / ECC contributors",
+      "repository": "https://github.com/affaan-m/ECC",
+      "source": "https://github.com/affaan-m/ECC/tree/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/skills/python-patterns",
+      "path": "skills/python-patterns",
+      "ref": "d2ef2680594f9a17526a6e1a2e18b3d242c5d17b",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/affaan-m/ECC/blob/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-14",
+        "licenseChecked": "2026-11-14",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ecc",
+        "everything-claude-code",
+        "development"
+      ]
+    },
+    {
+      "id": "react-patterns",
+      "name": "React Patterns",
+      "description": "Apply React component, state and performance patterns.",
+      "category": "development",
+      "author": "Affaan Mustafa / ECC contributors",
+      "repository": "https://github.com/affaan-m/ECC",
+      "source": "https://github.com/affaan-m/ECC/tree/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/skills/react-patterns",
+      "path": "skills/react-patterns",
+      "ref": "d2ef2680594f9a17526a6e1a2e18b3d242c5d17b",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/affaan-m/ECC/blob/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-14",
+        "licenseChecked": "2026-11-14",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ecc",
+        "everything-claude-code",
+        "development"
       ]
     },
     {
@@ -1890,6 +3306,30 @@
         "design",
         "hyperframes",
         "video"
+      ]
+    },
+    {
+      "id": "repo-scan",
+      "name": "Repo Scan",
+      "description": "Survey repository structure, important files, dependencies and potential implementation risks.",
+      "category": "development",
+      "author": "Affaan Mustafa / ECC contributors",
+      "repository": "https://github.com/affaan-m/ECC",
+      "source": "https://github.com/affaan-m/ECC/tree/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/skills/repo-scan",
+      "path": "skills/repo-scan",
+      "ref": "d2ef2680594f9a17526a6e1a2e18b3d242c5d17b",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/affaan-m/ECC/blob/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-14",
+        "licenseChecked": "2026-11-14",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ecc",
+        "everything-claude-code",
+        "development"
       ]
     },
     {
@@ -1983,6 +3423,54 @@
       ]
     },
     {
+      "id": "security-review",
+      "name": "Security Review",
+      "description": "Review application code and configuration for common security weaknesses.",
+      "category": "security",
+      "author": "Affaan Mustafa / ECC contributors",
+      "repository": "https://github.com/affaan-m/ECC",
+      "source": "https://github.com/affaan-m/ECC/tree/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/skills/security-review",
+      "path": "skills/security-review",
+      "ref": "d2ef2680594f9a17526a6e1a2e18b3d242c5d17b",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/affaan-m/ECC/blob/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-14",
+        "licenseChecked": "2026-11-14",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ecc",
+        "everything-claude-code",
+        "security"
+      ]
+    },
+    {
+      "id": "security-scan",
+      "name": "Security Scan",
+      "description": "Assess Claude Code configurations and MCP settings for security issues using the ECC workflow.",
+      "category": "security",
+      "author": "Affaan Mustafa / ECC contributors",
+      "repository": "https://github.com/affaan-m/ECC",
+      "source": "https://github.com/affaan-m/ECC/tree/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/skills/security-scan",
+      "path": "skills/security-scan",
+      "ref": "d2ef2680594f9a17526a6e1a2e18b3d242c5d17b",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/affaan-m/ECC/blob/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-14",
+        "licenseChecked": "2026-11-14",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ecc",
+        "everything-claude-code",
+        "security"
+      ]
+    },
+    {
       "id": "skill-creator",
       "name": "Skill Creator",
       "description": "Create, test, benchmark and improve reusable agent skills.",
@@ -2003,6 +3491,54 @@
       "tags": [
         "ai-automation",
         "anthropic"
+      ]
+    },
+    {
+      "id": "skill-host-compat",
+      "name": "Skill Host Compat",
+      "description": "Check a skill's compatibility with different agent hosts and their supported capabilities.",
+      "category": "ai-automation",
+      "author": "Affaan Mustafa / ECC contributors",
+      "repository": "https://github.com/affaan-m/ECC",
+      "source": "https://github.com/affaan-m/ECC/tree/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/skills/skill-host-compat",
+      "path": "skills/skill-host-compat",
+      "ref": "d2ef2680594f9a17526a6e1a2e18b3d242c5d17b",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/affaan-m/ECC/blob/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-14",
+        "licenseChecked": "2026-11-14",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ecc",
+        "everything-claude-code",
+        "ai-automation"
+      ]
+    },
+    {
+      "id": "skill-scout",
+      "name": "Skill Scout",
+      "description": "Find and compare existing skills before introducing redundant new instructions.",
+      "category": "ai-automation",
+      "author": "Affaan Mustafa / ECC contributors",
+      "repository": "https://github.com/affaan-m/ECC",
+      "source": "https://github.com/affaan-m/ECC/tree/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/skills/skill-scout",
+      "path": "skills/skill-scout",
+      "ref": "d2ef2680594f9a17526a6e1a2e18b3d242c5d17b",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/affaan-m/ECC/blob/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-14",
+        "licenseChecked": "2026-11-14",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ecc",
+        "everything-claude-code",
+        "ai-automation"
       ]
     },
     {
@@ -2147,6 +3683,78 @@
       ]
     },
     {
+      "id": "tdd-workflow",
+      "name": "Tdd Workflow",
+      "description": "Use test-driven development to verify intended behavior before and after code changes.",
+      "category": "development",
+      "author": "Affaan Mustafa / ECC contributors",
+      "repository": "https://github.com/affaan-m/ECC",
+      "source": "https://github.com/affaan-m/ECC/tree/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/skills/tdd-workflow",
+      "path": "skills/tdd-workflow",
+      "ref": "d2ef2680594f9a17526a6e1a2e18b3d242c5d17b",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/affaan-m/ECC/blob/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-14",
+        "licenseChecked": "2026-11-14",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ecc",
+        "everything-claude-code",
+        "development"
+      ]
+    },
+    {
+      "id": "team-agent-orchestration",
+      "name": "Team Agent Orchestration",
+      "description": "Coordinate multiple AI agents with scoped tasks, branch isolation, ownership and merge gates.",
+      "category": "ai-automation",
+      "author": "Affaan Mustafa / ECC contributors",
+      "repository": "https://github.com/affaan-m/ECC",
+      "source": "https://github.com/affaan-m/ECC/tree/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/skills/team-agent-orchestration",
+      "path": "skills/team-agent-orchestration",
+      "ref": "d2ef2680594f9a17526a6e1a2e18b3d242c5d17b",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/affaan-m/ECC/blob/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-14",
+        "licenseChecked": "2026-11-14",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ecc",
+        "everything-claude-code",
+        "ai-automation"
+      ]
+    },
+    {
+      "id": "team-builder",
+      "name": "Team Builder",
+      "description": "Compose specialist agent teams with explicit roles and collaboration responsibilities.",
+      "category": "ai-automation",
+      "author": "Affaan Mustafa / ECC contributors",
+      "repository": "https://github.com/affaan-m/ECC",
+      "source": "https://github.com/affaan-m/ECC/tree/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/skills/team-builder",
+      "path": "skills/team-builder",
+      "ref": "d2ef2680594f9a17526a6e1a2e18b3d242c5d17b",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/affaan-m/ECC/blob/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-14",
+        "licenseChecked": "2026-11-14",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ecc",
+        "everything-claude-code",
+        "ai-automation"
+      ]
+    },
+    {
       "id": "timeline-report",
       "name": "Timeline Report",
       "description": "Generate a \"Journey Into [Project]\" narrative report analyzing a project's entire development history from claude-mem's timeline. Use when asked for a timeline report, project history analysis, development journey, or full project report.",
@@ -2167,6 +3775,30 @@
       "tags": [
         "documentation",
         "claude-mem"
+      ]
+    },
+    {
+      "id": "typescript-patterns",
+      "name": "Typescript Patterns",
+      "description": "Apply robust TypeScript type modeling, validation and application design conventions.",
+      "category": "development",
+      "author": "Affaan Mustafa / ECC contributors",
+      "repository": "https://github.com/affaan-m/ECC",
+      "source": "https://github.com/affaan-m/ECC/tree/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/skills/typescript-patterns",
+      "path": "skills/typescript-patterns",
+      "ref": "d2ef2680594f9a17526a6e1a2e18b3d242c5d17b",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/affaan-m/ECC/blob/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-14",
+        "licenseChecked": "2026-11-14",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ecc",
+        "everything-claude-code",
+        "development"
       ]
     },
     {
@@ -2237,6 +3869,54 @@
       "tags": [
         "ai-automation",
         "caveman"
+      ]
+    },
+    {
+      "id": "unified-memory",
+      "name": "Unified Memory",
+      "description": "Explore approaches to shared and durable agent memory with explicit context boundaries.",
+      "category": "ai-automation",
+      "author": "Affaan Mustafa / ECC contributors",
+      "repository": "https://github.com/affaan-m/ECC",
+      "source": "https://github.com/affaan-m/ECC/tree/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/skills/unified-memory",
+      "path": "skills/unified-memory",
+      "ref": "d2ef2680594f9a17526a6e1a2e18b3d242c5d17b",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/affaan-m/ECC/blob/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-14",
+        "licenseChecked": "2026-11-14",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ecc",
+        "everything-claude-code",
+        "ai-automation"
+      ]
+    },
+    {
+      "id": "verification-loop",
+      "name": "Verification Loop",
+      "description": "Verify builds, typing, tests, security and diffs before reporting work as complete.",
+      "category": "ai-automation",
+      "author": "Affaan Mustafa / ECC contributors",
+      "repository": "https://github.com/affaan-m/ECC",
+      "source": "https://github.com/affaan-m/ECC/tree/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/skills/verification-loop",
+      "path": "skills/verification-loop",
+      "ref": "d2ef2680594f9a17526a6e1a2e18b3d242c5d17b",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/affaan-m/ECC/blob/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-14",
+        "licenseChecked": "2026-11-14",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ecc",
+        "everything-claude-code",
+        "ai-automation"
       ]
     },
     {
@@ -2376,6 +4056,30 @@
       "tags": [
         "ai-automation",
         "claude-mem"
+      ]
+    },
+    {
+      "id": "windows-desktop-e2e",
+      "name": "Windows Desktop E2e",
+      "description": "Exercise Windows desktop workflows using repeatable end-to-end test procedures.",
+      "category": "development",
+      "author": "Affaan Mustafa / ECC contributors",
+      "repository": "https://github.com/affaan-m/ECC",
+      "source": "https://github.com/affaan-m/ECC/tree/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/skills/windows-desktop-e2e",
+      "path": "skills/windows-desktop-e2e",
+      "ref": "d2ef2680594f9a17526a6e1a2e18b3d242c5d17b",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/affaan-m/ECC/blob/d2ef2680594f9a17526a6e1a2e18b3d242c5d17b/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-14",
+        "licenseChecked": "2026-11-14",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "ecc",
+        "everything-claude-code",
+        "development"
       ]
     },
     {

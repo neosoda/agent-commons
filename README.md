@@ -214,7 +214,7 @@ La commande `restore` remplace les chemins gérés par les versions sauvegardée
 
 ## Explorer les skills — catalogue public
 
-**103 skills externes** disposent actuellement de références vérifiées pour leur source et leur licence. Retrouvez-les dans [l'index public](docs/skills/README.md).
+**174 skills externes** disposent actuellement de références vérifiées pour leur source et leur licence. Retrouvez-les dans [l'index public](docs/skills/README.md).
 
 ```bash
 node dist/cli/index.js catalog list
@@ -231,6 +231,21 @@ La consultation utilise `catalog/skills.json` **hors ligne** ; l'option `--json`
 Les commandes `catalog` et `catalog --json` recensent séparément la **bibliothèque locale privée**, avec les informations des éventuels fichiers de verrouillage. Ne publiez pas ces rapports sans les relire. **14 skills historiques HyperFrames** restent indiqués comme archivés et pointent vers leur dernier commit vérifié avant retrait. Tous les skills locaux n'apparaissent pas nécessairement dans le catalogue public.
 
 Consultez la [politique du catalogue](docs/SKILL_CATALOG.md) et les [catégories](catalog/categories.json).
+
+### Collection Everything Claude Code (ECC)
+
+**71 skills ECC sélectionnés** pour nos agents, infrastructures, projets web et audits sont désormais accessibles dans le Skill Hub, sans écraser les profils existants ni importer les hooks ECC.
+
+```bash
+agent-commons catalog search ecc
+agent-commons catalog info homelab-vlan-segmentation
+agent-commons catalog install homelab-vlan-segmentation       # Aperçu
+agent-commons catalog install homelab-vlan-segmentation --yes # Installation validée
+agent-commons sync --skill homelab-vlan-segmentation --agent codex --dry-run
+```
+
+[Guide complet en français](docs/ECC.md) · [English guide](docs/ECC.en.md). Les références ne déclenchent **aucune installation ni synchronisation automatique**.
+
 
 ---
 
@@ -466,17 +481,18 @@ Les licences indiquées pour les dépendances npm proviennent du manifeste, du l
 
 ### Inspirations (non intégrées au paquet)
 
-- [Everything Claude Code (ECC)](https://github.com/affaan-m/ECC), par affaan-m — idées pour le routage léger, local et contextuel des skills ; **aucun skill ni hook ECC n'est copié**.
+- [Everything Claude Code (ECC)](https://github.com/affaan-m/ECC), par **Affaan Mustafa et les contributeurs ECC** — inspiration et **71 références de skills épinglées sous MIT** ; aucun code ni hook ECC n'est embarqué.
 - [Vercel Skills](https://github.com/vercel-labs/skills), par Vercel — écosystème externe de découverte de skills et source du skill [Find Skills](https://agenticskills.io/skills/find-skills). Agent Commons conserve **son propre programme d'installation vérifié** et n'exécute pas automatiquement `npx skills add`.
 - [Model Context Protocol](https://github.com/modelcontextprotocol/specification) — spécification d'interopérabilité des configurations MCP ; **la spécification n'est pas une dépendance embarquée**.
 
 ### Dépôts référencés dans le catalogue public
 
 <!-- BEGIN GENERATED SKILL REPOSITORY CREDITS -->
-Le catalogue public référence **103 skills provenant de 16 dépôts sources**. Il s'agit **uniquement de métadonnées** : Agent Commons ne regroupe pas et n'installe pas automatiquement ces skills. Les licences sont indiquées pour chaque skill épinglé dans [l'index complet](docs/skills/README.md) ; si plusieurs licences figurent pour un dépôt, vérifiez celle applicable à chaque skill.
+Le catalogue public référence **174 skills provenant de 17 dépôts sources**. Il s'agit **uniquement de métadonnées** : Agent Commons ne regroupe pas et n'installe pas automatiquement ces skills. Les licences sont indiquées pour chaque skill épinglé dans [l'index complet](docs/skills/README.md) ; si plusieurs licences figurent pour un dépôt, vérifiez celle applicable à chaque skill.
 
 | Dépôt source | Auteur / responsable | Skills référencés | Licence(s) déclarée(s) |
 |:--|:--|--:|:--|
+| [affaan-m/ECC](https://github.com/affaan-m/ECC) | Affaan Mustafa / ECC contributors | 71 | MIT |
 | [anthropics/skills](https://github.com/anthropics/skills) | Anthropic | 4 | Apache-2.0 |
 | [cathrynlavery/diagram-design](https://github.com/cathrynlavery/diagram-design) | Cathryn Lavery | 1 | MIT |
 | [cloudflare/security-audit-skill](https://github.com/cloudflare/security-audit-skill) | Cloudflare | 1 | MIT |
