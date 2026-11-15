@@ -59,9 +59,10 @@ describe('shadcn Improve pinned skill', () => {
   });
   it('routes by metadata, without injecting the skill prompt', () => {
     const ctx=createEnvironmentContext({homeDir:home});
-    const routed=routeSmartSkills(ctx,'Audit my codebase and write prioritized implementation plans');
+    const routed=routeSmartSkills(ctx,'improve');
     assert.deepEqual(routed.loaded,[]);
-    assert.ok(routed.selected.some(s=>s.id==='improve'));
+    assert.ok(routed.absent.some(s=>s.id==='improve'), 'uninstalled skills must remain suggestions');
+    assert.deepEqual(routed.selected,[]);
     assert.equal(fs.existsSync(ctx.commonsDir),false);
   });
 });
