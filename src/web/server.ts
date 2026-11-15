@@ -405,7 +405,12 @@ export async function startWebServer(options: WebOptions = {}): Promise<WebInsta
         if (action === 'mcp-target-sync-preview' || action === 'mcp-target-sync-apply') {
           const id=checkedMcpId(body.id);
           const agents=checkedList(body.agents);
-          if (!agents.length || !mcpEditorOverview(ctx).servers.some(s => s.name===id && s.enabled)) {
+          const eligible = new Set(inspectMcpControlCenter(ctx).clients
+            .filter(client=>client.installed&&client.status!=='corrupted').map(client=>client.id));
+          if (!agents.length || agents.some(agent=>!eligible.has(agent))) {
+            throw new Error('Choose installed MCP clients only.');
+          }
+          if (!mcpEditorOverview(ctx).servers.some(s => s.name===id && s.enabled)) {
             throw new Error('No configured MCP servers match this profile.');
           }
           const scope=JSON.stringify([id,[...agents].sort()]);
