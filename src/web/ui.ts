@@ -435,9 +435,13 @@ function mcpDetails(item){
         act.onclick=()=>{unmountDialog();previewMcpPackage(op,item.id)};actions.append(act)}
       if(pkg.managed){const remove=node('button','Uninstall managed package','btn danger small');
         remove.onclick=()=>{unmountDialog();previewMcpPackage('uninstall',item.id)};actions.append(remove)}
+      if(pkg.managed&&pkg.healthy&&!item.configured){const activate=node('button','Configure for clients','btn primary small');
+        activate.onclick=()=>{unmountDialog();managedMcpClientDialog(item.id,true)};actions.append(activate)}
       box.append(actions);
     }
   }
+  if(item.configured){const connect=node('button','Sync to selected clients','btn primary small');
+    connect.onclick=()=>{unmountDialog();managedMcpClientDialog(item.id,false)};box.append(connect)}
   const linked=(centerState?.clients||[]).filter(client=>client.servers.includes(item.id)).map(client=>client.name);
   if(linked.length)box.append(row('Detected in',linked.join(', ')));
   addUsage(box,item,'mcp');
@@ -481,6 +485,56 @@ function skillDetails(s){
     install.onclick=()=>{unmountDialog();previewSkill('install',s.id)};actions.append(install);
   }
   box.append(actions);showDialog(bg,box,close);
+  bg.onclick=e=>{if(e.target===bg)closeDialog()}
+}
+function managedMcpClientDialog(id,provision){
+  const clients=(centerState?.clients||[]).filter(x=>x.installed&&x.status!=='corrupted');
+  if(!clients.length){showToast('No healthy MCP client detected.',true);return}
+  const bg=node('div',null,'modal-backdrop'),box=node('section',null,'modal');
+  box.setAttribute('role','dialog');box.setAttribute('aria-modal','true');
+  box.append(node('h2',provision?'Configure '+id:'Synchronize '+id),
+    node('p',provision?'This creates a reviewed MCP command in the shared manifest. A separate confirmation will be needed to synchronize clients.':
+      'Add this configured MCP server only to the clients you select. Existing unrelated MCP entries are preserved.','copy'));
+  const list=node('div',null,'checkbox-list');
+  clients.forEach(client=>{const label=node('label',null,'check'),choice=node('input');
+    choice.type='checkbox';choice.value=client.id;
+    choice.checked=false;
+    label.append(choice,rawNode('span',client.name));list.append(label)});
+  box.append(node('h3','Target clients'),list);
+  let roots=null;
+  if(provision&&(id==='filesystem'||id==='git')){
+    roots=mcpField(id==='git'?'Git repository (absolute directory)':'Allowed filesystem directories (one per line)');
+    box.append(roots.wrapper);
+  }
+  const message=node('p','','subtle');message.setAttribute('role','alert');
+  const buttons=node('div',null,'modal-buttons'),cancel=node('button','Cancel','btn'),next=node('button','Preview','btn primary');
+  cancel.onclick=closeDialog;
+  next.onclick=async()=>{
+    const agents=[...list.querySelectorAll('input:checked')].map(x=>x.value);
+    const dirs=roots?roots.input.value.split('\n').map(x=>x.trim()).filter(Boolean):[];
+    if(!agents.length){message.textContent='Choose at least one client.';return}
+    next.disabled=true;
+    try{
+      if(provision){
+        const proposal=await request('/api/action',{action:'mcp-provision-preview',id,agents,roots:dirs});
+        unmountDialog();
+        modal('Confirm MCP configuration',id+' · '+agents.length+' clients · '+dirs.length+' allowed directories.\nThe package remains inactive until you run an explicit MCP sync.','Configure',async()=>{
+          await request('/api/action',{action:'mcp-provision-apply',id,agents,roots:dirs,
+            expectedRevision:proposal.plan.expectedRevision,approved:true});
+          showToast('MCP '+id+' configured. Synchronize it from the catalog.');await refresh()
+        });
+      }else{
+        const result=await request('/api/action',{action:'mcp-target-sync-preview',id,agents});
+        unmountDialog();
+        modal('Confirm targeted MCP sync',formatSync(result),'Synchronize',async()=>{
+          const applied=await request('/api/action',{action:'mcp-target-sync-apply',id,agents,approved:true,
+            previewToken:result.previewToken});
+          showToast('Selected MCP clients synchronized');await refresh()
+        });
+      }
+    }catch(err){message.textContent=err.message;next.disabled=false}
+  };
+  buttons.append(cancel,next);box.append(message,buttons);showDialog(bg,box,next);
   bg.onclick=e=>{if(e.target===bg)closeDialog()}
 }
 async function previewMcpPackage(op,id){
