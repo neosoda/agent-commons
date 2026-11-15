@@ -5,6 +5,7 @@ import path from 'node:path';
 import {afterEach, beforeEach, describe, it} from 'node:test';
 import {createEnvironmentContext} from '../core/context.js';
 import {applyManagedMcp, inspectManagedMcps, previewManagedMcp} from '../mcp/extension-manager.js';
+import {previewMcpProvision,applyMcpProvision} from '../mcp/extension-provision.js';
 import type {EnvironmentContext} from '../types.js';
 
 describe('reviewed MCP extension lifecycle',()=>{
@@ -107,5 +108,27 @@ describe('reviewed MCP extension lifecycle',()=>{
       fs.symlinkSync(ext,path.join(ctx.commonsDir,'mcp-packages','playwright'),'dir');
       assert.throws(()=>previewManagedMcp(ctx,'playwright','install'),/already exists/);
     }finally{fs.rmSync(ext,{recursive:true,force:true});}
+  });
+  it('provisions an installed reviewed package only for selected native clients',async()=>{
+    fs.mkdirSync(path.join(home,'.codex'));
+    const p=previewManagedMcp(ctx,'playwright','install');
+    await applyManagedMcp(ctx,'playwright','install',p.revision,fakeRun);
+    const proposed=previewMcpProvision(ctx,'playwright',['codex'],[]);
+    assert.equal(proposed.clientCount,1);
+    assert.equal(proposed.plan.after?.agents[0],'codex');
+    const saved=applyMcpProvision(ctx,'playwright',['codex'],[],proposed.plan.expectedRevision);
+    assert.equal(saved.plan.changed,true);
+    assert.match(fs.readFileSync(ctx.centralMcpPath,'utf8'),/"playwright"/);
+    assert.throws(()=>previewMcpProvision(ctx,'playwright',['codex'],[]),/already exists/);
+  });
+  it('enforces explicit physical filesystem roots and installed agents',async()=>{
+    fs.mkdirSync(path.join(home,'.codex'));
+    const p=previewManagedMcp(ctx,'filesystem','install');
+    await applyManagedMcp(ctx,'filesystem','install',p.revision,fakeRun);
+    assert.throws(()=>previewMcpProvision(ctx,'filesystem',['codex'],[]),/requires explicitly/);
+    assert.throws(()=>previewMcpProvision(ctx,'filesystem',['not-an-agent'],[home]),/installed MCP clients/);
+    assert.throws(()=>previewMcpProvision(ctx,'filesystem',['codex'],[path.parse(home).root]),/non-root/);
+    const valid=previewMcpProvision(ctx,'filesystem',['codex'],[home]);
+    assert.equal(valid.directoryCount,1);
   });
 });
