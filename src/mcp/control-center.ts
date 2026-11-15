@@ -15,7 +15,7 @@ import { MCP_CATALOG, MCP_PRESETS } from './catalog.js';
 
 const VALID = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const WEB = new Set(['fetch','web-search','osint']);
-const PRIVILEGED = new Set(['docker-mcp-gateway']);
+const PRIVILEGED = new Set(['docker-mcp-gateway','agent-desktop']);
 const isObject = (v: unknown): v is Record<string, unknown> =>
   v !== null && typeof v === 'object' && !Array.isArray(v);
 export interface McpProfile { servers: string[]; agents: string[] }
@@ -52,7 +52,7 @@ function validate(ctx: EnvironmentContext, item: unknown): McpProfile {
     throw new Error('Invalid MCP profile selection.');
   }
   if (servers.some(x => WEB.has(x as string)) && servers.some(x => PRIVILEGED.has(x as string))) {
-    throw new Error('Cannot combine untrusted OSINT and sensitive infrastructure MCP.');
+    throw new Error('Cannot combine untrusted OSINT with sensitive infrastructure or desktop-control MCP.');
   }
   return { agents: (agents as string[]).slice().sort(), servers: (servers as string[]).slice().sort() };
 }
