@@ -16,6 +16,7 @@ import { applyMcpEdit, mcpEditorOverview, previewMcpEdit, type McpEditorRequest 
 import { syncInputRevision, type SyncPreviewKind } from './sync-revision.js';
 import { inspectMcpControlCenter, previewMcpProfile, saveMcpProfile, deleteMcpProfile, runMcpProfileSync } from '../mcp/control-center.js';
 import { inspectManagedMcps, previewManagedMcp, applyManagedMcp } from '../mcp/extension-manager.js';
+import {previewMcpProvision,applyMcpProvision} from '../mcp/extension-provision.js';
 
 const IDENTIFIER = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const SNAPSHOT = /^snapshot-\d{8}-\d{6}-[a-f0-9]{6}$/;
@@ -142,7 +143,13 @@ const PUBLIC_ERRORS = new Set([
   'MCP package already exists.', 'MCP package is not managed by Agent Commons.',
   'Managed MCP package folder is missing or unsafe.', 'Unsafe managed MCP package path.',
   'MCP package is already at reviewed version.', 'MCP package preview required.',
-  'MCP package changed since preview.'
+  'MCP package changed since preview.',
+  'MCP requires manual client provisioning.', 'Install a healthy reviewed MCP package first.',
+  'Choose at least one compatible MCP client.', 'Choose installed MCP clients only.',
+  'Invalid MCP directory selection.', 'This MCP does not need directory access.',
+  'This MCP requires explicitly selected directories.', 'Choose absolute local MCP directories.',
+  'Choose existing, non-root, physical MCP directories.', 'Network MCP directories require manual configuration.',
+  'Duplicate MCP directory.', 'Managed MCP binary is missing.'
 ]);
 function publicError(error: unknown, _ctx: EnvironmentContext): string {
   const message = error instanceof Error ? error.message : '';
@@ -380,6 +387,39 @@ export async function startWebServer(options: WebOptions = {}): Promise<WebInsta
           const operation = body.operation as 'install'|'update'|'repair'|'uninstall';
           const revision = typeof body.expectedRevision === 'string' ? body.expectedRevision : '';
           json(res, 200, await applyManagedMcp(ctx,id,operation,revision)); return;
+        }
+        if (action === 'mcp-provision-preview' || action === 'mcp-provision-apply') {
+          const id = checkedId(body.id);
+          const agents = checkedList(body.agents);
+          const roots = body.roots;
+          if (!Array.isArray(roots) || roots.length > 5 || !roots.every(v => typeof v === 'string' && v.length <= 450)) {
+            throw new Error('Invalid MCP directory selection.');
+          }
+          if (action === 'mcp-provision-preview') {
+            json(res, 200, previewMcpProvision(ctx,id,agents,roots)); return;
+          }
+          requireApproval(body);
+          const revision = typeof body.expectedRevision === 'string' ? body.expectedRevision : '';
+          json(res, 200, applyMcpProvision(ctx,id,agents,roots,revision)); return;
+        }
+        if (action === 'mcp-target-sync-preview' || action === 'mcp-target-sync-apply') {
+          const id=checkedMcpId(body.id);
+          const agents=checkedList(body.agents);
+          if (!agents.length || !mcpEditorOverview(ctx).servers.some(s => s.name===id && s.enabled)) {
+            throw new Error('No configured MCP servers match this profile.');
+          }
+          const scope=JSON.stringify([id,[...agents].sort()]);
+          const trial=()=>runSync(ctx,{mcpOnly:true,agentFilter:agents,
+            mcpServerFilterByAgent:Object.fromEntries(agents.map(agent=>[agent,[id]])),dryRun:true});
+          if (action === 'mcp-target-sync-preview') {
+            const {previewToken,report}=previewSync('mcp',trial,scope);
+            json(res,200,{...report,previewToken}); return;
+          }
+          requireApproval(body);
+          const verified=checkSyncTicket('mcp',body,trial,scope);
+          if (verified.errors.length) throw new Error('Sync preview reported errors; refusing to apply.');
+          json(res,200,summarize(runSync(ctx,{mcpOnly:true,agentFilter:agents,
+            mcpServerFilterByAgent:Object.fromEntries(agents.map(agent=>[agent,[id]])),dryRun:false}),ctx)); return;
         }
         if (action === 'profile-save') {
           requireApproval(body);
