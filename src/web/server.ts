@@ -15,6 +15,7 @@ import { renderWebUi } from './ui.js';
 import { applyMcpEdit, mcpEditorOverview, previewMcpEdit, type McpEditorRequest } from './mcp-editor.js';
 import { syncInputRevision, type SyncPreviewKind } from './sync-revision.js';
 import { inspectMcpControlCenter, previewMcpProfile, saveMcpProfile, deleteMcpProfile, runMcpProfileSync } from '../mcp/control-center.js';
+import { inspectManagedMcps, previewManagedMcp, applyManagedMcp } from '../mcp/extension-manager.js';
 
 const IDENTIFIER = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const SNAPSHOT = /^snapshot-\d{8}-\d{6}-[a-f0-9]{6}$/;
@@ -132,7 +133,16 @@ const PUBLIC_ERRORS = new Set([
   'Central MCP configuration is invalid.',
   'MCP profile targets unavailable clients.',
   'Selected MCP client configuration is invalid.',
-  'No configured MCP servers match this profile.'
+  'No configured MCP servers match this profile.',
+  'Unsafe MCP package store.', 'Invalid managed MCP receipt.', 'Unknown reviewed MCP package.',
+  'MCP requires manual installation or upstream review.', 'No vetted MCP package entry point.',
+  'Node.js npm CLI is required to install this MCP.', 'MCP package manager failed.',
+  'MCP package installation timed out.', 'Required MCP package manager is unavailable.',
+  'Reviewed MCP entry point not present after installation.', 'Unknown MCP package operation.',
+  'MCP package already exists.', 'MCP package is not managed by Agent Commons.',
+  'Managed MCP package folder is missing or unsafe.', 'Unsafe managed MCP package path.',
+  'MCP package is already at reviewed version.', 'MCP package preview required.',
+  'MCP package changed since preview.'
 ]);
 function publicError(error: unknown, _ctx: EnvironmentContext): string {
   const message = error instanceof Error ? error.message : '';
@@ -303,6 +313,14 @@ export async function startWebServer(options: WebOptions = {}): Promise<WebInsta
       if (req.method === 'GET' && path.pathname === '/api/mcp-center') {
         json(res, 200, inspectMcpControlCenter(ctx)); return;
       }
+      if (req.method === 'GET' && path.pathname === '/api/mcp-packages') {
+        json(res, 200, inspectManagedMcps(ctx)); return;
+      }
+      if (req.method === 'GET' && path.pathname === '/api/mcp-package-preview') {
+        const id = checkedId(path.searchParams.get('id'));
+        const operation = path.searchParams.get('op') as 'install'|'update'|'repair'|'uninstall';
+        json(res, 200, {plan: previewManagedMcp(ctx,id,operation)}); return;
+      }
       if (req.method === 'GET' && path.pathname === '/api/mcp') {
         json(res, 200, mcpEditorOverview(ctx)); return;
       }
@@ -355,6 +373,13 @@ export async function startWebServer(options: WebOptions = {}): Promise<WebInsta
             uninstallCatalogSkill(ctx, id, { yes: true });
           const snapshotId = result.snapshotId;
           json(res, 200, { applied: true, snapshotId }); return;
+        }
+        if (action === 'mcp-package-apply') {
+          requireApproval(body);
+          const id = checkedId(body.id);
+          const operation = body.operation as 'install'|'update'|'repair'|'uninstall';
+          const revision = typeof body.expectedRevision === 'string' ? body.expectedRevision : '';
+          json(res, 200, await applyManagedMcp(ctx,id,operation,revision)); return;
         }
         if (action === 'profile-save') {
           requireApproval(body);
