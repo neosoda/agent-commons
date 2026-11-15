@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added — Agent Desktop opt-in skill + MCP
+- Added Vercel Labs `agent-desktop` Apache-2.0 pinned skill and FR/EN setup and security guides.
+- Added critical-risk desktop MCP reference, explicit `desktop-control` preset and contextual prompt samples in the local interactive catalog.
+- Blocked mixing untrusted Web/OSINT tools with desktop control in custom profiles; added synthetic regression tests. No native binary, OS permission, or client configuration is installed by default.
+
+
 ### Added — Video Engine and Remotion Superpowers (catalog only)
 - 16 pinned MIT source references: ninjasweb Video Engine plus 15 distinct Dojo Coding Labs Remotion Superpowers skills.
 - New lazy Skill Hub examples, selective installation and routing guidance, FR/EN docs and upstream credits.

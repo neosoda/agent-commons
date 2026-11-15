@@ -16,3 +16,5 @@ The user-facing product introduction is French by default in [README.md](README.
 
 
 9. For task-based skills, use `skills route --json` (metadata only) and explicit `skills load <id>` only when needed. Catalog references are not installed skills. Never auto-install third-party scripts or assume native agent prompt injection is supported; see [routing](docs/CONTEXT_ROUTING.md).
+
+10. Desktop computer-use integration: the `agent-desktop` catalog skill and MCP reference are opt-in only. Never install/launch native binaries, grant OS permissions or expose clipboard/screen data as part of catalog discovery or sync. Desktop control must not be mixed with untrusted Web/OSINT MCP tools; require operator review for sensitive actions. See [FR](docs/AGENT_DESKTOP.md) / [EN](docs/AGENT_DESKTOP.en.md).

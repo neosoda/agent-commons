@@ -1,5 +1,5 @@
 /**
- * Reviewed offline MCP metadata (2026-11-14). This is NOT an execution list.
+ * Reviewed offline MCP metadata (updated 2026-11-15). This is NOT an execution list.
  * No package is downloaded, launched or installed while browsing.
  */
 export interface McpCatalogEntry {
@@ -77,10 +77,19 @@ export const MCP_CATALOG: readonly McpCatalogEntry[] = [
     requirements:['Git','Python','uv'],platforms:allPlatforms,transport:'stdio',
     risk:'high',installation:'reviewed-uv',packageName:'mcp-server-git',
     example:{command:'uvx',args:['--from','mcp-server-git==2026.11.11','mcp-server-git']}
+  },
+  {
+    id:'agent-desktop',name:'Agent Desktop',description:'OS accessibility-tree desktop computer use; may read private UI and act as the logged-in user.',
+    repository:'https://github.com/vercel-labs/agent-desktop',maintainer:'Vercel Labs',
+    version:null,checkedAt:'2026-11-15',
+    requirements:['Separately installed agent-desktop CLI','Explicit OS accessibility permissions','Trusted local user session'],
+    platforms:allPlatforms,transport:'stdio',risk:'critical',installation:'manual',
+    packageName:'agent-desktop',example:{command:'agent-desktop',args:['mcp']}
   }
 ];
 export const MCP_PRESETS: Readonly<Record<string,readonly string[]>> = {
   osint:['playwright','fetch','web-search','osint'],
   development:['filesystem','git','github','playwright'],
-  infrastructure:['docker-mcp-gateway','filesystem']
+  infrastructure:['docker-mcp-gateway','filesystem'],
+  'desktop-control':['agent-desktop']
 };

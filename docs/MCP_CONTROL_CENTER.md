@@ -6,7 +6,7 @@ It is not another service; the UI stays bound to 127.0.0.1.
 ## Delivered capabilities
 
 - Detects native MCP host configurations including LM Studio, without creating a fictitious skill directory.
-- Displays eight offline-reviewed MCP references, maintainer, source, verified version if available, requirements, compatibility, transport and risk.
+- Displays nine offline-reviewed MCP references, maintainer, source, verified version if available, requirements, compatibility, transport and risk.
 - Inventories configured server names and malformed native configuration status without returning executable paths, secret values or environment variables to the browser.
 - Provides predefined OSINT, Development and Infrastructure profiles and named custom allowlists.
 - Prevents mixing untrusted OSINT/fetch tools and the Docker MCP Gateway in one custom profile.
@@ -55,3 +55,9 @@ All tests use a synthetic home and never modify real MCP client files.
 Useful existing commands: agent-commons doctor, agent-commons list, agent-commons sync --dry-run.
 
 Corrupt JSON/TOML is reported and left untouched. A native server conflict is preserved by default. Browser diagnostics intentionally redact private paths, URLs, commands and credentials; use local client logs and the CLI for advanced diagnostics. Never make the Skill Hub publicly reachable.
+
+## Agent Desktop — optional critical-risk computer use
+
+[Vercel Labs agent-desktop](https://github.com/vercel-labs/agent-desktop) is registered as a **manual-only**, critical-risk stdio MCP. It operates the logged-in user's desktop via OS accessibility APIs and must be installed separately; browsing this catalog never installs or runs it. The `desktop-control` preset selects only `agent-desktop` and requires explicit preview and approval. Custom profiles cannot mix desktop control with untrusted `fetch`, `web-search` or `osint`. A connected client may launch the configured MCP subprocess. OS permissions, client `PATH`, limited use and human approval for sensitive operations remain the operator's responsibility.
+
+See the [French guide](AGENT_DESKTOP.md) and [English guide](AGENT_DESKTOP.en.md), including CLI setup, privacy warnings and a safe observe-act-verify loop.

@@ -239,7 +239,7 @@ La commande `restore` remplace les chemins gérés par les versions sauvegardée
 
 ## Explorer les skills — catalogue public
 
-**199 skills externes** disposent actuellement de références vérifiées pour leur source et leur licence. Retrouvez-les dans [l'index public](docs/skills/README.md).
+**200 skills externes** disposent actuellement de références vérifiées pour leur source et leur licence. Retrouvez-les dans [l'index public](docs/skills/README.md).
 
 ```bash
 node dist/cli/index.js catalog list
@@ -348,6 +348,18 @@ agent-commons sync --skill find-skills --agent codex
 ```
 
 Remplacez `codex` par `claude-code`, `gemini-cli` ou `gemini-antigravity` selon vos agents installés. Find Skills aide à découvrir des skills tiers ; **n'exécutez pas automatiquement `npx skills add -g -y`**, qui contournerait les validations, sauvegardes et synchronisations sélectives d'Agent Commons. Consultez le [guide d'activation détaillé](docs/FIND_SKILLS.md).
+
+### Agent Desktop — contrôle du bureau soumis à approbation
+
+[Agent Desktop](https://github.com/vercel-labs/agent-desktop), par Vercel Labs (Apache-2.0), rejoint le catalogue épinglé et le MCP Control Center. Le skill décrit le pilotage des applications Windows, macOS et Linux via leurs arbres d'accessibilité. **Le CLI natif et les permissions OS ne sont jamais installés ni activés automatiquement.** Le profil `desktop-control` doit être explicitement sélectionné.
+
+```powershell
+agent-commons catalog install agent-desktop                # Prévisualiser
+agent-commons catalog install agent-desktop --yes          # Approuver
+agent-commons sync --skill agent-desktop --agent codex --dry-run
+```
+
+**Risque critique :** lecture du bureau, saisie, presse-papiers et actions sensibles. Confirmation humaine obligatoire avant les actions à impact, et séparation des outils Web/OSINT non fiables. [Guide FR](docs/AGENT_DESKTOP.md) · [Guide EN](docs/AGENT_DESKTOP.en.md).
 
 ### Synchroniser uniquement les skills nécessaires
 
@@ -530,7 +542,7 @@ Les licences indiquées pour les dépendances npm proviennent du manifeste, du l
 ### Dépôts référencés dans le catalogue public
 
 <!-- BEGIN GENERATED SKILL REPOSITORY CREDITS -->
-Le catalogue public référence **199 skills provenant de 24 dépôts sources**. Il s'agit **uniquement de métadonnées** : Agent Commons ne regroupe pas et n'installe pas automatiquement ces skills. Les licences sont indiquées pour chaque skill épinglé dans [l'index complet](docs/skills/README.md) ; si plusieurs licences figurent pour un dépôt, vérifiez celle applicable à chaque skill.
+Le catalogue public référence **200 skills provenant de 25 dépôts sources**. Il s'agit **uniquement de métadonnées** : Agent Commons ne regroupe pas et n'installe pas automatiquement ces skills. Les licences sont indiquées pour chaque skill épinglé dans [l'index complet](docs/skills/README.md) ; si plusieurs licences figurent pour un dépôt, vérifiez celle applicable à chaque skill.
 
 | Dépôt source | Auteur / responsable | Skills référencés | Licence(s) déclarée(s) |
 |:--|:--|--:|:--|
@@ -554,6 +566,7 @@ Le catalogue public référence **199 skills provenant de 24 dépôts sources**.
 | [nutlope/hallmark](https://github.com/nutlope/hallmark) | nutlope | 1 | MIT |
 | [pbakaus/impeccable](https://github.com/pbakaus/impeccable) | pbakaus | 1 | Apache-2.0 |
 | [thedotmack/claude-mem](https://github.com/thedotmack/claude-mem) | thedotmack | 28 | Apache-2.0 |
+| [vercel-labs/agent-desktop](https://github.com/vercel-labs/agent-desktop) | Vercel Labs | 1 | Apache-2.0 |
 | [vercel-labs/skills](https://github.com/vercel-labs/skills) | Vercel | 1 | MIT |
 | [viettranx/3dviz-pro-max](https://github.com/viettranx/3dviz-pro-max) | viettranx | 1 | MIT |
 | [Vincentwei1021/video-shotcraft](https://github.com/Vincentwei1021/video-shotcraft) | Vincentwei1021 | 1 | Apache-2.0 |
@@ -647,7 +660,7 @@ Le catalogue reste **en lecture seule** : consulter une fiche ou copier un promp
 
 **Version GitHub publiée :** [v0.4.0](https://github.com/neosoda/agent-commons/releases/tag/v0.4.0), archive Windows x64 et SHA-256 vérifiés. [Preuve de publication](docs/releases/v0.4.0.md).
 
-Le Skill Hub propose désormais une page **MCP Control Center** : inventaire local des MCP, catalogue de huit références vérifiées, profils OSINT / Développement / Infrastructure, profils personnalisés, et synchronisation sélective après aperçu et validation. **LM Studio** est reconnu nativement via le fichier `~/.lmstudio/mcp.json` (Windows : `%USERPROFILE%\.lmstudio\mcp.json`) sans lui créer de faux dossier de skills.
+Le Skill Hub propose désormais une page **MCP Control Center** : inventaire local des MCP, catalogue de neuf références vérifiées, profils OSINT / Développement / Infrastructure / Desktop Control, profils personnalisés, et synchronisation sélective après aperçu et validation. **LM Studio** est reconnu nativement via le fichier `~/.lmstudio/mcp.json` (Windows : `%USERPROFILE%\.lmstudio\mcp.json`) sans lui créer de faux dossier de skills.
 
 Les MCP natifs sont préservés, les conflits ne sont pas écrasés et les changements passent par les sauvegardes existantes. Les profils limitent les **nouveaux serveurs synchronisés** ; ils ne désactivent pas les MCP que le client expose déjà au modèle. **L'installation automatique, les mises à jour et la désinstallation de packages tiers ne sont pas implémentées.** Le catalogue ne télécharge ni n'exécute de serveurs.
 

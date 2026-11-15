@@ -245,7 +245,7 @@ node dist/cli/index.js restore snapshot-<id>
 
 ## Explore Skills — public Skill Hub
 
-**199 upstream skills** currently have verified source and license references. Browse them directly on GitHub in the [public Skills index](docs/skills/README.md).
+**200 upstream skills** currently have verified source and license references. Browse them directly on GitHub in the [public Skills index](docs/skills/README.md).
 
 ```bash
 node dist/cli/index.js catalog list
@@ -360,6 +360,18 @@ Substitute `claude-code`, `gemini-cli` or `gemini-antigravity` for
 automatically run the upstream `npx skills add -g -y` suggestion**, since that
 bypasses Agent Commons' reviewed catalog, backups and selective sync. See
 [the full activation guide](docs/FIND_SKILLS.md).
+
+### Agent Desktop — opt-in desktop computer use
+
+[Vercel Labs Agent Desktop](https://github.com/vercel-labs/agent-desktop) (Apache-2.0) is a pinned skill and a reviewed MCP Control Center entry. It operates Windows, macOS and Linux accessibility trees; **the native CLI and OS permissions are never installed or enabled automatically**. The dedicated `desktop-control` profile requires explicit selection.
+
+```bash
+agent-commons catalog install agent-desktop            # Preview
+agent-commons catalog install agent-desktop --yes      # Approve
+agent-commons sync --skill agent-desktop --agent codex --dry-run
+```
+
+**Critical risk:** desktop, input, clipboard, and private application access. Human approval is required for sensitive actions; avoid mixing desktop control with untrusted Web/OSINT tools. [English guide](docs/AGENT_DESKTOP.en.md) · [Guide français](docs/AGENT_DESKTOP.md).
 
 ### Sync only the skills your agent needs
 
@@ -545,7 +557,7 @@ Runtime and npm dependency license labels above match the checked-in package man
 ### Upstream repositories referenced by the public Skill Hub
 
 <!-- BEGIN GENERATED SKILL REPOSITORY CREDITS -->
-The curated public catalog references **199 skills across 24 upstream repositories**. These are **metadata-only references**: Agent Commons does not bundle or automatically install their skills. Licenses are recorded per pinned skill in [the full index](docs/skills/README.md); repositories with more than one license must be checked per skill.
+The curated public catalog references **200 skills across 25 upstream repositories**. These are **metadata-only references**: Agent Commons does not bundle or automatically install their skills. Licenses are recorded per pinned skill in [the full index](docs/skills/README.md); repositories with more than one license must be checked per skill.
 
 | Upstream repository | Author / maintainer | Skill references | Declared license(s) |
 |:--|:--|--:|:--|
@@ -569,6 +581,7 @@ The curated public catalog references **199 skills across 24 upstream repositori
 | [nutlope/hallmark](https://github.com/nutlope/hallmark) | nutlope | 1 | MIT |
 | [pbakaus/impeccable](https://github.com/pbakaus/impeccable) | pbakaus | 1 | Apache-2.0 |
 | [thedotmack/claude-mem](https://github.com/thedotmack/claude-mem) | thedotmack | 28 | Apache-2.0 |
+| [vercel-labs/agent-desktop](https://github.com/vercel-labs/agent-desktop) | Vercel Labs | 1 | Apache-2.0 |
 | [vercel-labs/skills](https://github.com/vercel-labs/skills) | Vercel | 1 | MIT |
 | [viettranx/3dviz-pro-max](https://github.com/viettranx/3dviz-pro-max) | viettranx | 1 | MIT |
 | [Vincentwei1021/video-shotcraft](https://github.com/Vincentwei1021/video-shotcraft) | Vincentwei1021 | 1 | Apache-2.0 |
@@ -683,7 +696,7 @@ Browsing or copying a prompt is **read-only**: no downloads, server execution or
 
 **Published GitHub version:** [v0.4.0](https://github.com/neosoda/agent-commons/releases/tag/v0.4.0), with verified Windows x64 portable ZIP and SHA-256. [Release verification record](docs/releases/v0.4.0.md).
 
-The existing Skill Hub now includes an **MCP Control Center** page: local MCP inventory, eight reviewed catalog references, OSINT / Development / Infrastructure presets, custom profiles, and selective sync after preview and approval. **LM Studio** is recognized at `~/.lmstudio/mcp.json` (Windows: `%USERPROFILE%\.lmstudio\mcp.json`) without a fictional skills directory.
+The existing Skill Hub now includes an **MCP Control Center** page: local MCP inventory, nine reviewed catalog references, OSINT / Development / Infrastructure / Desktop Control presets, custom profiles, and selective sync after preview and approval. **LM Studio** is recognized at `~/.lmstudio/mcp.json` (Windows: `%USERPROFILE%\.lmstudio\mcp.json`) without a fictional skills directory.
 
 Existing native MCP servers and conflicts are preserved, and updates use the existing snapshot/restore path. Profiles limit **new servers being synchronized**; they do not disable tools already exposed by clients. **Third-party package installation, update and removal are not yet implemented.** Browsing the catalog never downloads or executes server code.
 
