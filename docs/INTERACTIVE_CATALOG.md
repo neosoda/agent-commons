@@ -2,7 +2,9 @@
 
 Le **Skill Hub local** (`127.0.0.1`) regroupe les skills et serveurs MCP sur la même page pour faciliter la découverte. Le **MCP Control Center** reste l'espace de configuration et de synchronisation.
 
-Lancer `agent-commons web`, puis choisir **Catalogue Skills & MCP**.
+
+
+**Depuis la PR #76 (branche v0.5 en développement)** : ce catalogue ne se limite plus à la découverte. Les Skills déjà gérés disposent des actions d'installation/mise à jour/suppression. Les packages MCP approuvés disposent aussi d'actions **Install / Update / Repair / Uninstall**, suivies d'un provisionnement contrôlé dans le manifeste et d'une synchronisation vers les clients choisis. Une confirmation séparée est exigée à chaque opération et les configurations MCP natives ne sont jamais effacées par une désinstallation de package. Voir [Extension Manager](EXTENSION_MANAGER.md).Lancer `agent-commons web`, puis choisir **Catalogue Skills & MCP**.
 
 - **Skills** : catalogue public épinglé et skills présents dans la bibliothèque centrale ; catégories développement, DevOps, sécurité, design, IA, documentation, productivité.
 - **MCP** : références vérifiées et noms des serveurs MCP recensés dans le manifeste central ou les clients natifs détectés ; catégories web, développement/Git et infrastructure.
