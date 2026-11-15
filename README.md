@@ -107,6 +107,8 @@ et chemins dangereux sont contrôlés ; les ressources restent chargées à la d
 
 ## Skill Hub local — interface web
 
+**Extension Manager (v0.5 en développement)** : le catalogue unifié sait maintenant installer, réparer, mettre à jour et désinstaller les packages MCP **gérés** pour les références npm/uv approuvées. Playwright, Fetch, Filesystem et Git peuvent être provisionnés dans le manifeste central puis synchronisés explicitement aux clients compatibles (dont LM Studio). Les mises à jour vérifiées portent sur les versions épinglées dans le catalogue local, pas sur la dernière version amont en direct. Une désinstallation de package ne retire pas les configurations natives. Voir le [guide complet](docs/EXTENSION_MANAGER.md).
+
 Une interface locale, responsive et sans framework frontend supplémentaire permet de gérer Agent Commons sans mémoriser toutes ses commandes.
 
 Après récupération et compilation du dépôt :
