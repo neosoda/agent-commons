@@ -559,7 +559,7 @@ Runtime and npm dependency license labels above match the checked-in package man
 ### Upstream repositories referenced by the public Skill Hub
 
 <!-- BEGIN GENERATED SKILL REPOSITORY CREDITS -->
-The curated public catalog references **200 skills across 25 upstream repositories**. These are **metadata-only references**: Agent Commons does not bundle or automatically install their skills. Licenses are recorded per pinned skill in [the full index](docs/skills/README.md); repositories with more than one license must be checked per skill.
+The curated public catalog references **201 skills across 26 upstream repositories**. These are **metadata-only references**: Agent Commons does not bundle or automatically install their skills. Licenses are recorded per pinned skill in [the full index](docs/skills/README.md); repositories with more than one license must be checked per skill.
 
 | Upstream repository | Author / maintainer | Skill references | Declared license(s) |
 |:--|:--|--:|:--|
@@ -582,6 +582,7 @@ The curated public catalog references **200 skills across 25 upstream repositori
 | [noamdorr/saas-product-demo-video](https://github.com/noamdorr/saas-product-demo-video) | Noam Dorr | 1 | MIT |
 | [nutlope/hallmark](https://github.com/nutlope/hallmark) | nutlope | 1 | MIT |
 | [pbakaus/impeccable](https://github.com/pbakaus/impeccable) | pbakaus | 1 | Apache-2.0 |
+| [shadcn/improve](https://github.com/shadcn/improve) | shadcn | 1 | MIT |
 | [thedotmack/claude-mem](https://github.com/thedotmack/claude-mem) | thedotmack | 28 | Apache-2.0 |
 | [vercel-labs/agent-desktop](https://github.com/vercel-labs/agent-desktop) | Vercel Labs | 1 | Apache-2.0 |
 | [vercel-labs/skills](https://github.com/vercel-labs/skills) | Vercel | 1 | MIT |
@@ -687,6 +688,21 @@ agent-commons sync --skill video-engine --agent codex --dry-run
 ```
 
 All **16 new references** are independently installable and loaded only when needed. Dojo's **5 optional external MCP servers** (ElevenLabs, remotion-media, TwelveLabs, Pexels and Replicate) are not installed, configured or launched. Every provider call, cost or code execution requires separate approval. [English guide](docs/VIDEO_SKILLS.en.md) · [FR](docs/VIDEO_SKILLS.md).
+
+## Improve (shadcn) — read-only audits and executor-ready plans
+
+[Improve](https://github.com/shadcn/improve) by **shadcn (MIT)** is an opt-in pinned `improve` catalog entry. The advisor audits repositories **read-only**, verifies findings and writes prioritized, self-contained plans for other agents under `plans/` or `advisor-plans/`. Discovery does not load the full skill prompt.
+
+```bash
+agent-commons catalog install improve             # no-write preview
+agent-commons catalog install improve --yes       # explicit approval
+agent-commons catalog verify improve
+agent-commons skills route "audit this repository" --json
+agent-commons skills load improve                 # only when requested
+agent-commons sync --skill improve --agent codex --dry-run
+```
+
+After sync: Claude Code `/improve quick`, Codex `$improve` where supported, or Gemini CLI native skill discovery. `execute <plan>` requires an isolated-worktree executor; no automatic merge or push. `--issues` publishes only on request, after sensitive finding review. [English guide](docs/IMPROVE.en.md) · [FR](docs/IMPROVE.md).
 
 ## Interactive catalog — Skills & MCP
 

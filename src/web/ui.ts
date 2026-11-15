@@ -84,6 +84,7 @@ const mcpGroups={'playwright':'web','fetch':'web','web-search':'web','osint':'we
 const mcpGroupNames={web:'Web & research',dev:'Development & Git',infra:'Infrastructure & files',desktop:'Desktop & computer use',other:'Other MCPs'};
 const skillSamples={
  'agent-desktop':['Utilise agent-desktop pour inspecter l’application au premier plan sans agir. Propose un plan et demande confirmation avant toute action.','Use agent-desktop to inspect the active application first; ask for approval before changing anything.'],
+ 'improve':['Utilise improve quick pour auditer mon projet sans toucher au code, prioriser les constats vérifiés et préparer trois plans exécutables.','Use improve branch to review changes in this PR and prepare self-contained plans for another agent.'],
  'threat-model':['Utilise threat-model quick pour identifier les menaces de cette API et prioriser les remédiations.','Use threat-model deep to analyze this login flow with concrete mitigations.'],
  'video-engine':['Utilise video-engine pour scénariser une leçon narrée, synchroniser les animations aux mots, puis vérifier la lisibilité avant rendu. Demande mon accord avant tout TTS payant.','Use video-engine for a narrated 9:16 explainer with synchronized subtitles and frame QA.'],
  'remotion-production':['Utilise remotion-production pour planifier les médias et la bande-son de cette vidéo ; explique les fournisseurs et coûts avant tout appel externe.'],

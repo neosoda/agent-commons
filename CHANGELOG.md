@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added — shadcn Improve (pinned advisory skill)
+- Reviewed MIT `improve` catalog entry, optional approved install and lazy routing, FR/EN documentation and Skill Hub sample prompts.
+- Advisor audits code read-only and writes implementation plans; no automatic source edit, installation, subagent dispatch or merge.
+
 ### Added — reviewed MCP Extension Manager (PR #76, not yet released)
 - Managed package lifecycle: isolated pinned npm/uv installations, explicit preview/approval, repair, approved-version update and uninstall; external clients untouched by package operations.
 - Unified Skills & MCP catalog displays managed state and reviewed update availability.
