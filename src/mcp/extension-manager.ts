@@ -59,11 +59,15 @@ function entry(ctx:EnvironmentContext,id:string):string {
   if(!ID.test(id) || !MCP_CATALOG.some(m=>m.id===id))throw new Error('Unknown reviewed MCP package.');
   return path.join(packageRoot(ctx),id);
 }
-function runnerCommand(ctx:EnvironmentContext,manager:Manager,work:string):{command:string;args:string[]} {
+function runnerCommand(ctx:EnvironmentContext,manager:Manager):{command:string;args:string[]} {
   if(manager==='uv')return {command:'uv',args:[]};
   if(ctx.platform!=='win32')return {command:'npm',args:[]};
-  const npmCli = path.join(path.dirname(process.execPath),'node_modules','npm','bin','npm-cli.js');
-  if(!fs.existsSync(npmCli))throw new Error('Node.js npm CLI is required to install this MCP.');
+  // The Windows portable bundle ships Node, but not necessarily npm. Also look
+  // for npm beside a separate Node installation on PATH, without invoking a shell.
+  const directories=[path.dirname(process.execPath),...(process.env['PATH']??'').split(path.delimiter)];
+  const npmCli=directories.map(dir=>path.join(dir,'node_modules','npm','bin','npm-cli.js'))
+    .find(candidate=>inspectPath(candidate).state==='file');
+  if(!npmCli)throw new Error('Node.js npm CLI is required to install this MCP.');
   return {command:process.execPath,args:[npmCli]};
 }
 const run:Runner = (command,args,cwd)=>new Promise((resolve,reject)=>{
@@ -145,7 +149,7 @@ export async function applyManagedMcp(ctx:EnvironmentContext,id:string,operation
     if(operation!=='uninstall'){
       fs.mkdirSync(stage,{recursive:false});
       const r=recipe(id);
-      const command=runnerCommand(ctx,r.manager,stage);
+      const command=runnerCommand(ctx,r.manager);
       if(r.manager==='npm'){
         await execute(command.command,[...command.args,'install','--prefix',stage,
           '--ignore-scripts','--no-audit','--no-fund','--save-exact',
