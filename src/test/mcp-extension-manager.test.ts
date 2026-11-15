@@ -51,6 +51,11 @@ describe('reviewed MCP extension lifecycle',()=>{
     const installed=inspectManagedMcps(ctx).items.find(x=>x.id==='playwright')!;
     assert.equal(installed.healthy,true);
     assert.equal(installed.installedVersion,preview.reviewedVersion);
+    const entry=path.join(ctx.commonsDir,'mcp-packages','playwright','node_modules','@playwright','mcp','cli.js');
+    fs.appendFileSync(entry,'// changed after install\n');
+    assert.equal(inspectManagedMcps(ctx).items.find(x=>x.id==='playwright')?.healthy,false);
+    fs.writeFileSync(entry,'// fake reviewed MCP entry\n');
+    assert.equal(inspectManagedMcps(ctx).items.find(x=>x.id==='playwright')?.healthy,true);
     await assert.rejects(applyManagedMcp(ctx,'playwright','install',preview.revision,fakeRun));
     const remove=previewManagedMcp(ctx,'playwright','uninstall');
     await applyManagedMcp(ctx,'playwright','uninstall',remove.revision,fakeRun);
