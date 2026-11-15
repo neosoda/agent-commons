@@ -544,7 +544,7 @@ Les licences indiquées pour les dépendances npm proviennent du manifeste, du l
 ### Dépôts référencés dans le catalogue public
 
 <!-- BEGIN GENERATED SKILL REPOSITORY CREDITS -->
-Le catalogue public référence **200 skills provenant de 25 dépôts sources**. Il s'agit **uniquement de métadonnées** : Agent Commons ne regroupe pas et n'installe pas automatiquement ces skills. Les licences sont indiquées pour chaque skill épinglé dans [l'index complet](docs/skills/README.md) ; si plusieurs licences figurent pour un dépôt, vérifiez celle applicable à chaque skill.
+Le catalogue public référence **201 skills provenant de 26 dépôts sources**. Il s'agit **uniquement de métadonnées** : Agent Commons ne regroupe pas et n'installe pas automatiquement ces skills. Les licences sont indiquées pour chaque skill épinglé dans [l'index complet](docs/skills/README.md) ; si plusieurs licences figurent pour un dépôt, vérifiez celle applicable à chaque skill.
 
 | Dépôt source | Auteur / responsable | Skills référencés | Licence(s) déclarée(s) |
 |:--|:--|--:|:--|
@@ -567,6 +567,7 @@ Le catalogue public référence **200 skills provenant de 25 dépôts sources**.
 | [noamdorr/saas-product-demo-video](https://github.com/noamdorr/saas-product-demo-video) | Noam Dorr | 1 | MIT |
 | [nutlope/hallmark](https://github.com/nutlope/hallmark) | nutlope | 1 | MIT |
 | [pbakaus/impeccable](https://github.com/pbakaus/impeccable) | pbakaus | 1 | Apache-2.0 |
+| [shadcn/improve](https://github.com/shadcn/improve) | shadcn | 1 | MIT |
 | [thedotmack/claude-mem](https://github.com/thedotmack/claude-mem) | thedotmack | 28 | Apache-2.0 |
 | [vercel-labs/agent-desktop](https://github.com/vercel-labs/agent-desktop) | Vercel Labs | 1 | Apache-2.0 |
 | [vercel-labs/skills](https://github.com/vercel-labs/skills) | Vercel | 1 | MIT |
@@ -651,6 +652,21 @@ agent-commons sync --skill video-engine --agent codex --dry-run
 ```
 
 **16 nouveaux skills épinglés**, chargés individuellement pour préserver les tokens. Les **5 MCP externes** suggérés par Dojo (ElevenLabs, remotion-media, TwelveLabs, Pexels et Replicate) restent des références non installées et non configurées : toute API, dépense ou exécution exige un accord séparé. [Guide FR](docs/VIDEO_SKILLS.md) · [EN](docs/VIDEO_SKILLS.en.md).
+
+## Improve (shadcn) — audit de code à la demande
+
+[Improve](https://github.com/shadcn/improve) de **shadcn (MIT)** est référencé sous l'ID `improve`. Ce conseiller audite un dépôt **en lecture seule**, vérifie les constats et rédige des plans autonomes et priorisés pour d'autres agents dans `plans/` ou `advisor-plans/`. Aucun prompt complet n'est chargé pendant la recherche dans le catalogue.
+
+```bash
+agent-commons catalog install improve             # aperçu sans écriture
+agent-commons catalog install improve --yes       # installation approuvée
+agent-commons catalog verify improve
+agent-commons skills route "audit mon dépôt" --json
+agent-commons skills load improve                 # chargement ciblé
+agent-commons sync --skill improve --agent codex --dry-run
+```
+
+Après synchronisation : Claude Code `/improve quick`, Codex `$improve` si compatible, Gemini CLI via sa découverte native. `execute <plan>` exige un sous-agent exécutant dans un worktree isolé, sans merge ni push implicite. `--issues` publie uniquement à la demande, après contrôle des informations sensibles. [Guide FR](docs/IMPROVE.md) · [EN](docs/IMPROVE.en.md).
 
 ## Catalogue interactif — Skills & MCP
 

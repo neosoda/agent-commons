@@ -49,7 +49,7 @@ describe('video skill sources: pinned, opt-in and lazy', () => {
     const video = catalog.skills.filter(s =>
       s.repository.includes('ninjasweb/video-engine-skill') ||
       s.repository.includes('DojoCodingLabs/remotion-superpowers'));
-    assert.equal(catalog.skills.length, 200);
+    assert.equal(catalog.skills.length, 201);
     assert.equal(video.length, 16);
     const engine = video.find(s => s.id === 'video-engine');
     assert.ok(engine);

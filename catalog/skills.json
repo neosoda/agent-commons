@@ -2761,6 +2761,35 @@
       ]
     },
     {
+      "id": "improve",
+      "name": "Improve (shadcn)",
+      "description": "Read-only codebase audit with evidence-backed prioritized findings and self-contained implementation plans for other agents; isolated executor review is optional and requires a compatible host.",
+      "category": "development",
+      "author": "shadcn",
+      "repository": "https://github.com/shadcn/improve",
+      "source": "https://github.com/shadcn/improve/tree/cac56e1ebd3c279aa9153616cfeac7b174ab90f9/skills/improve",
+      "path": "skills/improve",
+      "ref": "cac56e1ebd3c279aa9153616cfeac7b174ab90f9",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/shadcn/improve/blob/cac56e1ebd3c279aa9153616cfeac7b174ab90f9/LICENSE.md",
+      "review": {
+        "sourceChecked": "2026-11-15",
+        "licenseChecked": "2026-11-15",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "audit",
+        "code-review",
+        "planning",
+        "roadmap",
+        "development",
+        "agent-delegation",
+        "security",
+        "read-only"
+      ]
+    },
+    {
       "id": "investigate-first",
       "name": "Investigate First",
       "description": "Diagnose ambiguous failures before editing. Use for unknown causes, intermittent behavior, performance regressions, or investigations needing evidence-ranked hypotheses.",
