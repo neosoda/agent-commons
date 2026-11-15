@@ -2,6 +2,18 @@
 
 > **Operational handoff, last verified: 2026-11-15 (v0.4.0 published).** Read this file before modifying the repository; then check live `main`, release/tag, PRs, issues and GitHub Actions **by exact commit SHA**. Historical SHA and run IDs below are a snapshot, not a promise of current status. This review used the connected GitHub repository only; it did **not** inspect the user's Windows PC, npm account or private agent configurations.
 
+## 0. Active development — Extension Manager (2026-11-15)
+
+**Branch:** feat/extension-manager-v05 · **PR:** https://github.com/neosoda/agent-commons/pull/76 (draft; not released or merged as of this handoff entry).
+
+- Adds reviewed npm/uv managed MCP package lifecycle and a combined dashboard of packages and Skills; manual-only/unknown MCPs remain noninstallable from the UI.
+- Adds scoped central MCP provisioning for Playwright, Filesystem, Fetch and Git and targeted client sync with explicit preview and consent.
+- Existing native client configurations are preserved; **package uninstall DOES NOT remove native configs**, and update checks compare only to locally reviewed pinned versions. These are explicit product limitations, not hidden TODOs.
+- Package installations use staging, rollback-on-failure where possible, no shell invocation, npm ignore-scripts and uv binary-only installs; receipt stored inside ~/.agents. No real user environment was modified.
+- Test suite extends src/test/mcp-extension-manager.test.ts with synthetic homes and fake package managers. Validate the exact PR head SHA with CI 6/6, Chromium and Windows portable workflow before merging; inspect logs, then update handoff with final evidence.
+- Follow-up backlog: live upstream update review, runtime MCP health checks, safe native unregistration and transactional batch operations.
+- Reference: docs/EXTENSION_MANAGER.md.
+
 ## 1. Product, distribution and safety boundaries
 
 **Goal:** local-first multi-agent AI skills and MCP configuration management, with
