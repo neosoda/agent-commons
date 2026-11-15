@@ -12,13 +12,19 @@ import type {EnvironmentContext} from '../types.js';
 
 type Manager = 'npm' | 'uv';
 type Operation = 'install' | 'update' | 'repair' | 'uninstall';
-interface Receipt {version:string; package:string; manager:Manager; installedAt:string}
+interface Receipt {version:string; package:string; manager:Manager; installedAt:string; entrySha256:string}
 interface Store {version:1; packages:Record<string,Receipt>}
 type Runner = (command:string,args:string[],cwd:string)=>Promise<void>;
 const ID = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const packageRoot = (ctx:EnvironmentContext) => path.join(ctx.commonsDir,'mcp-packages');
 const receiptFile = (ctx:EnvironmentContext) => path.join(ctx.commonsDir,'mcp-installations.json');
 const hash = (s:string) => crypto.createHash('sha256').update(s).digest('hex');
+function binaryHash(file:string):string {
+  if(inspectPath(file).state!=='file')return '';
+  const size=fs.statSync(file).size;
+  if(size>10*1024*1024)return '';
+  return crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex');
+}
 const stateOf = (p:string) => inspectPath(p).state;
 const physical = (p:string) => ['missing','directory'].includes(stateOf(p));
 
@@ -43,7 +49,8 @@ function read(ctx:EnvironmentContext):{raw:string;store:Store} {
   for(const [id,r] of Object.entries(store.packages)){
     if(!ID.test(id) || !r || typeof r!=='object' ||
        !['npm','uv'].includes(r.manager) || typeof r.version!=='string' ||
-       typeof r.package!=='string' || typeof r.installedAt!=='string')
+       typeof r.package!=='string' || typeof r.installedAt!=='string' ||
+       typeof r.entrySha256!=='string' || !/^[a-f0-9]{64}$/.test(r.entrySha256))
       throw new Error('Invalid managed MCP receipt.');
   }
   return {raw,store};
@@ -91,7 +98,7 @@ export function inspectManagedMcps(ctx:EnvironmentContext){
     const target=entry(ctx,item.id),folder=stateOf(target);
     const managed=installed!==null;
     const expected=managed?program(ctx,item.id,target,installed.manager):'';
-    const healthy=managed&&folder==='directory'&&stateOf(expected)==='file';
+    const healthy=managed&&folder==='directory'&&binaryHash(expected)===installed.entrySha256;
     return {id:item.id,manager:installed?.manager??null,installedVersion:installed?.version??null,
       reviewedVersion:item.version,managed,healthy,unmanaged:!managed&&folder!=='missing',
       updateAvailable:healthy&&!!item.version&&item.version!==installed?.version,
@@ -105,6 +112,7 @@ export function previewManagedMcp(ctx:EnvironmentContext,id:string,operation:Ope
   const previous=store.packages[id]??null;
   const recipeData=recipe(id);
   const folder=stateOf(target);
+  const entryHash=previous&&folder==='directory'?binaryHash(program(ctx,id,target,previous.manager)):'';
   if(!['install','update','repair','uninstall'].includes(operation))throw new Error('Unknown MCP package operation.');
   if(operation==='install'&&(previous||folder!=='missing'))throw new Error('MCP package already exists.');
   if(operation!=='install'&&!previous)throw new Error('MCP package is not managed by Agent Commons.');
@@ -114,7 +122,7 @@ export function previewManagedMcp(ctx:EnvironmentContext,id:string,operation:Ope
   if(operation==='update'&&previous?.version===recipeData.version)throw new Error('MCP package is already at reviewed version.');
   return {id,operation,manager:recipeData.manager,packageName:recipeData.packageName,
     previousVersion:previous?.version??null,reviewedVersion:recipeData.version,
-    revision:hash(raw+'\0'+folder+'\0'+(previous?.version??'')),
+    revision:hash(raw+'\0'+folder+'\0'+entryHash+'\0'+(previous?.version??'')),
     risk:recipeData.item.risk,requirements:recipeData.item.requirements,
     // Package installation alone never edits or launches native MCP clients.
     affectsNativeClients:false};
@@ -160,10 +168,11 @@ export async function applyManagedMcp(ctx:EnvironmentContext,id:string,operation
     if(operation!=='uninstall'){fs.renameSync(stage,destination);placed=true;
       const recipeData=recipe(id);
       store.packages[id]={version:recipeData.version,package:recipeData.packageName,
-        manager:recipeData.manager,installedAt:new Date().toISOString()};
+        manager:recipeData.manager,installedAt:new Date().toISOString(),
+        entrySha256:binaryHash(program(ctx,id,destination,recipeData.manager))};
     }else delete store.packages[id];
     writeFileAtomicSync(receiptFile(ctx),JSON.stringify(store,null,2)+'\n');
-    if(moved)fs.rmSync(backup,{recursive:true,force:true});
+    if(moved){try{fs.rmSync(backup,{recursive:true,force:true})}catch{/* Recovery files remain on disk. */}}
     return {applied:true,id,operation,version:store.packages[id]?.version??null};
   }catch(err){
     if(placed && stateOf(destination)==='directory')fs.rmSync(destination,{recursive:true,force:true});
