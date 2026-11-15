@@ -65,7 +65,7 @@ function runnerCommand(ctx:EnvironmentContext,manager:Manager):{command:string;a
   // The Windows portable bundle ships Node, but not necessarily npm. Also look
   // for npm beside a separate Node installation on PATH, without invoking a shell.
   const directories=[path.dirname(process.execPath),...(process.env['PATH']??'').split(path.delimiter)];
-  const npmCli=directories.map(dir=>path.join(dir,'node_modules','npm','bin','npm-cli.js'))
+  const npmCli=directories.filter(dir=>path.isAbsolute(dir)).map(dir=>path.join(dir,'node_modules','npm','bin','npm-cli.js'))
     .find(candidate=>inspectPath(candidate).state==='file');
   if(!npmCli)throw new Error('Node.js npm CLI is required to install this MCP.');
   return {command:process.execPath,args:[npmCli]};
