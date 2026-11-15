@@ -110,6 +110,8 @@ loaded only when explicitly requested. [Full guide](docs/CONTEXT_ROUTING.md).
 
 ## Local Skill Hub — browser dashboard
 
+**Extension Manager (v0.5 in development)**: the unified catalog now installs, repairs, upgrades and removes **managed** MCP packages from the reviewed npm/uv allowlist. Playwright, Fetch, Filesystem and Git can be provisioned to the central manifest and explicitly synced to compatible clients (including LM Studio). Update checks compare against locally pinned reviewed versions, not the live latest upstream release. Uninstalling a package does not remove native client entries. See the [full guide](docs/EXTENSION_MANAGER.md).
+
 **New:** a responsive, dependency-free local interface to manage Agent Commons without memorizing commands.
 
 After cloning and building the project, run:
