@@ -44,10 +44,10 @@ const HTML = String.raw`<!doctype html>
 <div class="metrics" id="metrics"></div>
 <div class="split"><div class="panel"><h3>Connected agents</h3><p>Installed environments detected on this machine.</p><div id="overview-agents"></div></div><div class="panel"><h3>Workspace health</h3><p>Quick read of locally managed skills.</p><div id="overview-health"></div><button class="btn small" data-go="integrity">View integrity report</button></div></div>
 </section>
-<section class="page" id="page-catalog"><div class="section-head"><div><div class="eyebrow">DISCOVER · LEARN · USE</div><h1>Skills & MCP catalog</h1><div class="dim">Find reviewed references and local tools, read usage tips and copy example prompts. Browsing is read-only.</div></div></div>
+<section class="page" id="page-catalog"><div class="section-head"><div><div class="eyebrow">DISCOVER · LEARN · USE</div><h1>Skills & MCP catalog</h1><div class="dim">Install and manage reviewed Skills and MCP packages, inspect versions, and choose which agents to synchronize. Every change requires your approval.</div></div></div>
 <div class="catalog-switch" role="group" aria-label="Catalog type"><button type="button" data-kind="skill" aria-pressed="true" class="active">Skills</button><button type="button" data-kind="mcp" aria-pressed="false">MCP servers</button><button type="button" data-kind="all" aria-pressed="false">All tools</button></div>
 <div class="filter-row"><input class="field search" id="catalog-search" type="search" placeholder="Search names, categories and uses…" aria-label="Search catalog"><select class="field" id="catalog-category" aria-label="Filter by category"><option value="">All categories</option></select><select class="field" id="catalog-status" aria-label="Filter by installation"><option value="">All statuses</option><option value="installed">Installed / configured</option><option value="available">Available / reference</option></select></div>
-<div class="subtle" id="catalog-count" role="status" aria-live="polite"></div><div class="cards mt-14" id="catalog-cards"></div></section>
+<div class="actions mt-14"><button class="btn small" id="extension-check">↻ Check reviewed updates</button><span class="subtle" id="extension-summary" role="status" aria-live="polite"></span></div><div class="subtle mt-14" id="catalog-count" role="status" aria-live="polite"></div><div class="cards mt-14" id="catalog-cards"></div></section>
 <section class="page" id="page-agents"><div class="eyebrow">PERSONALIZED PER AGENT</div><h1>My agents</h1><p class="dim">Create a local selection of central skills and catalog categories for each installed agent. Saving a profile never synchronizes it automatically.</p><div class="agents-grid" id="agents-grid"></div>
 <div class="section-head"><h2>Profile editor</h2><span class="tag">Explicit sync only</span></div>
 <div class="panel"><div class="filter-row"><select class="field" id="profile-agent" aria-label="Choose agent"></select><input class="field search" id="profile-skill-search" type="search" placeholder="Filter locally installed skills…" aria-label="Filter skills"></div><div class="split"><div><h3>Individual skills</h3><p class="subtle">Only skills already present in your shared library can be linked.</p><div class="checkbox-list" id="profile-skills"></div></div><div><h3>Category profiles</h3><p class="subtle">Categories expand to installed skills at sync time.</p><div class="checkbox-list" id="profile-categories"></div></div></div>
@@ -78,7 +78,7 @@ const HTML = String.raw`<!doctype html>
 'use strict';
 const csrf=document.querySelector('meta[name="csrf-token"]').content;
 const $=id=>document.getElementById(id);
-let state=null, mcpState=null, centerState=null, activePage='overview', selectedAgent='', busy=false, profileSavePending=false, profileDrafts=Object.create(null), catalogKind='skill';
+let state=null, mcpState=null, centerState=null, packagesState=null, activePage='overview', selectedAgent='', busy=false, profileSavePending=false, profileDrafts=Object.create(null), catalogKind='skill';
 const short=x=>String(x||'').slice(0,10);
 const mcpGroups={'playwright':'web','fetch':'web','web-search':'web','osint':'web','github':'dev','git':'dev','filesystem':'infra','docker-mcp-gateway':'infra','agent-desktop':'desktop'};
 const mcpGroupNames={web:'Web & research',dev:'Development & Git',infra:'Infrastructure & files',desktop:'Desktop & computer use',other:'Other MCPs'};
@@ -307,8 +307,10 @@ function discoveredTools(){
   for(const m of curated){
     knownMcp.add(m.id);
     const group=mcpGroups[m.id]||'other';
+    const pkg=packagesState?.items?.find(x=>x.id===m.id)||null;
     tools.push({kind:'mcp',id:m.id,name:m.name,description:m.description,category:'mcp-'+group,categoryName:mcpGroupNames[group],
-      installed:m.configured||m.detected,configured:m.configured,detected:m.detected,unavailable:m.installation==='unavailable',
+      installed:m.configured||m.detected||!!pkg?.managed,configured:m.configured,detected:m.detected,unavailable:m.installation==='unavailable',
+      packageInfo:pkg,installMethod:m.installation,
       source:m.repository,requirements:m.requirements,risk:m.risk,tags:[m.maintainer||'',m.risk]});
   }
   const central=new Set(centerState?.centralNames||[]),native=new Set();
@@ -334,6 +336,9 @@ function filterCatalog(){
     catalogKind==='mcp'?mcps+' MCP servers · local inventory and reviewed references':
     matches.length+' tools · '+skills+' skills · '+mcps+' MCP';
   const target=$('catalog-cards');clear(target);
+  const skillUpdates=state.integrity.results.filter(a=>a.status==='intact'&&state.catalog.some(s=>s.id===a.skill&&s.ref!==a.commit)).length;
+  const mcpUpdates=(packagesState?.items||[]).filter(x=>x.updateAvailable).length;
+  $('extension-summary').textContent=(skillUpdates+mcpUpdates)+' reviewed updates available · MCP installation does not enable clients automatically';
   if(!matches.length)target.append(node('div','No tools match these filters.','empty'));
   for(const item of matches){
     const card=node('article',null,'skill-card'),header=node('div');
@@ -344,13 +349,21 @@ function filterCatalog(){
     const bottom=node('div',null,'bottom');
     const audit=item.kind==='skill'?state.integrity.results.find(row=>row.skill===item.id):null;
     const status=item.kind==='skill'?(!item.installed?'available':audit?.status==='intact'?'installed':audit?.status||'local'):
+      item.packageInfo?.updateAvailable?'Reviewed update available':item.packageInfo?.managed?(item.packageInfo.healthy?'Package installed':'Package needs repair'):
       item.configured?'Configured centrally':item.detected?'Detected in client':item.unavailable?'Provider not vetted':'Reference only';
     bottom.append(labelStatus(status));
     const button=node('button','View details','btn small');
     button.dataset.focusKey='catalog:'+item.kind+':'+item.id;
     button.setAttribute('aria-label','View details for '+item.name);
     button.onclick=()=>item.kind==='mcp'?mcpDetails(item):item.local?localSkillDetails(item):skillDetails(item.skill);
-    bottom.append(button);card.append(bottom);target.append(card);
+    bottom.append(button);
+    if(item.kind==='mcp'&&!item.local&&item.packageInfo?.canInstall&&!item.packageInfo?.unmanaged){
+      const pkg=item.packageInfo;
+      const op=!pkg.managed?'install':!pkg.healthy?'repair':pkg.updateAvailable?'update':null;
+      if(op){const quick=node('button',op==='install'?'Install':op==='repair'?'Repair':'Update','btn primary small');
+        quick.dataset.focusKey='package:'+item.id;quick.onclick=()=>previewMcpPackage(op,item.id);bottom.append(quick)}
+    }
+    card.append(bottom);target.append(card);
   }
   translateUI();
 }
@@ -412,6 +425,21 @@ function mcpDetails(item){
   box.append(row('Status',status,labelStatus(status)));
   if(item.risk)box.append(row('Risk',item.risk),row('Requirements',(item.requirements||[]).join(', ')||'None'));
   if(item.local)box.append(node('p','Local MCP name found; commands and credentials are not displayed.','copy'));
+  const pkg=item.packageInfo;
+  if(pkg){box.append(row('Managed package',pkg.managed?(pkg.healthy?'Installed '+pkg.installedVersion:'Repair required'):'Not installed'),
+    row('Reviewed version',pkg.reviewedVersion||'Manual provisioning'));
+    if(pkg.unmanaged)box.append(node('p','A package directory exists without an Agent Commons receipt; it will not be overwritten.','copy'));
+    if(pkg.canInstall&&!pkg.unmanaged){const actions=node('div',null,'actions mt-14');
+      const op=!pkg.managed?'install':!pkg.healthy?'repair':pkg.updateAvailable?'update':null;
+      if(op){const act=node('button',op==='install'?'Install reviewed package':op==='repair'?'Repair managed package':'Update to reviewed version','btn primary small');
+        act.onclick=()=>{unmountDialog();previewMcpPackage(op,item.id)};actions.append(act)}
+      if(pkg.managed){const remove=node('button','Uninstall managed package','btn danger small');
+        remove.onclick=()=>{unmountDialog();previewMcpPackage('uninstall',item.id)};actions.append(remove)}
+      box.append(actions);
+    }
+  }
+  const linked=(centerState?.clients||[]).filter(client=>client.servers.includes(item.id)).map(client=>client.name);
+  if(linked.length)box.append(row('Detected in',linked.join(', ')));
   addUsage(box,item,'mcp');
   if(item.source){const links=node('div',null,'links'),link=node('a','Review upstream source');
     link.href=item.source;link.target='_blank';link.rel='noopener noreferrer';links.append(link);box.append(links)}
@@ -454,6 +482,25 @@ function skillDetails(s){
   }
   box.append(actions);showDialog(bg,box,close);
   bg.onclick=e=>{if(e.target===bg)closeDialog()}
+}
+async function previewMcpPackage(op,id){
+  if(busy)return;busy=true;
+  try{
+    const result=await request('/api/mcp-package-preview?op='+encodeURIComponent(op)+'&id='+encodeURIComponent(id));
+    const p=result.plan;
+    const description=['Package: '+p.packageName,'Operation: '+op,
+      'From: '+(p.previousVersion||'not installed'),'Reviewed: '+p.reviewedVersion,
+      'Risk level: '+p.risk,'Requirements: '+p.requirements.join(', '),
+      '', 'Only the reviewed package is managed in an isolated local folder.',
+      'Existing MCP client configurations are not modified by this operation.',
+      'Review upstream code and permissions before activation.'].join('\n');
+    const title=op==='uninstall'?'Uninstall MCP':op==='repair'?'Repair MCP':op==='update'?'Update MCP':'Install MCP';
+    modal(title+' · '+id,description,title.split(' ')[0],async()=>{
+      await request('/api/action',{action:'mcp-package-apply',id,operation:op,expectedRevision:p.revision,approved:true});
+      showToast('MCP package '+id+' '+op+' completed');await refresh();
+    },op==='uninstall'?id:undefined);
+  }catch(err){showToast(err.message,true);closeDialog()}
+  finally{busy=false}
 }
 async function previewSkill(op,id){if(busy)return;busy=true;showToast('Reviewing pinned skill…');try{const preview=await request('/api/preview?op='+encodeURIComponent(op)+'&id='+encodeURIComponent(id));const payload=preview.preview;const lines=op==='install'?['Commit: '+short(payload.commit),'Files: '+payload.files.length,'Bytes: '+payload.totalBytes]:op==='update'?['From: '+short(payload.previousCommit),'To: '+short(payload.proposedCommit),'Added: '+payload.added.length,'Changed: '+payload.changed.length,'Removed: '+payload.removed.length]:['Commit: '+short(payload.commit),'Files: '+payload.files.length,'Bytes: '+payload.totalBytes];const action=op==='install'?'Install':op==='update'?'Update':'Uninstall';modal(action+' '+id,lines.join('\n')+'\n\nThe operation will revalidate local files and create a recovery snapshot where supported. No third-party scripts are executed.',action,async()=>{await request('/api/action',{action:op,id,approved:true});showToast(id+' '+(op==='install'?'installed':op==='update'?'updated':'uninstalled'));await refresh()},op==='uninstall'?id:undefined)}catch(err){showToast(err.message,true);closeDialog()}finally{busy=false}}
 function renderAgents(){clear($('agents-grid'));const agents=state.inventory.agents;agents.forEach(a=>{const e=node('div',null,'agent-card');const h=node('div',null,'head');h.append(rawNode('h3',a.name),labelStatus(a.installed?'installed':'not found'));e.append(h,node('p',a.linkedSkills.length+' linked · '+a.localPhysicalSkills.length+' local skills · '+a.mcpServers.length+' MCP servers'));$('agents-grid').append(e)});const select=$('profile-agent');const was=selectedAgent;clear(select);agents.filter(a=>a.installed).forEach(a=>{const op=rawNode('option',a.name);op.value=a.id;select.append(op)});selectedAgent=agents.some(a=>a.id===was&&a.installed)?was:(select.options[0]?.value||'');select.value=selectedAgent;renderProfileEditor()}
@@ -573,11 +620,12 @@ async function refresh(announce=false){
   if(announce){$('workspace-status').textContent='Refreshing local workspace…';translateUI()}
   try{
     const nextState=await request('/api/state');
-    let nextMcp=null,nextCenter=null,mcpError=null;
+    let nextMcp=null,nextCenter=null,nextPackages=null,mcpError=null;
+    try{nextPackages=await request('/api/mcp-packages')}catch(err){mcpError=err}
     try{nextMcp=await request('/api/mcp')}catch(err){mcpError=err}
     try{nextCenter=await request('/api/mcp-center')}catch(err){mcpError=mcpError||err}
     if(generation!==refreshGeneration)return; // An older response must never replace newer state.
-    state=nextState;mcpState=nextMcp;centerState=nextCenter;
+    state=nextState;mcpState=nextMcp;centerState=nextCenter;packagesState=nextPackages;
     const focused=document.activeElement;
     const focusedInDynamic=!!focused?.closest('#catalog-cards,#mcp-items,#backup-items,#profile-skills,#profile-categories');
     const focusKey=focusedInDynamic?focused?.dataset?.focusKey:null;
@@ -598,6 +646,11 @@ async function refresh(announce=false){
 }
 $('language-select').onchange=e=>setLanguage(e.target.value);
 $('refresh').onclick=()=>refresh(true);
+$('extension-check').onclick=async()=>{
+  await refresh(true);
+  const n=(packagesState?.items||[]).filter(x=>x.updateAvailable).length+state.integrity.results.filter(x=>x.status==='intact'&&state.catalog.some(s=>s.id===x.skill&&s.ref!==x.commit)).length;
+  showToast(n?n+' reviewed update(s) available':'No reviewed catalog updates available');
+};
 $('mcp-add').onclick=()=>mcpDialog('create');
 $('catalog-search').oninput=filterCatalog;$('catalog-category').onchange=filterCatalog;$('catalog-status').onchange=filterCatalog;
 document.querySelectorAll('[data-kind]').forEach(button=>button.onclick=()=>{
