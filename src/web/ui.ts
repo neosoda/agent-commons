@@ -119,6 +119,23 @@ Object.assign(FR,{
   'DISCOVER · LEARN · USE':'DÉCOUVRIR · COMPRENDRE · UTILISER',
   'Skills & MCP catalog':'Catalogue Skills & MCP',
   'Find reviewed references and local tools, read usage tips and copy example prompts. Browsing is read-only.':'Explorez les skills et MCP disponibles ou locaux, apprenez à les utiliser et copiez des prompts. La consultation ne change rien.',
+  'Install and manage reviewed Skills and MCP packages, inspect versions, and choose which agents to synchronize. Every change requires your approval.':'Installez et gérez les Skills et MCP vérifiés, consultez les versions et choisissez les agents à synchroniser. Chaque modification exige votre accord.',
+  '↻ Check reviewed updates':'↻ Vérifier les mises à jour validées',
+  'Install':'Installer','Update':'Mettre à jour','Repair':'Réparer',
+  'Reviewed update available':'Mise à jour validée disponible',
+  'Package installed':'Package installé','Package needs repair':'Package à réparer',
+  'Configure for clients':'Configurer pour les clients',
+  'Sync to selected clients':'Synchroniser vers les clients choisis',
+  'Install reviewed package':'Installer le package validé',
+  'Repair managed package':'Réparer le package géré',
+  'Update to reviewed version':'Mettre à jour vers la version validée',
+  'Uninstall managed package':'Désinstaller le package géré',
+  'Managed package':'Package géré','Reviewed version':'Version validée',
+  'Not installed':'Non installé','Target clients':'Clients cibles',
+  'Preview':'Prévisualiser','Synchronize':'Synchroniser',
+  'Allowed filesystem directories (one per line)':'Répertoires autorisés (un par ligne)',
+  'Git repository (absolute directory)':'Dépôt Git (chemin absolu)',
+  'No healthy MCP client detected.':'Aucun client MCP compatible en bon état détecté.',
   'Catalog type':'Type de catalogue','Skills':'Skills','MCP servers':'Serveurs MCP','All tools':'Tous',
   'Search names, categories and uses…':'Rechercher noms, catégories et usages…',
   'Search catalog':'Rechercher dans le catalogue',
@@ -504,6 +521,10 @@ function managedMcpClientDialog(id,provision){
   let roots=null;
   if(provision&&(id==='filesystem'||id==='git')){
     roots=mcpField(id==='git'?'Git repository (absolute directory)':'Allowed filesystem directories (one per line)');
+    if(id==='filesystem'){
+      const textarea=node('textarea');textarea.className='field';textarea.rows=3;textarea.setAttribute('aria-label','Allowed filesystem directories');
+      roots.wrapper.replaceChild(textarea,roots.input);roots.input=textarea;
+    }
     box.append(roots.wrapper);
   }
   const message=node('p','','subtle');message.setAttribute('role','alert');
