@@ -33,6 +33,32 @@ describe('local Skill Hub HTTP security and user workflows', () => {
     });
   }
 
+  it('requires MCP package consent and rejects invalid target clients',async()=>{
+    const packages=await fetch(instance.url+'/api/mcp-packages');
+    assert.equal(packages.status,200);
+    const inventory=await packages.text();
+    assert.ok(inventory.includes('playwright'));
+    assert.equal(inventory.includes(home),false);
+    const preview=await fetch(instance.url+'/api/mcp-package-preview?op=install&id=playwright');
+    assert.equal(preview.status,200);
+    const data=await preview.json() as {plan:{revision:string;affectsNativeClients:boolean}};
+    assert.equal(data.plan.affectsNativeClients,false);
+    const denied=await post({action:'mcp-package-apply',id:'playwright',operation:'install',
+      expectedRevision:data.plan.revision});
+    assert.equal(denied.status,400);
+    const root=path.join(home,'.agents');
+    fs.mkdirSync(root,{recursive:true});
+    fs.writeFileSync(path.join(root,'mcp.json'),
+      JSON.stringify({mcpServers:{playwright:{command:'node',args:['--version'],enabled:true}}}));
+    const invalid=await post({action:'mcp-target-sync-preview',id:'playwright',agents:['missing-agent']});
+    assert.equal(invalid.status,400);
+    fs.mkdirSync(path.join(home,'.lmstudio'));
+    const valid=await post({action:'mcp-target-sync-preview',id:'playwright',agents:['lm-studio']});
+    assert.equal(valid.status,200);
+    const planned=await valid.json() as {previewToken:string};
+    assert.match(planned.previewToken,/^[a-f0-9]{48}$/);
+  });
+
   it('exposes safe MCP inventory, enforces profile preview tokens and preserves unrelated LM Studio servers', async () => {
     const lm = path.join(home,'.lmstudio','mcp.json');
     fs.mkdirSync(path.dirname(lm),{recursive:true});
