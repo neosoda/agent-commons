@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added — reviewed MCP Extension Manager (PR #76, not yet released)
+- Managed package lifecycle: isolated pinned npm/uv installations, explicit preview/approval, repair, approved-version update and uninstall; external clients untouched by package operations.
+- Unified Skills & MCP catalog displays managed state and reviewed update availability.
+- Guided MCP provisioning for Playwright/Fetch/Filesystem/Git with client selection, directory scoping and separate targeted sync with revision-bound approval.
+- Synthetic-home tests for installer rollback, unmanaged-path preservation, scoped provisioning and cross-platform execution.
+- Documented limitations: reviewed versions only (no live upstream version checks), no native client deprovisioning on package removal.
+
+
 ### Added — Agent Desktop opt-in skill + MCP
 - Added Vercel Labs `agent-desktop` Apache-2.0 pinned skill and FR/EN setup and security guides.
 - Added critical-risk desktop MCP reference, explicit `desktop-control` preset and contextual prompt samples in the local interactive catalog.
