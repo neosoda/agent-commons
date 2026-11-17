@@ -151,7 +151,7 @@ export function estimateSkillMetadataTokens(root: string): number {
         text = buf.toString('utf8');
       } finally { fs.closeSync(fd); }
     } catch { continue; }
-    const fm = /^FEFF?---\r?\n([\s\S]*?)\r?\n---/.exec(text)?.[1] ?? '';
+    const fm = /^﻿?---\r?\n([\s\S]*?)\r?\n---/.exec(text)?.[1] ?? '';
     const lines = fm.split(/\r?\n/);
     const start = lines.findIndex(l => l.startsWith('description:'));
     let description = '';

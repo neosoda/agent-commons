@@ -8,7 +8,7 @@ import { runMcpProbe, selectProbeTargets } from '../commands/mcp-probe.js';
 import { runDoctor } from '../commands/doctor.js';
 import { createEnvironmentContext } from '../core/context.js';
 import { mkdtempSafe } from '../core/links.js';
-import { lintSkillText } from '../core/skill-lint.js';
+import { estimateSkillMetadataTokens, lintSkillText } from '../core/skill-lint.js';
 import { demoServerPath, handleDemoMessage } from '../mcp/demo-server.js';
 import { findPackageReferences, processCwd } from '../mcp/extension-manager.js';
 import { buildInvocation, inspectLaunchTarget, probeMcpServer, resolveCommand } from '../mcp/health.js';
@@ -179,6 +179,18 @@ describe('SKILL.md frontmatter lint', () => {
     assert.deepEqual(ok('"Escaped \\" quote"').errors, []);
     assert.deepEqual(ok('>\n  Folded\n  text').errors, []);
     assert.deepEqual(ok('"multi\n  line"').errors, []);
+  });
+  it('estimates only the metadata clients load, not SKILL.md bodies', () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'ac-meta-'));
+    try {
+      fs.mkdirSync(path.join(root, 'a'));
+      const bom = String.fromCharCode(0xfeff);
+      fs.writeFileSync(path.join(root, 'a', 'SKILL.md'),
+        [bom + '---', 'name: a', 'description: ' + 'x'.repeat(400), '---', 'body '.repeat(5000)].join('\n'));
+      const tokens = estimateSkillMetadataTokens(root);
+      assert.ok(tokens > 90 && tokens < 130, String(tokens));
+      assert.equal(estimateSkillMetadataTokens(path.join(root, 'absent')), 0);
+    } finally { fs.rmSync(root, { recursive: true, force: true }); }
   });
   it('rejects what clients reject and separates naming advisories', () => {
     assert.match(ok('Broken: colon').errors.join(), /unquoted/);
