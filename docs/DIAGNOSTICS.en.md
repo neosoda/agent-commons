@@ -37,8 +37,10 @@ agent-commons mcp probe
 # One client's native configuration
 agent-commons mcp probe --agent codex
 # One server and a non-destructive tool call
-agent-commons mcp probe agent-commons-demo --call echo --arguments '{"text":"hello"}'
+agent-commons mcp probe agent-commons-demo --call echo --arg text=hello
 ```
+
+`--arg key=value` (repeatable) passes string arguments without JSON quoting, avoiding Windows PowerShell 5.1 quote mangling; `--arguments '<json>'` remains available.
 
 Results: `OK` (handshake succeeded, tool list), `FAIL` (not found, early exit with the relevant stderr line, timeout, missing tool), `AUTH` (HTTP server reachable but requires credentials: **unverified**, not failed). The probe never uses tokens; environment values are passed to the server but never printed.
 
@@ -52,7 +54,7 @@ On Windows, `.cmd`/`.bat` launchers (`npx`, `uvx`…) run through `cmd.exe /d /s
 agent-commons mcp demo-config            # paste the entry into ~/.agents/mcp.json
 agent-commons sync --mcp-only --dry-run --agent claude-code
 agent-commons sync --mcp-only --agent claude-code
-agent-commons mcp probe agent-commons-demo --agent claude-code --call echo --arguments '{"text":"ok"}'
+agent-commons mcp probe agent-commons-demo --agent claude-code --call echo --arg text=ok
 claude mcp list                          # verification by the client itself
 ```
 

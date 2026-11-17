@@ -456,7 +456,7 @@ Aucun téléchargement, installation, synchronisation ou publication n'est décl
 |---|---|
 | `doctor` | Diagnostiquer agents, liens, configurations MCP, exécutables MCP, `SKILL.md` invalides et coût en tokens (lecture seule) |
 | `mcp probe [serveur…] [--agent <id>]` | **Démarrer explicitement** des serveurs MCP et tester `initialize` + `tools/list` |
-| `mcp probe <serveur> --call <outil> --arguments '<json>'` | Effectuer un appel d'outil non destructif |
+| `mcp probe <serveur> --call <outil> --arg clé=valeur` | Effectuer un appel d'outil non destructif |
 | `mcp demo-config` | Afficher l'entrée d'un serveur MCP de démonstration sans secret |
 | `web [--port 4173] [--no-open]` | Ouvrir l'interface locale des skills, profils et sauvegardes |
 | `catalog list` / `catalog search <terme>` | Consulter hors ligne le catalogue public |

@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { afterEach, beforeEach, describe, it } from 'node:test';
-import { runCli } from '../cli/index.js';
+import { runCli, runCliAsync } from '../cli/index.js';
 import { runMcpProbe, selectProbeTargets } from '../commands/mcp-probe.js';
 import { runDoctor } from '../commands/doctor.js';
 import { createEnvironmentContext } from '../core/context.js';
@@ -113,6 +113,8 @@ describe('MCP launch diagnostics and probe', () => {
       assert.equal(report.results[0]?.toolResult, agent);
     }
     assert.throws(() => selectProbeTargets(ctx, ['absent'], 'claude-code'), /not found/);
+    assert.equal(await runCliAsync(['mcp', 'probe', 'agent-commons-demo', '--agent', 'codex', '--call', 'echo', '--arg', 'text=a b', '--home', home]), 0);
+    assert.equal(await runCliAsync(['mcp', 'probe', 'absent', '--home', home]), 1);
     // Doctor flags the broken personal entry only when its script is absolute and missing.
     const doc = runDoctor(ctx);
     assert.ok(doc.mcpLaunch.some(m => m.scope === 'claude-code' && m.server === 'agent-commons-demo' && m.status === 'ok'));

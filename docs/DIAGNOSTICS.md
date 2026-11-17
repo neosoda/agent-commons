@@ -37,8 +37,10 @@ agent-commons mcp probe
 # Configuration native d'un client
 agent-commons mcp probe --agent codex
 # Un serveur précis et un appel d'outil non destructif
-agent-commons mcp probe agent-commons-demo --call echo --arguments '{"text":"bonjour"}'
+agent-commons mcp probe agent-commons-demo --call echo --arg text=bonjour
 ```
+
+`--arg clé=valeur` (répétable) transmet des arguments texte sans guillemets JSON, ce qui évite les problèmes de guillemets de Windows PowerShell 5.1 ; `--arguments '<json>'` reste disponible.
 
 Résultats : `OK` (handshake réussi, liste des outils), `FAIL` (introuvable, arrêt prématuré avec la ligne d'erreur utile de stderr, délai dépassé, outil absent), `AUTH` (serveur HTTP joignable mais qui exige des identifiants : **non vérifié**, pas en échec). La sonde n'utilise jamais de jeton ; les valeurs d'environnement sont transmises au serveur mais jamais affichées.
 
@@ -52,7 +54,7 @@ Sous Windows, les lanceurs `.cmd`/`.bat` (`npx`, `uvx`…) passent par `cmd.exe 
 agent-commons mcp demo-config            # copier l'entrée dans ~/.agents/mcp.json
 agent-commons sync --mcp-only --dry-run --agent claude-code
 agent-commons sync --mcp-only --agent claude-code
-agent-commons mcp probe agent-commons-demo --agent claude-code --call echo --arguments '{"text":"ok"}'
+agent-commons mcp probe agent-commons-demo --agent claude-code --call echo --arg text=ok
 claude mcp list                          # vérification par le client lui-même
 ```
 

@@ -471,7 +471,7 @@ Nothing is downloaded, installed, synchronized or published by `catalog`. See [t
 |---|---|
 | `doctor` | Diagnose agents, links, MCP configurations, MCP executables, invalid `SKILL.md` files and token cost (read-only) |
 | `mcp probe [server…] [--agent <id>]` | **Explicitly start** MCP servers and test `initialize` + `tools/list` |
-| `mcp probe <server> --call <tool> --arguments '<json>'` | Make one non-destructive tool call |
+| `mcp probe <server> --call <tool> --arg key=value` | Make one non-destructive tool call |
 | `mcp demo-config` | Print a secret-free demo MCP server entry |
 | `web [--port 4173] [--no-open]` | Open the local Skill Hub dashboard and manage skills, profiles and snapshots |
 | `catalog list` / `catalog search <term>` | Browse the offline public Skill Hub |

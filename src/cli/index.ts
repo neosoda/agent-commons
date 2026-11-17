@@ -120,7 +120,7 @@ Options:
       return `
 Usage:
   agent-commons mcp probe [server...] [--agent <id>] [--timeout <ms>] [--json] [--home <path>]
-  agent-commons mcp probe <server> --call <tool> [--arguments '<json>']
+  agent-commons mcp probe <server> --call <tool> [--arg key=value]... [--arguments '<json>']
   agent-commons mcp demo-config
   agent-commons mcp demo-server
 
@@ -961,7 +961,8 @@ export async function runCliAsync(argv: string[] = process.argv.slice(2)): Promi
     try {
       const parsed = parseArgs({ args: argv, strict: true, allowPositionals: true, options: {
         home: { type: 'string' }, json: { type: 'boolean', default: false }, agent: { type: 'string' },
-        timeout: { type: 'string' }, call: { type: 'string' }, arguments: { type: 'string' } } });
+        timeout: { type: 'string' }, call: { type: 'string' }, arguments: { type: 'string' },
+        arg: { type: 'string', multiple: true } } });
       const sub = parsed.positionals[1];
       if (sub === 'demo-server') { runDemoServer(VERSION); return await new Promise<number>(() => undefined); }
       if (sub === 'demo-config') { console.log(JSON.stringify(demoServerConfig(), null, 2)); return 0; }
@@ -973,6 +974,12 @@ export async function runCliAsync(argv: string[] = process.argv.slice(2)): Promi
         const value = JSON.parse(parsed.values.arguments) as unknown;
         if (!value || typeof value !== 'object' || Array.isArray(value)) throw new Error('--arguments must be a JSON object.');
         toolArguments = value as Record<string, unknown>;
+      }
+      // --arg key=value avoids JSON quoting, which Windows PowerShell 5.1 mangles for native commands.
+      for (const pair of parsed.values.arg ?? []) {
+        const eq = pair.indexOf('=');
+        if (eq < 1) throw new Error('--arg expects key=value.');
+        (toolArguments ??= {})[pair.slice(0, eq)] = pair.slice(eq + 1);
       }
       const report = await runMcpProbe(createEnvironmentContext({ homeDir: parsed.values.home }),
         parsed.positionals.slice(2), { agent: parsed.values.agent, timeoutMs: timeout ? Number(timeout) : undefined,
