@@ -67,6 +67,13 @@ node dist/cli/index.js backup
 node dist/cli/index.js sync
 ~~~
 
+**Check that everything really works:** `doctor` reports, without starting anything, MCP servers whose executable is gone, `SKILL.md` files clients would refuse and the per-agent skill token cost. `mcp probe` explicitly starts selected MCP servers and tests the real MCP handshake. See the [diagnostics guide](docs/DIAGNOSTICS.en.md).
+
+~~~bash
+node dist/cli/index.js doctor
+node dist/cli/index.js mcp probe --agent codex
+~~~
+
 **New to Agent Commons?** Start with only one agent, using `sync --dry-run --agent codex` (replace `codex` with your agent's ID). The `--home <path>` flag lets you test against a separate home directory first.
 
 ## Token-conscious skill discovery
@@ -462,7 +469,10 @@ Nothing is downloaded, installed, synchronized or published by `catalog`. See [t
 
 | Command | Purpose |
 |---|---|
-| `doctor` | Diagnose detected agents, links and MCP configurations |
+| `doctor` | Diagnose agents, links, MCP configurations, MCP executables, invalid `SKILL.md` files and token cost (read-only) |
+| `mcp probe [server…] [--agent <id>]` | **Explicitly start** MCP servers and test `initialize` + `tools/list` |
+| `mcp probe <server> --call <tool> --arguments '<json>'` | Make one non-destructive tool call |
+| `mcp demo-config` | Print a secret-free demo MCP server entry |
 | `web [--port 4173] [--no-open]` | Open the local Skill Hub dashboard and manage skills, profiles and snapshots |
 | `catalog list` / `catalog search <term>` | Browse the offline public Skill Hub |
 | `catalog info <id>` | View upstream source, license and installed status |
