@@ -1,10 +1,10 @@
 # Agent Commons — PROJECT_HANDOFF
 
-> **Operational handoff, last verified: 2026-11-15 (v0.4.0 published).** Read this file before modifying the repository; then check live `main`, release/tag, PRs, issues and GitHub Actions **by exact commit SHA**. Historical SHA and run IDs below are a snapshot, not a promise of current status. This review used the connected GitHub repository only; it did **not** inspect the user's Windows PC, npm account or private agent configurations.
+> **Operational handoff, last verified: 2026-11-17 (real Windows audit, section 24; v0.4.0 published).** Read this file before modifying the repository; then check live `main`, release/tag, PRs, issues and GitHub Actions **by exact commit SHA**. Historical SHA and run IDs below are a snapshot, not a promise of current status.
 
 ## 0. Active development — Extension Manager (2026-11-15)
 
-**Branch:** feat/extension-manager-v05 · **PR:** https://github.com/neosoda/agent-commons/pull/76 (draft; not released or merged as of this handoff entry).
+**Branch:** feat/extension-manager-v05 · **PR:** https://github.com/neosoda/agent-commons/pull/76 — since merged into `main` as `8a10927` (verified 2026-11-17); not yet in a release.
 
 - Adds reviewed npm/uv managed MCP package lifecycle and a combined dashboard of packages and Skills; manual-only/unknown MCPs remain noninstallable from the UI.
 - Adds scoped central MCP provisioning for Playwright, Filesystem, Fetch and Git and targeted client sync with explicit preview and consent.
@@ -374,3 +374,18 @@ MCP Control Center now has a manual-only, critical-risk `agent-desktop` entry (s
 ## 23. shadcn Improve — source-pinned catalog integration (2026-11-15)
 
 Feature branch `feat/shadcn-improve-skill-20261115`: reviewed MIT upstream [shadcn/improve](https://github.com/shadcn/improve), commit `cac56e1ebd3c279aa9153616cfeac7b174ab90f9` (LICENSE.md), with four skill files at `skills/improve/`. Metadata-only discovery; approved install/sync, lazy loading, FR/EN guides, generated catalog and credits, Skill Hub prompt samples, synthetic tests. Improve is a read-only adviser, writing plans only; optional isolated executor delegation does not entail a merge/push; GitHub issue publishing is explicit and security-sensitive. No user-machine installation or actual code audit was performed. **Before merge:** require six exact-PR-head CI matrix jobs, Chromium and Windows portable workflows, typecheck, tests, audit and pack; verify resulting main after a squash merge. No release/npm publication claimed.
+
+
+## 24. Real Windows audit and reliability fixes (2026-11-17)
+
+Branch `fix/windows-real-audit-20261117` from `main` `1c18385` (PR #77 merged; no open PR at start, main CI 3/3 green). First audit **run on the maintainer's actual Windows 11 PC** (standard account, Node 26.13, Claude Code 2.1.325, Codex 0.168; no uv/Docker/Gemini binary). All writes went to synthetic `--home` folders with spaces, accents and paths up to 281 characters; the real profile was only read (`doctor`, `mcp probe` handshakes). Full report: [docs/qa/WINDOWS_REAL_AUDIT_2026-11-17.md](docs/qa/WINDOWS_REAL_AUDIT_2026-11-17.md).
+
+**Fixed:** MCP package installs from deep homes (spawn cwd > MAX_PATH); restore/catalog staging beyond MAX_PATH (`mkdtempSafe`); EPERM test failures on standard accounts; misleading UI MCP statuses; uninstall preview now lists configurations still referencing the package; PowerShell 5.1 JSON quoting (`--arg`).
+
+**Added:** `doctor` prerequisites, MCP launch-target checks (central + native), SKILL.md frontmatter lint calibrated on Codex's real rejection, per-agent skill metadata token estimate; `mcp probe` (explicit, CLI-only handshake/tool call, Windows `.cmd` support, HTTP auth → unverified); `mcp demo-config`/`demo-server`. Docs: `docs/DIAGNOSTICS*.md`, README FR/EN rows, SECURITY, CHANGELOG, AGENTS rule 11.
+
+**Real evidence:** Claude Code invoked a junction-served skill and called synced MCP tools (demo `echo`, managed Filesystem `read_text_file`); `claude mcp list` matched `mcp probe` exactly; Codex read a synced skill and called an MCP tool. Fresh install (clone → npm ci → pack → isolated global install → `agent-commons.cmd`) and `pre-sync` restore (byte-identical) validated twice.
+
+**User-side findings (not repo bugs, not changed):** Codex/Gemini Config MCP `rea` points to a deleted WinGet Node 24 `node.exe`; local skill `misconception-diagnostic-designer` has invalid YAML (Codex refuses it); Claude Code's brevo MCP exposes 299 tools; ~13k tokens of skill metadata per session for 144 linked skills.
+
+**Not verified:** GitHub CI on the PR head, NVDA, SmartScreen, Gemini CLI/LM Studio/OpenCode real use, Fetch/Git MCP (uv absent), Playwright MCP, Antigravity and Claude Desktop invocation. **Next:** open PR, require CI 6/6 + Chromium + Windows portable on exact head SHA before merge; then fix the two user-side findings on request.
