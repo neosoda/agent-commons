@@ -129,3 +129,37 @@ export function lintSkillsDirectory(root: string): SkillLintResult[] {
   }
   return results;
 }
+
+/**
+ * Approximate tokens a client spends at session start to advertise the skills in `root`:
+ * native clients load only each skill's name and description (progressive disclosure), never
+ * the SKILL.md body. Linked skills are followed one level because that is what clients see.
+ * Estimate = characters / 4; it is not a provider tokenizer measurement.
+ */
+export function estimateSkillMetadataTokens(root: string): number {
+  if (inspectPath(root).state === 'missing') return 0;
+  let chars = 0;
+  for (const entry of fs.readdirSync(root)) {
+    if (entry.startsWith('.')) continue;
+    const file = path.join(root, entry, 'SKILL.md');
+    let text: string;
+    try {
+      const fd = fs.openSync(file, 'r');
+      try {
+        const buf = Buffer.alloc(Math.min(fs.fstatSync(fd).size, 8192));
+        fs.readSync(fd, buf, 0, buf.length, 0);
+        text = buf.toString('utf8');
+      } finally { fs.closeSync(fd); }
+    } catch { continue; }
+    const fm = /^﻿?---\r?\n([\s\S]*?)\r?\n---/.exec(text)?.[1] ?? '';
+    const lines = fm.split(/\r?\n/);
+    const start = lines.findIndex(l => l.startsWith('description:'));
+    let description = '';
+    if (start >= 0) {
+      description = lines[start]!.slice(12);
+      for (let i = start + 1; i < lines.length && /^\s/.test(lines[i]!); i++) description += ' ' + lines[i]!.trim();
+    }
+    chars += entry.length + Math.min(description.trim().length, MAX_DESCRIPTION) + 16;
+  }
+  return Math.round(chars / 4);
+}

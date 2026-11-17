@@ -160,6 +160,8 @@ export interface AgentDoctorStatus {
   mcpConfigPath: string | null;
   mcpStatus: 'not-supported' | 'missing' | 'valid' | 'corrupted';
   mcpServersCount: number;
+  /** Approximate tokens of skill names/descriptions the client loads at session start. */
+  skillMetadataTokens: number;
   issues: string[];
 }
 

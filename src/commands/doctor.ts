@@ -12,7 +12,7 @@ import {
   isSelfReferentialLink,
   removePhysicalDirectorySafe
 } from '../core/links.js';
-import { lintSkillsDirectory } from '../core/skill-lint.js';
+import { estimateSkillMetadataTokens, lintSkillsDirectory } from '../core/skill-lint.js';
 import { inspectLaunchTarget, readAgentMcpServers, resolveCommand } from '../mcp/health.js';
 import { redactSecrets } from '../security/scrubber.js';
 import { isValidIdentifier } from '../security/validator.js';
@@ -208,6 +208,8 @@ export function runDoctor(ctx: EnvironmentContext, agentFilter?: string[]): Doct
       mcpConfigPath: agent.mcpConfigPath,
       mcpStatus: mcpInspected.status,
       mcpServersCount: mcpInspected.serverNames.length,
+      skillMetadataTokens: agent.installed && agent.definition.skillsSupported !== false
+        ? estimateSkillMetadataTokens(agent.skillsDirPath) : 0,
       issues: agentIssues
     });
   }

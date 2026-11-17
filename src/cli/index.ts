@@ -399,7 +399,7 @@ export function runCli(argv: string[] = process.argv.slice(2)): number {
           ? `MCP: ${a.mcpStatus} (${a.mcpServersCount} servers, ${a.mcpFormat})`
           : `MCP: skills-only`;
         console.log(
-          `  * [${a.id.padEnd(18)}] Skills: ${a.linkedSkillsCount} linked, ${a.physicalSkillsCount} physical (${a.conflictSkillsCount} conflicts), ${a.brokenLinksCount} broken | ${mcpInfo}`
+          `  * [${a.id.padEnd(18)}] Skills: ${a.linkedSkillsCount} linked, ${a.physicalSkillsCount} physical (${a.conflictSkillsCount} conflicts), ${a.brokenLinksCount} broken${a.skillMetadataTokens ? ` (~${a.skillMetadataTokens} tokens of skill metadata per session)` : ''} | ${mcpInfo}`
         );
       }
 
