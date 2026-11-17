@@ -98,6 +98,18 @@ export function inspectPath(targetPath: string): PathInspection {
 }
 
 /**
+ * `fs.mkdtempSync` does not apply Node's long-path (`\\?\`) namespacing on Windows, so it fails
+ * with ENOENT once the template exceeds MAX_PATH even though `mkdirSync` succeeds. Namespace the
+ * prefix explicitly and return a regular path so callers keep comparing ordinary paths.
+ */
+export function mkdtempSafe(prefix: string, platform: NodeJS.Platform = process.platform): string {
+  if (platform !== 'win32') return fs.mkdtempSync(prefix);
+  const created = fs.mkdtempSync(path.toNamespacedPath(path.resolve(prefix)));
+  if (created.startsWith('\\\\?\\UNC\\')) return '\\\\' + created.slice(8);
+  return created.startsWith('\\\\?\\') ? created.slice(4) : created;
+}
+
+/**
  * Atomically writes a UTF-8 file by writing to a temporary sibling file, flushing to disk,
  * and renaming into place. Refuses to follow or overwrite a symlink at `filePath`.
  */

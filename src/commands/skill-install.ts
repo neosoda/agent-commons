@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { createFullBackup, SnapshotSession, restoreBackup } from '../core/backup.js';
 import { detectAgents } from '../agents/detector.js';
-import { arePathsEqual, inspectPath, removePhysicalDirectorySafe, writeFileAtomicSync } from '../core/links.js';
+import { arePathsEqual, inspectPath, mkdtempSafe, removePhysicalDirectorySafe, writeFileAtomicSync } from '../core/links.js';
 import { readPublicCatalog, type PublicSkill } from './public-catalog.js';
 import type { EnvironmentContext } from '../types.js';
 
@@ -286,7 +286,7 @@ export async function installCatalogSkill(
   const skill = currentSkill(ctx, id);
   canonicalGitHubRepository(skill.repository);
   fs.mkdirSync(ctx.commonsDir, { recursive: true });
-  const staging = fs.mkdtempSync(path.join(ctx.commonsDir, '.agent-commons-stage-'));
+  const staging = mkdtempSafe(path.join(ctx.commonsDir, '.agent-commons-stage-'));
   let moved = false;
   try {
     await stagePinnedFiles(staging, skill, preview.files, fetchJson);
@@ -591,7 +591,7 @@ export async function updateCatalogSkill(
   const skill = currentSkill(ctx, id);
   canonicalGitHubRepository(skill.repository);
   assertPhysicalRoots(ctx);
-  const staging = fs.mkdtempSync(path.join(ctx.commonsDir, '.agent-commons-stage-'));
+  const staging = mkdtempSafe(path.join(ctx.commonsDir, '.agent-commons-stage-'));
   let staged = true;
   try {
     await stagePinnedFiles(staging, skill, preview.files, fetchJson);
@@ -614,7 +614,7 @@ export async function updateCatalogSkill(
     session.recordPathBeforeModify('commons', 'central-skill', preview.target);
     const snapshot = session.commitManifest();
 
-    const quarantine = fs.mkdtempSync(path.join(ctx.commonsDir, '.agent-commons-prev-'));
+    const quarantine = mkdtempSafe(path.join(ctx.commonsDir, '.agent-commons-prev-'));
     // mkdtemp produces an empty destination; rename requires it absent.
     fs.rmdirSync(quarantine);
     let oldMoved = false;

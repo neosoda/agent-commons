@@ -7,6 +7,7 @@ import { runCli } from '../cli/index.js';
 import { runMcpProbe, selectProbeTargets } from '../commands/mcp-probe.js';
 import { runDoctor } from '../commands/doctor.js';
 import { createEnvironmentContext } from '../core/context.js';
+import { mkdtempSafe } from '../core/links.js';
 import { lintSkillText } from '../core/skill-lint.js';
 import { demoServerPath, handleDemoMessage } from '../mcp/demo-server.js';
 import { findPackageReferences, processCwd } from '../mcp/extension-manager.js';
@@ -143,6 +144,30 @@ describe('MCP launch diagnostics and probe', () => {
     assert.equal(processCwd(deep, 'win32'), os.tmpdir());
     assert.equal(processCwd('C:\\short', 'win32'), 'C:\\short');
     assert.equal(processCwd('/' + 'd'.repeat(300), 'linux'), '/' + 'd'.repeat(300));
+  });
+});
+
+describe('Windows long paths', () => {
+  it('creates temporary staging folders and restores snapshots beyond MAX_PATH', () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'ac-long-'));
+    try {
+      let home = root;
+      while (home.length < 250) home = path.join(home, 'dossier très long é');
+      fs.mkdirSync(home, { recursive: true });
+      const staged = mkdtempSafe(path.join(home, '.agent-commons-restore-'));
+      assert.ok(staged.length > 260 || process.platform !== 'win32');
+      assert.equal(fs.statSync(staged).isDirectory(), true);
+      assert.ok(!staged.startsWith('\\\\?\\'));
+      fs.mkdirSync(path.join(home, '.codex'));
+      const cfg = path.join(home, '.codex', 'config.toml');
+      fs.writeFileSync(cfg, '# perso\n');
+      assert.equal(runCli(['backup', '--home', home, '--json']), 0);
+      fs.writeFileSync(cfg, '# changed\n');
+      assert.equal(runCli(['restore', '--home', home, '--json']), 0);
+      assert.equal(fs.readFileSync(cfg, 'utf8'), '# perso\n');
+    } finally {
+      fs.rmSync(root, { recursive: true, force: true });
+    }
   });
 });
 

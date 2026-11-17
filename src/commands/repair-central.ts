@@ -6,7 +6,8 @@ import {
   isSelfReferentialLink,
   inspectPath,
   removePhysicalDirectorySafe,
-  writeFileAtomicSync
+  writeFileAtomicSync,
+  mkdtempSafe
 } from '../core/links.js';
 import { isValidIdentifier } from '../security/validator.js';
 import type { EnvironmentContext } from '../types.js';
@@ -139,7 +140,7 @@ export function repairCentralSkills(
           inspectPath(path.join(item.sourcePath!, 'SKILL.md')).state !== 'file') {
         throw new Error('Central link or source changed since preview; refusing repair.');
       }
-      stage = fs.mkdtempSync(path.join(ctx.centralSkillsDir, '.agent-commons-repair-'));
+      stage = mkdtempSafe(path.join(ctx.centralSkillsDir, '.agent-commons-repair-'));
       const stagedCopy = path.join(stage, 'skill');
       copyDirectorySafe(item.sourcePath!, stagedCopy);
       if (inspectPath(path.join(stagedCopy, 'SKILL.md')).state !== 'file') {
