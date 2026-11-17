@@ -7,6 +7,7 @@ import { createEnvironmentContext, discoverSkills, rankSkills, routeSmartSkills,
   loadSkill, loadSkills, resolveSkillDependencies, readSkillRouterConfig,
   saveAgentProfile } from '../index.js';
 import { runCli } from '../cli/index.js';
+import { linkDirectory, tryLinkFile } from './fs-links.js';
 
 describe('Smart Skill Router (offline and progressive)', () => {
   let home: string;
@@ -62,10 +63,11 @@ describe('Smart Skill Router (offline and progressive)', () => {
     const outside = path.join(home, 'outside.md');
     fs.writeFileSync(outside, 'private text');
     const dir = add('security-review', 'Security code review');
-    fs.symlinkSync(outside, path.join(dir, 'linked.md'));
-    assert.throws(() => loadSkill(ctx(), 'security-review', 'linked.md'), /Linked/);
+    if (tryLinkFile(outside, path.join(dir, 'linked.md'))) {
+      assert.throws(() => loadSkill(ctx(), 'security-review', 'linked.md'), /Linked/);
+    }
     const root = path.join(home, '.agents', 'skills', 'linked-skill');
-    fs.symlinkSync(dir, root, 'dir');
+    linkDirectory(dir, root);
     assert.throws(() => loadSkill(ctx(), 'linked-skill'), /absent/);
   });
 

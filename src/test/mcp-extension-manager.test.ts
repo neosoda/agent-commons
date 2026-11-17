@@ -7,6 +7,7 @@ import {createEnvironmentContext} from '../core/context.js';
 import {applyManagedMcp, inspectManagedMcps, previewManagedMcp} from '../mcp/extension-manager.js';
 import {previewMcpProvision,applyMcpProvision} from '../mcp/extension-provision.js';
 import type {EnvironmentContext} from '../types.js';
+import { linkDirectory } from './fs-links.js';
 
 describe('reviewed MCP extension lifecycle',()=>{
   let ctx:EnvironmentContext;
@@ -110,7 +111,7 @@ describe('reviewed MCP extension lifecycle',()=>{
     const ext=fs.mkdtempSync(path.join(os.tmpdir(),'mcp-linktarget-'));
     try{
       fs.mkdirSync(path.join(ctx.commonsDir,'mcp-packages'));
-      fs.symlinkSync(ext,path.join(ctx.commonsDir,'mcp-packages','playwright'),'dir');
+      linkDirectory(ext,path.join(ctx.commonsDir,'mcp-packages','playwright'));
       assert.throws(()=>previewManagedMcp(ctx,'playwright','install'),/already exists/);
     }finally{fs.rmSync(ext,{recursive:true,force:true});}
   });

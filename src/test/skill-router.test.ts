@@ -5,6 +5,7 @@ import path from 'node:path';
 import { afterEach, beforeEach, describe, it } from 'node:test';
 import { createEnvironmentContext, routeSkills, saveAgentProfile } from '../index.js';
 import { runCli } from '../cli/index.js';
+import { linkDirectory, tryLinkFile } from './fs-links.js';
 
 describe('Offline token-conscious skill routing', () => {
   let home: string;
@@ -68,10 +69,10 @@ describe('Offline token-conscious skill routing', () => {
     fs.writeFileSync(path.join(outside, 'SKILL.md'), 'description: security review');
     const skills = path.join(home, '.agents', 'skills');
     fs.mkdirSync(skills, { recursive: true });
-    fs.symlinkSync(outside, path.join(skills, 'security-link'), 'dir');
+    linkDirectory(outside, path.join(skills, 'security-link'));
     const physical = path.join(skills, 'security-file-link');
     fs.mkdirSync(physical);
-    fs.symlinkSync(path.join(outside, 'SKILL.md'), path.join(physical, 'SKILL.md'));
+    tryLinkFile(path.join(outside, 'SKILL.md'), path.join(physical, 'SKILL.md'));
     assert.equal(routeSkills(ctx(), 'security review').scanned, 0);
   });
 
