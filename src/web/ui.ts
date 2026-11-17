@@ -62,6 +62,7 @@ const HTML = String.raw`<!doctype html>
 <div class="panel"><h2>MCP catalog</h2><div id="center-catalog"></div></div>
 <div class="panel"><h2>Client inventory</h2><div id="center-clients"></div></div>
 </div>
+<p class="dim">A valid configuration is not proof that a server runs. Check launch targets with “agent-commons doctor” and test the MCP handshake with “agent-commons mcp probe”.</p>
 <div class="panel"><h2>MCP profiles</h2><p class="dim">Profiles add configured servers; they never remove other native MCPs. Servers not configured centrally are skipped.</p>
 <div class="filter-row"><select class="field" id="center-profile" aria-label="Choose MCP profile"></select><button class="btn" id="center-sync-preview">Preview MCP sync</button><button class="btn primary" id="center-sync-apply">Apply MCP sync</button></div>
 <h3>Target clients</h3><div id="center-agents" class="filter-row"></div><pre class="result-box hidden mt-16" id="center-report" role="status" aria-live="polite"></pre></div>
@@ -200,6 +201,7 @@ Object.assign(FR,{
   'No changes.':'Aucun changement.'
 });
 // Translate only anchored UI patterns; preserve captured IDs/names unchanged.
+FR['A valid configuration is not proof that a server runs. Check launch targets with “agent-commons doctor” and test the MCP handshake with “agent-commons mcp probe”.']='Une configuration valide ne prouve pas qu’un serveur fonctionne. Vérifiez les exécutables avec « agent-commons doctor » et testez la connexion MCP avec « agent-commons mcp probe ».';
 FR['Workspace refreshed; MCP status unavailable.']='Espace actualisé, mais état MCP indisponible.';
 const FR_PATTERNS=[
   [/^(\d+) skills · pinned upstream metadata$/,n=>n+' compétences · références épinglées'],
@@ -366,9 +368,7 @@ function filterCatalog(){
     card.append(header,rawNode('h3',item.name),rawNode('p',item.description));
     const bottom=node('div',null,'bottom');
     const audit=item.kind==='skill'?state.integrity.results.find(row=>row.skill===item.id):null;
-    const status=item.kind==='skill'?(!item.installed?'available':audit?.status==='intact'?'installed':audit?.status||'local'):
-      item.packageInfo?.updateAvailable?'Reviewed update available':item.packageInfo?.managed?(item.packageInfo.healthy?'Package installed':'Package needs repair'):
-      item.configured?'Configured centrally':item.detected?'Detected in client':item.unavailable?'Provider not vetted':'Reference only';
+    const status=item.kind==='skill'?(!item.installed?'available':audit?.status==='intact'?'installed':audit?.status||'local'):mcpStatusLabel(item);
     bottom.append(labelStatus(status));
     const button=node('button','View details','btn small');
     button.dataset.focusKey='catalog:'+item.kind+':'+item.id;
@@ -435,11 +435,15 @@ function localSkillDetails(item){
   close.onclick=closeDialog;buttons.append(close);box.append(buttons);showDialog(bg,box,close);
   bg.onclick=e=>{if(e.target===bg)closeDialog()};
 }
+function mcpStatusLabel(item){
+  return item.packageInfo?.updateAvailable?'Reviewed update available':item.packageInfo?.managed?(item.packageInfo.healthy?'Package installed':'Package needs repair'):
+    item.configured?'Configured centrally':item.detected?'Detected in client':item.unavailable?'Provider not vetted':'Reference only';
+}
 function mcpDetails(item){
   const bg=node('div',null,'modal-backdrop'),box=node('section',null,'modal');
   box.setAttribute('role','dialog');box.setAttribute('aria-modal','true');
   box.append(rawNode('div',item.categoryName,'eyebrow'),rawNode('h2',item.name),rawNode('p',item.description,'copy'));
-  const status=item.configured?'Configured centrally':item.detected?'Detected in client':item.unavailable?'Provider not vetted':'Reference only';
+  const status=mcpStatusLabel(item);
   box.append(row('Status',status,labelStatus(status)));
   if(item.risk)box.append(row('Risk',item.risk),row('Requirements',(item.requirements||[]).join(', ')||'None'));
   if(item.local)box.append(node('p','Local MCP name found; commands and credentials are not displayed.','copy'));
@@ -569,9 +573,13 @@ async function previewMcpPackage(op,id){
       'Risk level: '+p.risk,'Requirements: '+p.requirements.join(', '),
       '', 'Only the reviewed package is managed in an isolated local folder.',
       'Existing MCP client configurations are not modified by this operation.',
-      'Review upstream code and permissions before activation.'].join('\n');
+      'Review upstream code and permissions before activation.'];
+    if(p.referencedBy&&p.referencedBy.length)description.push('','WARNING: still referenced by '+p.referencedBy.join(', ')+'.',
+      'After uninstalling, those entries will point to a missing program and the server will fail to start.',
+      'Remove or re-point them first (MCP editor for the central manifest; native entries in each client).');
+    const text=description.join('\n');
     const title=op==='uninstall'?'Uninstall MCP':op==='repair'?'Repair MCP':op==='update'?'Update MCP':'Install MCP';
-    modal(title+' · '+id,description,title.split(' ')[0],async()=>{
+    modal(title+' · '+id,text,title.split(' ')[0],async()=>{
       await request('/api/action',{action:'mcp-package-apply',id,operation:op,expectedRevision:p.revision,approved:true});
       showToast('MCP package '+id+' '+op+' completed');await refresh();
     },op==='uninstall'?id:undefined);
@@ -776,7 +784,7 @@ function renderMcpCenter(){
     item.append(link);catalog.append(item);
   });
   const clients=$('center-clients');clear(clients);
-  centerState.clients.forEach(c=>clients.append(row(c.name,(c.installed?c.servers.length+' native MCP':'not detected')+' · '+c.status,
+  centerState.clients.forEach(c=>clients.append(row(c.name,(c.installed?c.servers.length+' native MCP':'not detected')+' · '+(c.status==='valid'?'config valid, not started':c.status),
     labelStatus(c.status==='corrupted'?'unsafe':c.installed?'installed':'missing'))));
   const select=$('center-profile'),previous=select.value;clear(select);
   for(const name of [...Object.keys(centerState.presets),...Object.keys(centerState.profiles.data.profiles)]){
