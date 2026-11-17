@@ -178,6 +178,11 @@ export interface DoctorReport {
   centralMcpServersCount: number;
   agents: AgentDoctorStatus[];
   issues: string[];
+  /** Problems that do not corrupt state but make a skill or MCP server unusable by a client. */
+  warnings: string[];
+  prerequisites: Array<{ name: string; found: boolean; detail?: string }>;
+  mcpLaunch: Array<{ scope: string; server: string; status: string; message: string }>;
+  skillLint: Array<{ scope: string; skill: string; errors: string[]; advisories: string[] }>;
 }
 
 export interface ListReport {

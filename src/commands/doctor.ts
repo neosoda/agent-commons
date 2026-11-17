@@ -12,6 +12,8 @@ import {
   isSelfReferentialLink,
   removePhysicalDirectorySafe
 } from '../core/links.js';
+import { lintSkillsDirectory } from '../core/skill-lint.js';
+import { inspectLaunchTarget, readAgentMcpServers, resolveCommand } from '../mcp/health.js';
 import { redactSecrets } from '../security/scrubber.js';
 import { isValidIdentifier } from '../security/validator.js';
 import { inspectAgentMcpConfig, loadCentralMcpManifest } from '../sync/mcp.js';
@@ -50,6 +52,30 @@ function probeLinkCapability(platform: NodeJS.Platform): { ok: boolean; error?: 
     return { ok: false, error: redactSecrets((err as Error).message) };
   }
 }
+
+const PREREQUISITES = ['npm', 'npx', 'git', 'uv', 'uvx', 'python', 'docker'] as const;
+
+function checkPrerequisites(): DoctorReport['prerequisites'] {
+  const major = Number(process.versions.node.split('.')[0]);
+  const list: DoctorReport['prerequisites'] = [
+    { name: 'node', found: major >= 22, detail: process.version + (major >= 22 ? '' : ' (Node.js 22+ required)') }
+  ];
+  for (const name of PREREQUISITES) {
+    // PATH lookup only: nothing is executed.
+    const resolved = resolveCommand(name) ?? (name === 'python' ? resolveCommand('python3') : null);
+    list.push({ name, found: resolved !== null });
+  }
+  return list;
+}
+
+const LAUNCH_HINTS: Record<string, string> = {
+  uv: 'install uv (Windows: "winget install astral-sh.uv")',
+  uvx: 'install uv (Windows: "winget install astral-sh.uv")',
+  npx: 'install Node.js 22+ with npm',
+  npm: 'install Node.js 22+ with npm',
+  docker: 'install Docker Desktop',
+  python: 'install Python 3'
+};
 
 /**
  * Runs a comprehensive, read-only health check across the central library and supported agents.
@@ -186,6 +212,47 @@ export function runDoctor(ctx: EnvironmentContext, agentFilter?: string[]): Doct
     });
   }
 
+  const warnings: string[] = [];
+  const prerequisites = checkPrerequisites();
+  const mcpLaunch: DoctorReport['mcpLaunch'] = [];
+  const recordLaunch = (scope: string, label: string, server: string, spec: Parameters<typeof inspectLaunchTarget>[0]) => {
+    const r = inspectLaunchTarget(spec, process.env, ctx.platform);
+    mcpLaunch.push({ scope, server, status: r.status, message: r.message });
+    if (r.status === 'missing-command' || r.status === 'missing-script' || r.status === 'invalid') {
+      const base = spec.command ? path.basename(spec.command).replace(/\.(exe|cmd|bat)$/i, '').toLowerCase() : '';
+      const hint = r.status === 'missing-command' && LAUNCH_HINTS[base] ? `; ${LAUNCH_HINTS[base]}` : '';
+      warnings.push(`[${label}] MCP "${server}" cannot start: ${r.message}${hint}.`);
+    }
+  };
+  if (loadedMcp.status === 'valid') {
+    for (const [name, spec] of Object.entries(loadedMcp.manifest.mcpServers)) recordLaunch('central', 'Central MCP', name, spec);
+  }
+  for (const agent of detectedAgents) {
+    if (!agent.installed) continue;
+    const status = agentStatuses.find(a => a.id === agent.definition.id);
+    if (status?.mcpStatus !== 'valid') continue;
+    try {
+      for (const [name, spec] of Object.entries(readAgentMcpServers(agent))) {
+        recordLaunch(agent.definition.id, agent.definition.name, name, spec);
+      }
+    } catch { /* parse errors are already reported as corrupted */ }
+  }
+
+  const skillLint: DoctorReport['skillLint'] = [];
+  const lintScope = (scope: string, label: string, dir: string) => {
+    for (const r of lintSkillsDirectory(dir)) {
+      skillLint.push({ scope, skill: r.skill, errors: r.errors, advisories: r.advisories });
+      if (r.errors.length) warnings.push(`[${label}] Skill "${r.skill}" will be rejected by clients such as Codex: ${r.errors.join('; ')}.`);
+    }
+  };
+  lintScope('central', 'Central skills', ctx.centralSkillsDir);
+  for (const agent of detectedAgents) {
+    if (agent.installed && agent.definition.skillsSupported !== false &&
+        !arePathsEqual(agent.skillsDirPath, ctx.centralSkillsDir, ctx.platform)) {
+      lintScope(agent.definition.id, agent.definition.name, agent.skillsDirPath);
+    }
+  }
+
   const hasCriticalIssues =
     !probe.ok ||
     invalidCentralLinks > 0 ||
@@ -206,6 +273,10 @@ export function runDoctor(ctx: EnvironmentContext, agentFilter?: string[]): Doct
     centralMcpStatus: loadedMcp.status,
     centralMcpServersCount: centralMcpCount,
     agents: agentStatuses,
-    issues
+    issues,
+    warnings: warnings.map(w => redactSecrets(w)),
+    prerequisites,
+    mcpLaunch,
+    skillLint
   };
 }
