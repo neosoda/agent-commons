@@ -693,9 +693,9 @@ Le **Skill Hub local** réunit désormais la découverte des **skills et des ser
 
 Le catalogue reste **en lecture seule** : consulter une fiche ou copier un prompt ne télécharge rien et ne démarre aucun MCP. Les installations et synchronisations conservent leur aperçu et confirmation. [Guide](docs/INTERACTIVE_CATALOG.md).
 
-## MCP Control Center et Extension Manager — v0.5.1
+## MCP Control Center et Extension Manager — v0.5.2
 
-**Version GitHub publiée :** [v0.5.1](https://github.com/neosoda/agent-commons/releases/tag/v0.5.1), archive Windows x64 et SHA-256 vérifiés. [Preuve de publication](docs/releases/v0.5.1.md). Versions précédentes : [v0.5.0](docs/releases/v0.5.0.md), [v0.4.0](docs/releases/v0.4.0.md).
+**Version GitHub publiée :** [v0.5.2](https://github.com/neosoda/agent-commons/releases/tag/v0.5.2), archive Windows x64 et SHA-256 vérifiés. [Preuve de publication](docs/releases/v0.5.2.md). Versions précédentes : [v0.5.1](docs/releases/v0.5.1.md), [v0.5.0](docs/releases/v0.5.0.md), [v0.4.0](docs/releases/v0.4.0.md).
 
 Le Skill Hub propose désormais une page **MCP Control Center** : inventaire local des MCP, catalogue de neuf références vérifiées, profils OSINT / Développement / Infrastructure / Desktop Control, profils personnalisés, et synchronisation sélective après aperçu et validation. **LM Studio** est reconnu nativement via le fichier `~/.lmstudio/mcp.json` (Windows : `%USERPROFILE%\.lmstudio\mcp.json`) sans lui créer de faux dossier de skills.
 
