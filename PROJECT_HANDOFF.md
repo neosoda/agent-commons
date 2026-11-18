@@ -1,6 +1,6 @@
 # Agent Commons — PROJECT_HANDOFF
 
-> **Operational handoff, last verified: 2026-11-17 (sections 24-26; v0.5.2 published).** Read this file before modifying the repository; then check live `main`, release/tag, PRs, issues and GitHub Actions **by exact commit SHA**. Historical SHA and run IDs below are a snapshot, not a promise of current status.
+> **Operational handoff, last verified: 2026-11-17 (sections 24-27; v0.5.3 published).** Read this file before modifying the repository; then check live `main`, release/tag, PRs, issues and GitHub Actions **by exact commit SHA**. Historical SHA and run IDs below are a snapshot, not a promise of current status.
 
 ## 0. Active development — Extension Manager (2026-11-15)
 
@@ -416,5 +416,8 @@ Maintainer approved fixing the last two warnings. `rea` MCP: configs backed up t
 odejs
 ode.exe` + `%APPDATA%
 pm
-ode_modulesea-agents\scriptsea.mjs`; `mcp probe` OK (255 tools) in both. Duplicate `design-system`: product fix on `fix/skill-name-alignment-20261118` (install/update align frontmatter `name` with the catalog id; receipts keep `upstreamGitBlobSha1`; new offline `catalog align-names`). Applied on the real profile (snapshot `snapshot-20261118-100318-26c465`); `ecc-design-system` verifies intact; real Codex lists one `design-system`, zero load errors; `doctor` Healthy with 0 warnings.
+ode_modules
+ea-agents\scripts
+ea.mjs`; `mcp probe` OK (255 tools) in both. Duplicate `design-system`: product fix on `fix/skill-name-alignment-20261118` (install/update align frontmatter `name` with the catalog id; receipts keep `upstreamGitBlobSha1`; new offline `catalog align-names`). Applied on the real profile (snapshot `snapshot-20261118-100318-26c465`); `ecc-design-system` verifies intact; real Codex lists one `design-system`, zero load errors; `doctor` Healthy with 0 warnings.
 
+**Release v0.5.3 published (2026-11-18):** PR #84 squash-merged as `6f8d59b`; release v0.5.3 (latest) on that SHA; ZIP 36,556,085 bytes, SHA-256 `62b0d8c6…097b`, re-verified on the physical PC. Record: [docs/releases/v0.5.3.md](docs/releases/v0.5.3.md). Real profile: `doctor` Healthy with 0 warnings. **Next:** optional token reduction (rea exposes 255 MCP tools and brevo 299 in Claude Code; skill metadata ~13-21k tokens per session).
