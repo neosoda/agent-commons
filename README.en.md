@@ -506,7 +506,7 @@ Use `node dist/cli/index.js --help` for the full help, or `node dist/cli/index.j
 
 **21 registered environments**, with paths checked against each vendor's official documentation (November 2026). "Real test" means the actual client was run on Windows 11 against a configuration synced by Agent Commons; see the [report](docs/qa/WINDOWS_REAL_AUDIT_2026-11-17.md).
 
-**Native shared library.** Codex, Gemini CLI, Cursor, OpenCode and Windsurf read `~/.agents/skills` (the central library) themselves: every skill is visible without links. Agent Commons therefore no longer links into their own folders (that produced duplicates, and one "Skill conflict" warning per skill in Gemini CLI), and `sync` removes redundant links with a restorable snapshot. For these clients a per-agent profile cannot hide a central skill.
+**Native shared library.** Codex, Gemini CLI, Cursor, OpenCode and Windsurf read `~/.agents/skills` (the central library) themselves: every skill is visible without links. Agent Commons therefore no longer links into their own folders (that produced duplicates, and one "Skill conflict" warning per skill in Gemini CLI), and `sync` removes redundant links with a restorable snapshot. To clean only those duplicates, target the affected clients: `sync --skills-only --agent codex --agent gemini-cli --dry-run`, then without `--dry-run` (a sync without `--agent` also links every central skill into the other clients). For these clients a per-agent profile cannot hide a central skill.
 
 ### Skills + MCP (12)
 

@@ -491,7 +491,7 @@ La commande `node dist/cli/index.js --help` fournit l'aide complète et `node di
 
 **21 environnements d'agents enregistrés**, avec des chemins vérifiés dans la documentation officielle de chaque éditeur (novembre 2026). « Testé en réel » signifie que le vrai client a été lancé sur Windows 11 contre une configuration synchronisée par Agent Commons ; voir le [rapport](docs/qa/WINDOWS_REAL_AUDIT_2026-11-17.md).
 
-**Bibliothèque partagée native.** Codex, Gemini CLI, Cursor, OpenCode et Windsurf lisent eux-mêmes `~/.agents/skills` (la bibliothèque centrale) : tous les skills y sont visibles sans lien. Agent Commons ne crée donc plus de lien dans leur dossier propre (cela provoquait des doublons, et un avertissement « Skill conflict » par skill dans Gemini CLI) et `sync` retire les liens redondants, avec snapshot de restauration. Pour ces clients, un profil par agent ne peut pas masquer un skill central.
+**Bibliothèque partagée native.** Codex, Gemini CLI, Cursor, OpenCode et Windsurf lisent eux-mêmes `~/.agents/skills` (la bibliothèque centrale) : tous les skills y sont visibles sans lien. Agent Commons ne crée donc plus de lien dans leur dossier propre (cela provoquait des doublons, et un avertissement « Skill conflict » par skill dans Gemini CLI) et `sync` retire les liens redondants, avec snapshot de restauration. Pour ne nettoyer que ces doublons, ciblez les clients concernés : `sync --skills-only --agent codex --agent gemini-cli --dry-run`, puis sans `--dry-run` (un `sync` sans `--agent` lie aussi tous les skills centraux dans les autres clients). Pour ces clients, un profil par agent ne peut pas masquer un skill central.
 
 ### Skills + MCP (12)
 
