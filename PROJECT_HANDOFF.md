@@ -403,3 +403,8 @@ Branch `feat/all-clients-compat-20261118`. Official docs (checked 2026-11-18) sh
 **Not applied to the real profile:** removal of the 287 redundant links in `~/.codex/skills` and `~/.gemini/skills` (needs `agent-commons sync --skills-only` with the maintainer's approval). `rea` MCP still broken (package missing).
 
 **Release v0.5.1 published (2026-11-18):** PR #80 squash-merged as `7b9bce4`; release v0.5.1 (latest) on that SHA; ZIP 36,552,619 bytes, SHA-256 `249af29a…e3ad`, re-verified on the physical PC. Record: [docs/releases/v0.5.1.md](docs/releases/v0.5.1.md). **Next:** with the maintainer's approval, run `agent-commons sync --skills-only` on the real profile to remove the 287 redundant links; decide on reinstalling `rea-agents`.
+
+## 26. Real-profile duplicate cleanup and v0.5.2 (2026-11-18)
+
+Maintainer approved removing duplicate links. A plain `sync --skills-only` dry-run on the real profile would also have created 96 links in Claude Code and legacy Antigravity, so the cleanup ran as `sync --skills-only --agent codex --agent gemini-cli` (snapshot `snapshot-20261118-090754-968f5a`): 287 links removed, nothing else changed. Real Codex afterwards: 349 skills, zero load errors, skills served from `~/.agents/skills`. Code fix on `fix/dedupe-guidance-20261118`: doctor advice now names the affected agents; sync reports a central-linked skills root as `native-shared`. Remaining real-profile warnings: `rea` MCP (package missing) and duplicate name `design-system` (central `design-system` and catalog `ecc-design-system`).
+

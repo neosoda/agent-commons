@@ -104,6 +104,15 @@ describe('Multi-client compatibility (documented skill and MCP locations)', () =
     assert.equal(codex.redundantLinksCount, 1);
     assert.equal(codex.skillMetadataTokens, antigravity.skillMetadataTokens);
     assert.ok(doc.warnings.some(w => w.includes('"design-system" is declared by')), doc.warnings.join('\n'));
-    assert.ok(doc.warnings.some(w => w.includes('duplicate skills the client already reads')), doc.warnings.join('\n'));
+    const advice = doc.warnings.find(w => w.includes('duplicate skills the client already reads'));
+    assert.ok(advice, doc.warnings.join('\n'));
+    assert.match(advice!, /sync --skills-only --agent codex"/, 'advice targets only affected clients');
+    // A skills root linked to the central library is reported as already shared, never as a conflict.
+    fs.mkdirSync(path.join(home, '.claude'));
+    const sync = runSync(ctx, { skillsOnly: true, agentFilter: ['gemini-config', 'claude-code'] });
+    assert.deepEqual(sync.errors, []);
+    assert.ok(sync.skillResults.some(r => r.agentId === 'gemini-config' && r.action === 'native-shared'));
+    assert.equal(sync.skillResults.some(r => r.agentId === 'gemini-config' && r.action === 'conflict-skipped'), false);
+    assert.equal(inspectPath(path.join(home, '.gemini', 'config', 'skills')).state, 'link');
   });
 });

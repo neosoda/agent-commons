@@ -152,6 +152,19 @@ export function syncSkillsForAgents(
 
   for (const agent of options.skillFilterByAgent ? [] : installedAgents) {
     const skillsDirInfo = inspectPath(agent.skillsDirPath);
+    if (skillsDirInfo.state === 'link' && skillsDirInfo.resolvedTarget &&
+        arePathsEqual(skillsDirInfo.resolvedTarget, ctx.centralSkillsDir, ctx.platform)) {
+      // The whole skills folder is a link to the central library: every skill is already visible.
+      results.push({
+        agentId: agent.definition.id,
+        agentName: agent.definition.name,
+        skillName: '*',
+        targetPath: agent.skillsDirPath,
+        action: 'native-shared',
+        message: 'Skills folder is linked to ~/.agents/skills: all central skills are already visible.'
+      });
+      continue;
+    }
     if (skillsDirInfo.state === 'link' || skillsDirInfo.state === 'file') {
       results.push({
         agentId: agent.definition.id,

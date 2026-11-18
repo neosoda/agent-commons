@@ -252,9 +252,13 @@ export function runDoctor(ctx: EnvironmentContext, agentFilter?: string[]): Doct
     } catch { /* parse errors are already reported as corrupted */ }
   }
 
-  for (const a of agentStatuses.filter(s => s.redundantLinksCount > 0)) {
+  // Target only the affected clients: a plain sync would also link every central skill into
+  // clients that read their own folder (e.g. Claude Code), growing their per-session token cost.
+  const redundant = agentStatuses.filter(s => s.redundantLinksCount > 0);
+  const dedupeCommand = 'agent-commons sync --skills-only ' + redundant.map(a => '--agent ' + a.id).join(' ');
+  for (const a of redundant) {
     warnings.push(`[${a.name}] ${a.redundantLinksCount} link(s) duplicate skills the client already reads from ~/.agents/skills` +
-      ' (duplicates or conflict warnings); "agent-commons sync --skills-only" removes them.');
+      ` (duplicates or conflict warnings); "${dedupeCommand}" removes only them (preview with --dry-run).`);
   }
 
   // Two different folders declaring the same frontmatter name collide inside a client that sees both.

@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.2] - 2026-11-18
+
+Release notes: docs/releases/v0.5.2-release-notes.md
+
+### Fixed
+- `doctor` duplicate-link advice targets only the affected clients (`sync --skills-only --agent …`); a plain skills sync would also link every missing central skill into clients such as Claude Code.
+- `sync` reports a client skills folder linked to `~/.agents/skills` as already shared instead of a conflict.
+
 ## [0.5.1] - 2026-11-18
 
 Release notes: docs/releases/v0.5.1-release-notes.md
