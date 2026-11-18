@@ -883,7 +883,7 @@ $('sync-apply').onclick=()=>guardedPreview($('sync-apply'),'skills',async curren
     showToast('Profiles synchronized');await refresh()
   },'SYNC')
 });
-$('doctor-run').onclick=async()=>{try{const r=await request('/api/doctor');const p=$('doctor-report');p.classList.remove('hidden');p.textContent=['Health: '+(r.healthy?'OK':'Attention'),'Link capability: '+(r.linkCapabilityVerified?'OK':'Failed'),'Central MCP: '+r.centralMcpStatus,...r.issues].join('\n')||'No issues';}catch(err){showToast(err.message,true)}};
+$('doctor-run').onclick=async()=>{try{const r=await request('/api/doctor');const p=$('doctor-report');p.classList.remove('hidden');p.textContent=['Health: '+(r.healthy?'OK':'Attention'),'Link capability: '+(r.linkCapabilityVerified?'OK':'Failed'),'Central MCP: '+r.centralMcpStatus,...r.issues,...(r.warnings||[]).map(w=>'Warning: '+w),...r.agents.filter(a=>a.installed&&a.skillMetadataTokens).map(a=>a.name+': ~'+a.skillMetadataTokens+' tokens of skill metadata per session'),'MCP servers are not started here; run "agent-commons mcp probe" to test them.'].join('\n')||'No issues';}catch(err){showToast(err.message,true)}};
 $('full-sync-preview').onclick=()=>guardedPreview($('full-sync-preview'),'full',async current=>{
   const r=await request('/api/action',{action:'sync-all-preview'});if(!current())return;
   const report=$('full-sync-report');report.classList.remove('hidden');report.textContent=formatSync(r)

@@ -342,13 +342,26 @@ export async function startWebServer(options: WebOptions = {}): Promise<WebInsta
           if (agent.conflictSkillsCount) issues.push(agent.name + ': ' + agent.conflictSkillsCount + ' skill conflicts.');
           if (agent.mcpStatus === 'corrupted') issues.push(agent.name + ': MCP configuration is invalid.');
         }
+        // Sanitized warnings: server/skill names and statuses only, never commands, paths or env.
+        const agentNames = new Map(doctor.agents.map(agent => [agent.id, agent.name]));
+        const warnings: string[] = [];
+        for (const m of doctor.mcpLaunch) {
+          if (!['missing-command', 'missing-script', 'invalid'].includes(m.status)) continue;
+          const scope = m.scope === 'central' ? 'Shared MCP manifest' : (agentNames.get(m.scope) ?? m.scope);
+          warnings.push(scope + ': MCP "' + m.server + '" cannot start (' +
+            (m.status === 'missing-script' ? 'script missing' : m.status === 'invalid' ? 'no command' : 'executable not found') + ').');
+        }
+        for (const s of doctor.skillLint.filter(s => s.errors.length)) {
+          warnings.push('Skill "' + s.skill + '" has invalid SKILL.md metadata and will be rejected by some clients.');
+        }
         json(res, 200, { healthy: doctor.healthy && issues.length === 0,
           linkStrategy: doctor.linkStrategy, linkCapabilityVerified: doctor.linkCapabilityVerified,
           centralMcpStatus: doctor.centralMcpStatus,
           agents: doctor.agents.map(agent => ({ id: agent.id, name: agent.name,
             installed: agent.installed, brokenLinksCount: agent.brokenLinksCount,
-            conflictSkillsCount: agent.conflictSkillsCount, mcpStatus: agent.mcpStatus })),
-          issues }); return;
+            conflictSkillsCount: agent.conflictSkillsCount, mcpStatus: agent.mcpStatus,
+            skillMetadataTokens: agent.skillMetadataTokens })),
+          issues, warnings }); return;
       }
       if (req.method === 'GET' && path.pathname === '/api/preview') {
         const id = checkedId(path.searchParams.get('id'));
