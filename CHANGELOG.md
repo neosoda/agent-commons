@@ -21,6 +21,7 @@ Release notes: docs/releases/v0.5.0-release-notes.md
 - Reviewed npm/uv MCP package installs failed with "package manager is unavailable" when the home path was deep (spawn working directory over MAX_PATH).
 - Restore, catalog install/update and central repair failed with ENOENT beyond MAX_PATH (`fs.mkdtempSync` ignores long-path namespacing).
 - Three test suites failed with EPERM on standard Windows accounts (file symlinks need a privilege); directory links now use junctions.
+- Portable build smoke test failed under Windows PowerShell 5.1 (`Invoke-WebRequest` without `-UseBasicParsing`) and ran against the builder's real profile.
 - MCP details dialog showed "Reference only" for an installed package; Control Center now says "config valid, not started" instead of "valid".
 
 ### Added — shadcn Improve (pinned advisory skill)
