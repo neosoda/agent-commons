@@ -9,9 +9,10 @@ preview first, use a backup, and keep independent recovery copies for important 
 
 | Version | Security fixes |
 |---|---|
-| 0.4.x | Supported (current) |
-| 0.3.x | Superseded; upgrade to 0.4.x |
-| 0.2.x | Unsupported; upgrade to 0.4.x |
+| 0.5.x | Supported (current) |
+| 0.4.x | Superseded; upgrade to 0.5.x |
+| 0.3.x | Unsupported; upgrade to 0.5.x |
+| 0.2.x | Unsupported; upgrade to 0.5.x |
 | 0.1.x | Unsupported |
 
 ## Security boundaries and guarantees

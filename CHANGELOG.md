@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-11-18
+
+Release notes: docs/releases/v0.5.0-release-notes.md
+
 ### Added — real Windows diagnostics (audit of 2026-11-17)
 - `doctor` checks prerequisites on PATH, MCP launch targets for the central manifest and every native client, `SKILL.md` frontmatter errors that clients reject, and estimates per-agent skill metadata tokens. Problems are reported as `warnings`.
 - `mcp probe` explicitly starts MCP servers (central or `--agent`), performs `initialize` + `tools/list`, optionally one `tools/call`, and stops the process tree; Windows `.cmd` shims supported safely; HTTP servers needing credentials reported as unverified.
@@ -23,7 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Reviewed MIT `improve` catalog entry, optional approved install and lazy routing, FR/EN documentation and Skill Hub sample prompts.
 - Advisor audits code read-only and writes implementation plans; no automatic source edit, installation, subagent dispatch or merge.
 
-### Added — reviewed MCP Extension Manager (PR #76, not yet released)
+### Added — reviewed MCP Extension Manager
 - Managed package lifecycle: isolated pinned npm/uv installations, explicit preview/approval, repair, approved-version update and uninstall; external clients untouched by package operations.
 - Unified Skills & MCP catalog displays managed state and reviewed update availability.
 - Guided MCP provisioning for Playwright/Fetch/Filesystem/Git with client selection, directory scoping and separate targeted sync with revision-bound approval.
