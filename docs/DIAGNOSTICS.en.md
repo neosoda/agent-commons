@@ -64,5 +64,6 @@ claude mcp list                          # verification by the client itself
 - **Long paths**: `git clone` into a path over 260 characters fails without `git config --global core.longpaths true`. Agent Commons handles deep working folders (MCP package installs, restore).
 - **Upgraded runtimes**: an MCP entry pointing at an absolute `node.exe` of an old version (for example under `WinGet\Packages\…node-v24…`) stops working after an upgrade; `doctor` reports it. Prefer `node` (resolved through PATH).
 - **uv**: required for the Fetch and Git MCP servers (`winget install astral-sh.uv`).
+- **Gemini CLI**: MCP servers stay disabled in an untrusted folder; trust the working folder to enable them.
 - **Restart**: restart the AI client after a sync so it rereads skills and MCP.
 - **Fully undoing a sync**: restore the automatic `pre-sync` snapshot, which also records paths that did not exist before the sync; a manual `backup` only records what existed.

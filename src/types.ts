@@ -1,4 +1,4 @@
-export type McpFormat = 'standard-json' | 'opencode-jsonc' | 'codex-toml';
+export type McpFormat = 'standard-json' | 'opencode-jsonc' | 'codex-toml' | 'copilot-json';
 
 export interface EnvironmentContext {
   homeDir: string;
@@ -22,6 +22,13 @@ export interface AgentDefinition {
   detectPaths: (ctx: EnvironmentContext) => string[];
   skillsDir: (ctx: EnvironmentContext) => string;
   skillsSupported?: boolean;
+  /**
+   * The client natively scans the shared `~/.agents/skills` library (verified against its official
+   * documentation). Agent Commons then creates no per-agent links: they would only duplicate every
+   * skill (Gemini CLI prints a conflict warning per duplicate), and per-agent profiles cannot hide
+   * central skills from such a client.
+   */
+  readsCentralSkills?: boolean;
   mcpConfig?: AgentMcpConfigDef;
 }
 
@@ -73,6 +80,8 @@ export type SkillSyncAction =
   | 'conflict-skipped'
   | 'adopted-to-central'
   | 'unmanaged-local'
+  | 'native-shared'
+  | 'deduplicated'
   | 'error';
 
 export interface SkillSyncResultItem {
@@ -162,6 +171,10 @@ export interface AgentDoctorStatus {
   mcpServersCount: number;
   /** Approximate tokens of skill names/descriptions the client loads at session start. */
   skillMetadataTokens: number;
+  /** The client reads ~/.agents/skills itself (all central skills visible, no links needed). */
+  readsCentralSkills: boolean;
+  /** Links in the client's own folder that duplicate a central skill it already reads natively. */
+  redundantLinksCount: number;
   issues: string[];
 }
 
@@ -196,6 +209,7 @@ export interface ListReport {
     name: string;
     installed: boolean;
     skillsSupported: boolean;
+    readsCentralSkills: boolean;
     mcpSupported: boolean;
     linkedSkills: string[];
     localPhysicalSkills: string[];

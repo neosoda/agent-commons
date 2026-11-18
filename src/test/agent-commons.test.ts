@@ -56,7 +56,7 @@ describe('Agent Commons - Intensive Hardening & Security Test Suite', () => {
     it('handles a completely virgin environment gracefully (doctor, list, sync)', () => {
       const ctx = createEnvironmentContext({ homeDir: sandboxDir });
       const detected = detectAgents(ctx);
-      assert.equal(detected.length, 18);
+      assert.equal(detected.length, AGENT_REGISTRY.length);
       assert.equal(detected.filter((a) => a.installed).length, 0);
 
       const doc = runDoctor(ctx);
@@ -88,7 +88,7 @@ describe('Agent Commons - Intensive Hardening & Security Test Suite', () => {
       }
 
       const detected = detectAgents(ctx);
-      assert.equal(detected.length, 18);
+      assert.equal(detected.length, AGENT_REGISTRY.length);
       for (const agent of detected) {
         assert.equal(
           agent.installed,
@@ -204,7 +204,7 @@ describe('Agent Commons - Intensive Hardening & Security Test Suite', () => {
       // Second sync verifies path comparison works cleanly with spaces/special chars
       const sync2 = runSync(ctx);
       assert.equal(
-        sync2.skillResults.every((r) => r.action === 'already-synced'),
+        sync2.skillResults.every((r) => r.action === 'already-synced' || r.action === 'native-shared'),
         true
       );
       assert.equal(
@@ -230,12 +230,15 @@ describe('Agent Commons - Intensive Hardening & Security Test Suite', () => {
         }
       }
 
-      // Run 1: creates 34 links (17 skill-compatible agents * 2 skills)
+      // Run 1: links only for skill-compatible agents that do not read ~/.agents/skills natively
+      const linking = AGENT_REGISTRY.filter(d => d.skillsSupported !== false && !d.readsCentralSkills).length;
+      const native = AGENT_REGISTRY.filter(d => d.skillsSupported !== false && d.readsCentralSkills).length;
       const report1 = runSync(ctx);
       assert.equal(report1.errors.length, 0);
+      assert.equal(report1.skillResults.filter((r) => r.action === 'native-shared').length, native);
       assert.equal(
         report1.skillResults.filter((r) => r.action === 'created-link').length,
-        34
+        linking * 2
       );
 
       // Run 2 & Run 3: 100% already-synced, no redundant snapshots
@@ -243,14 +246,14 @@ describe('Agent Commons - Intensive Hardening & Security Test Suite', () => {
       assert.equal(report2.snapshotId, null);
       assert.equal(
         report2.skillResults.filter((r) => r.action === 'already-synced').length,
-        34
+        linking * 2
       );
 
       const report3 = runSync(ctx);
       assert.equal(report3.snapshotId, null);
       assert.equal(
         report3.skillResults.filter((r) => r.action === 'already-synced').length,
-        34
+        linking * 2
       );
     });
 
@@ -288,7 +291,7 @@ describe('Agent Commons - Intensive Hardening & Security Test Suite', () => {
       const ctx = createEnvironmentContext({ homeDir: sandboxDir });
       writeSkill(ctx.centralSkillsDir, 'core-skill', '# Core');
 
-      const codexSkillsDir = path.join(sandboxDir, '.codex', 'skills');
+      const codexSkillsDir = path.join(sandboxDir, '.claude', 'skills');
       writeSkill(codexSkillsDir, 'unique-codex-skill', '# Unique Local Skill');
 
       const report1 = runSync(ctx);
@@ -316,7 +319,7 @@ describe('Agent Commons - Intensive Hardening & Security Test Suite', () => {
       const wrongTarget = writeSkill(path.join(sandboxDir, 'wrong'), 'misdirected', '# Wrong');
       const deletedTarget = writeSkill(path.join(sandboxDir, 'temp-deleted'), 'dangling', '# Gone');
 
-      const cursorSkillsDir = path.join(sandboxDir, '.cursor', 'skills');
+      const cursorSkillsDir = path.join(sandboxDir, '.kiro', 'skills');
       fs.mkdirSync(cursorSkillsDir, { recursive: true });
 
       const misdirectedLink = path.join(cursorSkillsDir, 'misdirected');

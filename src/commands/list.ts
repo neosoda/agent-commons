@@ -47,6 +47,7 @@ export function runList(ctx: EnvironmentContext, agentFilter?: string[]): ListRe
       name: agent.definition.name,
       installed: agent.installed,
       skillsSupported: agent.definition.skillsSupported !== false,
+      readsCentralSkills: agent.definition.readsCentralSkills === true,
       mcpSupported: Boolean(agent.definition.mcpConfig),
       linkedSkills,
       localPhysicalSkills,

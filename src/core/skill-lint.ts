@@ -136,11 +136,12 @@ export function lintSkillsDirectory(root: string): SkillLintResult[] {
  * the SKILL.md body. Linked skills are followed one level because that is what clients see.
  * Estimate = characters / 4; it is not a provider tokenizer measurement.
  */
-export function estimateSkillMetadataTokens(root: string): number {
+export function estimateSkillMetadataTokens(root: string, options: { physicalOnly?: boolean } = {}): number {
   if (inspectPath(root).state === 'missing') return 0;
   let chars = 0;
   for (const entry of fs.readdirSync(root)) {
     if (entry.startsWith('.')) continue;
+    if (options.physicalOnly && inspectPath(path.join(root, entry)).state !== 'directory') continue;
     const file = path.join(root, entry, 'SKILL.md');
     let text: string;
     try {
@@ -162,4 +163,18 @@ export function estimateSkillMetadataTokens(root: string): number {
     chars += entry.length + Math.min(description.trim().length, MAX_DESCRIPTION) + 16;
   }
   return Math.round(chars / 4);
+}
+
+/** Frontmatter `name` of a skill folder (first 8 KiB only), or null when absent/unreadable. */
+export function readSkillName(dir: string): string | null {
+  try {
+    const fd = fs.openSync(path.join(dir, 'SKILL.md'), 'r');
+    try {
+      const buf = Buffer.alloc(8192);
+      const read = fs.readSync(fd, buf, 0, buf.length, 0);
+      const fm = /^\uFEFF?---\r?\n([\s\S]*?)\r?\n---/.exec(buf.subarray(0, read).toString('utf8'))?.[1] ?? '';
+      const m = /^name:\s*["']?([^"'\r\n#]+?)["']?\s*$/m.exec(fm);
+      return m ? m[1]!.trim() : null;
+    } finally { fs.closeSync(fd); }
+  } catch { return null; }
 }

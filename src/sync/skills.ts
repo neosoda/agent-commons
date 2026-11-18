@@ -59,6 +59,44 @@ export function discoverCentralSkills(ctx: EnvironmentContext): CentralSkill[] {
  * Synchronizes skills across all detected agents with conflict detection,
  * idempotent NTFS junctions (Windows) / symlinks (POSIX), and zero data loss.
  */
+/**
+ * Clients that scan ~/.agents/skills themselves see every central skill without links. Links that
+ * point exactly at a central skill only create duplicates, so they are removed (recorded in the
+ * pre-sync snapshot). Physical folders, foreign links and the client's own skills are untouched.
+ */
+function dedupeNativeReader(
+  ctx: EnvironmentContext,
+  agent: DetectedAgent,
+  centralSkills: Array<{ name: string; path: string }>,
+  selected: Set<string> | null,
+  dryRun: boolean,
+  snapshot: SnapshotSession | null
+): SkillSyncResultItem[] {
+  const out: SkillSyncResultItem[] = [];
+  const base = { agentId: agent.definition.id, agentName: agent.definition.name };
+  for (const cs of centralSkills) {
+    if (selected && !selected.has(cs.name)) continue;
+    const target = path.join(agent.skillsDirPath, cs.name);
+    assertSafeSubpath(agent.skillsDirPath, target, 'Agent skill path');
+    const info = inspectPath(target);
+    if (info.state !== 'link') continue;
+    const pointsToCentral = Boolean(info.resolvedTarget) && arePathsEqual(info.resolvedTarget!, cs.path, ctx.platform);
+    // A dangling link holds no data; a link to another real folder is user state and is kept.
+    if (!pointsToCentral && info.targetExists) continue;
+    if (!dryRun) {
+      snapshot?.recordPathBeforeModify(agent.definition.id, 'skill-entry', target);
+      detachLinkSafe(target);
+    }
+    out.push({ ...base, skillName: cs.name, targetPath: target, action: 'deduplicated',
+      message: (dryRun ? '[DRY-RUN] Would remove' : 'Removed') +
+        ' redundant link: the client already reads this skill from ~/.agents/skills.' });
+  }
+  out.push({ ...base, skillName: '*', targetPath: ctx.centralSkillsDir, action: 'native-shared',
+    message: `Reads ~/.agents/skills natively: all ${centralSkills.length} central skills are visible without links` +
+      ' (per-agent selections cannot hide them).' });
+  return out;
+}
+
 export function syncSkillsForAgents(
   ctx: EnvironmentContext,
   agents: DetectedAgent[],
@@ -196,6 +234,11 @@ export function syncSkillsForAgents(
   for (const agent of installedAgents) {
     const skillsDirInfo = inspectPath(agent.skillsDirPath);
     if (skillsDirInfo.state === 'link' || skillsDirInfo.state === 'file') {
+      continue;
+    }
+
+    if (agent.definition.readsCentralSkills) {
+      results.push(...dedupeNativeReader(ctx, agent, centralSkills, selected, dryRun, snapshot));
       continue;
     }
 

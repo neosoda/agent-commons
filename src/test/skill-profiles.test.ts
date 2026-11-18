@@ -10,7 +10,7 @@ describe('Selective skill sync: opt-in profile and explicit skill names', () => 
   let home: string;
   beforeEach(() => {
     home = fs.mkdtempSync(path.join(os.tmpdir(), 'commons-profiles-'));
-    fs.mkdirSync(path.join(home, '.codex'), { recursive: true });
+    fs.mkdirSync(path.join(home, '.kiro'), { recursive: true });
   });
   afterEach(() => { fs.rmSync(home, { recursive: true, force: true }); });
 
@@ -23,11 +23,11 @@ describe('Selective skill sync: opt-in profile and explicit skill names', () => 
   it('only links selected skill; MCP and unrelated skill directories remain untouched', () => {
     addSkill('frontend-design');
     addSkill('skill-creator');
-    const codex = path.join(home, '.codex');
+    const codex = path.join(home, '.kiro');
     const config = path.join(codex, 'config.toml');
     fs.writeFileSync(config, '# Existing private MCP configuration\n');
     const ctx = createEnvironmentContext({ homeDir: home });
-    const report = runSync(ctx, { skillFilter: ['frontend-design'], agentFilter: ['codex'] });
+    const report = runSync(ctx, { skillFilter: ['frontend-design'], agentFilter: ['kiro'] });
     assert.deepEqual(report.errors, []);
     assert.equal(report.mcpResults.length, 0);
     assert.ok(report.skillResults.some(r => r.skillName === 'frontend-design' && r.action === 'created-link'));
@@ -40,21 +40,21 @@ describe('Selective skill sync: opt-in profile and explicit skill names', () => 
   it('refuses unknown skills before making any changes', () => {
     addSkill('frontend-design');
     const ctx = createEnvironmentContext({ homeDir: home });
-    const report = runSync(ctx, { skillFilter: ['frontend-design', 'missing-skill'], agentFilter: ['codex'] });
+    const report = runSync(ctx, { skillFilter: ['frontend-design', 'missing-skill'], agentFilter: ['kiro'] });
     assert.ok(report.errors.some(x => x.includes('missing-skill')));
     assert.equal(report.snapshotId, null);
-    assert.equal(inspectPath(path.join(home, '.codex', 'skills', 'frontend-design')).state, 'missing');
+    assert.equal(inspectPath(path.join(home, '.kiro', 'skills', 'frontend-design')).state, 'missing');
   });
 
   it('profile design selects only locally installed skills from public catalog', () => {
     addSkill('frontend-design'); // design profile in the curated public catalog
     addSkill('skill-creator'); // ai-automation, must not be linked
-    const target = path.join(home, '.codex', 'skills', 'frontend-design');
-    assert.equal(runCli(['sync', '--profile', 'design', '--agent', 'codex', '--home', home, '--dry-run']), 0);
+    const target = path.join(home, '.kiro', 'skills', 'frontend-design');
+    assert.equal(runCli(['sync', '--profile', 'design', '--agent', 'kiro', '--home', home, '--dry-run']), 0);
     assert.equal(inspectPath(target).state, 'missing');
-    assert.equal(runCli(['sync', '--profile', 'design', '--agent', 'codex', '--home', home]), 0);
+    assert.equal(runCli(['sync', '--profile', 'design', '--agent', 'kiro', '--home', home]), 0);
     assert.equal(inspectPath(target).state, 'link');
-    assert.equal(inspectPath(path.join(home, '.codex', 'skills', 'skill-creator')).state, 'missing');
+    assert.equal(inspectPath(path.join(home, '.kiro', 'skills', 'skill-creator')).state, 'missing');
   });
 
   it('requires a real category and prevents empty or conflicting selections', () => {
@@ -64,13 +64,13 @@ describe('Selective skill sync: opt-in profile and explicit skill names', () => 
     assert.equal(runCli(['sync', '--profile', 'design', '--skill', 'skill-creator', '--home', home]), 1);
     assert.equal(runCli(['sync', '--skill', 'skill-creator', '--mcp-only', '--home', home]), 1);
     assert.equal(runCli(['sync', '--skill', 'skill-creator', '--adopt', '--home', home]), 1);
-    assert.equal(fs.existsSync(path.join(home, '.codex', 'skills')), false);
+    assert.equal(fs.existsSync(path.join(home, '.kiro', 'skills')), false);
   });
 
   it('explicit skill selection works through CLI and leaves unrelated skills alone', () => {
     addSkill('frontend-design'); addSkill('skill-creator');
-    assert.equal(runCli(['sync', '--skill', 'skill-creator', '--agent', 'codex', '--home', home]), 0);
-    assert.equal(inspectPath(path.join(home, '.codex', 'skills', 'skill-creator')).state, 'link');
-    assert.equal(inspectPath(path.join(home, '.codex', 'skills', 'frontend-design')).state, 'missing');
+    assert.equal(runCli(['sync', '--skill', 'skill-creator', '--agent', 'kiro', '--home', home]), 0);
+    assert.equal(inspectPath(path.join(home, '.kiro', 'skills', 'skill-creator')).state, 'link');
+    assert.equal(inspectPath(path.join(home, '.kiro', 'skills', 'frontend-design')).state, 'missing');
   });
 });

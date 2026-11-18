@@ -29,7 +29,7 @@ Claude Code, Codex, Cursor, Gemini, OpenCode and other coding agents all want th
 |:--|:--|:--|
 | Reuse the same `SKILL.md` folders through filesystem links—no needless copies. | Add shared servers to each supported agent's native JSON, JSONC or TOML configuration. | Preview changes, keep conflicts intact, capture snapshots and restore previous state. |
 
-**At a glance:** 18 registered agent environments · 9 with Skills + MCP adapters · 8 Skills-only environments · 1 MCP-only client (LM Studio) · Windows, macOS and Linux CI.
+**At a glance:** 21 registered agent environments · 12 with Skills + MCP adapters · 8 Skills-only environments · 1 MCP-only client (LM Studio) · Windows, macOS and Linux CI.
 
 > [!NOTE]
 > **Distribution:** See [GitHub Releases](https://github.com/neosoda/agent-commons/releases) for the latest published version and Windows portable assets. The optional npm package is available only after [its first verified registry publication](https://www.npmjs.com/package/@neosoda/agent-commons); if npm has not published it yet, use the source instructions below. Never assume `npx @neosoda/agent-commons` works until the registry confirms the version.
@@ -504,21 +504,30 @@ Use `node dist/cli/index.js --help` for the full help, or `node dist/cli/index.j
 
 ## Compatibility
 
-**18 registered environments** in the source registry. This means their paths and file formats have automated coverage—not that their proprietary applications are launched and end-to-end verified in CI.
+**21 registered environments**, with paths checked against each vendor's official documentation (November 2026). "Real test" means the actual client was run on Windows 11 against a configuration synced by Agent Commons; see the [report](docs/qa/WINDOWS_REAL_AUDIT_2026-11-17.md).
 
-### Skills + MCP (9)
+**Native shared library.** Codex, Gemini CLI, Cursor, OpenCode and Windsurf read `~/.agents/skills` (the central library) themselves: every skill is visible without links. Agent Commons therefore no longer links into their own folders (that produced duplicates, and one "Skill conflict" warning per skill in Gemini CLI), and `sync` removes redundant links with a restorable snapshot. For these clients a per-agent profile cannot hide a central skill.
 
-| Environment | Skills | MCP |
-|---|:---:|---|
-| Claude Code | ✓ | JSON |
-| OpenAI Codex | ✓ | TOML |
-| Cursor | ✓ | JSON |
-| Gemini CLI | ✓ | JSON |
-| Gemini Config | ✓ | JSON |
-| Gemini Antigravity | ✓ | JSON |
-| OpenCode | ✓ | JSON/JSONC |
-| MiniMax | ✓ | JSON |
-| Kiro | ✓ | JSON |
+### Skills + MCP (12)
+
+| Environment | Skills | MCP | Real test |
+|---|---|---|---|
+| Claude Code | link in `~/.claude/skills` | JSON `~/.claude.json` | skill invoked, MCP tools called |
+| OpenAI Codex | native `~/.agents/skills` | TOML `~/.codex/config.toml` | skill read, MCP tool called |
+| Gemini CLI | native `~/.agents/skills` | JSON `~/.gemini/settings.json` | `skills list` and `mcp list`: connected (trusted folder required) |
+| OpenCode | native `~/.agents/skills` | JSONC `~/.config/opencode/opencode.json` | `debug skill` and `mcp list`: connected |
+| GitHub Copilot CLI | link in `~/.copilot/skills` | JSON `~/.copilot/mcp-config.json` | `skill list` and `mcp list` |
+| Qwen Code | link in `~/.qwen/skills` | JSON `~/.qwen/settings.json` | `mcp list`: connected |
+| Antigravity | link in `~/.gemini/config/skills` | JSON `~/.gemini/config/mcp_config.json` | no (GUI application) |
+| Antigravity (IDE, legacy paths) | link in `~/.gemini/antigravity/skills` | JSON | no |
+| Cursor | native `~/.agents/skills` | JSON `~/.cursor/mcp.json` | not installed |
+| Windsurf | native `~/.agents/skills` | JSON `~/.codeium/windsurf/mcp_config.json` | not installed |
+| MiniMax | link | JSON | no |
+| Kiro | link in `~/.kiro/skills` | JSON `~/.kiro/settings/mcp.json` | no |
+
+### MCP only (1)
+
+LM Studio (`~/.lmstudio/mcp.json`).
 
 ### Skills only (8)
 
@@ -528,7 +537,7 @@ Use `node dist/cli/index.js --help` for the full help, or `node dist/cli/index.j
 | Hermes (home and AppData installations) | Skills |
 | Aider Desk · Grok | Skills |
 
-MCP for skills-only environments is **not yet implemented**. Actual agent directory layouts can change between vendor versions; please [open an issue](https://github.com/neosoda/agent-commons/issues) if detection or integration needs updating.
+Claude Desktop is not managed: its configuration stays outside Agent Commons' scope. Vendor layouts can change; please [open an issue](https://github.com/neosoda/agent-commons/issues) if detection or integration needs updating.
 
 ## Designed to be safe
 

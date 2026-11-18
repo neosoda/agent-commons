@@ -831,7 +831,10 @@ export function runCli(argv: string[] = process.argv.slice(2)): number {
         console.log(`Pre-Sync Backup : ${report.snapshotId}`);
       }
 
-      const skillChanged = report.skillResults.filter((r) => r.action !== 'already-synced');
+      const skillChanged = report.skillResults.filter((r) => r.action !== 'already-synced' && r.action !== 'native-shared');
+      for (const item of report.skillResults.filter((r) => r.action === 'native-shared')) {
+        console.log(`Native library  : [${item.agentId}] ${item.message}`);
+      }
       const skillSyncedCount = report.skillResults.filter(
         (r) => r.action === 'already-synced'
       ).length;

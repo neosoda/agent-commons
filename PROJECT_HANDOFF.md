@@ -21,7 +21,7 @@ a shared skill library, central MCP manifest, per-agent profiles, optional
 curated public GitHub skill installer, explicit sync, backups and safe recovery.
 
 **Architecture:** TypeScript strict, Node.js >=22, native ESM, `jsonc-parser` as
-the only runtime package. Source: `src/agents` (18 registered environments, including MCP-only LM Studio),
+the only runtime package. Source: `src/agents` (21 registered environments, including MCP-only LM Studio),
 `src/sync` (skills/JSON/JSONC/TOML MCP adapters), `src/core` (link/junction
 handling, safe backup/restore), `src/commands` (CLI), `src/web` (local
 HTTP and framework-free Skill Hub), `src/security`, `src/test`, `scripts`.
@@ -393,3 +393,12 @@ Branch `fix/windows-real-audit-20261117` from `main` `1c18385` (PR #77 merged; n
 **Not verified:** GitHub CI on the PR head, NVDA, SmartScreen, Gemini CLI/LM Studio/OpenCode real use, Fetch/Git MCP (uv absent), Playwright MCP, Antigravity and Claude Desktop invocation. **Next:** open PR, require CI 6/6 + Chromium + Windows portable on exact head SHA before merge; then fix the two user-side findings on request.
 
 **Release v0.5.0 published (2026-11-18):** PR #78 squash-merged as `a499a9f4f51780b838397e6786c1d2ea70e9630c` after CI 8/8 on head `8c450fca1f0b67f83b68867cb3253826e408f8ed`; GitHub release v0.5.0 created on that SHA; ZIP 36547753 bytes, SHA-256 `3fff2144c40a3bf266065e8a96eb6a6ce99a57713d05982d7d1f081b2d8a370e`. Record: [docs/releases/v0.5.0.md](docs/releases/v0.5.0.md). No npm publication. **Next:** optional `rea-agents` reinstall decision by the maintainer; NVDA/SmartScreen manual checks.
+
+## 25. Multi-client compatibility (2026-11-18, v0.5.1)
+
+Branch `feat/all-clients-compat-20261118`. Official docs (checked 2026-11-18) show Codex, Gemini CLI, Cursor, OpenCode and Windsurf read `~/.agents/skills` themselves. Real runs on this PC: Codex saw the 240 central skills directly (links deduplicated by realpath); Gemini CLI 0.68 printed one "Skill conflict" warning per linked skill. Registry gains `readsCentralSkills`; sync no longer links those clients and removes redundant/dangling links to central skills (pre-sync snapshot). Added Windsurf, GitHub Copilot CLI (`copilot-json`: `type`, `tools: ["*"]`) and Qwen Code; OpenCode skills dir fixed; Antigravity relabelled. Doctor: real token cost, redundant links, duplicate frontmatter names (found `design-system` declared by `design-system` and catalog `ecc-design-system`), central-linked roots accepted.
+
+**Real client evidence (isolated homes):** Gemini CLI `skills list` + `mcp list` (connected in a trusted folder), OpenCode `debug skill` + `mcp list` (connected), Copilot CLI `skill list` + `mcp list`, Qwen Code `mcp list` (connected). Caveat: OpenCode created empty XDG folders under the real home at startup despite the HOME override; they were removed. Not run: Cursor, Windsurf, Antigravity, Kiro.
+
+**Not applied to the real profile:** removal of the 287 redundant links in `~/.codex/skills` and `~/.gemini/skills` (needs `agent-commons sync --skills-only` with the maintainer's approval). `rea` MCP still broken (package missing).
+
