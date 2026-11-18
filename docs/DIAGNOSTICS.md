@@ -64,5 +64,6 @@ claude mcp list                          # vérification par le client lui-même
 - **Chemins longs** : `git clone` dans un chemin de plus de 260 caractères échoue sans `git config --global core.longpaths true`. Agent Commons gère les dossiers de travail profonds (installations de paquets MCP, restauration).
 - **Runtimes mis à jour** : une configuration MCP qui pointe vers un `node.exe` absolu d'une ancienne version (par exemple sous `WinGet\Packages\…node-v24…`) cesse de fonctionner après une mise à jour ; `doctor` le signale. Préférer `node` (résolu via le PATH).
 - **uv** : requis pour les MCP Fetch et Git (`winget install astral-sh.uv`).
+- **Gemini CLI** : les serveurs MCP restent désactivés dans un dossier non approuvé (« trusted folders ») ; approuver le dossier de travail pour les activer.
 - **Redémarrage** : relancer le client IA après une synchronisation pour qu'il relise skills et MCP.
 - **Restauration complète d'une synchronisation** : utiliser le snapshot automatique `pre-sync`, qui mémorise aussi les chemins absents avant la synchronisation ; un `backup` manuel ne mémorise que ce qui existait.

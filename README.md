@@ -29,7 +29,7 @@ Claude Code, Codex, Cursor, Gemini, OpenCode et les autres agents de développem
 |:--|:--|:--|
 | Réutilisez les dossiers `SKILL.md` grâce aux liens système, sans copies inutiles. | Déclarez les serveurs MCP partagés et synchronisez-les dans les fichiers JSON, JSONC ou TOML de chaque agent compatible. | Prévisualisez les changements, conservez les conflits, réalisez des sauvegardes et restaurez un état précédent. |
 
-**En bref :** 18 environnements reconnus · 9 adaptateurs Skills + MCP · 8 adaptateurs Skills uniquement · 1 client MCP uniquement (LM Studio) · CI sous Windows, macOS et Linux.
+**En bref :** 21 environnements reconnus · 12 adaptateurs Skills + MCP · 8 adaptateurs Skills uniquement · 1 client MCP uniquement (LM Studio) · CI sous Windows, macOS et Linux.
 
 > [!NOTE]
 > **Distribution :** consultez les [releases GitHub](https://github.com/neosoda/agent-commons/releases) pour la dernière version effectivement publiée et les archives Windows portables. Le paquet npm facultatif ne doit être considéré comme disponible qu'après [vérification de sa publication sur npm](https://www.npmjs.com/package/@neosoda/agent-commons). Ne présumez pas que `npx @neosoda/agent-commons` fonctionne avant cette vérification.
@@ -489,21 +489,30 @@ La commande `node dist/cli/index.js --help` fournit l'aide complète et `node di
 
 ## Compatibilité
 
-**18 environnements d'agents enregistrés** dans le code. Cela signifie que leurs chemins et formats sont couverts par les tests automatisés, pas que leurs applications propriétaires sont lancées et validées de bout en bout par la CI.
+**21 environnements d'agents enregistrés**, avec des chemins vérifiés dans la documentation officielle de chaque éditeur (novembre 2026). « Testé en réel » signifie que le vrai client a été lancé sur Windows 11 contre une configuration synchronisée par Agent Commons ; voir le [rapport](docs/qa/WINDOWS_REAL_AUDIT_2026-11-17.md).
 
-### Skills + MCP (9)
+**Bibliothèque partagée native.** Codex, Gemini CLI, Cursor, OpenCode et Windsurf lisent eux-mêmes `~/.agents/skills` (la bibliothèque centrale) : tous les skills y sont visibles sans lien. Agent Commons ne crée donc plus de lien dans leur dossier propre (cela provoquait des doublons, et un avertissement « Skill conflict » par skill dans Gemini CLI) et `sync` retire les liens redondants, avec snapshot de restauration. Pour ces clients, un profil par agent ne peut pas masquer un skill central.
 
-| Environnement | Skills | MCP |
-|---|:---:|---|
-| Claude Code | ✓ | JSON |
-| OpenAI Codex | ✓ | TOML |
-| Cursor | ✓ | JSON |
-| Gemini CLI | ✓ | JSON |
-| Gemini Config | ✓ | JSON |
-| Gemini Antigravity | ✓ | JSON |
-| OpenCode | ✓ | JSON/JSONC |
-| MiniMax | ✓ | JSON |
-| Kiro | ✓ | JSON |
+### Skills + MCP (12)
+
+| Environnement | Skills | MCP | Testé en réel |
+|---|---|---|---|
+| Claude Code | lien dans `~/.claude/skills` | JSON `~/.claude.json` | skill invoqué, outils MCP appelés |
+| OpenAI Codex | lecture native `~/.agents/skills` | TOML `~/.codex/config.toml` | skill lu, outil MCP appelé |
+| Gemini CLI | lecture native `~/.agents/skills` | JSON `~/.gemini/settings.json` | `skills list` et `mcp list` : connecté (dossier « trusted » requis) |
+| OpenCode | lecture native `~/.agents/skills` | JSONC `~/.config/opencode/opencode.json` | `debug skill` et `mcp list` : connecté |
+| GitHub Copilot CLI | lien dans `~/.copilot/skills` | JSON `~/.copilot/mcp-config.json` | `skill list` et `mcp list` |
+| Qwen Code | lien dans `~/.qwen/skills` | JSON `~/.qwen/settings.json` | `mcp list` : connecté |
+| Antigravity | lien dans `~/.gemini/config/skills` | JSON `~/.gemini/config/mcp_config.json` | non (application graphique) |
+| Antigravity (IDE, chemins historiques) | lien dans `~/.gemini/antigravity/skills` | JSON | non |
+| Cursor | lecture native `~/.agents/skills` | JSON `~/.cursor/mcp.json` | non installé |
+| Windsurf | lecture native `~/.agents/skills` | JSON `~/.codeium/windsurf/mcp_config.json` | non installé |
+| MiniMax | lien | JSON | non |
+| Kiro | lien dans `~/.kiro/skills` | JSON `~/.kiro/settings/mcp.json` | non |
+
+### MCP uniquement (1)
+
+LM Studio (`~/.lmstudio/mcp.json`).
 
 ### Skills uniquement (8)
 
@@ -513,7 +522,7 @@ La commande `node dist/cli/index.js --help` fournit l'aide complète et `node di
 | Hermes (installations home et AppData) | Skills |
 | Aider Desk · Grok | Skills |
 
-La synchronisation MCP n'est **pas encore implémentée** pour les environnements limités aux skills. Les chemins et formats des applications peuvent évoluer : [ouvrez une issue](https://github.com/neosoda/agent-commons/issues) en cas d'incompatibilité.
+Claude Desktop n'est pas géré : sa configuration reste hors du périmètre d'Agent Commons. Les chemins des éditeurs peuvent évoluer : [ouvrez une issue](https://github.com/neosoda/agent-commons/issues) en cas d'incompatibilité.
 
 ## Conçu pour rester sûr
 

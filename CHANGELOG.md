@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.1] - 2026-11-18
+
+Release notes: docs/releases/v0.5.1-release-notes.md
+
+### Changed
+- Clients that natively read `~/.agents/skills` (Codex, Gemini CLI, Cursor, OpenCode, Windsurf) get no per-client links; `sync` removes redundant or dangling links to central skills (recorded in the pre-sync snapshot).
+- Antigravity labels; OpenCode global skills folder is `~/.config/opencode/skills`.
+
+### Added
+- Windsurf, GitHub Copilot CLI (`copilot-json` MCP format with `type` and `tools`) and Qwen Code.
+- `doctor`: real per-client token cost, redundant links, duplicate skill names; a client skills root linked to the central library is accepted.
+- Skill Hub profile editor note for native-library clients.
+
 ## [0.5.0] - 2026-11-18
 
 Release notes: docs/releases/v0.5.0-release-notes.md
