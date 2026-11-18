@@ -144,6 +144,16 @@ function toStandardJsonEntry(spec: McpServerOverride): Record<string, unknown> {
   return entry;
 }
 
+/** GitHub Copilot CLI (~/.copilot/mcp-config.json): typed entries with an explicit tool allowlist. */
+function toCopilotEntry(spec: McpServerOverride): Record<string, unknown> {
+  const entry: Record<string, unknown> = spec.url
+    ? { type: 'http', url: spec.url }
+    : { type: 'local', command: spec.command, args: [...(spec.args ?? [])] };
+  if (spec.env && Object.keys(spec.env).length > 0) entry['env'] = { ...spec.env };
+  entry['tools'] = ['*'];
+  return entry;
+}
+
 function toOpenCodeEntry(spec: McpServerOverride): Record<string, unknown> {
   if (spec.url) {
     const entry: Record<string, unknown> = {
@@ -477,7 +487,9 @@ export function syncMcpForAgents(
       const formattedEntry =
         format === 'opencode-jsonc'
           ? toOpenCodeEntry(resolvedSpec)
-          : toStandardJsonEntry(resolvedSpec);
+          : format === 'copilot-json'
+            ? toCopilotEntry(resolvedSpec)
+            : toStandardJsonEntry(resolvedSpec);
 
       const currentEntry = serversContainer[serverName];
 

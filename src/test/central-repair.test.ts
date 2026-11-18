@@ -51,7 +51,7 @@ describe('central circular junction recovery (synthetic HOME only)', () => {
     const source = writeSource(['collection', 'skills', 'antislop']);
     fs.writeFileSync(path.join(source, 'extra.txt'), 'preserve this', 'utf8');
     const broken = brokenSelfLink('antislop');
-    fs.mkdirSync(path.join(home, '.codex'), { recursive: true });
+    fs.mkdirSync(path.join(home, '.claude'), { recursive: true });
     const doctor = runDoctor(ctx);
     assert.equal(doctor.healthy, false);
     assert.ok(doctor.issues.some(msg => /circular central skill link/i.test(msg)));
@@ -76,7 +76,7 @@ describe('central circular junction recovery (synthetic HOME only)', () => {
 
     const sync = runSync(ctx, { skillsOnly: true });
     assert.deepEqual(sync.errors, []);
-    assert.equal(inspectPath(path.join(home, '.codex', 'skills', 'antislop')).state, 'link');
+    assert.equal(inspectPath(path.join(home, '.claude', 'skills', 'antislop')).state, 'link');
     assert.equal(runDoctor(ctx).healthy, true);
     assert.equal(previewCentralRepair(ctx).items.length, 0);
   });

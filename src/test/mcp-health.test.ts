@@ -97,10 +97,9 @@ describe('MCP launch diagnostics and probe', () => {
     fs.writeFileSync(path.join(skill, 'SKILL.md'), '---\nname: demo-bonjour\ndescription: Demo skill.\n---\nSay OK.\n');
     fs.writeFileSync(ctx.centralMcpPath, JSON.stringify({ mcpServers: { 'agent-commons-demo': demo } }));
     assert.equal(runCli(['sync', '--home', home, '--json']), 0);
-    // Skill is visible to both clients through a link to the central copy.
-    for (const dir of [path.join(home, '.claude', 'skills'), path.join(home, '.codex', 'skills')]) {
-      assert.match(fs.readFileSync(path.join(dir, 'demo-bonjour', 'SKILL.md'), 'utf8'), /name: demo-bonjour/);
-    }
+    // Claude Code needs a link; Codex reads ~/.agents/skills natively, so no duplicate link is made.
+    assert.match(fs.readFileSync(path.join(home, '.claude', 'skills', 'demo-bonjour', 'SKILL.md'), 'utf8'), /name: demo-bonjour/);
+    assert.equal(fs.existsSync(path.join(home, '.codex', 'skills', 'demo-bonjour')), false);
     // Personal settings preserved.
     const claude = JSON.parse(fs.readFileSync(path.join(home, '.claude.json'), 'utf8'));
     assert.equal(claude.theme, 'dark');

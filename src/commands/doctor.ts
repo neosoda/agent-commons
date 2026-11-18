@@ -12,7 +12,7 @@ import {
   isSelfReferentialLink,
   removePhysicalDirectorySafe
 } from '../core/links.js';
-import { estimateSkillMetadataTokens, lintSkillsDirectory } from '../core/skill-lint.js';
+import { estimateSkillMetadataTokens, lintSkillsDirectory, readSkillName } from '../core/skill-lint.js';
 import { inspectLaunchTarget, readAgentMcpServers, resolveCommand } from '../mcp/health.js';
 import { redactSecrets } from '../security/scrubber.js';
 import { isValidIdentifier } from '../security/validator.js';
@@ -125,9 +125,15 @@ export function runDoctor(ctx: EnvironmentContext, agentFilter?: string[]): Doct
     let brokenCount = 0;
     let physicalCount = 0;
     let conflictCount = 0;
+    let redundantLinks = 0;
+    const native = agent.definition.readsCentralSkills === true;
+    const skillsRootInfo = inspectPath(agent.skillsDirPath);
+    // A skills root that is itself a link to the central library is a deliberate "whole library" setup.
+    const rootIsCentral = skillsRootInfo.state === 'link' && Boolean(skillsRootInfo.resolvedTarget) &&
+      arePathsEqual(skillsRootInfo.resolvedTarget!, ctx.centralSkillsDir, ctx.platform);
 
-    if (agent.installed && agent.definition.skillsSupported !== false) {
-      const skillsDirInfo = inspectPath(agent.skillsDirPath);
+    if (agent.installed && agent.definition.skillsSupported !== false && !rootIsCentral) {
+      const skillsDirInfo = skillsRootInfo;
       if (skillsDirInfo.state === 'link' || skillsDirInfo.state === 'file') {
         conflictCount++;
         agentIssues.push(
@@ -154,6 +160,7 @@ export function runDoctor(ctx: EnvironmentContext, agentFilter?: string[]): Doct
                 arePathsEqual(info.resolvedTarget, centralTarget, ctx.platform)
               ) {
                 linkedCount++;
+                if (native) redundantLinks++;
               } else {
                 linkedCount++;
                 if (centralTarget) {
@@ -208,8 +215,13 @@ export function runDoctor(ctx: EnvironmentContext, agentFilter?: string[]): Doct
       mcpConfigPath: agent.mcpConfigPath,
       mcpStatus: mcpInspected.status,
       mcpServersCount: mcpInspected.serverNames.length,
-      skillMetadataTokens: agent.installed && agent.definition.skillsSupported !== false
-        ? estimateSkillMetadataTokens(agent.skillsDirPath) : 0,
+      skillMetadataTokens: !agent.installed || agent.definition.skillsSupported === false ? 0
+        : rootIsCentral ? estimateSkillMetadataTokens(ctx.centralSkillsDir)
+        : native ? estimateSkillMetadataTokens(ctx.centralSkillsDir) +
+          estimateSkillMetadataTokens(agent.skillsDirPath, { physicalOnly: true })
+        : estimateSkillMetadataTokens(agent.skillsDirPath),
+      readsCentralSkills: native || rootIsCentral,
+      redundantLinksCount: redundantLinks,
       issues: agentIssues
     });
   }
@@ -238,6 +250,35 @@ export function runDoctor(ctx: EnvironmentContext, agentFilter?: string[]): Doct
         recordLaunch(agent.definition.id, agent.definition.name, name, spec);
       }
     } catch { /* parse errors are already reported as corrupted */ }
+  }
+
+  for (const a of agentStatuses.filter(s => s.redundantLinksCount > 0)) {
+    warnings.push(`[${a.name}] ${a.redundantLinksCount} link(s) duplicate skills the client already reads from ~/.agents/skills` +
+      ' (duplicates or conflict warnings); "agent-commons sync --skills-only" removes them.');
+  }
+
+  // Two different folders declaring the same frontmatter name collide inside a client that sees both.
+  const centralNames = new Map<string, string[]>();
+  for (const s of centralSkills) {
+    const n = readSkillName(s.path);
+    if (n) centralNames.set(n, [...(centralNames.get(n) ?? []), s.name]);
+  }
+  for (const [n, folders] of centralNames) {
+    if (folders.length > 1) {
+      warnings.push(`[Central skills] Skill name "${n}" is declared by ${folders.map(f => '"' + f + '"').join(' and ')}; clients show two skills with the same name.`);
+    }
+  }
+  for (const agent of detectedAgents.filter(a => a.installed && a.definition.skillsSupported !== false)) {
+    if (!agent.definition.readsCentralSkills || inspectPath(agent.skillsDirPath).state !== 'directory') continue;
+    for (const entry of fs.readdirSync(agent.skillsDirPath)) {
+      const dir = path.join(agent.skillsDirPath, entry);
+      if (inspectPath(dir).state !== 'directory') continue;
+      const n = readSkillName(dir);
+      const others = (n ? centralNames.get(n) ?? [] : []).filter(f => f !== entry);
+      if (n && others.length) {
+        warnings.push(`[${agent.definition.name}] Skill name "${n}" is declared by local "${entry}" and central ${others.map(f => '"' + f + '"').join(', ')}; the client shows duplicates.`);
+      }
+    }
   }
 
   const skillLint: DoctorReport['skillLint'] = [];

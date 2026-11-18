@@ -4,6 +4,8 @@ import type { AgentDefinition } from '../types.js';
 /**
  * Verified catalog of supported AI agents and their exact directory conventions.
  * An agent only declares `mcpConfig` when its file-based MCP schema is implemented and tested.
+ * `readsCentralSkills` is set only when the client's official documentation (checked 2026-11-18)
+ * lists `~/.agents/skills` as a user-level skills location.
  */
 export const AGENT_REGISTRY: readonly AgentDefinition[] = [
   {
@@ -19,6 +21,7 @@ export const AGENT_REGISTRY: readonly AgentDefinition[] = [
   {
     id: 'codex',
     name: 'Codex',
+    readsCentralSkills: true,
     detectPaths: (ctx) => [path.join(ctx.homeDir, '.codex')],
     skillsDir: (ctx) => path.join(ctx.homeDir, '.codex', 'skills'),
     mcpConfig: {
@@ -29,6 +32,7 @@ export const AGENT_REGISTRY: readonly AgentDefinition[] = [
   {
     id: 'cursor',
     name: 'Cursor',
+    readsCentralSkills: true,
     detectPaths: (ctx) => [path.join(ctx.homeDir, '.cursor')],
     skillsDir: (ctx) => path.join(ctx.homeDir, '.cursor', 'skills'),
     mcpConfig: {
@@ -39,6 +43,7 @@ export const AGENT_REGISTRY: readonly AgentDefinition[] = [
   {
     id: 'gemini-cli',
     name: 'Gemini CLI',
+    readsCentralSkills: true,
     detectPaths: (ctx) => [path.join(ctx.homeDir, '.gemini')],
     skillsDir: (ctx) => path.join(ctx.homeDir, '.gemini', 'skills'),
     mcpConfig: {
@@ -47,8 +52,9 @@ export const AGENT_REGISTRY: readonly AgentDefinition[] = [
     }
   },
   {
+    // Antigravity IDE, App and CLI: current global skills and MCP locations.
     id: 'gemini-config',
-    name: 'Gemini Config',
+    name: 'Antigravity',
     detectPaths: (ctx) => [path.join(ctx.homeDir, '.gemini', 'config')],
     skillsDir: (ctx) => path.join(ctx.homeDir, '.gemini', 'config', 'skills'),
     mcpConfig: {
@@ -57,8 +63,9 @@ export const AGENT_REGISTRY: readonly AgentDefinition[] = [
     }
   },
   {
+    // Legacy Antigravity IDE paths, still read by the IDE.
     id: 'gemini-antigravity',
-    name: 'Gemini Antigravity',
+    name: 'Antigravity (legacy IDE)',
     detectPaths: (ctx) => [path.join(ctx.homeDir, '.gemini', 'antigravity')],
     skillsDir: (ctx) => path.join(ctx.homeDir, '.gemini', 'antigravity', 'skills'),
     mcpConfig: {
@@ -69,11 +76,12 @@ export const AGENT_REGISTRY: readonly AgentDefinition[] = [
   {
     id: 'opencode',
     name: 'OpenCode',
+    readsCentralSkills: true,
     detectPaths: (ctx) => [
-      path.join(ctx.homeDir, '.opencode'),
-      path.join(ctx.homeDir, '.config', 'opencode')
+      path.join(ctx.homeDir, '.config', 'opencode'),
+      path.join(ctx.homeDir, '.opencode')
     ],
-    skillsDir: (ctx) => path.join(ctx.homeDir, '.opencode', 'skills'),
+    skillsDir: (ctx) => path.join(ctx.homeDir, '.config', 'opencode', 'skills'),
     mcpConfig: {
       path: (ctx) => path.join(ctx.homeDir, '.config', 'opencode', 'opencode.json'),
       altPaths: (ctx) => [path.join(ctx.homeDir, '.config', 'opencode', 'opencode.jsonc')],
@@ -150,6 +158,37 @@ export const AGENT_REGISTRY: readonly AgentDefinition[] = [
     skillsDir: ctx => path.join(ctx.homeDir, '.lmstudio', 'skills'),
     mcpConfig: {
       path: ctx => path.join(ctx.homeDir, '.lmstudio', 'mcp.json'),
+      format: 'standard-json'
+    }
+  },
+  {
+    id: 'windsurf',
+    name: 'Windsurf',
+    readsCentralSkills: true,
+    detectPaths: (ctx) => [path.join(ctx.homeDir, '.codeium', 'windsurf')],
+    skillsDir: (ctx) => path.join(ctx.homeDir, '.codeium', 'windsurf', 'skills'),
+    mcpConfig: {
+      path: (ctx) => path.join(ctx.homeDir, '.codeium', 'windsurf', 'mcp_config.json'),
+      format: 'standard-json'
+    }
+  },
+  {
+    id: 'copilot-cli',
+    name: 'GitHub Copilot CLI',
+    detectPaths: (ctx) => [path.join(ctx.homeDir, '.copilot')],
+    skillsDir: (ctx) => path.join(ctx.homeDir, '.copilot', 'skills'),
+    mcpConfig: {
+      path: (ctx) => path.join(ctx.homeDir, '.copilot', 'mcp-config.json'),
+      format: 'copilot-json'
+    }
+  },
+  {
+    id: 'qwen-code',
+    name: 'Qwen Code',
+    detectPaths: (ctx) => [path.join(ctx.homeDir, '.qwen')],
+    skillsDir: (ctx) => path.join(ctx.homeDir, '.qwen', 'skills'),
+    mcpConfig: {
+      path: (ctx) => path.join(ctx.homeDir, '.qwen', 'settings.json'),
       format: 'standard-json'
     }
   },
