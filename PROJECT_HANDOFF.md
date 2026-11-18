@@ -1,6 +1,6 @@
 # Agent Commons — PROJECT_HANDOFF
 
-> **Operational handoff, last verified: 2026-11-17 (sections 24-27; v0.5.3 published).** Read this file before modifying the repository; then check live `main`, release/tag, PRs, issues and GitHub Actions **by exact commit SHA**. Historical SHA and run IDs below are a snapshot, not a promise of current status.
+> **Operational handoff, last verified: 2026-11-18 (sections 24-28; v0.5.3 published and installed locally).** Read this file before modifying the repository; then check live `main`, release/tag, PRs, issues and GitHub Actions **by exact commit SHA**. Historical SHA and run IDs below are a snapshot, not a promise of current status.
 
 ## 0. Active development — Extension Manager (2026-11-15)
 
@@ -421,3 +421,13 @@ ea-agents\scripts
 ea.mjs`; `mcp probe` OK (255 tools) in both. Duplicate `design-system`: product fix on `fix/skill-name-alignment-20261118` (install/update align frontmatter `name` with the catalog id; receipts keep `upstreamGitBlobSha1`; new offline `catalog align-names`). Applied on the real profile (snapshot `snapshot-20261118-100318-26c465`); `ecc-design-system` verifies intact; real Codex lists one `design-system`, zero load errors; `doctor` Healthy with 0 warnings.
 
 **Release v0.5.3 published (2026-11-18):** PR #84 squash-merged as `6f8d59b`; release v0.5.3 (latest) on that SHA; ZIP 36,556,085 bytes, SHA-256 `62b0d8c6…097b`, re-verified on the physical PC. Record: [docs/releases/v0.5.3.md](docs/releases/v0.5.3.md). Real profile: `doctor` Healthy with 0 warnings. **Next:** optional token reduction (rea exposes 255 MCP tools and brevo 299 in Claude Code; skill metadata ~13-21k tokens per session).
+
+## 28. Requested local Windows installation (2026-11-18)
+
+User explicitly requested installing Agent Commons on this computer. Initial worktree was clean on `main` `0f2e1c4e22ef5905878b15c1a6a04b83a2eee0c2`, matching live GitHub, with no open PRs. All three main workflows succeeded: [CI](https://github.com/neosoda/agent-commons/actions/runs/44283121972), [Chromium](https://github.com/neosoda/agent-commons/actions/runs/44283122035), [Windows portable](https://github.com/neosoda/agent-commons/actions/runs/44283121973). Latest official release was v0.5.3 at `6f8d59b73b6986074d9782f3049767cc618efb51`.
+
+Downloaded the official Windows ZIP and checksum; verified SHA-256 `62b0d8c6f9967d907f22856a9a834c04df6cc8e6aeee536eb98a44af46d7097b` against both checksum file and release asset digest. Installed the portable bundle in the per-user Programs directory. Replaced the global CLI's old v0.4.0 development link with a standalone v0.5.3 package packed from the verified bundle (`--ignore-scripts`); no npm publication is implied. Added Desktop and Start menu shortcuts to the portable launcher. Existing development source and agent skill/MCP configurations were preserved; no sync, third-party skill installation or MCP probe was run.
+
+**Verified:** installed `agent-commons --version` is 0.5.3; real-profile `doctor` reports Healthy, zero issues. Started the bundled runtime in the background; dashboard and `/api/state` return HTTP 200, and the listener binds only `127.0.0.1:4173`. Local repository checks: `npm ci`, typecheck, all 198 tests, generated bilingual catalog credits, audit (zero vulnerabilities) and pack dry-run passed. This session does not claim MCP handshake, screen-reader, SmartScreen or new release validation.
+
+**Next:** use the local Skill Hub or shortcuts. Any future skill/MCP synchronization requires its own reviewed preview and approval. This documentation update follows the normal branch/PR process; no application code changed.
