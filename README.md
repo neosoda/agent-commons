@@ -468,6 +468,7 @@ Aucun téléchargement, installation, synchronisation ou publication n'est décl
 | `catalog` / `catalog --json` | Inventorier les skills privés locaux en lecture seule |
 | `catalog review [--json]` | Détecter les origines/licences manquantes et doublons potentiels |
 | `catalog verify [id] [--json]` | Vérifier hors ligne l'intégrité des skills gérés |
+| `catalog align-names [--yes]` | Donner aux skills du catalogue leur identifiant comme nom (évite deux skills du même nom) |
 | `list` | Voir skills, serveurs MCP, agents et snapshots |
 | `sync --dry-run` | Simuler sans modifier les fichiers |
 | `sync` | Synchroniser les agents compatibles installés |

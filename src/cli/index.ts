@@ -7,7 +7,7 @@ import { repairCentralSkills } from '../commands/repair-central.js';
 import { runCatalog } from '../commands/catalog.js';
 import { reviewLocalCatalog } from '../commands/catalog-review.js';
 import { searchPublicCatalog, readPublicCatalog } from '../commands/public-catalog.js';
-import { installCatalogSkill, uninstallCatalogSkill, updateCatalogSkill, listCatalogOutdated } from '../commands/skill-install.js';
+import { alignCatalogSkillNames, installCatalogSkill, uninstallCatalogSkill, updateCatalogSkill, listCatalogOutdated } from '../commands/skill-install.js';
 import { verifyCatalogSkills } from '../commands/skill-verify.js';
 import { runList } from '../commands/list.js';
 import { routeSkills } from '../commands/skill-router.js';
@@ -173,6 +173,7 @@ Without a subcommand: inventory LOCAL skills only (existing behavior).
   catalog uninstall <id> --yes        Remove intact managed skill after backup
   catalog outdated                    Offline comparison against reviewed catalog commits
   catalog verify [id]                 Offline read-only integrity audit of installed catalog skills
+  catalog align-names [--yes]         Give namespaced catalog skills their catalog id as name (preview by default)
 
 Filters for list/search: --category, --source, --author, --license
 Options: --home <path>, --json, --help
@@ -551,6 +552,21 @@ export function runCli(argv: string[] = process.argv.slice(2)): number {
           } else {
             console.log('Preview only: no files changed. Use --yes to remove this intact, unlinked managed skill.');
           }
+        }
+        return 0;
+      }
+      if (subcommand === 'align-names') {
+        if (positionals.length !== 2) throw new Error('Usage: agent-commons catalog align-names [--yes] [--json] [--home <path>]');
+        const result = alignCatalogSkillNames(ctx, { yes: values.yes && !values['dry-run'] });
+        if (values.json) console.log(JSON.stringify(result, null, 2));
+        else {
+          console.log('=== Catalog skill name alignment' + (result.snapshotId ? ' (applied)' : ' (preview)') + ' ===');
+          if (result.items.length === 0) console.log('All managed catalog skills already declare their catalog id as name.');
+          for (const item of result.items) {
+            console.log(`  [${item.status}] ${item.skill}: "${item.from}" -> "${item.to}"` + (item.reason ? ` (${item.reason})` : ''));
+          }
+          if (result.snapshotId) console.log('Restore snapshot: ' + result.snapshotId);
+          else if (result.items.some(i => i.status === 'would-align')) console.log('Preview only; pass --yes to apply.');
         }
         return 0;
       }

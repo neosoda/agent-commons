@@ -409,3 +409,12 @@ Branch `feat/all-clients-compat-20261118`. Official docs (checked 2026-11-18) sh
 Maintainer approved removing duplicate links. A plain `sync --skills-only` dry-run on the real profile would also have created 96 links in Claude Code and legacy Antigravity, so the cleanup ran as `sync --skills-only --agent codex --agent gemini-cli` (snapshot `snapshot-20261118-090754-968f5a`): 287 links removed, nothing else changed. Real Codex afterwards: 349 skills, zero load errors, skills served from `~/.agents/skills`. Code fix on `fix/dedupe-guidance-20261118`: doctor advice now names the affected agents; sync reports a central-linked skills root as `native-shared`. Remaining real-profile warnings: `rea` MCP (package missing) and duplicate name `design-system` (central `design-system` and catalog `ecc-design-system`).
 
 **Release v0.5.2 published (2026-11-18):** PR #82 squash-merged as `dd5d75a`; release v0.5.2 (latest) on that SHA; ZIP 36,553,254 bytes, SHA-256 `f47cdfd1…58aa`, re-verified on the physical PC. Record: [docs/releases/v0.5.2.md](docs/releases/v0.5.2.md). **Next:** maintainer decisions on reinstalling `rea-agents` and on the duplicate `design-system` skill name.
+
+## 27. Real-profile fixes and v0.5.3 (2026-11-18)
+
+Maintainer approved fixing the last two warnings. `rea` MCP: configs backed up to `~/.agents/backups/manual-fix-20261118/`, `rea-agents@6.9.0` reinstalled globally (`--ignore-scripts`), Codex and Antigravity entries re-pointed from the deleted WinGet Node 24 path to `C:\Program Files
+odejs
+ode.exe` + `%APPDATA%
+pm
+ode_modulesea-agents\scriptsea.mjs`; `mcp probe` OK (255 tools) in both. Duplicate `design-system`: product fix on `fix/skill-name-alignment-20261118` (install/update align frontmatter `name` with the catalog id; receipts keep `upstreamGitBlobSha1`; new offline `catalog align-names`). Applied on the real profile (snapshot `snapshot-20261118-100318-26c465`); `ecc-design-system` verifies intact; real Codex lists one `design-system`, zero load errors; `doctor` Healthy with 0 warnings.
+

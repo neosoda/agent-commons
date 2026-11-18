@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.3] - 2026-11-18
+
+Release notes: docs/releases/v0.5.3-release-notes.md
+
+### Fixed
+- Namespaced catalog skills (e.g. `ecc-design-system`) are installed and updated with the catalog id as frontmatter `name`, so clients no longer list two skills under one name; receipts keep the upstream blob hash.
+
+### Added
+- `catalog align-names [--yes]`: offline, integrity-checked migration of existing installs; `doctor` suggests it for catalog-managed name collisions.
+
 ## [0.5.2] - 2026-11-18
 
 Release notes: docs/releases/v0.5.2-release-notes.md

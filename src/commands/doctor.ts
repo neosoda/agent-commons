@@ -269,7 +269,9 @@ export function runDoctor(ctx: EnvironmentContext, agentFilter?: string[]): Doct
   }
   for (const [n, folders] of centralNames) {
     if (folders.length > 1) {
-      warnings.push(`[Central skills] Skill name "${n}" is declared by ${folders.map(f => '"' + f + '"').join(' and ')}; clients show two skills with the same name.`);
+      const managed = folders.some(f => inspectPath(path.join(ctx.centralSkillsDir, f, '.agent-commons-source.json')).state === 'file');
+      warnings.push(`[Central skills] Skill name "${n}" is declared by ${folders.map(f => '"' + f + '"').join(' and ')}; clients show two skills with the same name.` +
+        (managed ? ' Run "agent-commons catalog align-names" to give the catalog copy its catalog id.' : ''));
     }
   }
   for (const agent of detectedAgents.filter(a => a.installed && a.definition.skillsSupported !== false)) {
