@@ -42,6 +42,10 @@ Les packages sont isolés sous ~/.agents/mcp-packages et suivis dans ~/.agents/m
 - Le Skill Hub reste lié à 127.0.0.1, sans télémetrie ; ne jamais l'exposer directement au réseau.
 - La revue des sources et l'épinglage des versions ne certifient pas l'innocuité des logiciels tiers.
 
+## Diagnostic de lancement (livré en CLI)
+
+`agent-commons doctor` vérifie sans rien exécuter que les exécutables et scripts des serveurs MCP existent ; `agent-commons mcp probe` démarre explicitement un serveur et teste la connexion MCP. La prévisualisation de désinstallation liste les configurations qui référencent encore le paquet. Voir [DIAGNOSTICS.md](DIAGNOSTICS.md).
+
 ## Suite envisagée — non livrée
 
-Vérifications live des versions amont, diagnostics de lancement MCP, désactivation/suppression sécurisée des entrées natives prouvées comme gérées, opérations en lot transactionnelles, permissions plus fines et historique des opérations.
+Vérifications live des versions amont, désactivation/suppression sécurisée des entrées natives prouvées comme gérées, opérations en lot transactionnelles, permissions plus fines et historique des opérations.

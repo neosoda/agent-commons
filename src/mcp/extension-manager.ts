@@ -4,10 +4,14 @@
  */
 import crypto from 'node:crypto';
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import {spawn} from 'node:child_process';
 import {inspectPath, writeFileAtomicSync} from '../core/links.js';
 import {MCP_CATALOG} from './catalog.js';
+import {readAgentMcpServers,type McpLaunchSpec} from './health.js';
+import {detectAgents} from '../agents/detector.js';
+import {loadCentralMcpManifest} from '../sync/mcp.js';
 import type {EnvironmentContext} from '../types.js';
 
 type Manager = 'npm' | 'uv';
@@ -70,8 +74,14 @@ function runnerCommand(ctx:EnvironmentContext,manager:Manager):{command:string;a
   if(!npmCli)throw new Error('Node.js npm CLI is required to install this MCP.');
   return {command:process.execPath,args:[npmCli]};
 }
+// CreateProcess rejects a working directory longer than MAX_PATH (ENOENT), even
+// when long paths are enabled. npm/uv receive absolute --prefix/--python targets,
+// so a short temporary working directory is equivalent for deep home folders.
+export function processCwd(cwd:string,platform:NodeJS.Platform=process.platform):string {
+  return platform==='win32'&&path.resolve(cwd).length>=248?os.tmpdir():cwd;
+}
 const run:Runner = (command,args,cwd)=>new Promise((resolve,reject)=>{
-  const child=spawn(command,args,{cwd,shell:false,windowsHide:true,stdio:['ignore','ignore','ignore']});
+  const child=spawn(command,args,{cwd:processCwd(cwd),shell:false,windowsHide:true,stdio:['ignore','ignore','ignore']});
   const timer=setTimeout(()=>{child.kill();reject(new Error('MCP package installation timed out.'));},180000);
   child.once('error',()=>{clearTimeout(timer);reject(new Error('Required MCP package manager is unavailable.'));});
   child.once('close',code=>{clearTimeout(timer);if(code===0)resolve();else reject(new Error('MCP package manager failed.'));});
@@ -110,6 +120,25 @@ export function inspectManagedMcps(ctx:EnvironmentContext){
       risk:item.risk,configured:false};
   })};
 }
+/**
+ * Lists the configurations (central manifest, native clients) whose command or arguments point
+ * inside this managed package folder, so an uninstall can warn about entries it would break.
+ * Read-only; returns labels only, never commands, arguments or environment values.
+ */
+export function findPackageReferences(ctx:EnvironmentContext,id:string):string[] {
+  const folder=path.resolve(entry(ctx,id)).toLowerCase();
+  const inside=(spec:McpLaunchSpec)=>[spec.command??'',...(spec.args??[])]
+    .some(v=>typeof v==='string'&&path.isAbsolute(v)&&(path.resolve(v).toLowerCase()+path.sep).startsWith(folder+path.sep));
+  const labels:string[]=[];
+  const central=loadCentralMcpManifest(ctx);
+  if(central.status==='valid'&&Object.values(central.manifest.mcpServers).some(inside))labels.push('Central MCP manifest');
+  for(const agent of detectAgents(ctx)){
+    if(!agent.installed)continue;
+    try{ if(Object.values(readAgentMcpServers(agent)).some(inside))labels.push(agent.definition.name); }
+    catch{ /* corrupted configs are reported by doctor */ }
+  }
+  return labels;
+}
 export function previewManagedMcp(ctx:EnvironmentContext,id:string,operation:Operation){
   const {raw,store}=read(ctx);
   const target=entry(ctx,id);
@@ -129,7 +158,8 @@ export function previewManagedMcp(ctx:EnvironmentContext,id:string,operation:Ope
     revision:hash(raw+'\0'+folder+'\0'+entryHash+'\0'+(previous?.version??'')),
     risk:recipeData.item.risk,requirements:recipeData.item.requirements,
     // Package installation alone never edits or launches native MCP clients.
-    affectsNativeClients:false};
+    affectsNativeClients:false,
+    referencedBy:operation==='uninstall'?findPackageReferences(ctx,id):[]};
 }
 export async function applyManagedMcp(ctx:EnvironmentContext,id:string,operation:Operation,
                                       expectedRevision:string,execute:Runner=run){

@@ -324,11 +324,17 @@ describe('local Skill Hub HTTP security and user workflows', () => {
   });
 
   it('exposes on-demand health diagnostics and keeps full sync explicit', async () => {
+    fs.mkdirSync(path.join(home, '.codex'), { recursive: true });
+    const stale = path.join(home, 'old-runtime', 'node.exe');
+    fs.writeFileSync(path.join(home, '.codex', 'config.toml'), `[mcp_servers.stale]\ncommand = ${JSON.stringify(stale)}\n`);
     const doctor = await fetch(instance.url + '/api/doctor');
     assert.equal(doctor.status, 200);
-    const report = await doctor.json() as { agents: unknown[]; issues: string[] };
+    const report = await doctor.json() as { agents: unknown[]; issues: string[]; warnings: string[] };
     assert.equal(Array.isArray(report.agents), true);
+    assert.ok(report.warnings.some(w => w.includes('"stale"') && w.includes('cannot start')), report.warnings.join('\n'));
     assert.equal(JSON.stringify(report).includes(home), false);
+    assert.equal(JSON.stringify(report).includes('old-runtime'), false);
+    fs.rmSync(path.join(home, '.codex'), { recursive: true, force: true });
     const preview = await post({action:'sync-all-preview'});
     assert.equal(preview.status, 200);
     const approved = await preview.json() as {dryRun:boolean;previewToken:string};

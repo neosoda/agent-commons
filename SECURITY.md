@@ -9,9 +9,10 @@ preview first, use a backup, and keep independent recovery copies for important 
 
 | Version | Security fixes |
 |---|---|
-| 0.4.x | Supported (current) |
-| 0.3.x | Superseded; upgrade to 0.4.x |
-| 0.2.x | Unsupported; upgrade to 0.4.x |
+| 0.5.x | Supported (current) |
+| 0.4.x | Superseded; upgrade to 0.5.x |
+| 0.3.x | Unsupported; upgrade to 0.5.x |
+| 0.2.x | Unsupported; upgrade to 0.5.x |
 | 0.1.x | Unsupported |
 
 ## Security boundaries and guarantees
@@ -39,6 +40,13 @@ preview first, use a backup, and keep independent recovery copies for important 
 - **Supply chain:** curated pinned source/licence metadata is **not a code
   security audit**. Review third-party skills before installing/running them.
   The Windows portable ZIP is currently unsigned. Verify the release SHA-256.
+
+## MCP diagnostics boundaries
+
+- `doctor` stays read-only: MCP launch checks resolve commands on PATH and test file existence without executing anything.
+- `mcp probe` **executes the configured server commands** and is only available as an explicit CLI command, never from the web UI. It starts one server at a time, stops the whole process tree afterwards, never prints environment values and never sends credentials to HTTP servers (authentication-gated servers are reported as unverified).
+- On Windows, batch launchers (`.cmd`/`.bat`) are run through `cmd.exe /d /s /c` with every argument quoted; arguments containing `"`, `%`, `!`, `^` or line breaks are refused instead of escaped.
+- The bundled demo server (`mcp demo-server`) has no network, file system or secret access.
 
 ## Reporting a vulnerability
 

@@ -10,7 +10,8 @@ import {
   createDirectoryLink,
   inspectPath,
   removePhysicalDirectorySafe,
-  writeFileAtomicSync
+  writeFileAtomicSync,
+  mkdtempSafe
 } from './links.js';
 
 function generateSnapshotId(): string {
@@ -448,7 +449,7 @@ export function restoreBackup(ctx: EnvironmentContext, snapshotId?: string): Bac
       const parentDir = path.dirname(target);
       fs.mkdirSync(parentDir, { recursive: true });
       assertPhysicalParents(target);
-      const temporaryDir = fs.mkdtempSync(path.join(parentDir, '.agent-commons-restore-'));
+      const temporaryDir = mkdtempSafe(path.join(parentDir, '.agent-commons-restore-'));
       const stage: RestoreStage = { target, temporaryDir, initialState,
         displaced: false, installed: false };
       stages.push(stage);

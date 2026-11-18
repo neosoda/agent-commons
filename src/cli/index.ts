@@ -13,6 +13,9 @@ import { runList } from '../commands/list.js';
 import { routeSkills } from '../commands/skill-router.js';
 import { routeSmartSkills, loadSkill, resolveSkillDependencies } from '../commands/smart-skill-router.js';
 import { runSync } from '../commands/sync.js';
+import { countFailures, demoServerConfig, formatProbe, runMcpProbe } from '../commands/mcp-probe.js';
+import { runDemoServer } from '../mcp/demo-server.js';
+import { AGENT_REGISTRY } from '../agents/registry.js';
 import { discoverCentralSkills } from '../sync/skills.js';
 import { readSavedProfiles, saveAgentProfile, clearAgentProfile, runSavedProfilesSync } from '../commands/saved-profiles.js';
 import { createFullBackup, listBackups, restoreBackup } from '../core/backup.js';
@@ -31,7 +34,7 @@ USAGE:
   agent-commons <command> [options]
 
 COMMANDS:
-  doctor                  Diagnose environment, link capabilities, central library, and 17 agents
+  doctor                  Diagnose environment, prerequisites, skills, MCP launch targets and ${AGENT_REGISTRY.length} agents
   repair-central          Preview/recover circular central junctions from physical .sources
   list                    List central skills, MCP servers, agent inventories, and backups
   catalog                 Inventory local skills / explore curated public skill metadata
@@ -40,6 +43,8 @@ COMMANDS:
   skills route <task>     Rank local skills without loading instructions
   skills load <id>        Explicitly load one local SKILL.md or resource
   skills deps <id>        Inspect dependencies without installing anything
+  mcp probe [server...]   Start MCP servers explicitly and verify the MCP handshake / one tool call
+  mcp demo-config         Print a secret-free demo MCP server entry for end-to-end checks
   web                     Open local browser dashboard for skills, profiles and backups
   sync                    Synchronize skills and MCP configurations to installed agents
   backup                  Create a point-in-time snapshot of all agent skills and MCP configs
@@ -98,13 +103,34 @@ Usage: agent-commons doctor [options]
 Runs a non-destructive health check of:
   - OS link strategy (Windows NTFS Junctions vs POSIX Symlinks)
   - Central library (~/.agents/skills/ and ~/.agents/mcp.json)
-  - All 17 registered AI coding agents (broken links, diverged copies, MCP syntax)
+  - All ${AGENT_REGISTRY.length} registered AI coding agents (broken links, diverged copies, MCP syntax)
+  - Prerequisites on PATH (node, npm, npx, git, uv, uvx, python, docker); nothing is executed
+  - MCP launch targets: command found on PATH, absolute script present (no server is started)
+  - SKILL.md frontmatter that clients would reject (missing name/description, >1024 chars, bad YAML)
+
+Use "agent-commons mcp probe" to actually start servers and test the MCP handshake.
 
 Options:
   --home <path>     Override user home directory
   --agent <id>      Inspect specific agent(s) only
   --json            Emit JSON output
   -h, --help        Show this help message
+`.trim();
+    case 'mcp':
+      return `
+Usage:
+  agent-commons mcp probe [server...] [--agent <id>] [--timeout <ms>] [--json] [--home <path>]
+  agent-commons mcp probe <server> --call <tool> [--arg key=value]... [--arguments '<json>']
+  agent-commons mcp demo-config
+  agent-commons mcp demo-server
+
+probe        EXPLICITLY STARTS the selected MCP servers (central manifest by default, or the
+             native config of --agent), performs initialize + tools/list, optionally calls one
+             tool, then stops each process. Run it only for servers you trust: this executes
+             the configured commands. Environment values are passed but never printed.
+demo-config  Prints a central manifest entry for the bundled zero-dependency demo server
+             (tools: echo, time). No secret, no network, no file access.
+demo-server  Runs the demo server on stdio (used by the entry above).
 `.trim();
     case 'repair-central':
       return `
@@ -373,8 +399,22 @@ export function runCli(argv: string[] = process.argv.slice(2)): number {
           ? `MCP: ${a.mcpStatus} (${a.mcpServersCount} servers, ${a.mcpFormat})`
           : `MCP: skills-only`;
         console.log(
-          `  * [${a.id.padEnd(18)}] Skills: ${a.linkedSkillsCount} linked, ${a.physicalSkillsCount} physical (${a.conflictSkillsCount} conflicts), ${a.brokenLinksCount} broken | ${mcpInfo}`
+          `  * [${a.id.padEnd(18)}] Skills: ${a.linkedSkillsCount} linked, ${a.physicalSkillsCount} physical (${a.conflictSkillsCount} conflicts), ${a.brokenLinksCount} broken${a.skillMetadataTokens ? ` (~${a.skillMetadataTokens} tokens of skill metadata per session)` : ''} | ${mcpInfo}`
         );
+      }
+
+      const missing = report.prerequisites.filter(p => !p.found).map(p => p.name);
+      console.log(`\nPrerequisites  : ${report.prerequisites.filter(p => p.found).map(p => p.name).join(', ') || 'none'}` +
+        (missing.length ? ` | missing: ${missing.join(', ')}` : ''));
+      const launchable = report.mcpLaunch.filter(m => m.status === 'ok').length;
+      const broken = report.mcpLaunch.filter(m => ['missing-command', 'missing-script', 'invalid'].includes(m.status)).length;
+      const remote = report.mcpLaunch.filter(m => m.status === 'remote').length;
+      console.log(`MCP launch     : ${launchable} locatable, ${broken} cannot start, ${remote} remote (servers are not started; use "mcp probe")`);
+      console.log(`Skill metadata : ${report.skillLint.filter(s => s.errors.length).length} invalid, ${report.skillLint.filter(s => !s.errors.length).length} with naming advisories (see --json)`);
+
+      if (report.warnings.length > 0) {
+        console.log(`\nWarnings (${report.warnings.length}):`);
+        for (const warning of report.warnings) console.log(`  ~ ${redactSecrets(warning)}`);
       }
 
       if (report.issues.length > 0) {
@@ -386,7 +426,9 @@ export function runCli(argv: string[] = process.argv.slice(2)): number {
           `\nNext step: Run "agent-commons sync --dry-run" to preview repairs before applying changes.`
         );
       } else {
-        console.log(`\nStatus: Healthy (0 issues detected)`);
+        console.log(report.warnings.length
+          ? `\nStatus: Healthy with ${report.warnings.length} warning(s); fix them before relying on those skills/MCP servers.`
+          : `\nStatus: Healthy (0 issues detected)`);
       }
 
       return report.healthy ? 0 : 1;
@@ -910,6 +952,40 @@ export async function runCliAsync(argv: string[] = process.argv.slice(2)): Promi
         port, openBrowser: !parsed.values['no-open'] });
       console.log('Agent Commons Skill Hub running at ' + instance.url + '\nPress Ctrl+C to stop.');
       return 0;
+    } catch (err) {
+      console.error('Error: ' + redactSecrets((err as Error).message));
+      return 1;
+    }
+  }
+  if (argv[0] === 'mcp' && !argv.includes('--help') && !argv.includes('-h')) {
+    try {
+      const parsed = parseArgs({ args: argv, strict: true, allowPositionals: true, options: {
+        home: { type: 'string' }, json: { type: 'boolean', default: false }, agent: { type: 'string' },
+        timeout: { type: 'string' }, call: { type: 'string' }, arguments: { type: 'string' },
+        arg: { type: 'string', multiple: true } } });
+      const sub = parsed.positionals[1];
+      if (sub === 'demo-server') { runDemoServer(VERSION); return await new Promise<number>(() => undefined); }
+      if (sub === 'demo-config') { console.log(JSON.stringify(demoServerConfig(), null, 2)); return 0; }
+      if (sub !== 'probe') throw new Error('Usage: agent-commons mcp probe|demo-config|demo-server (see --help)');
+      const timeout = parsed.values.timeout;
+      if (timeout !== undefined && !/^[0-9]{3,6}$/.test(timeout)) throw new Error('--timeout must be milliseconds (100-999999).');
+      let toolArguments: Record<string, unknown> | undefined;
+      if (parsed.values.arguments !== undefined) {
+        const value = JSON.parse(parsed.values.arguments) as unknown;
+        if (!value || typeof value !== 'object' || Array.isArray(value)) throw new Error('--arguments must be a JSON object.');
+        toolArguments = value as Record<string, unknown>;
+      }
+      // --arg key=value avoids JSON quoting, which Windows PowerShell 5.1 mangles for native commands.
+      for (const pair of parsed.values.arg ?? []) {
+        const eq = pair.indexOf('=');
+        if (eq < 1) throw new Error('--arg expects key=value.');
+        (toolArguments ??= {})[pair.slice(0, eq)] = pair.slice(eq + 1);
+      }
+      const report = await runMcpProbe(createEnvironmentContext({ homeDir: parsed.values.home }),
+        parsed.positionals.slice(2), { agent: parsed.values.agent, timeoutMs: timeout ? Number(timeout) : undefined,
+          callTool: parsed.values.call, toolArguments });
+      console.log(parsed.values.json ? JSON.stringify(report, null, 2) : formatProbe(report));
+      return countFailures(report) === 0 ? 0 : 1;
     } catch (err) {
       console.error('Error: ' + redactSecrets((err as Error).message));
       return 1;

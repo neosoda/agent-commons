@@ -160,6 +160,8 @@ export interface AgentDoctorStatus {
   mcpConfigPath: string | null;
   mcpStatus: 'not-supported' | 'missing' | 'valid' | 'corrupted';
   mcpServersCount: number;
+  /** Approximate tokens of skill names/descriptions the client loads at session start. */
+  skillMetadataTokens: number;
   issues: string[];
 }
 
@@ -178,6 +180,11 @@ export interface DoctorReport {
   centralMcpServersCount: number;
   agents: AgentDoctorStatus[];
   issues: string[];
+  /** Problems that do not corrupt state but make a skill or MCP server unusable by a client. */
+  warnings: string[];
+  prerequisites: Array<{ name: string; found: boolean; detail?: string }>;
+  mcpLaunch: Array<{ scope: string; server: string; status: string; message: string }>;
+  skillLint: Array<{ scope: string; skill: string; errors: string[]; advisories: string[] }>;
 }
 
 export interface ListReport {

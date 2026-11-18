@@ -67,6 +67,13 @@ node dist/cli/index.js backup
 node dist/cli/index.js sync
 ```
 
+**Vérifier que tout fonctionne vraiment :** `doctor` signale, sans rien démarrer, les serveurs MCP dont l'exécutable a disparu, les `SKILL.md` que les clients refuseraient et le coût en tokens des skills par agent. `mcp probe` démarre explicitement les serveurs MCP choisis et teste la connexion MCP réelle. Voir le [guide de diagnostic](docs/DIAGNOSTICS.md).
+
+```bash
+node dist/cli/index.js doctor
+node dist/cli/index.js mcp probe --agent codex
+```
+
 **Vous découvrez Agent Commons ?** Commencez avec un seul agent : `sync --dry-run --agent codex` (remplacez `codex` par son identifiant). L'option `--home <chemin>` permet aussi de tester le logiciel dans un répertoire utilisateur distinct.
 
 ## Découverte de skills économe en tokens
@@ -447,7 +454,10 @@ Aucun téléchargement, installation, synchronisation ou publication n'est décl
 
 | Commande | Fonction |
 |---|---|
-| `doctor` | Diagnostiquer agents, liens et configurations MCP |
+| `doctor` | Diagnostiquer agents, liens, configurations MCP, exécutables MCP, `SKILL.md` invalides et coût en tokens (lecture seule) |
+| `mcp probe [serveur…] [--agent <id>]` | **Démarrer explicitement** des serveurs MCP et tester `initialize` + `tools/list` |
+| `mcp probe <serveur> --call <outil> --arg clé=valeur` | Effectuer un appel d'outil non destructif |
+| `mcp demo-config` | Afficher l'entrée d'un serveur MCP de démonstration sans secret |
 | `web [--port 4173] [--no-open]` | Ouvrir l'interface locale des skills, profils et sauvegardes |
 | `catalog list` / `catalog search <terme>` | Consulter hors ligne le catalogue public |
 | `catalog info <id>` | Voir source, auteur, licence et état d'installation |
