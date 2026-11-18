@@ -1,10 +1,10 @@
 # Agent Commons — PROJECT_HANDOFF
 
-> **Operational handoff, last verified: 2026-11-18 (sections 24-29; v0.5.3 public, v0.5.4-dev.0 Web improvements installed locally).** Read this file before modifying the repository; then check live `main`, release/tag, PRs, issues and GitHub Actions **by exact commit SHA**. Historical SHA and run IDs below are a snapshot, not a promise of current status.
+> **Operational handoff, last verified: 2026-11-18 (section 31; v0.5.4 published and its public Windows ZIP verified).** Read this file before modifying the repository; then check live `main`, release/tag, PRs, issues and GitHub Actions **by exact commit SHA**. Historical SHA and run IDs below are a snapshot, not a promise of current status.
 
-## 0. Active development — Extension Manager (2026-11-15)
+## 0. Extension Manager — delivered (initial implementation 2026-11-15)
 
-**Branch:** feat/extension-manager-v05 · **PR:** https://github.com/neosoda/agent-commons/pull/76 — since merged into `main` as `8a10927` (verified 2026-11-17); not yet in a release.
+**Branch:** feat/extension-manager-v05 · **PR:** https://github.com/neosoda/agent-commons/pull/76 — merged into `main` as `8a10927` (verified 2026-11-17), included in current release v0.5.4. Web management improvements are described in sections 29-31.
 
 - Adds reviewed npm/uv managed MCP package lifecycle and a combined dashboard of packages and Skills; manual-only/unknown MCPs remain noninstallable from the UI.
 - Adds scoped central MCP provisioning for Playwright, Filesystem, Fetch and Git and targeted client sync with explicit preview and consent.
@@ -27,13 +27,9 @@ handling, safe backup/restore), `src/commands` (CLI), `src/web` (local
 HTTP and framework-free Skill Hub), `src/security`, `src/test`, `scripts`.
 Public catalog assets in `catalog`; end-user documentation in `README.md`.
 
-**Current published stable version:** [GitHub **v0.4.0**](https://github.com/neosoda/agent-commons/releases/tag/v0.4.0), tagged exactly at `9a952793f2f6c9a665e3f960f3610c027d961f7c`; Windows ZIP (36,485,546 bytes) plus matching SHA-256 are published. Verified ZIP SHA-256: `b333ddf4ac7aecc135f23914cf6ddb2ca8aad52817033c5f27ef7aca44859522`. [Full release verification](docs/releases/v0.4.0.md).
+**Current published stable version:** [GitHub **v0.5.4**](https://github.com/neosoda/agent-commons/releases/tag/v0.5.4), tagged exactly at `313346b5cad973f535bbfa88910ef94623242dd9`; Windows ZIP (36,562,044 bytes) plus matching SHA-256 are published. Verified ZIP SHA-256: `93d8722c8804c4e3e5aaa163e36709a2bfc60158ef898eaac0b59e314800c84e`. [Full release verification](docs/releases/v0.5.4.md).
 
-**Previous published stable version (before v0.4.0):** [GitHub **v0.3.1**](https://github.com/neosoda/agent-commons/releases/tag/v0.3.1),
-tag at `9c1735aed0226dfa0eff4165753368c2daf2aa02`, ZIP Windows x64 and
-matching SHA-256 uploaded. Historical [v0.3.0](https://github.com/neosoda/agent-commons/releases/tag/v0.3.0) remains unchanged. [Published release record](docs/releases/v0.3.0.md).
-The historical v0.3.1 ZIP's SHA-256 is
-`9f78bd4ee06f913e2f0b1d1492718282b498b08e03735cfd49bde01e9b345c7d`.
+**Previous published stable version:** [GitHub **v0.5.3**](https://github.com/neosoda/agent-commons/releases/tag/v0.5.3), tag at `6f8d59b73b6986074d9782f3049767cc618efb51`, ZIP Windows x64 and matching SHA-256 uploaded. [Published release record](docs/releases/v0.5.3.md). Historical tags and assets remain unchanged.
 Never move a published tag or silently modify a release asset.
 
 **Runtime safety invariants:**
@@ -153,7 +149,7 @@ P1 and P2 are included in the **published v0.3.1** ZIP. Never move the historica
 
 ## 5. Next-session resumption prompt
 
-> Reprends https://github.com/neosoda/agent-commons. Lis ce fichier intégralement et contrôle `main`, PR ouvertes, releases, issues et workflows en direct. **Dernière release publique vérifiée v0.3.1**, tag SHA `9c1735a`, ZIP et `.sha256` disponibles. P1 [#49](https://github.com/neosoda/agent-commons/pull/49) : sync preview/apply jeton unique+révision filesystem+plan, erreurs fail-closed, profil async lié à l'agent initiateur. P2 [#50](https://github.com/neosoda/agent-commons/pull/50) : nettoyage workflow v0.3.0, SECURITY/README/handoff, script autonome ZIP Windows, grille NVDA, issue MCP #18 clarifiée. Patch [#51](https://github.com/neosoda/agent-commons/pull/51) v0.3.1 publié. La branche `chore/retire-v031-publisher-final-handoff-20261030` supprime son workflow one-shot et met à jour le handoff : **fusionner uniquement après CI 6/6, Chromium et portable Windows success sur SHA PR exact**, puis recontrôler main. Pas de test Windows/NVDA réel, ni signature Windows, ni npm autorisé : ces étapes externes nécessitent une machine ou le compte propriétaire. Ne pas exposer le Skill Hub (127.0.0.1 sans auth), ne pas toucher aux vrais agents/secrets, ne jamais déplacer les tags historiques. Toute future modification nécessite une nouvelle version et une validation complète.
+> Reprends https://github.com/neosoda/agent-commons. Lis ce fichier intégralement puis contrôle en direct le worktree, main, les PR, les releases/tags et leurs workflows par SHA exact. Dernière release publique vérifiée : **v0.5.4**, tag `313346b5cad973f535bbfa88910ef94623242dd9`, ZIP Windows et SHA-256 publiés et testés sous HOME synthétique (voir docs/releases/v0.5.4.md). PR #87 fusionnée après huit contrôles réussis, main revalidé avant publication. Le logiciel installé localement reste 0.5.4-dev.0 sur le port 4174 ; ne pas le confondre avec la release stable publique. Aucun npm publié, aucune signature Windows, aucun test NVDA/VoiceOver/SmartScreen revendiqué. Préserver les configurations et secrets réels, les aperçus/confirmations, le serveur lié à 127.0.0.1 et les tags historiques. Consulter la section finale pour le suivi documentaire et la prochaine action ; toute nouvelle fusion exige les six jobs CI, Chromium et portable Windows sur le SHA exact, puis le contrôle de main.
 
 ## 6. In-progress hardening — duplicate JSONC properties (2026-10-30)
 
@@ -453,3 +449,11 @@ User requested improving the installed Web interface for installing and managing
 User explicitly requested push, merge and release. Verified clean worktree, live `main` at `ccdeb3f2bf4f5134ee2b3f89101a1f18cf4cf7ae`, PR #87 open, v0.5.3 still latest and no v0.5.4 tag/release. Promoted package and lockfile from 0.5.4-dev.0 to **0.5.4**, added bilingual release notes and updated both README editions and Extension Manager guide. No application code changed during this preparation.
 
 **Release gates:** rerun local npm checks, require all eight checks on the final PR #87 head, squash-merge with an exact-head guard, then verify the resulting main's six CI jobs, Chromium and Windows portable workflows. Only then create v0.5.4 on that exact merged SHA and let `release-assets.yml` attach its tested ZIP and SHA-256. Verify the actual public release/tag/assets and downloaded Windows archive before recording publication. npm publication stays disabled; no tag/release has been created at authorship.
+
+## 31. v0.5.4 published and downloaded archive verified (2026-11-18)
+
+Completed the user's push/merge/release request. [PR #87](https://github.com/neosoda/agent-commons/pull/87) was squash-merged after all eight final-head checks passed at `d8ac74ed0c86b8864fd9f2e239a5c41d88864830`. Resulting main `313346b5cad973f535bbfa88910ef94623242dd9` passed the six CI jobs, Chromium and Windows portable workflows again. Only then was the stable [v0.5.4 release](https://github.com/neosoda/agent-commons/releases/tag/v0.5.4) created on that exact commit, without replacing any historical tag or asset.
+
+The [release assets workflow](https://github.com/neosoda/agent-commons/actions/runs/44353235533) passed and attached the ZIP (36,562,044 bytes) and checksum. Downloaded both public files and independently confirmed SHA-256 `93d8722c8804c4e3e5aaa163e36709a2bfc60158ef898eaac0b59e314800c84e` against the attached checksum and GitHub asset digest. Windows PowerShell 5.1 acceptance passed: extraction into a spaced path, embedded Node/CLI v0.5.4, dashboard and read-only API under synthetic HOME. [Complete verification record](docs/releases/v0.5.4.md) includes exact SHA and workflow references. npm publishing was skipped by its gate, not attempted. Windows signing, NVDA/VoiceOver and SmartScreen remain unverified.
+
+Local installations/configurations were preserved: the existing improved UI is still the previously installed 0.5.4-dev.0 bundle on port 4174. This release session did not sync real agents, provision/probe MCPs or install third-party skills. Final documentation is on `codex/record-v054-publication-20261118`, to pass the normal exact-head review gates before merge. **Next:** optional installation of the public stable bundle only if requested; remaining product backlog is live upstream update review, MCP health reconciliation and accessibility acceptance. Do not republish or move v0.5.4.
