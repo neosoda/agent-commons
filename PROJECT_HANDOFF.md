@@ -1,6 +1,6 @@
 # Agent Commons — PROJECT_HANDOFF
 
-> **Operational handoff, last verified: 2026-11-18 (sections 24-28; v0.5.3 published and installed locally).** Read this file before modifying the repository; then check live `main`, release/tag, PRs, issues and GitHub Actions **by exact commit SHA**. Historical SHA and run IDs below are a snapshot, not a promise of current status.
+> **Operational handoff, last verified: 2026-11-18 (sections 24-29; v0.5.3 public, v0.5.4-dev.0 Web improvements installed locally).** Read this file before modifying the repository; then check live `main`, release/tag, PRs, issues and GitHub Actions **by exact commit SHA**. Historical SHA and run IDs below are a snapshot, not a promise of current status.
 
 ## 0. Active development — Extension Manager (2026-11-15)
 
@@ -431,3 +431,25 @@ Downloaded the official Windows ZIP and checksum; verified SHA-256 `62b0d8c6f996
 **Verified:** installed `agent-commons --version` is 0.5.3; real-profile `doctor` reports Healthy, zero issues. Started the bundled runtime in the background; dashboard and `/api/state` return HTTP 200, and the listener binds only `127.0.0.1:4173`. Local repository checks: `npm ci`, typecheck, all 198 tests, generated bilingual catalog credits, audit (zero vulnerabilities) and pack dry-run passed. This session does not claim MCP handshake, screen-reader, SmartScreen or new release validation.
 
 **Next:** use the local Skill Hub or shortcuts. Any future skill/MCP synchronization requires its own reviewed preview and approval. This documentation update follows the normal branch/PR process; no application code changed.
+
+## 29. Web installation and management improvements (2026-11-18)
+
+User requested improving the installed Web interface for installing and managing tools. Started with a clean worktree on the installation handoff branch. Verified live main/release/PR state; [PR #86](https://github.com/neosoda/agent-commons/pull/86) passed all eight exact-head checks and was squash-merged as `ccdeb3f2bf4f5134ee2b3f89101a1f18cf4cf7ae`. Its resulting main passed [CI](https://github.com/neosoda/agent-commons/actions/runs/44347064894), [Chromium](https://github.com/neosoda/agent-commons/actions/runs/44347064720) and [Windows portable](https://github.com/neosoda/agent-commons/actions/runs/44347064728). New work is on `codex/web-extension-management-20261118`.
+
+**Implemented:** direct skill install/update previews and agent selection on catalog cards; managed/update/attention/local filters and reset; source/license metadata; management actions before usage help; MCP setup steps that distinguish package/configuration/client detection without asserting a successful sync or running server. Package installation/configuration returns to the item for the next explicit action. Pending previews expose cancellation/errors and discard late responses after cancellation/navigation. French translations and mobile controls are updated.
+
+**Targeted skill sync:** new `skill-target-sync-preview`/`skill-target-sync-apply` HTTP actions accept one physical shared skill and explicitly selected installed, skill-compatible agents. One-use tokens bind selection, filesystem revision and plan. Saved profiles and MCP settings are preserved. Native central-library readers receive no redundant link, and selecting agents cannot hide shared skills from those clients. No new runtime dependency, automatic third-party installation or automatic sync.
+
+**Validation:** `npm ci`, typecheck, all 202 tests (four new synthetic-HOME HTTP regressions), bilingual generated catalog check, audit (zero vulnerabilities), pack dry-run, and complete Chromium smoke at five viewport sizes passed. Browser coverage includes management filters, unmanaged MCP preservation, cancellation/navigation/error races, actual targeted sync to a synthetic Claude client, native-reader selection and French strings; no JavaScript/CSP errors or horizontal overflow. Before/after viewport captures were inspected; mobile filters occupy less height. Mechanical UI detector returned no findings. Local Playwright 1.64.1 and cached Chromium were reused; no browser dependency was added to the project. Generated screenshots are ignored under `artifacts/`.
+
+**Local delivery:** package/lock version is **0.5.4-dev.0**, explicitly unpublished. Built a separate per-user portable directory using the previously verified official Node runtime and the new local package; tested the packaged UI and API with a synthetic home, then updated the standalone global CLI and Desktop/Start menu shortcuts. The improved interface serves **127.0.0.1:4174**, HTTP 200; the stable v0.5.3 bundle and existing 4173 process were preserved. Real-profile `doctor` remains Healthy with zero issues. No real-agent sync, MCP provisioning/probe or skill installation was performed. Latest public release remains v0.5.3; no tag, release asset or npm publication was created.
+
+**Review:** [PR #87](https://github.com/neosoda/agent-commons/pull/87), initial code head `ad320330512c061c69747b596b84742034b499aa`. At 16:41 UTC, GitHub reported no check runs for this PR yet; workflows are enabled, and no CI success or merge is claimed for this change.
+
+**Next:** verify PR #87's exact-head six-job CI, Chromium and Windows portable checks before merge; recheck resulting main if merged. Use the updated shortcuts or local port 4174 for the improved interface. A stable public release needs its separate reviewed version/release process.
+
+## 30. v0.5.4 release preparation (2026-11-18)
+
+User explicitly requested push, merge and release. Verified clean worktree, live `main` at `ccdeb3f2bf4f5134ee2b3f89101a1f18cf4cf7ae`, PR #87 open, v0.5.3 still latest and no v0.5.4 tag/release. Promoted package and lockfile from 0.5.4-dev.0 to **0.5.4**, added bilingual release notes and updated both README editions and Extension Manager guide. No application code changed during this preparation.
+
+**Release gates:** rerun local npm checks, require all eight checks on the final PR #87 head, squash-merge with an exact-head guard, then verify the resulting main's six CI jobs, Chromium and Windows portable workflows. Only then create v0.5.4 on that exact merged SHA and let `release-assets.yml` attach its tested ZIP and SHA-256. Verify the actual public release/tag/assets and downloaded Windows archive before recording publication. npm publication stays disabled; no tag/release has been created at authorship.

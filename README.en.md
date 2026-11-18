@@ -117,7 +117,9 @@ loaded only when explicitly requested. [Full guide](docs/CONTEXT_ROUTING.md).
 
 ## Local Skill Hub — browser dashboard
 
-**Extension Manager (v0.5 in development)**: the unified catalog now installs, repairs, upgrades and removes **managed** MCP packages from the reviewed npm/uv allowlist. Playwright, Fetch, Filesystem and Git can be provisioned to the central manifest and explicitly synced to compatible clients (including LM Studio). Update checks compare against locally pinned reviewed versions, not the live latest upstream release. Uninstalling a package does not remove native client entries. See the [full guide](docs/EXTENSION_MANAGER.md).
+**Extension Manager**: the unified catalog now installs, repairs, upgrades and removes **managed** MCP packages from the reviewed npm/uv allowlist. Playwright, Fetch, Filesystem and Git can be provisioned to the central manifest and explicitly synced to compatible clients (including LM Studio). Update checks compare against locally pinned reviewed versions, not the live latest upstream release. Uninstalling a package does not remove native client entries. See the [full guide](docs/EXTENSION_MANAGER.md).
+
+**v0.5.4 interface:** catalog cards offer skill installation and update previews directly, plus agent selection for an installed skill. Filters isolate managed installations, reviewed updates, items needing attention and local/unmanaged tools. Details show actions before help; MCP details explain the three stages of installation, configuration and synchronization, returning to the item after installation or configuration. Closing a pending preview prevents a late response from opening a confirmation. Targeted synchronization of one skill requires a preview and confirmation bound to the selected agents; it preserves saved profiles and MCP settings. Clients that natively read the shared library need no additional links, and this selection cannot hide shared skills from them.
 
 **New:** a responsive, dependency-free local interface to manage Agent Commons without memorizing commands.
 

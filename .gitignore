@@ -4,6 +4,9 @@ node_modules/
 # Compiled output
 dist/
 
+# Generated browser and portable verification artifacts
+artifacts/
+
 # Logs and coverage
 *.log
 npm-debug.log*
