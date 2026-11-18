@@ -447,3 +447,9 @@ User requested improving the installed Web interface for installing and managing
 **Review:** [PR #87](https://github.com/neosoda/agent-commons/pull/87), initial code head `ad320330512c061c69747b596b84742034b499aa`. At 16:41 UTC, GitHub reported no check runs for this PR yet; workflows are enabled, and no CI success or merge is claimed for this change.
 
 **Next:** verify PR #87's exact-head six-job CI, Chromium and Windows portable checks before merge; recheck resulting main if merged. Use the updated shortcuts or local port 4174 for the improved interface. A stable public release needs its separate reviewed version/release process.
+
+## 30. v0.5.4 release preparation (2026-11-18)
+
+User explicitly requested push, merge and release. Verified clean worktree, live `main` at `ccdeb3f2bf4f5134ee2b3f89101a1f18cf4cf7ae`, PR #87 open, v0.5.3 still latest and no v0.5.4 tag/release. Promoted package and lockfile from 0.5.4-dev.0 to **0.5.4**, added bilingual release notes and updated both README editions and Extension Manager guide. No application code changed during this preparation.
+
+**Release gates:** rerun local npm checks, require all eight checks on the final PR #87 head, squash-merge with an exact-head guard, then verify the resulting main's six CI jobs, Chromium and Windows portable workflows. Only then create v0.5.4 on that exact merged SHA and let `release-assets.yml` attach its tested ZIP and SHA-256. Verify the actual public release/tag/assets and downloaded Windows archive before recording publication. npm publication stays disabled; no tag/release has been created at authorship.

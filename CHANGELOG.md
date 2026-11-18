@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.4] - 2026-11-18
+
+Release notes: docs/releases/v0.5.4-release-notes.md
+
 ### Added
 - Skill Hub catalog filters for managed installations, reviewed updates, items needing attention and local/unmanaged tools; direct skill install/update previews and agent selection from catalog cards.
 - Explicit single-skill synchronization to selected installed agents, with one-use revision/plan-bound preview tokens. Saved profiles and MCP settings stay unchanged; native central-library readers require no additional links.

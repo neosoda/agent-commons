@@ -32,7 +32,7 @@ Les packages sont isolés sous ~/.agents/mcp-packages et suivis dans ~/.agents/m
 3. Choisir **Sync to selected clients**, prévisualiser et confirmer le dry-run. Un redémarrage du client IA peut être nécessaire.
 4. Pour les packages gérés, utiliser **Update**, **Repair** ou **Uninstall** après vérification.
 
-## Améliorations de l'interface — non publiées
+## Améliorations de l'interface — v0.5.4
 
 Les cartes de skills proposent directement les aperçus d'installation ou de mise à jour épinglée, puis **Choisir les agents** pour un skill installé. Les filtres distinguent les installations gérées, les mises à jour approuvées, les éléments à vérifier et les outils locaux/non gérés. Les fiches présentent leurs actions avant l'aide et les exemples.
 
