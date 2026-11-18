@@ -16,7 +16,7 @@ function Get-AvailableLoopbackPort {
 $nodeVersion = 'v24.22.2'
 $official = 'https://nodejs.org/dist/' + $nodeVersion
 $root = (Get-Location).Path
-$out = Join-Path $root $OutDirectory
+$out = if ([IO.Path]::IsPathRooted($OutDirectory)) { $OutDirectory } else { Join-Path $root $OutDirectory }
 $stage = Join-Path $out 'AgentCommonsPortable'
 $app = Join-Path $stage 'app'
 $runtime = Join-Path $stage 'runtime'
@@ -33,8 +33,8 @@ if ($LASTEXITCODE -ne 0) { throw 'Production package install failed.' }
 Write-Host 'Downloading and validating official pinned Node executable...'
 $sumFile = Join-Path $out 'SHASUMS256.txt'
 $nodeExe = Join-Path $runtime 'node.exe'
-Invoke-WebRequest -Uri ($official + '/SHASUMS256.txt') -OutFile $sumFile
-Invoke-WebRequest -Uri ($official + '/win-x64/node.exe') -OutFile $nodeExe
+Invoke-WebRequest -Uri ($official + '/SHASUMS256.txt') -OutFile $sumFile -UseBasicParsing
+Invoke-WebRequest -Uri ($official + '/win-x64/node.exe') -OutFile $nodeExe -UseBasicParsing
 $entry = Get-Content $sumFile | Where-Object { $_ -match '^[0-9a-fA-F]{64}\s+win-x64/node\.exe$' } | Select-Object -First 1
 if (-not $entry) { throw 'The official SHA256 list has no win-x64/node.exe entry.' }
 $expected = ($entry -split '\s+')[0].ToLowerInvariant()
@@ -94,14 +94,17 @@ $cli = Join-Path $app 'node_modules\@neosoda\agent-commons\dist\cli\index.js'
 & $nodeExe $cli --help | Out-Null
 if ($LASTEXITCODE -ne 0) { throw 'Portable CLI boot failed.' }
 $port = Get-AvailableLoopbackPort
-$argumentString = ('"' + $cli + '" web --no-open --port ' + $port)
+# Never smoke-test against the builder's real profile: use a throwaway synthetic home.
+$bundleHome = Join-Path ([IO.Path]::GetTempPath()) ('agent-commons-build-home-' + [guid]::NewGuid().ToString('N').Substring(0, 8))
+New-Item -ItemType Directory -Path $bundleHome -Force | Out-Null
+$argumentString = ('"' + $cli + '" web --no-open --home "' + $bundleHome + '" --port ' + $port)
 $server = Start-Process -FilePath $nodeExe -ArgumentList $argumentString -PassThru -NoNewWindow
 try {
   $ready = $false
   for ($i = 0; $i -lt 40; $i++) {
     if ($server.HasExited) { throw 'Portable web server quit unexpectedly.' }
     try {
-      $response = Invoke-WebRequest -Uri ('http://127.0.0.1:' + $port + '/') -TimeoutSec 2
+      $response = Invoke-WebRequest -Uri ('http://127.0.0.1:' + $port + '/') -TimeoutSec 2 -UseBasicParsing
       if ($response.StatusCode -eq 200 -and $response.Content.Contains('Skill Hub')) {
         $ready = $true
         break
@@ -112,6 +115,7 @@ try {
   Write-Host 'PASS: bundled runtime serves the dashboard over loopback.'
 } finally {
   if (-not $server.HasExited) { Stop-Process -Id $server.Id -Force }
+  Remove-Item -LiteralPath $bundleHome -Recurse -Force -ErrorAction SilentlyContinue
 }
 $zip = Join-Path $out 'AgentCommons-win-x64-portable.zip'
 Compress-Archive -Path $stage -DestinationPath $zip -CompressionLevel Optimal -Force
@@ -152,7 +156,7 @@ try {
   for ($i = 0; $i -lt 40; $i++) {
     if ($extractedServer.HasExited) { throw 'ZIP-extracted Skill Hub terminated during startup.' }
     try {
-      $result = Invoke-WebRequest -Uri ('http://127.0.0.1:' + $cleanPort + '/') -TimeoutSec 2
+      $result = Invoke-WebRequest -Uri ('http://127.0.0.1:' + $cleanPort + '/') -TimeoutSec 2 -UseBasicParsing
       if ($result.StatusCode -eq 200 -and $result.Content.Contains('Skill Hub')) {
         $healthy = $true
         break
