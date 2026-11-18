@@ -4,6 +4,8 @@ import { spawn } from 'node:child_process';
 import { runList } from '../commands/list.js';
 import { runDoctor } from '../commands/doctor.js';
 import { runSync } from '../commands/sync.js';
+import { detectAgents } from '../agents/detector.js';
+import { discoverCentralSkills } from '../sync/skills.js';
 import { readPublicCatalog, searchPublicCatalog } from '../commands/public-catalog.js';
 import { verifyCatalogSkills } from '../commands/skill-verify.js';
 import { installCatalogSkill, updateCatalogSkill, uninstallCatalogSkill, previewCatalogInstall, previewCatalogUpdate, previewCatalogUninstall } from '../commands/skill-install.js';
@@ -100,6 +102,8 @@ const PUBLIC_ERRORS = new Set([
   'Only agent routing and enabled status may be edited.',
   'Invalid enabled status.',
   'Invalid or duplicate agent selection.',
+  'Choose installed skill-compatible agents only.',
+  'Choose a skill from the physical shared library.',
   'An agent cannot be both included and excluded.',
   'Invalid MCP configuration.',
   'Unsupported MCP configuration field.',
@@ -438,6 +442,30 @@ export async function startWebServer(options: WebOptions = {}): Promise<WebInsta
           if (verified.errors.length) throw new Error('Sync preview reported errors; refusing to apply.');
           json(res,200,summarize(runSync(ctx,{mcpOnly:true,agentFilter:agents,
             mcpServerFilterByAgent:Object.fromEntries(agents.map(agent=>[agent,[id]])),dryRun:false}),ctx)); return;
+        }
+        if (action === 'skill-target-sync-preview' || action === 'skill-target-sync-apply') {
+          const id = checkedId(body.id);
+          const agents = checkedList(body.agents);
+          const eligible = new Set(detectAgents(ctx)
+            .filter(agent => agent.installed && agent.definition.skillsSupported !== false)
+            .map(agent => agent.definition.id));
+          if (!agents.length || new Set(agents).size !== agents.length || agents.some(agent => !eligible.has(agent))) {
+            throw new Error('Choose installed skill-compatible agents only.');
+          }
+          if (!discoverCentralSkills(ctx).some(skill => skill.name === id)) {
+            throw new Error('Choose a skill from the physical shared library.');
+          }
+          const scope = JSON.stringify([id, [...agents].sort()]);
+          const selection = {skillsOnly: true, skillFilter: [id], agentFilter: agents};
+          const trial = () => runSync(ctx, {...selection, dryRun: true});
+          if (action === 'skill-target-sync-preview') {
+            const {previewToken, report} = previewSync('skills', trial, scope);
+            json(res, 200, {...report, previewToken}); return;
+          }
+          requireApproval(body);
+          const verified = checkSyncTicket('skills', body, trial, scope);
+          if (verified.errors.length) throw new Error('Sync preview reported errors; refusing to apply.');
+          json(res, 200, summarize(runSync(ctx, {...selection, dryRun: false}), ctx)); return;
         }
         if (action === 'profile-save') {
           requireApproval(body);

@@ -4,6 +4,7 @@
  * Screenshots contain a synthetic empty home, never the runner's own agents.
  */
 import assert from 'node:assert/strict';
+import crypto from 'node:crypto';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -217,6 +218,219 @@ try {
   await page.reload({waitUntil:'networkidle'});
   assert.equal(await page.locator('#language-select').inputValue(),'en');
 
+  // Management fixtures are created only in the synthetic home, after the empty-home captures.
+  const catalog=JSON.parse(fs.readFileSync(new URL('../catalog/skills.json',import.meta.url),'utf8')).skills;
+  const fixtureSkill=id=>{
+    const skill=catalog.find(item=>item.id===id);
+    assert.ok(skill,'missing reviewed catalog fixture '+id);
+    return skill;
+  };
+  const managedSkill=fixtureSkill('api-design'),outdatedSkill=fixtureSkill('backend-patterns');
+  const modifiedSkill=fixtureSkill('skill-creator'),availableSkill=fixtureSkill('find-skills');
+  const writeManagedFixture=(skill,commit=skill.ref)=>{
+    const root=path.join(home,'.agents','skills',skill.id);
+    fs.mkdirSync(root,{recursive:true});
+    const content=Buffer.from('---\nname: '+skill.id+'\ndescription: Synthetic browser QA fixture.\n---\n# '+skill.id+'\n');
+    fs.writeFileSync(path.join(root,'SKILL.md'),content);
+    fs.writeFileSync(path.join(root,'.agent-commons-source.json'),JSON.stringify({
+      schemaVersion:1,managedBy:'agent-commons',skill:skill.id,repository:skill.repository,
+      source:skill.repository+'/tree/'+commit+(skill.path==='.'?'':'/'+skill.path),commit,
+      files:[{path:'SKILL.md',gitBlobSha1:crypto.createHash('sha1')
+        .update('blob '+content.length+'\0').update(content).digest('hex')}]
+    }));
+    return root;
+  };
+  writeManagedFixture(managedSkill);
+  writeManagedFixture(outdatedSkill,'a'.repeat(40));
+  const modifiedRoot=writeManagedFixture(modifiedSkill);
+  fs.appendFileSync(path.join(modifiedRoot,'SKILL.md'),'User changes must be preserved.\n');
+  const localRoot=path.join(home,'.agents','skills','browser-local-tool');
+  fs.mkdirSync(localRoot,{recursive:true});
+  fs.writeFileSync(path.join(localRoot,'SKILL.md'),'---\nname: browser-local-tool\ndescription: Local browser fixture.\n---\n');
+  fs.mkdirSync(path.join(home,'.claude'),{recursive:true});
+  fs.mkdirSync(path.join(home,'.codex'),{recursive:true});
+  await page.locator('#refresh').click();
+  await page.locator('#workspace-status').getByText('Workspace and integrity results updated.').waitFor();
+  await page.locator('[data-page="catalog"]').click();
+  const toolCard=id=>page.locator('#catalog-cards [data-tool-kind="skill"][data-tool-id="'+id+'"]');
+  await toolCard(managedSkill.id).waitFor();
+  await page.locator('#catalog-status').selectOption('managed');
+  assert.ok(await toolCard(managedSkill.id).isVisible(),'managed installation missing from managed filter');
+  assert.equal(await toolCard('browser-local-tool').count(),0,'unmanaged local skill included in managed filter');
+  await page.locator('#catalog-status').selectOption('updates');
+  assert.ok(await toolCard(outdatedSkill.id).isVisible(),'outdated managed skill missing from updates filter');
+  assert.equal(await toolCard(managedSkill.id).count(),0,'current skill included in updates filter');
+  await page.locator('#catalog-status').selectOption('attention');
+  assert.ok(await toolCard(modifiedSkill.id).isVisible(),'modified skill missing from attention filter');
+  assert.equal(await toolCard(managedSkill.id).count(),0,'intact skill included in attention filter');
+  await page.locator('#catalog-category').selectOption(managedSkill.category);
+  await page.locator('#catalog-search').fill('no-manager-result-999');
+  await page.locator('#catalog-reset').click();
+  assert.equal(await page.locator('#catalog-search').inputValue(),'');
+  assert.equal(await page.locator('#catalog-category').inputValue(),'');
+  assert.equal(await page.locator('#catalog-status').inputValue(),'');
+  assert.ok(await toolCard('browser-local-tool').isVisible(),'reset failed to restore local skills');
+  assert.ok(await toolCard(availableSkill.id).isVisible(),'reset failed to restore available skills');
+  await toolCard(availableSkill.id).getByRole('button',{name:'View details for '+availableSkill.name,exact:true}).click();
+  const detailsDialog=page.getByRole('dialog');
+  assert.ok(await detailsDialog.getByRole('button',{name:'Preview installation',exact:true}).isVisible());
+  assert.ok(await detailsDialog.evaluate(element=>{
+    const actions=element.querySelector('.extension-actions');
+    const help=element.querySelector('.catalog-usage');
+    return !!actions&&!!help&&!!(actions.compareDocumentPosition(help)&Node.DOCUMENT_POSITION_FOLLOWING);
+  }),'skill management actions must precede optional usage help');
+  await page.keyboard.press('Escape');
+
+  // A foreign package folder needs attention even before it is configured or detected in a client.
+  await page.route('**/api/mcp-packages',async route=>{
+    const response=await route.fetch();
+    const body=await response.json();
+    const foreignPackage=body.items.find(item=>item.id==='playwright');
+    assert.ok(foreignPackage,'reviewed MCP fixture not found');
+    Object.assign(foreignPackage,{managed:false,healthy:false,unmanaged:true,installedVersion:null});
+    await route.fulfill({response,json:body});
+  });
+  await page.locator('[data-kind="mcp"]').click();
+  await page.locator('#catalog-status').selectOption('local');
+  await page.locator('#refresh').click();
+  await page.locator('#workspace-status').getByText('Workspace and integrity results updated.').waitFor();
+  const foreignPackageCard=page.locator('#catalog-cards [data-tool-kind="mcp"][data-tool-id="playwright"]');
+  await foreignPackageCard.waitFor();
+  assert.equal(await foreignPackageCard.locator('[data-focus-key="package:playwright"]').count(),0,
+    'an unmanaged package directory exposed a destructive install action');
+  await foreignPackageCard.getByRole('button').first().click();
+  const foreignPackageDetails=page.getByRole('dialog');
+  assert.ok(await foreignPackageDetails.getByText(
+    'A package directory exists without an Agent Commons receipt; it will not be overwritten.',{exact:true}).isVisible());
+  await page.keyboard.press('Escape');
+  await page.locator('#catalog-status').selectOption('attention');
+  assert.ok(await foreignPackageCard.isVisible(),'unconfigured unmanaged MCP package missing from attention filter');
+  await page.locator('#catalog-status').selectOption('managed');
+  assert.equal(await foreignPackageCard.count(),0,'unmanaged MCP package included in managed filter');
+  assert.equal(fs.existsSync(path.join(home,'.agents','mcp-packages')),false,
+    'GET-only package fixture caused a real package installation');
+  await page.unroute('**/api/mcp-packages');
+  await page.locator('#refresh').click();
+  await page.locator('#workspace-status').getByText('Workspace and integrity results updated.').waitFor();
+  await page.locator('[data-kind="skill"]').click();
+  await page.locator('#catalog-reset').click();
+
+  // Quick install opens a cancellable read-only preview before any approval or network install.
+  let previewCalls=0,previewSeen,releasePreview;
+  let previewArrived=new Promise(resolve=>{previewSeen=resolve});
+  let previewGate=new Promise(resolve=>{releasePreview=resolve});
+  const installationWrites=[];
+  await page.route('**/api/action',async route=>{
+    installationWrites.push(route.request().postDataJSON());
+    await route.fulfill({status:400,contentType:'application/json',
+      body:JSON.stringify({error:'No mutation is authorized by this preview test.'})});
+  });
+  await page.route('**/api/preview?**',async route=>{
+    const requestUrl=new URL(route.request().url());
+    assert.equal(requestUrl.searchParams.get('op'),'install');
+    assert.equal(requestUrl.searchParams.get('id'),availableSkill.id);
+    previewCalls++;previewSeen();await previewGate;
+    await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({preview:{
+      commit:availableSkill.ref,files:[{relativePath:'SKILL.md',sha:'b'.repeat(40),size:128}],totalBytes:128
+    }})});
+  });
+  const quickInstall=page.locator('[data-focus-key="skill-install:'+availableSkill.id+'"]');
+  await quickInstall.click();
+  await previewArrived;
+  let installPreview=page.getByRole('dialog');
+  assert.ok(await installPreview.isVisible(),'quick install did not expose its pending preview');
+  assert.ok(await installPreview.getByRole('button',{name:'Cancel',exact:true}).isEnabled());
+  await installPreview.getByRole('button',{name:'Cancel',exact:true}).click();
+  releasePreview();
+  await page.waitForTimeout(100);
+  assert.equal(await page.getByRole('dialog').count(),0,'cancelled skill preview revived after its response');
+  assert.equal(fs.existsSync(path.join(home,'.agents','skills',availableSkill.id)),false);
+  assert.deepEqual(installationWrites,[],'quick preview issued an unapproved mutation');
+
+  // A response from the previous page cannot reopen a modal, even after navigating back.
+  previewArrived=new Promise(resolve=>{previewSeen=resolve});
+  previewGate=new Promise(resolve=>{releasePreview=resolve});
+  await quickInstall.click();
+  await previewArrived;
+  await page.evaluate(()=>{
+    document.querySelector('[data-page="agents"]').click();
+    document.querySelector('[data-page="catalog"]').click();
+  });
+  releasePreview();
+  await page.waitForTimeout(100);
+  assert.equal(await page.getByRole('dialog').count(),0,'old skill preview reopened after navigation');
+  assert.equal(previewCalls,2,'one quick click issued duplicate preview requests');
+  assert.deepEqual(installationWrites,[]);
+  await page.unroute('**/api/preview?**');
+  await page.route('**/api/preview?**',async route=>{
+    await route.fulfill({status:400,contentType:'application/json',
+      body:JSON.stringify({error:'Preview unavailable for browser QA.'})});
+  });
+  await quickInstall.click();
+  const failedSkillPreview=page.getByRole('dialog');
+  await failedSkillPreview.getByRole('alert').waitFor({state:'visible'});
+  assert.match(await failedSkillPreview.getByRole('alert').innerText(),/Preview unavailable for browser QA/);
+  assert.equal(await failedSkillPreview.getByRole('button',{name:'Install',exact:true}).count(),0,
+    'failed preview still exposed installation approval');
+  await failedSkillPreview.getByRole('button',{name:'Close',exact:true}).click();
+  assert.deepEqual(installationWrites,[],'failed preview issued a mutation');
+  await page.unroute('**/api/preview?**');
+  await page.unroute('**/api/action');
+
+  // Targeted skill sync selects clients explicitly and changes only the chosen synthetic client.
+  const syncRequests=[];
+  await page.route('**/api/action',async route=>{
+    const body=route.request().postDataJSON();
+    if(body?.action?.startsWith('skill-target-sync-'))syncRequests.push(body);
+    await route.continue();
+  });
+  await page.locator('[data-focus-key="skill-sync:'+managedSkill.id+'"] ').click();
+  let skillSyncDialog=page.getByRole('dialog');
+  await skillSyncDialog.getByRole('heading',{name:'Target agents',exact:true}).waitFor();
+  const targetChoices=skillSyncDialog.locator('input[type="checkbox"]');
+  assert.ok(await targetChoices.count()>=2,'synthetic installed clients missing from picker');
+  assert.equal(await skillSyncDialog.locator('input[type="checkbox"]:checked').count(),0,
+    'target clients must start unselected');
+  await skillSyncDialog.locator('input[type="checkbox"][value="claude-code"]').check();
+  await skillSyncDialog.getByRole('button',{name:'Preview',exact:true}).click();
+  skillSyncDialog=page.getByRole('dialog');
+  const approveSync=skillSyncDialog.getByRole('button',{name:'Synchronize',exact:true});
+  await approveSync.waitFor();
+  assert.equal(syncRequests.length,1);
+  assert.deepEqual(syncRequests[0].agents,['claude-code']);
+  assert.equal(syncRequests[0].id,managedSkill.id);
+  assert.equal(fs.existsSync(path.join(home,'.claude','skills',managedSkill.id)),false,
+    'targeted preview changed a client before confirmation');
+  await approveSync.click();
+  await skillSyncDialog.waitFor({state:'detached'});
+  assert.equal(syncRequests.length,2);
+  assert.equal(syncRequests[1].action,'skill-target-sync-apply');
+  assert.equal(syncRequests[1].approved,true);
+  assert.match(syncRequests[1].previewToken,/^[a-f0-9]{48}$/);
+  assert.deepEqual(syncRequests[1].agents,['claude-code']);
+  const linkedSkill=path.join(home,'.claude','skills',managedSkill.id);
+  assert.ok(fs.lstatSync(linkedSkill).isSymbolicLink(),'selected client did not receive a skill junction/link');
+  assert.equal(fs.realpathSync(linkedSkill),fs.realpathSync(path.join(home,'.agents','skills',managedSkill.id)));
+  assert.equal(fs.existsSync(path.join(home,'.codex','skills',managedSkill.id)),false,
+    'targeted sync wrote to an unselected native-reading client');
+  assert.equal(fs.existsSync(path.join(home,'.agents','mcp.json')),false,'skills-only sync wrote MCP configuration');
+  await page.unroute('**/api/action');
+  await page.locator('#language-select').selectOption('fr');
+  assert.equal(await page.locator('#catalog-status option[value="managed"]').innerText(),'Installations gérées');
+  assert.equal(await page.locator('#catalog-status option[value="updates"]').innerText(),'Mises à jour vérifiées');
+  await page.locator('[data-focus-key="skill-sync:'+managedSkill.id+'"] ').click();
+  const frenchSkillPicker=page.getByRole('dialog');
+  await frenchSkillPicker.getByRole('heading',{name:'Agents destinataires',exact:true}).waitFor();
+  assert.ok(await frenchSkillPicker.getByText('Lit déjà la bibliothèque partagée',{exact:true}).isVisible());
+  assert.ok(await frenchSkillPicker.getByRole('button',{name:'Prévisualiser',exact:true}).isDisabled());
+  await frenchSkillPicker.getByRole('button',{name:'Annuler',exact:true}).click();
+  await page.locator('#language-select').selectOption('en');
+  await page.setViewportSize({width:1440,height:900});
+  await page.screenshot({path:path.join(artifacts,'desktop-catalog-management.png'),fullPage:true});
+  await page.setViewportSize({width:390,height:844});
+  const managementOverflow=await page.evaluate(()=>document.documentElement.scrollWidth-document.documentElement.clientWidth);
+  assert.ok(managementOverflow<=2,'management catalog overflows mobile by '+managementOverflow+'px');
+  await page.screenshot({path:path.join(artifacts,'mobile-catalog-management.png'),fullPage:true});
 
   // Manual refresh must not erase unsaved profile selections or orphan keyboard focus.
   fs.mkdirSync(path.join(home,'.claude'),{recursive:true});
@@ -466,7 +680,7 @@ try {
   await page.locator('#mcp-items .empty').waitFor();
   assert.deepEqual(errors, []);
 
-  console.log('PASS: responsive Skill Hub, i18n, guarded MCP/sync previews, navigation race cancellation, focus/drafts, delayed/error dialogs, keyboard/MCP workflows; no JS/CSP errors.');
+  console.log('PASS: responsive Skill Hub, management filters/reset, cancellable skill previews, targeted skill sync, i18n, guarded MCP/sync previews, navigation race cancellation, focus/drafts, delayed/error dialogs, keyboard/MCP workflows; no JS/CSP errors.');
   console.log('Screenshots: ' + artifacts);
 } finally {
   if (browser) await browser.close();

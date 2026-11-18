@@ -1,4 +1,4 @@
-# Extension Manager — Skills et MCP (v0.5 en développement)
+# Extension Manager — Skills et MCP
 
 Le catalogue Skills & MCP du Skill Hub local devient un gestionnaire d'extensions. Démarrage : agent-commons web.
 
@@ -31,6 +31,14 @@ Les packages sont isolés sous ~/.agents/mcp-packages et suivis dans ~/.agents/m
 2. Choisir **Configure for clients** pour déclarer son exécutable ; sélectionner les clients et, pour Filesystem ou Git, les répertoires autorisés. Valider la modification du manifeste central.
 3. Choisir **Sync to selected clients**, prévisualiser et confirmer le dry-run. Un redémarrage du client IA peut être nécessaire.
 4. Pour les packages gérés, utiliser **Update**, **Repair** ou **Uninstall** après vérification.
+
+## Améliorations de l'interface — non publiées
+
+Les cartes de skills proposent directement les aperçus d'installation ou de mise à jour épinglée, puis **Choisir les agents** pour un skill installé. Les filtres distinguent les installations gérées, les mises à jour approuvées, les éléments à vérifier et les outils locaux/non gérés. Les fiches présentent leurs actions avant l'aide et les exemples.
+
+Pour synchroniser un seul skill, choisir les agents compatibles installés, examiner l'aperçu puis confirmer. L'approbation est à usage unique et liée au skill, aux agents choisis et à l'état des fichiers : une modification impose un nouvel aperçu. Cette opération ne modifie ni les profils enregistrés ni les MCP. Les agents lisant nativement `~/.agents/skills` voient déjà les skills partagés ; aucun lien supplémentaire n'est créé et la sélection ne limite pas leur visibilité.
+
+Les fiches MCP indiquent séparément l'état du package, de sa configuration centrale et de sa synchronisation aux clients. Après une installation ou une configuration, la fiche se rouvre pour proposer l'étape suivante ; chaque étape conserve sa propre confirmation. Fermer un aperçu en cours, ou changer de page, empêche une réponse tardive d'ouvrir une confirmation. Cela n'annule pas une opération déjà confirmée.
 
 ## Limites et sécurité
 

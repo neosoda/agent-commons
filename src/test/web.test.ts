@@ -91,6 +91,118 @@ describe('local Skill Hub HTTP security and user workflows', () => {
     assert.equal(replay.status,400);
   });
 
+  it('previews one skill without writes and applies only the explicitly approved skill and agent', async () => {
+    const central = path.join(home, '.agents', 'skills');
+    for (const id of ['selected-skill', 'other-skill']) {
+      fs.mkdirSync(path.join(central, id), {recursive: true});
+      fs.writeFileSync(path.join(central, id, 'SKILL.md'), '# ' + id);
+    }
+    for (const folder of ['.claude', '.cline']) fs.mkdirSync(path.join(home, folder));
+    const mcp = '{"mcpServers":{"private":{"command":"unrelated-program"}}}';
+    fs.writeFileSync(path.join(home, '.agents', 'mcp.json'), mcp);
+    fs.writeFileSync(path.join(home, '.claude', 'mcp.json'), mcp);
+    const selection = {id: 'selected-skill', agents: ['claude-code']};
+    const preview = await post({action: 'skill-target-sync-preview', ...selection});
+    assert.equal(preview.status, 200);
+    const plan = await preview.json() as {dryRun:boolean;previewToken:string;errors:string[];skillResults:{skillName:string;agentId:string}[]};
+    assert.equal(plan.dryRun, true);
+    assert.deepEqual(plan.errors, []);
+    assert.match(plan.previewToken, /^[a-f0-9]{48}$/);
+    assert.ok(plan.skillResults.every(item => item.agentId === 'claude-code' && item.skillName === 'selected-skill'));
+    assert.equal(JSON.stringify(plan).includes(home), false);
+    assert.equal(fs.existsSync(path.join(home, '.claude', 'skills')), false);
+    assert.equal(fs.existsSync(path.join(home, '.agents', 'backups')), false);
+    assert.equal((await post({action:'skill-target-sync-apply', ...selection, previewToken:plan.previewToken})).status, 400);
+    assert.equal((await post({action:'skill-target-sync-apply', ...selection, approved:true})).status, 400);
+    const apply = await post({action:'skill-target-sync-apply', ...selection, approved:true, previewToken:plan.previewToken});
+    assert.equal(apply.status, 200);
+    const applied = await apply.json() as {dryRun:boolean;errors:string[]};
+    assert.equal(applied.dryRun, false);
+    assert.deepEqual(applied.errors, []);
+    const linked = path.join(home, '.claude', 'skills', 'selected-skill');
+    assert.equal(fs.lstatSync(linked).isSymbolicLink(), true);
+    assert.equal(fs.readFileSync(path.join(linked, 'SKILL.md'), 'utf8'), '# selected-skill');
+    assert.equal(fs.existsSync(path.join(home, '.claude', 'skills', 'other-skill')), false);
+    assert.equal(fs.existsSync(path.join(home, '.cline', 'skills')), false);
+    assert.equal(fs.readFileSync(path.join(home, '.agents', 'mcp.json'), 'utf8'), mcp);
+    assert.equal(fs.readFileSync(path.join(home, '.claude', 'mcp.json'), 'utf8'), mcp);
+    assert.equal((await post({action:'skill-target-sync-apply', ...selection, approved:true, previewToken:plan.previewToken})).status, 400);
+  });
+
+  it('rejects invalid skill sync selections and never creates agent directories from a preview', async () => {
+    const source = path.join(home, '.agents', 'skills', 'selected-skill');
+    fs.mkdirSync(source, {recursive:true});
+    fs.writeFileSync(path.join(source, 'SKILL.md'), '# Selected');
+    fs.mkdirSync(path.join(home, '.claude'));
+    fs.mkdirSync(path.join(home, '.lmstudio'));
+    for (const agents of [[], ['claude-code', 'claude-code'], ['missing-agent'], ['cline'], ['lm-studio'], ['../outside'], [1]]) {
+      const response = await post({action:'skill-target-sync-preview', id:'selected-skill', agents});
+      assert.equal(response.status, 400, JSON.stringify(agents));
+    }
+    const absent = await post({action:'skill-target-sync-preview', id:'absent-skill', agents:['claude-code']});
+    assert.equal(absent.status, 400);
+    assert.match((await absent.json() as {error:string}).error, /physical shared library/);
+    assert.equal(fs.existsSync(path.join(home, '.claude', 'skills')), false);
+    assert.equal(fs.existsSync(path.join(home, '.agents', 'backups')), false);
+    assert.equal(fs.existsSync(path.join(home, '.cline')), false);
+  });
+
+  it('binds targeted skill tokens to the exact selection and rejects changed source or target files', async () => {
+    const central = path.join(home, '.agents', 'skills');
+    for (const id of ['selected-skill', 'other-skill']) {
+      fs.mkdirSync(path.join(central, id), {recursive:true});
+      fs.writeFileSync(path.join(central, id, 'SKILL.md'), '# ' + id);
+    }
+    fs.mkdirSync(path.join(home, '.claude'));
+    fs.mkdirSync(path.join(home, '.cline'));
+    const selection = {id:'selected-skill', agents:['claude-code']};
+    const token = async () => {
+      const response = await post({action:'skill-target-sync-preview', ...selection});
+      assert.equal(response.status, 200);
+      return (await response.json() as {previewToken:string}).previewToken;
+    };
+    for (const change of [{id:'other-skill'}, {agents:['cline']}, {agents:['claude-code', 'cline']}]) {
+      const previewToken = await token();
+      const response = await post({action:'skill-target-sync-apply', ...selection, ...change, approved:true, previewToken});
+      assert.equal(response.status, 400);
+      assert.match((await response.json() as {error:string}).error, /expired or missing/);
+      assert.equal((await post({action:'skill-target-sync-apply', ...selection, approved:true, previewToken})).status, 400);
+    }
+    const staleSource = await token();
+    fs.writeFileSync(path.join(central, 'selected-skill', 'SKILL.md'), '# Changed after preview');
+    const sourceResponse = await post({action:'skill-target-sync-apply', ...selection, approved:true, previewToken:staleSource});
+    assert.equal(sourceResponse.status, 400);
+    assert.match((await sourceResponse.json() as {error:string}).error, /Workspace changed since preview/);
+    const staleTarget = await token();
+    const target = path.join(home, '.claude', 'skills', 'selected-skill');
+    fs.mkdirSync(target, {recursive:true});
+    fs.writeFileSync(path.join(target, 'SKILL.md'), '# User work after preview');
+    const targetResponse = await post({action:'skill-target-sync-apply', ...selection, approved:true, previewToken:staleTarget});
+    assert.equal(targetResponse.status, 400);
+    assert.match((await targetResponse.json() as {error:string}).error, /Workspace changed since preview/);
+    assert.equal(fs.readFileSync(path.join(target, 'SKILL.md'), 'utf8'), '# User work after preview');
+    assert.equal(fs.existsSync(path.join(home, '.cline', 'skills')), false);
+    assert.equal(fs.existsSync(path.join(home, '.agents', 'backups')), false);
+  });
+
+  it('reports native central skill readers without introducing redundant links or changing MCP', async () => {
+    const source = path.join(home, '.agents', 'skills', 'selected-skill');
+    fs.mkdirSync(source, {recursive:true});
+    fs.writeFileSync(path.join(source, 'SKILL.md'), '# Selected');
+    fs.mkdirSync(path.join(home, '.codex'));
+    const config = '# Preserve native settings\nmodel = "example-model"\n';
+    fs.writeFileSync(path.join(home, '.codex', 'config.toml'), config);
+    const selection = {id:'selected-skill', agents:['codex']};
+    const preview = await post({action:'skill-target-sync-preview', ...selection});
+    assert.equal(preview.status, 200);
+    const planned = await preview.json() as {previewToken:string;skillResults:{action:string}[]};
+    assert.ok(planned.skillResults.some(item => item.action === 'native-shared'));
+    const apply = await post({action:'skill-target-sync-apply', ...selection, approved:true, previewToken:planned.previewToken});
+    assert.equal(apply.status, 200);
+    assert.equal(fs.existsSync(path.join(home, '.codex', 'skills', 'selected-skill')), false);
+    assert.equal(fs.readFileSync(path.join(home, '.codex', 'config.toml'), 'utf8'), config);
+  });
+
   it('serves the dashboard with strict security headers, no CDN and an ephemeral token', async () => {
     const response = await fetch(instance.url);
     const page = await response.text();
