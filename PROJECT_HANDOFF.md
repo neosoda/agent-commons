@@ -1,6 +1,6 @@
 # Agent Commons — PROJECT_HANDOFF
 
-> **Operational handoff, last verified: 2026-11-17 (real Windows audit, section 24; v0.4.0 published).** Read this file before modifying the repository; then check live `main`, release/tag, PRs, issues and GitHub Actions **by exact commit SHA**. Historical SHA and run IDs below are a snapshot, not a promise of current status.
+> **Operational handoff, last verified: 2026-11-17 (real Windows audit, section 24; v0.5.0 published).** Read this file before modifying the repository; then check live `main`, release/tag, PRs, issues and GitHub Actions **by exact commit SHA**. Historical SHA and run IDs below are a snapshot, not a promise of current status.
 
 ## 0. Active development — Extension Manager (2026-11-15)
 
@@ -391,3 +391,5 @@ Branch `fix/windows-real-audit-20261117` from `main` `1c18385` (PR #77 merged; n
 **Follow-up 2026-11-18:** PR #78 CI 8/8 green on first head. Added sanitized MCP/skill warnings to the Skill Hub diagnostics API/UI. On the real profile (maintainer-approved): repaired the corrupted `description` of local skill `misconception-diagnostic-designer` (original saved under `~/.agents/backups/manual-fix-20261118/`); Codex now loads every skill with zero errors. `rea` MCP left untouched: its `rea-agents` package no longer exists under any Node install, and reinstalling an unreviewed third-party npm package is not automatic. Version bumped to **0.5.0** with `docs/releases/v0.5.0-release-notes.md`; release to be created from the merged `main` SHA only after CI 8/8, with assets attached by `release-assets.yml`.
 
 **Not verified:** GitHub CI on the PR head, NVDA, SmartScreen, Gemini CLI/LM Studio/OpenCode real use, Fetch/Git MCP (uv absent), Playwright MCP, Antigravity and Claude Desktop invocation. **Next:** open PR, require CI 6/6 + Chromium + Windows portable on exact head SHA before merge; then fix the two user-side findings on request.
+
+**Release v0.5.0 published (2026-11-18):** PR #78 squash-merged as `a499a9f4f51780b838397e6786c1d2ea70e9630c` after CI 8/8 on head `8c450fca1f0b67f83b68867cb3253826e408f8ed`; GitHub release v0.5.0 created on that SHA; ZIP 36547753 bytes, SHA-256 `3fff2144c40a3bf266065e8a96eb6a6ce99a57713d05982d7d1f081b2d8a370e`. Record: [docs/releases/v0.5.0.md](docs/releases/v0.5.0.md). No npm publication. **Next:** optional `rea-agents` reinstall decision by the maintainer; NVDA/SmartScreen manual checks.
