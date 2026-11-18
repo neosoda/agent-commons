@@ -1,6 +1,6 @@
 # Agent Commons — PROJECT_HANDOFF
 
-> **Operational handoff, last verified: 2026-11-17 (real Windows audit, section 24; v0.5.0 published).** Read this file before modifying the repository; then check live `main`, release/tag, PRs, issues and GitHub Actions **by exact commit SHA**. Historical SHA and run IDs below are a snapshot, not a promise of current status.
+> **Operational handoff, last verified: 2026-11-17 (sections 24-25; v0.5.1 published).** Read this file before modifying the repository; then check live `main`, release/tag, PRs, issues and GitHub Actions **by exact commit SHA**. Historical SHA and run IDs below are a snapshot, not a promise of current status.
 
 ## 0. Active development — Extension Manager (2026-11-15)
 
@@ -402,3 +402,4 @@ Branch `feat/all-clients-compat-20261118`. Official docs (checked 2026-11-18) sh
 
 **Not applied to the real profile:** removal of the 287 redundant links in `~/.codex/skills` and `~/.gemini/skills` (needs `agent-commons sync --skills-only` with the maintainer's approval). `rea` MCP still broken (package missing).
 
+**Release v0.5.1 published (2026-11-18):** PR #80 squash-merged as `7b9bce4`; release v0.5.1 (latest) on that SHA; ZIP 36,552,619 bytes, SHA-256 `249af29a…e3ad`, re-verified on the physical PC. Record: [docs/releases/v0.5.1.md](docs/releases/v0.5.1.md). **Next:** with the maintainer's approval, run `agent-commons sync --skills-only` on the real profile to remove the 287 redundant links; decide on reinstalling `rea-agents`.
