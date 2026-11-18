@@ -1,6 +1,6 @@
 # Agent Commons — PROJECT_HANDOFF
 
-> **Operational handoff, last verified: 2026-11-17 (sections 24-25; v0.5.1 published).** Read this file before modifying the repository; then check live `main`, release/tag, PRs, issues and GitHub Actions **by exact commit SHA**. Historical SHA and run IDs below are a snapshot, not a promise of current status.
+> **Operational handoff, last verified: 2026-11-17 (sections 24-26; v0.5.2 published).** Read this file before modifying the repository; then check live `main`, release/tag, PRs, issues and GitHub Actions **by exact commit SHA**. Historical SHA and run IDs below are a snapshot, not a promise of current status.
 
 ## 0. Active development — Extension Manager (2026-11-15)
 
@@ -408,3 +408,4 @@ Branch `feat/all-clients-compat-20261118`. Official docs (checked 2026-11-18) sh
 
 Maintainer approved removing duplicate links. A plain `sync --skills-only` dry-run on the real profile would also have created 96 links in Claude Code and legacy Antigravity, so the cleanup ran as `sync --skills-only --agent codex --agent gemini-cli` (snapshot `snapshot-20261118-090754-968f5a`): 287 links removed, nothing else changed. Real Codex afterwards: 349 skills, zero load errors, skills served from `~/.agents/skills`. Code fix on `fix/dedupe-guidance-20261118`: doctor advice now names the affected agents; sync reports a central-linked skills root as `native-shared`. Remaining real-profile warnings: `rea` MCP (package missing) and duplicate name `design-system` (central `design-system` and catalog `ecc-design-system`).
 
+**Release v0.5.2 published (2026-11-18):** PR #82 squash-merged as `dd5d75a`; release v0.5.2 (latest) on that SHA; ZIP 36,553,254 bytes, SHA-256 `f47cdfd1…58aa`, re-verified on the physical PC. Record: [docs/releases/v0.5.2.md](docs/releases/v0.5.2.md). **Next:** maintainer decisions on reinstalling `rea-agents` and on the duplicate `design-system` skill name.
