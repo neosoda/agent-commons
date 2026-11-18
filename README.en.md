@@ -483,6 +483,7 @@ Nothing is downloaded, installed, synchronized or published by `catalog`. See [t
 | `catalog` / `catalog --json` | Inspect the local private skill inventory (read-only) |
 | `catalog review [--json]` | Find missing provenance, license claims, unpinned versions and possible duplicates locally |
 | `catalog verify [id] [--json]` | Audit reviewed-catalog skills offline, without changes; nonzero exit on integrity failures |
+| `catalog align-names [--yes]` | Give catalog skills their catalog id as name (avoids two skills with one name) |
 | `list` | Inventory skills, MCP servers, agents and snapshots |
 | `sync --dry-run` | Show planned changes without modifying agent configurations |
 | `sync` | Synchronize compatible installed agents |

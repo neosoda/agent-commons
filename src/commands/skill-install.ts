@@ -20,6 +20,41 @@ function bridgeContent(skill: PublicSkill): Buffer {
 function gitBlobHash(bytes: Buffer): string {
   return crypto.createHash('sha1').update('blob ' + bytes.length + '\0').update(bytes).digest('hex');
 }
+/**
+ * Several catalog entries are namespaced (for example `ecc-design-system`) while the upstream
+ * SKILL.md keeps a generic `name` (`design-system`). Clients key skills by that name, so two
+ * different skills would appear under one name. The managed copy declares the catalog id instead;
+ * the receipt keeps the upstream blob hash for provenance. Returns null when already aligned.
+ */
+export function alignSkillNameContent(content: Buffer, id: string): { content: Buffer; from: string } | null {
+  const text = content.toString('utf8');
+  const fm = /^(\uFEFF?---\r?\n)([\s\S]*?)(\r?\n---)/.exec(text);
+  if (!fm) return null;
+  const line = /^name:[ \t]*(.*?)[ \t]*$/m.exec(fm[2]!);
+  if (!line) return null;
+  const current = line[1]!.replace(/^(['"])(.*)\1$/, '$2').trim();
+  if (current === id) return null;
+  const start = fm[1]!.length + line.index;
+  const updated = text.slice(0, start) + 'name: ' + id + text.slice(start + line[0].length);
+  return { content: Buffer.from(updated, 'utf8'), from: current };
+}
+
+/** Applies alignSkillNameContent to a staged SKILL.md and returns receipt fields for it. */
+function alignStagedSkill(staging: string, id: string, upstreamSha: string):
+  { gitBlobSha1: string; upstreamGitBlobSha1?: string; nameAlignedFrom?: string } {
+  const file = path.join(staging, 'SKILL.md');
+  const aligned = alignSkillNameContent(fs.readFileSync(file), id);
+  if (!aligned) return { gitBlobSha1: upstreamSha };
+  fs.writeFileSync(file, aligned.content);
+  return { gitBlobSha1: gitBlobHash(aligned.content), upstreamGitBlobSha1: upstreamSha, nameAlignedFrom: aligned.from };
+}
+
+function receiptFiles(staging: string, id: string, files: InstallFile[]) {
+  return files.map(file => file.relativePath === 'SKILL.md'
+    ? { path: file.relativePath, ...alignStagedSkill(staging, id, file.sha) }
+    : { path: file.relativePath, gitBlobSha1: file.sha });
+}
+
 const MAX_FILE_BYTES = 1024 * 1024;
 const MAX_TOTAL_BYTES = 8 * 1024 * 1024;
 const MAX_TREE_ENTRIES = 20000;
@@ -293,7 +328,7 @@ export async function installCatalogSkill(
     const receipt = {
       schemaVersion: 1, skill: id, repository: skill.repository,
       source: skill.source, commit: skill.ref, managedBy: 'agent-commons',
-      files: preview.files.map(x => ({ path: x.relativePath, gitBlobSha1: x.sha }))
+      files: receiptFiles(staging, id, preview.files)
     };
     writeFileAtomicSync(path.join(staging, RECEIPT_NAME), JSON.stringify(receipt, null, 2));
     // A snapshot is taken before introducing the new managed directory.
@@ -339,7 +374,7 @@ interface ManagedReceipt {
 }
 
 /** Every file must match the signed-off install receipt; unknown files are user data. */
-function inspectManagedInstall(ctx: EnvironmentContext, id: string): UninstallPreview {
+function inspectManagedInstall(ctx: EnvironmentContext, id: string, options: { allowLinked?: boolean } = {}): UninstallPreview {
   if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(id)) {
     throw new Error('Invalid skill identifier.');
   }
@@ -441,7 +476,7 @@ function inspectManagedInstall(ctx: EnvironmentContext, id: string): UninstallPr
   }
 
   // Prevent breaking agent links when the central skill is removed.
-  for (const agent of detectAgents(ctx)) {
+  for (const agent of options.allowLinked ? [] : detectAgents(ctx)) {
     if (!agent.installed) continue;
     const skillsDir = agent.skillsDirPath;
     if (inspectPath(skillsDir).state === 'link') {
@@ -598,7 +633,7 @@ export async function updateCatalogSkill(
     const receipt = {
       schemaVersion: 1, skill: id, repository: skill.repository,
       source: skill.source, commit: skill.ref, managedBy: 'agent-commons',
-      files: preview.files.map(file => ({ path: file.relativePath, gitBlobSha1: file.sha }))
+      files: receiptFiles(staging, id, preview.files)
     };
     writeFileAtomicSync(path.join(staging, RECEIPT_NAME), JSON.stringify(receipt, null, 2));
 
@@ -650,3 +685,54 @@ export async function updateCatalogSkill(
     }
   }
 }
+
+export interface NameAlignment {
+  skill: string;
+  from: string;
+  to: string;
+  status: 'aligned' | 'would-align' | 'skipped';
+  reason?: string;
+}
+
+/**
+ * Offline migration for skills installed before name alignment existed. Each candidate is first
+ * verified intact against its receipt; modified or unmanaged copies are skipped, never rewritten.
+ * Preview by default; with `yes`, a snapshot is taken before SKILL.md and the receipt change.
+ */
+export function alignCatalogSkillNames(ctx: EnvironmentContext, options: { yes?: boolean } = {}):
+  { items: NameAlignment[]; snapshotId: string | null } {
+  const items: NameAlignment[] = [];
+  const pending: Array<{ id: string; target: string; aligned: { content: Buffer; from: string } }> = [];
+  if (inspectPath(ctx.centralSkillsDir).state !== 'directory') return { items, snapshotId: null };
+  for (const id of fs.readdirSync(ctx.centralSkillsDir).sort()) {
+    const target = path.join(ctx.centralSkillsDir, id);
+    if (inspectPath(path.join(target, RECEIPT_NAME)).state !== 'file') continue;
+    let aligned: { content: Buffer; from: string } | null;
+    try {
+      inspectManagedInstall(ctx, id, { allowLinked: true });
+      aligned = alignSkillNameContent(fs.readFileSync(path.join(target, 'SKILL.md')), id);
+    } catch (err) {
+      const message = (err as Error).message;
+      items.push({ skill: id, from: '?', to: id, status: 'skipped', reason: message });
+      continue;
+    }
+    if (!aligned) continue;
+    pending.push({ id, target, aligned });
+    items.push({ skill: id, from: aligned.from, to: id, status: options.yes ? 'aligned' : 'would-align' });
+  }
+  if (!options.yes || pending.length === 0) return { items, snapshotId: null };
+  const session = new SnapshotSession(ctx, 'manual');
+  for (const p of pending) session.recordPathBeforeModify('commons', 'central-skill', p.target);
+  const snapshot = session.commitManifest();
+  for (const p of pending) {
+    const receiptPath = path.join(p.target, RECEIPT_NAME);
+    const receipt = JSON.parse(fs.readFileSync(receiptPath, 'utf8')) as ManagedReceipt & Record<string, unknown>;
+    receipt.files = receipt.files.map(f => f.path === 'SKILL.md'
+      ? { ...f, gitBlobSha1: gitBlobHash(p.aligned.content), upstreamGitBlobSha1: f.gitBlobSha1, nameAlignedFrom: p.aligned.from }
+      : f);
+    writeFileAtomicSync(path.join(p.target, 'SKILL.md'), p.aligned.content.toString('utf8'));
+    writeFileAtomicSync(receiptPath, JSON.stringify(receipt, null, 2));
+  }
+  return { items, snapshotId: snapshot?.id ?? null };
+}
+
