@@ -25,16 +25,17 @@ export const OPERATING_SURFACE_CONTROLS = String.raw`/**
       kind: 'section', id: button.dataset.page, name: readableSection(button),
       hint: language === 'fr' ? 'Navigation' : 'Navigate'
     }));
-    const skills = (state?.catalog || []).map(skill => ({
-      kind: 'skill', id: skill.id, name: String(skill.name || skill.id),
-      hint: language === 'fr' ? 'Catalogue' : 'Catalog',
-      terms: String(skill.description || '') + ' ' + String(skill.category || '')
-    }));
+    const tools = state ? discoveredTools().map(item => ({
+      kind: item.kind, id: item.id, name: String(item.name || item.id),
+      hint: item.installed ? (language === 'fr' ? 'Local / installé' : 'Local / installed') :
+        (language === 'fr' ? 'Catalogue' : 'Catalog'),
+      terms: String(item.description || '') + ' ' + String(item.categoryName || '')
+    })) : [];
     const agents = (state?.inventory?.agents || []).filter(agent => agent.installed).map(agent => ({
       kind: 'agent', id: agent.id, name: String(agent.name || agent.id),
       hint: language === 'fr' ? 'Agent local' : 'Local agent'
     }));
-    return [...sections, ...agents, ...skills]
+    return [...sections, ...agents, ...tools]
       .filter(item => !q || (item.name + ' ' + item.id + ' ' + (item.terms || '')).toLocaleLowerCase().includes(q))
       .slice(0, 12);
   }
@@ -48,9 +49,11 @@ export const OPERATING_SURFACE_CONTROLS = String.raw`/**
     closePalette();
     if (entry.kind === 'section') {
       go(entry.id);
-    } else if (entry.kind === 'skill') {
+    } else if (entry.kind === 'skill' || entry.kind === 'mcp') {
       go('catalog');
-      document.querySelector('[data-kind="skill"]')?.click();
+      document.querySelector('[data-kind="' + entry.kind + '"]')?.click();
+      $('catalog-status').value = '';
+      $('catalog-category').value = '';
       $('catalog-search').value = entry.name;
       filterCatalog();
     } else if (entry.kind === 'agent') {
@@ -83,7 +86,7 @@ export const OPERATING_SURFACE_CONTROLS = String.raw`/**
       const kind = document.createElement('span');
       kind.className = 'quick-switcher-type';
       kind.textContent = entry.kind === 'section' ? (language === 'fr' ? 'Vue' : 'View') :
-        entry.kind === 'agent' ? 'Agent' : 'Skill';
+        entry.kind === 'agent' ? 'Agent' : entry.kind === 'mcp' ? 'MCP' : 'Skill';
       const label = document.createElement('span');
       label.textContent = entry.name;
       const hint = document.createElement('small');
