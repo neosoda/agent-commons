@@ -76,3 +76,8 @@ export type { SkillRouteOptions, SkillRouteReport, RoutedSkill } from './command
 
 export { discoverSkills, rankSkills, routeSmartSkills, loadSkill, loadSkills, resolveSkillDependencies, readSkillRouterConfig } from './commands/smart-skill-router.js';
 export type { SkillMetadata, RankedSkill, SmartRouteReport, SmartRouteOptions, LoadedSkill, SkillDependency, SmartSkillRouterConfig } from './commands/smart-skill-router.js';
+
+export { MissionRunner, MissionStore, DEFAULT_LIMITS } from './runtime/mission.js';
+export type { MissionState, MissionStatus, ModelClient, ModelTurn, ToolExecutor, ToolRequest, ToolResult, Limits } from './runtime/mission.js';
+export { WorkspaceTools } from './runtime/workspace.js';
+export { OpenAICompatibleModel } from './runtime/provider.js';
