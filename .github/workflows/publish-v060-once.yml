@@ -1,6 +1,6 @@
-# One-shot v0.6.0 publisher: triggered only when this workflow is first merged to main.
-# Requires exact-main CI (six matrix jobs), Chromium and Windows portable checks.
-name: Publish v0.6.0 GitHub Release once
+# One-shot recovery: publish ONLY the already validated v0.6.0 draft and its existing assets.
+# The tag is created by publishing the draft; never replace an existing public release.
+name: Publish validated v0.6.0 draft once
 
 on:
   push:
@@ -17,110 +17,86 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  release:
-    name: Verify exact main and publish checked portable ZIP
-    runs-on: windows-latest
-    timeout-minutes: 60
+  publish:
+    name: Verify assets and publish existing release draft
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
     steps:
-      - name: Checkout exact release commit
-        uses: actions/checkout@v7
-        with:
-          fetch-depth: 0
-
-      - name: Setup Node.js 24 LTS
-        uses: actions/setup-node@v7
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: '24'
-          cache: npm
-
-      - name: Confirm version, current main and clean release tag
-        shell: pwsh
+      - name: Validate exact-main CI, Chromium and Windows portable before publishing
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_REPO: ${{ github.repository }}
+          CURRENT_SHA: ${{ github.sha }}
         run: |
-          $ErrorActionPreference = 'Stop'
-          $pkg = Get-Content package.json -Raw | ConvertFrom-Json
-          $lock = Get-Content package-lock.json -Raw | ConvertFrom-Json -AsHashtable
-          if ($pkg.version -ne '0.6.0' -or $lock.version -ne '0.6.0' -or $lock['packages']['']['version'] -ne '0.6.0') { throw 'Package/lock version mismatch' }
-          $mainHead = (gh api "repos/$env:GH_REPO/branches/main" --jq '.commit.sha').Trim()
-          if ($LASTEXITCODE -ne 0 -or $mainHead -ne $env:GITHUB_SHA) { throw 'Release commit is not current main' }
-          $tags = @(gh api "repos/$env:GH_REPO/git/refs/tags" | ConvertFrom-Json)
-          if ($LASTEXITCODE -ne 0) { throw 'Cannot check existing release tags' }
-          if (@($tags | Where-Object { $_.ref -eq 'refs/tags/v0.6.0' }).Count -ne 0) { throw 'Release tag already exists; never replace it' }
-
-      - name: Require successful exact-main CI, Chromium and Windows portable
-        shell: pwsh
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GH_REPO: ${{ github.repository }}
-        run: |
-          $ErrorActionPreference = 'Stop'
-          $names = @('CI','Skill Hub browser QA','Windows portable package')
-          $success = $false
-          for ($attempt = 1; $attempt -le 75; $attempt++) {
-            $resp = gh api "repos/$env:GH_REPO/actions/runs?head_sha=$env:GITHUB_SHA&event=push&per_page=100" | ConvertFrom-Json
-            if ($LASTEXITCODE -ne 0) { throw 'Cannot read GitHub Actions runs' }
-            $runs = @($resp.workflow_runs | Where-Object { $_.head_sha -eq $env:GITHUB_SHA -and $_.head_branch -eq 'main' -and $_.name -in $names })
-            if (@($runs | Where-Object { $_.status -eq 'completed' -and $_.conclusion -ne 'success' }).Count -gt 0) { throw 'One of the release gates failed' }
-            $allGreen = $true
-            foreach ($name in $names) {
-              if (@($runs | Where-Object { $_.name -eq $name -and $_.conclusion -eq 'success' }).Count -eq 0) { $allGreen = $false }
-            }
-            if ($allGreen) {
-              $ci = @($runs | Where-Object { $_.name -eq 'CI' -and $_.conclusion -eq 'success' })[0]
-              $jobs = gh api "repos/$env:GH_REPO/actions/runs/$($ci.id)/jobs?per_page=100" | ConvertFrom-Json
-              if ($LASTEXITCODE -ne 0) { throw 'Cannot read matrix CI jobs' }
-              $matrix = @($jobs.jobs | Where-Object { $_.name -like 'Test (*' -and $_.conclusion -eq 'success' })
-              if ($matrix.Count -ne 6) { throw 'Expected exactly 6 successful matrix jobs' }
-              Write-Host "All eight release gates succeeded on $env:GITHUB_SHA"
-              $success = $true
+          set -euo pipefail
+          test "$(node -p "require('./package.json').version")" = "0.6.0"
+          test "$(gh api "repos/$GH_REPO/branches/main" --jq '.commit.sha')" = "$CURRENT_SHA"
+          for attempt in $(seq 1 75); do
+            runs="$(gh api "repos/$GH_REPO/actions/runs?head_sha=$CURRENT_SHA&event=push&per_page=100")"
+            result="$(printf '%s' "$runs" | jq -r --arg sha "$CURRENT_SHA" '
+              [.workflow_runs[] | select(.head_sha == $sha and .head_branch == "main" and
+                (.name == "CI" or .name == "Skill Hub browser QA" or .name == "Windows portable package"))] |
+              if length == 3 and all(.[]; .conclusion == "success") then "success"
+              elif any(.[]; .conclusion != null and .conclusion != "success") then "failure"
+              else "pending" end')"
+            if [ "$result" = failure ]; then echo "::error::Release gate failed"; exit 1; fi
+            if [ "$result" = success ]; then
+              ci_id="$(printf '%s' "$runs" | jq -r '.workflow_runs[] | select(.name == "CI") | .id' | head -1)"
+              jobs="$(gh api "repos/$GH_REPO/actions/runs/$ci_id/jobs?per_page=100")"
+              count="$(printf '%s' "$jobs" | jq '[.jobs[] | select(.name | startswith("Test (")) | select(.conclusion == "success")] | length')"
+              test "$count" = 6
+              echo "Eight current-main release gates passed on $CURRENT_SHA"
               break
-            }
-            Write-Host "Waiting for exact-main release gates: $attempt"
-            Start-Sleep -Seconds 12
-          }
-          if (-not $success) { throw 'Release gates did not complete within the timeout' }
+            fi
+            if [ "$attempt" -eq 75 ]; then echo "::error::Timed out waiting for release gates"; exit 1; fi
+            sleep 12
+          done
 
-      - name: Install, typecheck, test, audit and pack
-        run: |
-          npm ci
-          npm run typecheck
-          npm test
-          npm audit --audit-level=high
-          npm pack --dry-run
+          # The original release commit already passed all 8 main checks and rebuilt
+          # the ZIP from scratch in workflow 44718700928, whose package/ZIP steps passed.
+          ORIGINAL_SHA=7077d8c30648f1f3cc5ac9943c540201515788de
+          original="$(gh api "repos/$GH_REPO/actions/runs?head_sha=$ORIGINAL_SHA&event=push&per_page=100")"
+          original_good="$(printf '%s' "$original" | jq -r --arg sha "$ORIGINAL_SHA" '
+            [.workflow_runs[] | select(.head_sha == $sha and .head_branch == "main" and
+              (.name == "CI" or .name == "Skill Hub browser QA" or .name == "Windows portable package") and
+              .conclusion == "success")] | length')"
+          test "$original_good" = 3
+          ci_id="$(printf '%s' "$original" | jq -r '.workflow_runs[] | select(.name == "CI") | .id' | head -1)"
+          jobs="$(gh api "repos/$GH_REPO/actions/runs/$ci_id/jobs?per_page=100")"
+          test "$(printf '%s' "$jobs" | jq '[.jobs[] | select(.name | startswith("Test (")) | select(.conclusion == "success")] | length')" = 6
+          echo "Original v0.6.0 archive commit $ORIGINAL_SHA passed all release checks"
 
-      - name: Build official Node-based Windows ZIP and verify extracted runtime
-        shell: pwsh
-        run: ./scripts/build-windows-portable.ps1
-
-      - name: Confirm checksum and publish draft with both assets
-        shell: pwsh
+      - name: Validate immutable draft assets, publish and verify tag SHA
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_REPO: ${{ github.repository }}
         run: |
-          $ErrorActionPreference = 'Stop'
-          $zip = 'artifacts/portable/AgentCommons-win-x64-portable.zip'
-          $checksum = $zip + '.sha256'
-          $sha = (Get-FileHash -LiteralPath $zip -Algorithm SHA256).Hash.ToLowerInvariant()
-          $text = (Get-Content -LiteralPath $checksum -Raw).Trim()
-          if ($text -ne ($sha + '  AgentCommons-win-x64-portable.zip')) { throw 'Checksum mismatch' }
-          $mainHead = (gh api "repos/$env:GH_REPO/branches/main" --jq '.commit.sha').Trim()
-          if ($LASTEXITCODE -ne 0 -or $mainHead -ne $env:GITHUB_SHA) { throw 'Main moved during release; do not publish' }
-          $tags = @(gh api "repos/$env:GH_REPO/git/refs/tags" | ConvertFrom-Json)
-          if ($LASTEXITCODE -ne 0) { throw 'Cannot recheck release tags' }
-          if (@($tags | Where-Object { $_.ref -eq 'refs/tags/v0.6.0' }).Count -ne 0) { throw 'Existing release tag; do not republish' }
-          gh release create v0.6.0 $zip $checksum --repo $env:GH_REPO --target $env:GITHUB_SHA --draft --title 'Agent Commons v0.6.0 — Moteur local expérimental et Operating Surface' --notes-file docs/releases/v0.6.0-release-notes.md
-          if ($LASTEXITCODE -ne 0) { throw 'Cannot create release draft and upload both assets' }
-          $published = gh api "repos/$env:GH_REPO/releases/tags/v0.6.0" | ConvertFrom-Json
-          if ($LASTEXITCODE -ne 0 -or $published.assets.Count -ne 2) { throw 'Release assets incomplete; keep draft' }
-          if (-not @($published.assets | Where-Object { $_.name -eq 'AgentCommons-win-x64-portable.zip' }).Count) { throw 'ZIP not attached' }
-          if (-not @($published.assets | Where-Object { $_.name -eq 'AgentCommons-win-x64-portable.zip.sha256' }).Count) { throw 'SHA256 not attached' }
-          $tagSha = (gh api "repos/$env:GH_REPO/git/ref/tags/v0.6.0" --jq '.object.sha').Trim()
-          if ($LASTEXITCODE -ne 0 -or $tagSha -ne $env:GITHUB_SHA) { throw 'Release tag points to unexpected commit' }
-          gh release edit v0.6.0 --repo $env:GH_REPO --draft=false --latest
-          if ($LASTEXITCODE -ne 0) { throw 'Release draft exists but publication failed' }
-          $public = gh api "repos/$env:GH_REPO/releases/tags/v0.6.0" | ConvertFrom-Json
-          if ($LASTEXITCODE -ne 0 -or $public.draft -or $public.prerelease -or $public.assets.Count -ne 2) { throw 'Published release verification failed' }
-          Write-Host "PUBLISHED v0.6.0 at $env:GITHUB_SHA, ZIP SHA-256 $sha"
+          set -euo pipefail
+          RELEASE_ID=452549123
+          ORIGINAL_SHA=7077d8c30648f1f3cc5ac9943c540201515788de
+          ZIP_SHA=a91f86614636b15b69b04c23ee6126920aed2a5ac7bdf69a1c7ce1cef9190404
+          CHECKSUM_SHA=3e4f945a3a2a359fb120b78383cce19bea9827e37ac6f1f68e09595d725c158b
+          release="$(gh api "repos/$GH_REPO/releases/$RELEASE_ID")"
+          echo "$release" | jq -e --arg sha "$ORIGINAL_SHA" '
+            .tag_name == "v0.6.0" and .target_commitish == $sha and
+            .prerelease == false and (.assets | length == 2)' >/dev/null
+          echo "$release" | jq -e --arg hash "sha256:$ZIP_SHA" '
+            any(.assets[]; .name == "AgentCommons-win-x64-portable.zip" and
+              .digest == $hash and .size == 36600846 and .state == "uploaded")' >/dev/null
+          echo "$release" | jq -e --arg hash "sha256:$CHECKSUM_SHA" '
+            any(.assets[]; .name == "AgentCommons-win-x64-portable.zip.sha256" and
+              .digest == $hash and .size == 101 and .state == "uploaded")' >/dev/null
+          if [ "$(echo "$release" | jq -r '.draft')" = "true" ]; then
+            gh api --method PATCH "repos/$GH_REPO/releases/$RELEASE_ID" \
+              -F draft=false -f make_latest=true >/dev/null
+          fi
+          published="$(gh api "repos/$GH_REPO/releases/$RELEASE_ID")"
+          echo "$published" | jq -e '.draft == false and .prerelease == false and
+            .tag_name == "v0.6.0" and (.assets | length == 2)' >/dev/null
+          tagsha="$(gh api "repos/$GH_REPO/git/ref/tags/v0.6.0" --jq '.object.sha')"
+          test "$tagsha" = "$ORIGINAL_SHA"
+          echo "PUBLISHED v0.6.0 at $ORIGINAL_SHA with existing checksum-verified ZIP"
