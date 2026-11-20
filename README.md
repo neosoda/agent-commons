@@ -40,7 +40,7 @@ Claude Code, Codex, Cursor, Gemini, OpenCode et les autres agents de développem
 
 **Depuis les sources :** utilisez les instructions multiplateformes ci-dessous avec Node.js 22 ou supérieur. L'installation depuis npm est facultative et ne doit pas être annoncée comme fonctionnelle avant la première publication effective.
 
-**Téléchargements officiels :** privilégiez la [dernière release GitHub vérifiée](https://github.com/neosoda/agent-commons/releases/latest) et son empreinte SHA-256. Le [dossier de vérification v0.3.0](docs/releases/v0.3.0.md) reste disponible à titre historique. Une version publiée n'est jamais remplacée silencieusement sous le même tag.
+**Téléchargements officiels :** privilégiez la [dernière release GitHub vérifiée](https://github.com/neosoda/agent-commons/releases/latest) et son empreinte SHA-256. Le [rapport de publication v0.6.0](docs/releases/v0.6.0.md) confirme le tag, la release GitHub et les empreintes de l'archive Windows. Le [dossier v0.3.0](docs/releases/v0.3.0.md) reste disponible à titre historique. Une version publiée n'est jamais remplacée silencieusement sous le même tag.
 
 ## Démarrage rapide
 

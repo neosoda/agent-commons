@@ -40,7 +40,7 @@ Claude Code, Codex, Cursor, Gemini, OpenCode and other coding agents all want th
 
 **Source users:** use the cross-platform instructions below (Node.js 22+). The npm installation route remains optional and must not be advertised as working until the scoped package is actually published.
 
-**Official downloads:** use the [latest verified GitHub Release](https://github.com/neosoda/agent-commons/releases/latest) for the Windows ZIP and its matching SHA-256. The [v0.3.0 release record](docs/releases/v0.3.0.md) remains available for historical verification. Future patches are published under new version tags: an old release archive is never silently replaced.
+**Official downloads:** use the [latest verified GitHub Release](https://github.com/neosoda/agent-commons/releases/latest) for the Windows ZIP and its matching SHA-256. The [v0.6.0 publication record](docs/releases/v0.6.0.md) documents its verified tag, GitHub release and Windows ZIP checksums. The [v0.3.0 record](docs/releases/v0.3.0.md) remains available for history. Future patches are published under new version tags: an old release archive is never silently replaced.
 
 ## Quick start
 
