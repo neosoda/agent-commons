@@ -467,3 +467,17 @@ User-requested integration: [zeative/motion-educator](https://github.com/zeative
 ## 2026-11-20 — Hermes curation after Motion Educator merge
 
 Six pinned metadata-only skills from the FrankX Hermes discovery list were selected: todo-discipline (FrankX `1f1ae5b`), bounded-orchestration-contract, compaction-survival, skill-health-audit and local-inference-tuning (ABVX `d4af8c3`), plus skill-inspector (NVIDIA `48e0f94`). Source files and MIT/Apache-2.0 license evidence inspected. No skill copied, auto-installed, executed, synced, or dynamically tested; native hooks and implicit approval deliberately excluded. Combined with concurrently merged Motion Educator (#90), public catalog count: **208 skills / 30 upstream repositories**. Regenerated both README credit sections and skill index; added bilingual Hermes guide and pinned-source test. The original 201-count video test was made resilient to catalog growth. **Pending:** PR #89 exact-head six-matrix CI, Chromium QA and Windows portable checks, merge, post-merge main checks. No new release and no physical Windows client test.
+
+
+## 2026-11-20 — Operating Surface web redesign (review pending)
+
+**Branch:** `feat/operating-surface-redesign-20261120` (based on live `main` `79afa9938fa5742ce9da16d63439690b65bc3b30`). **Status at authorship:** implementation committed to branch; PR checks and post-merge checks still required. This is **not** part of the published v0.5.4 release; no new release, native agent synchronization, MCP provisioning or installation has been performed.
+
+- Redesigned local dashboard shell, navigation, hero, catalog density, dialogs, fields, side panels, and responsive layouts through `src/web/operating-surface.ts`. New distinctive editorial direction: graphite, porcelain, vermilion signal; light/dark theme without external fonts or runtime dependencies.
+- Added accessible keyboard quick switcher (`Ctrl+K`, `Cmd+K`, `/`; arrows/Enter/Escape) searching real section names, installed agents, curated/local skill and MCP inventories using existing `discoveredTools()`; selecting opens and filters the actual catalog, never performs writes.
+- Added explicit overview integrity signal calculated only from actual local `state.integrity` results and scanned counts; no fabricated health or MCP reachability claims.
+- Theme uses client-local `agent-commons-ui-theme` (only light/dark); language preference and all existing preview/revision/approval/backup controls are preserved. CSP nonce stays in the existing inline style/script, no external network call.
+- Added `docs/WEB_OPERATING_SURFACE.md`, updated both README editions, extended unit-side rendered HTML/JS checks and Chromium smoke for keyboard search + persisted appearance.
+- Preserve security: 127.0.0.1-only unauthenticated UI, CSRF, Host/Origin protection, no exposure of secrets, no automatic skill/MCP install/sync, no fake controls.
+
+**Remaining delivery gate:** require six Node 22/24 Windows/Ubuntu/macOS CI jobs, Chromium viewport and interaction QA, and Windows portable jobs to pass on the PR's exact HEAD SHA before any merge; verify `main` afterward. Real local testing on a user's actual Windows agent environment is not yet verified.
