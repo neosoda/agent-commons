@@ -87,6 +87,12 @@ h1 {font-size:clamp(29px,3.3vw,49px);letter-spacing:-2px;line-height:1.04;font-w
 .metrics {display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;margin:0 0 32px;background:var(--panel);border:1px solid var(--stroke);border-top:0}
 .metric {border:0;border-right:1px solid var(--stroke);border-radius:0;padding:15px 24px 18px;background:transparent;display:flex;flex-direction:column;gap:2px;min-width:0}
 .metric:last-child {border-right:0}
+.overview-signal {display:flex;justify-content:space-between;align-items:center;gap:20px;margin:-17px 0 30px;padding:18px 21px;background:var(--surface);border:1px solid var(--stroke);border-left:3px solid var(--mint)}
+.overview-signal.needs-attention {border-left-color:var(--warn)}
+.overview-signal strong {display:block;font-size:14px;font-weight:740;margin:5px 0 2px}
+.overview-signal p {margin:0;color:var(--muted);font-size:12px}
+.overview-signal .eyebrow {color:var(--muted)}
+
 .metric .value {font:760 clamp(24px,2.5vw,36px)/1.25 "Segoe UI Variable Display","Segoe UI",system-ui,sans-serif;letter-spacing:-1.5px;font-variant-numeric:tabular-nums}
 .metric .label {font:650 10px/1.5 ui-monospace,"Cascadia Code",monospace;letter-spacing:.35px;color:var(--muted);text-transform:uppercase}
 .panel {border:1px solid var(--stroke);background:var(--panel);border-radius:2px;padding:21px;margin-bottom:15px;min-width:0}
@@ -207,6 +213,7 @@ h1 {font-size:clamp(29px,3.3vw,49px);letter-spacing:-2px;line-height:1.04;font-w
  .hero::before {width:24%;opacity:.3}
  .hero::after {font-size:46px}
  .metrics {grid-template-columns:repeat(2,minmax(0,1fr))}
+ .overview-signal {align-items:flex-start;flex-direction:column;gap:12px;padding:15px;margin:-14px 0 22px}
  .metric {border-bottom:1px solid var(--stroke);padding:12px 15px}
  .metric:nth-child(2) {border-right:0}
  .metric:nth-child(n+3) {border-bottom:0}
