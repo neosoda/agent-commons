@@ -39,4 +39,8 @@ Remotion/Node/ffmpeg and sometimes Python or alignment tools are **production-ti
 
 **Prompts:** “Use video-engine to storyboard a narrated 45-second lesson, but get permission before paid TTS.” / “Use create-short to prepare a 9:16 Reel with subtitles; don't render until approved.”
 
+## Another educational film engine
+
+**`motion-educator`** (illustrated storyboards, 3D and frame-by-frame rendering) is also available as a pinned, opt-in skill without bundled sample media. See [Motion Educator](MOTION_EDUCATOR.en.md).
+
 Credits: [ninjasweb](https://github.com/ninjasweb/video-engine-skill) and [Dojo Coding Labs](https://github.com/DojoCodingLabs/remotion-superpowers), MIT at the pinned commits above. No third-party skill code is vendored into Agent Commons.
