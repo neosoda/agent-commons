@@ -159,7 +159,8 @@ export class MissionRunner {
         // File contents may alternate A -> B -> A while every write appears as progress.
         // Detect a return to any recently written version before executing another write.
         const writePath = name === 'write_file' && typeof args?.['path'] === 'string' &&
-          typeof args?.['content'] === 'string' ? SHA((args['path'] as string).replace(/\\/g, '/').toLowerCase()) : undefined;
+          typeof args?.['content'] === 'string' ? SHA(process.platform === 'win32' ?
+            (args['path'] as string).replace(/\\/g, '/').toLowerCase() : (args['path'] as string)) : undefined;
         const writeDigest = writePath ? SHA(args['content'] as string) : undefined;
         const priorWrites = writePath ? state.writeHistory?.[writePath] : undefined;
         if (writeDigest && Array.isArray(priorWrites) && priorWrites.includes(writeDigest) &&
