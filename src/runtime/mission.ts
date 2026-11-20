@@ -41,6 +41,8 @@ export interface MissionState {
   updatedAt: number;
   observations: string[];
   fingerprints: Record<string, number>;
+  /** Hashed file paths and recent content versions; no source or paths in checkpoints. */
+  writeHistory?: Record<string, string[]>;
   revision: number;
 }
 const SHA = (v: string) => crypto.createHash('sha256').update(v).digest('hex');
@@ -68,7 +70,7 @@ export class MissionStore {
     const state: MissionState = { version: 1, id: crypto.randomBytes(12).toString('hex'), goal: short(goal, 4000),
       status: 'running', reason: '', steps: 0, calls: 0, tokens: 0, cloudCalls: 0,
       idleSteps: 0, changed: false, tested: false, evidence: 0, inspected: false, startedAt: now, updatedAt: now,
-      observations: [], fingerprints: {}, revision: 0 };
+      observations: [], fingerprints: {}, writeHistory: {}, revision: 0 };
     this.save(state); return state;
   }
   load(id: string): MissionState {
@@ -83,6 +85,7 @@ export class MissionStore {
     const state = data as MissionState;
     // Re-reading after interruption is legitimate; retain budgets and evidence.
     state.fingerprints = {}; state.idleSteps = 0;
+    if (!state.writeHistory || typeof state.writeHistory !== 'object' || Array.isArray(state.writeHistory)) state.writeHistory = {};
     return state;
   }
   save(state: MissionState): void {
@@ -153,6 +156,17 @@ export class MissionRunner {
       } else {
         const name = turn.call.name;
         const args = turn.call.arguments;
+        // File contents may alternate A -> B -> A while every write appears as progress.
+        // Detect a return to any recently written version before executing another write.
+        const writePath = name === 'write_file' && typeof args?.['path'] === 'string' &&
+          typeof args?.['content'] === 'string' ? SHA((args['path'] as string).replace(/\\/g, '/').toLowerCase()) : undefined;
+        const writeDigest = writePath ? SHA(args['content'] as string) : undefined;
+        const priorWrites = writePath ? state.writeHistory?.[writePath] : undefined;
+        if (writeDigest && Array.isArray(priorWrites) && priorWrites.includes(writeDigest) &&
+            priorWrites.at(-1) !== writeDigest) {
+          if (!escalate('file content oscillation')) return stop('blocked', 'Repeated prior file version: oscillation detected');
+          continue;
+        }
         const fingerprint = SHA(`${state.revision}:${name}:${JSON.stringify(args)}`);
         state.fingerprints[fingerprint] = (state.fingerprints[fingerprint] ?? 0) + 1;
         if (state.fingerprints[fingerprint] >= 2) {
@@ -166,7 +180,17 @@ export class MissionRunner {
         const progress = result.ok && result.progress;
         if (progress) { state.idleSteps = 0; state.evidence++; if (name === 'read_file' || name === 'list_files') state.inspected = true; }
         else state.idleSteps++;
-        if (result.changed) { state.changed = true; state.tested = false; state.revision++; state.fingerprints = {}; }
+        if (result.changed) {
+          if (writePath && writeDigest) {
+            state.writeHistory ??= {};
+            const previous = state.writeHistory[writePath];
+            state.writeHistory[writePath] = [...(Array.isArray(previous) ? previous : []), writeDigest].slice(-4);
+            // Bound checkpoint size regardless of the number of files modified.
+            const keys = Object.keys(state.writeHistory);
+            if (keys.length > 16) delete state.writeHistory[keys[0]!];
+          }
+          state.changed = true; state.tested = false; state.revision++; state.fingerprints = {};
+        }
         if (result.tested && result.ok) state.tested = true;
         // Persist only metadata and a hash: tool output may contain private source, paths or tokens.
         const digest = SHA(result.output).slice(0, 12);
