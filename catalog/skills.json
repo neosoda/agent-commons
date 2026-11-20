@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-15",
+  "generatedAt": "2026-11-20",
   "skills": [
     {
       "id": "3dviz-pro-max",
@@ -654,6 +654,33 @@
       ]
     },
     {
+      "id": "bounded-orchestration-contract",
+      "name": "Bounded Orchestration Contract",
+      "description": "Scope multi-agent planning, review and execution with bounded rounds, disjoint file ownership, clear authority and verified handoffs. Opt-in; never grants agent permissions.",
+      "category": "ai-automation",
+      "author": "Anton Biletskiy-Volokh",
+      "repository": "https://github.com/markoblogo/abvx-agent-skills",
+      "source": "https://github.com/markoblogo/abvx-agent-skills/tree/d4af8c3a5596ed055f5be5bbbd4c36b37d535530/skills/bounded-orchestration-contract",
+      "path": "skills/bounded-orchestration-contract",
+      "ref": "d4af8c3a5596ed055f5be5bbbd4c36b37d535530",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/markoblogo/abvx-agent-skills/blob/d4af8c3a5596ed055f5be5bbbd4c36b37d535530/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-20",
+        "licenseChecked": "2026-11-20",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "hermes-curated",
+        "orchestration",
+        "multi-agent",
+        "handoff",
+        "autonomy",
+        "verification"
+      ]
+    },
+    {
       "id": "brag",
       "name": "Brag",
       "description": "Turn the current project website into a short, polished, shareable launch video using Hyperframes. Use when someone says \"/brag\", \"let's brag about this\", \"make a launch video\", \"turn this into a video\", or wants to share what they built. Reads the project code directly — no live URL or screenshots needed.",
@@ -1233,6 +1260,33 @@
         "ecc",
         "everything-claude-code",
         "development"
+      ]
+    },
+    {
+      "id": "compaction-survival",
+      "name": "Compaction Survival",
+      "description": "Preserve critical decisions, unfinished work, blockers and evidence in compact resumable checkpoints without dumping long histories or secrets.",
+      "category": "productivity",
+      "author": "Anton Biletskiy-Volokh",
+      "repository": "https://github.com/markoblogo/abvx-agent-skills",
+      "source": "https://github.com/markoblogo/abvx-agent-skills/tree/d4af8c3a5596ed055f5be5bbbd4c36b37d535530/skills/compaction-survival",
+      "path": "skills/compaction-survival",
+      "ref": "d4af8c3a5596ed055f5be5bbbd4c36b37d535530",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/markoblogo/abvx-agent-skills/blob/d4af8c3a5596ed055f5be5bbbd4c36b37d535530/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-20",
+        "licenseChecked": "2026-11-20",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "hermes-curated",
+        "context",
+        "memory",
+        "handoff",
+        "tokens",
+        "checkpoint"
       ]
     },
     {
@@ -3013,6 +3067,33 @@
       ]
     },
     {
+      "id": "local-inference-tuning",
+      "name": "Local Inference Tuning",
+      "description": "Select and benchmark local OpenAI-compatible model serving with hardware-aware model sizing, privacy safeguards and controlled resource usage.",
+      "category": "ai-automation",
+      "author": "Anton Biletskiy-Volokh",
+      "repository": "https://github.com/markoblogo/abvx-agent-skills",
+      "source": "https://github.com/markoblogo/abvx-agent-skills/tree/d4af8c3a5596ed055f5be5bbbd4c36b37d535530/skills/local-inference-tuning",
+      "path": "skills/local-inference-tuning",
+      "ref": "d4af8c3a5596ed055f5be5bbbd4c36b37d535530",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/markoblogo/abvx-agent-skills/blob/d4af8c3a5596ed055f5be5bbbd4c36b37d535530/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-20",
+        "licenseChecked": "2026-11-20",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "hermes-curated",
+        "local-llm",
+        "inference",
+        "model",
+        "ollama",
+        "privacy"
+      ]
+    },
+    {
       "id": "make-plan",
       "name": "Make Plan",
       "description": "Create a detailed, phased implementation plan with documentation discovery. Use when asked to plan a feature, task, or multi-step implementation — especially before executing with do.",
@@ -4173,6 +4254,33 @@
       ]
     },
     {
+      "id": "skill-health-audit",
+      "name": "Skill Health Audit",
+      "description": "Assess skill triggers, false activation, context overhead, provenance drift, conflicts and evidence before promotion or publication; read-only audit.",
+      "category": "ai-automation",
+      "author": "Anton Biletskiy-Volokh",
+      "repository": "https://github.com/markoblogo/abvx-agent-skills",
+      "source": "https://github.com/markoblogo/abvx-agent-skills/tree/d4af8c3a5596ed055f5be5bbbd4c36b37d535530/skills/skill-health-audit",
+      "path": "skills/skill-health-audit",
+      "ref": "d4af8c3a5596ed055f5be5bbbd4c36b37d535530",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/markoblogo/abvx-agent-skills/blob/d4af8c3a5596ed055f5be5bbbd4c36b37d535530/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-20",
+        "licenseChecked": "2026-11-20",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "hermes-curated",
+        "skills",
+        "quality",
+        "audit",
+        "tokens",
+        "evaluation"
+      ]
+    },
+    {
       "id": "skill-host-compat",
       "name": "Skill Host Compat",
       "description": "Check a skill's compatibility with different agent hosts and their supported capabilities.",
@@ -4194,6 +4302,33 @@
         "ecc",
         "everything-claude-code",
         "ai-automation"
+      ]
+    },
+    {
+      "id": "skill-inspector",
+      "name": "Skill Inspector (NVIDIA SkillSpector)",
+      "description": "Review third-party agent skills for injection, exfiltration, excessive permissions and supply-chain risks; scanner is optional and never installed silently.",
+      "category": "security",
+      "author": "NVIDIA",
+      "repository": "https://github.com/NVIDIA/SkillSpector",
+      "source": "https://github.com/NVIDIA/SkillSpector/tree/48e0f942ea1f5fdb7aa096a6f65a0adeda2ecc4e/skills/skill-inspector",
+      "path": "skills/skill-inspector",
+      "ref": "48e0f942ea1f5fdb7aa096a6f65a0adeda2ecc4e",
+      "license": "Apache-2.0",
+      "licenseEvidence": "https://github.com/NVIDIA/SkillSpector/blob/48e0f942ea1f5fdb7aa096a6f65a0adeda2ecc4e/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-20",
+        "licenseChecked": "2026-11-20",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "hermes-curated",
+        "skills",
+        "security",
+        "scanner",
+        "provenance",
+        "supply-chain"
       ]
     },
     {
@@ -4542,6 +4677,33 @@
       "dependencies": [],
       "tags": [
         "planning"
+      ]
+    },
+    {
+      "id": "todo-discipline",
+      "name": "Todo Discipline",
+      "description": "Keep multi-step agent task status consistent with verified progress and re-read the task board before declaring completion.",
+      "category": "productivity",
+      "author": "Frank Riemer / GenCreator",
+      "repository": "https://github.com/frankxai/awesome-hermes-agent-skills",
+      "source": "https://github.com/frankxai/awesome-hermes-agent-skills/tree/1f1ae5bd11bffc525fb675836c34225f2f41c2e9/skills/todo-discipline",
+      "path": "skills/todo-discipline",
+      "ref": "1f1ae5bd11bffc525fb675836c34225f2f41c2e9",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/frankxai/awesome-hermes-agent-skills/blob/1f1ae5bd11bffc525fb675836c34225f2f41c2e9/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-20",
+        "licenseChecked": "2026-11-20",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "hermes-curated",
+        "tasks",
+        "status",
+        "verification",
+        "handoff",
+        "autonomy"
       ]
     },
     {
