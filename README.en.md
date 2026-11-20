@@ -291,6 +291,8 @@ agent-commons sync --skill anatomy --agent codex --dry-run
 
 **New — Films and animation (Lemo-Opuscar):** optional creative skill with 99 styles, no downloads during discovery. Install/sync on request; its separate video toolchain is prepared only when used. [Guide and precautions](docs/LEMO_OPUSCAR.en.md).
 
+**Motion Educator:** storyboard-first educational animation with 3D models and frame-by-frame rendering. Pinned, opt-in installation. [English guide](docs/MOTION_EDUCATOR.en.md) · [Français](docs/MOTION_EDUCATOR.md).
+
 ### Everything Claude Code (ECC) collection
 
 **71 selected ECC skills** for agents, infrastructure, web projects and audits are now discoverable in the Skill Hub, without overriding existing profiles or importing ECC hooks.
@@ -581,7 +583,7 @@ Runtime and npm dependency license labels above match the checked-in package man
 ### Upstream repositories referenced by the public Skill Hub
 
 <!-- BEGIN GENERATED SKILL REPOSITORY CREDITS -->
-The curated public catalog references **201 skills across 26 upstream repositories**. These are **metadata-only references**: Agent Commons does not bundle or automatically install their skills. Licenses are recorded per pinned skill in [the full index](docs/skills/README.md); repositories with more than one license must be checked per skill.
+The curated public catalog references **202 skills across 27 upstream repositories**. These are **metadata-only references**: Agent Commons does not bundle or automatically install their skills. Licenses are recorded per pinned skill in [the full index](docs/skills/README.md); repositories with more than one license must be checked per skill.
 
 | Upstream repository | Author / maintainer | Skill references | Declared license(s) |
 |:--|:--|--:|:--|
@@ -611,6 +613,7 @@ The curated public catalog references **201 skills across 26 upstream repositori
 | [viettranx/3dviz-pro-max](https://github.com/viettranx/3dviz-pro-max) | viettranx | 1 | MIT |
 | [Vincentwei1021/video-shotcraft](https://github.com/Vincentwei1021/video-shotcraft) | Vincentwei1021 | 1 | Apache-2.0 |
 | [wheresryan22/anatomy](https://github.com/wheresryan22/anatomy) | Ryan (wheresryan22) | 1 | MIT |
+| [zeative/motion-educator](https://github.com/zeative/motion-educator) | Zeative | 1 | MIT |
 <!-- END GENERATED SKILL REPOSITORY CREDITS -->
 
 Each individual skill, its author, **pinned source commit**, applicable license evidence and lifecycle status is linked in [the complete skill attribution index](docs/skills/README.md) and [catalog/skills.json](catalog/skills.json). Some entries are archived. Being listed does **not** imply a code audit, installation, endorsement or redistribution of third-party content.

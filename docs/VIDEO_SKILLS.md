@@ -39,4 +39,8 @@ Node/Remotion/ffmpeg, parfois Python ou un fournisseur de transcription, sont n�
 
 **Prompts :** « Utilise video-engine pour scénariser une leçon de 45 secondes, synchronisée sur la narration ; demande mon accord avant tout TTS payant. » / « Utilise create-short pour préparer un Reel 9:16 avec sous-titres, sans lancer le rendu avant validation. »
 
+## Autre moteur pédagogique
+
+Le skill **`motion-educator`** (storyboards illustrés, 3D, moteur image par image) est aussi disponible en installation volontaire et épinglée, sans médias de démonstration. Voir [Motion Educator](MOTION_EDUCATOR.md).
+
 Crédits : [ninjasweb](https://github.com/ninjasweb/video-engine-skill) et [Dojo Coding Labs](https://github.com/DojoCodingLabs/remotion-superpowers), MIT aux commits indiqués plus haut. Agent Commons ne redistribue pas leurs skills.

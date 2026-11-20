@@ -285,6 +285,8 @@ agent-commons sync --skill anatomy --agent codex --dry-run
 
 **Nouveau — Films et animations (Lemo-Opuscar) :** skill créatif optionnel, 99 styles sans téléchargement à la découverte. Installation et synchronisation sur demande, puis préparation séparée des outils vidéo. [Guide et précautions](docs/LEMO_OPUSCAR.md).
 
+**Motion Educator :** films pédagogiques animés avec storyboard illustré, objets 3D et rendu image par image. Skill optionnel, sources épinglées et installation volontaire. [Guide FR](docs/MOTION_EDUCATOR.md) · [English](docs/MOTION_EDUCATOR.en.md).
+
 ### Collection Everything Claude Code (ECC)
 
 **71 skills ECC sélectionnés** pour nos agents, infrastructures, projets web et audits sont désormais accessibles dans le Skill Hub, sans écraser les profils existants ni importer les hooks ECC.
@@ -566,7 +568,7 @@ Les licences indiquées pour les dépendances npm proviennent du manifeste, du l
 ### Dépôts référencés dans le catalogue public
 
 <!-- BEGIN GENERATED SKILL REPOSITORY CREDITS -->
-Le catalogue public référence **201 skills provenant de 26 dépôts sources**. Il s'agit **uniquement de métadonnées** : Agent Commons ne regroupe pas et n'installe pas automatiquement ces skills. Les licences sont indiquées pour chaque skill épinglé dans [l'index complet](docs/skills/README.md) ; si plusieurs licences figurent pour un dépôt, vérifiez celle applicable à chaque skill.
+Le catalogue public référence **202 skills provenant de 27 dépôts sources**. Il s'agit **uniquement de métadonnées** : Agent Commons ne regroupe pas et n'installe pas automatiquement ces skills. Les licences sont indiquées pour chaque skill épinglé dans [l'index complet](docs/skills/README.md) ; si plusieurs licences figurent pour un dépôt, vérifiez celle applicable à chaque skill.
 
 | Dépôt source | Auteur / responsable | Skills référencés | Licence(s) déclarée(s) |
 |:--|:--|--:|:--|
@@ -596,6 +598,7 @@ Le catalogue public référence **201 skills provenant de 26 dépôts sources**.
 | [viettranx/3dviz-pro-max](https://github.com/viettranx/3dviz-pro-max) | viettranx | 1 | MIT |
 | [Vincentwei1021/video-shotcraft](https://github.com/Vincentwei1021/video-shotcraft) | Vincentwei1021 | 1 | Apache-2.0 |
 | [wheresryan22/anatomy](https://github.com/wheresryan22/anatomy) | Ryan (wheresryan22) | 1 | MIT |
+| [zeative/motion-educator](https://github.com/zeative/motion-educator) | Zeative | 1 | MIT |
 <!-- END GENERATED SKILL REPOSITORY CREDITS -->
 
 Pour chaque skill, son auteur, son **commit source épinglé**, la preuve de licence applicable et son statut (actif ou archivé) figurent dans [l'index d'attribution complet](docs/skills/README.md) et dans [catalog/skills.json](catalog/skills.json). Une référence ne signifie **ni audit du code, ni installation, ni approbation, ni redistribution**.
