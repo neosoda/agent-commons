@@ -122,6 +122,8 @@ et chemins dangereux sont contrôlés ; les ressources restent chargées à la d
 
 Une interface locale, responsive et sans framework frontend supplémentaire permet de gérer Agent Commons sans mémoriser toutes ses commandes.
 
+**Operating Surface (refonte en cours de validation)** : identité éditoriale graphite/corail/ivoire, navigation compacte, thème clair/sombre, recherche rapide des vues, agents et outils locaux via **Ctrl+K**, **⌘K** ou **/**. La recherche ouvre uniquement les vues et filtres réels ; elle ne déclenche aucune écriture. [Direction UX, raccourcis et sécurité](docs/WEB_OPERATING_SURFACE.md).
+
 Après récupération et compilation du dépôt :
 
 ```bash
