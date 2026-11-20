@@ -35,10 +35,13 @@ export class WorkspaceTools implements ToolExecutor {
   private readonly seen = new Set<string>();
   private revision = 0;
   constructor(workspace: string, private readonly allowWrites: boolean, private readonly allowTests: boolean) {
-    this.root = path.resolve(workspace);
-    const st = fs.lstatSync(this.root);
-    if (!st.isDirectory() || st.isSymbolicLink() || fs.realpathSync(this.root) !== this.root ||
-      !fs.existsSync(path.join(this.root, '.git'))) throw new Error('Use an existing physical Git checkout');
+    const selected = path.resolve(workspace);
+    const st = fs.lstatSync(selected);
+    // macOS exposes its system temporary directory as /var -> /private/var.
+    // Canonicalize trusted ancestor aliases without accepting a linked checkout itself.
+    if (!st.isDirectory() || st.isSymbolicLink()) throw new Error('Use an existing physical Git checkout');
+    this.root = fs.realpathSync(selected);
+    if (!fs.existsSync(path.join(this.root, '.git'))) throw new Error('Use an existing physical Git checkout');
   }
   private safe(input: unknown, file = false): string {
     if (typeof input !== 'string' || input.length > 512 || path.isAbsolute(input) || input.includes('\0')) throw new Error('Invalid relative path');
