@@ -125,6 +125,8 @@ loaded only when explicitly requested. [Full guide](docs/CONTEXT_ROUTING.md).
 
 **New:** a responsive, dependency-free local interface to manage Agent Commons without memorizing commands.
 
+**Operating Surface (redesign awaiting QA)**: editorial graphite/coral/porcelain identity, compact navigation, light/dark appearance, and cross-section search for real local tools and agents via **Ctrl+K**, **⌘K**, or **/**. Search only navigates and filters existing data; it never performs mutations. [UX, shortcuts and security](docs/WEB_OPERATING_SURFACE.md).
+
 After cloning and building the project, run:
 
 ```bash
