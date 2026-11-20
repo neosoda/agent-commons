@@ -12,7 +12,7 @@ export const OPERATING_SURFACE_STYLES = String.raw`/**
   --muted:#a3a9a9; --ink:#f2f1eb; --accent:#fb674a; --mint:#a7cfab;
   --warn:#ecc184; --bad:#f69b91; --radius:3px;
   --surface:#151719; --surface-hover:#272b2c; --surface-raised:#222527;
-  --line-strong:#555b5c; --signal-ink:#111315; --code-bg:#111416;
+  --line-strong:#858c8a; --signal-ink:#111315; --code-bg:#111416;
   --soft-signal:rgba(251,103,74,.11);
   font:14px/1.48 "Segoe UI Variable Text","Segoe UI",system-ui,sans-serif;
 }
@@ -22,7 +22,7 @@ export const OPERATING_SURFACE_STYLES = String.raw`/**
   --muted:#596060; --ink:#191c1c; --accent:#af341b; --mint:#346a48;
   --warn:#825a19; --bad:#a83228;
   --surface:#f4f3ed; --surface-hover:#e8e7df; --surface-raised:#fffefa;
-  --line-strong:#9b9e96; --signal-ink:#fffaf3; --code-bg:#eeeae1;
+  --line-strong:#747a75; --signal-ink:#fffaf3; --code-bg:#eeeae1;
   --soft-signal:rgba(175,52,27,.09);
 }
 html {scroll-behavior:smooth;scroll-padding-top:95px}
@@ -67,7 +67,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .btn.danger:hover:not(:disabled) {color:var(--bg);background:var(--bad);border-color:var(--bad)}
 .btn.small {padding:7px 10px;min-height:36px}
 .btn:disabled {opacity:.45}
-#global-search-toggle {display:flex;align-items:center;gap:14px;border:1px solid var(--stroke);background:var(--surface);color:var(--muted);font:600 12px/1.3 inherit;padding:8px 11px;min-height:36px;cursor:pointer;border-radius:2px}
+#global-search-toggle {display:flex;align-items:center;gap:14px;border:1px solid var(--stroke);background:var(--surface);color:var(--muted);font-size:12px;font-weight:600;line-height:1.3;padding:8px 11px;min-height:36px;cursor:pointer;border-radius:2px}
 #global-search-toggle:hover {border-color:var(--accent);color:var(--ink)}
 .keycap {border:1px solid var(--line-strong);padding:2px 5px;font:10px/1.2 ui-monospace,"Cascadia Code",monospace;white-space:nowrap}
 #theme-toggle {min-width:36px;padding:7px 8px;letter-spacing:0}
@@ -139,11 +139,11 @@ h1 {font-size:clamp(29px,3.3vw,49px);letter-spacing:-2px;line-height:1.04;font-w
 .quick-switcher-dialog {background:var(--panel);border:1px solid var(--line-strong);width:min(660px,100%);box-shadow:0 30px 95px #0009}
 .quick-switcher-header {display:flex;gap:13px;align-items:center;border-bottom:1px solid var(--stroke);padding:15px 17px}
 .quick-switcher-icon {font:750 17px/1 ui-monospace,"Cascadia Code",monospace;color:var(--accent)}
-#quick-switcher-input {flex:1;min-width:0;background:transparent;color:var(--ink);border:0;outline:none;font:500 16px/1.4 inherit}
+#quick-switcher-input {flex:1;min-width:0;background:transparent;color:var(--ink);border:0;outline:none;font-size:16px;font-weight:500;line-height:1.4}
 #quick-switcher-input:focus-visible {outline:0}
 #quick-switcher-input::placeholder {color:var(--muted)}
 .quick-switcher-results {padding:8px;max-height:min(58vh,440px);overflow:auto}
-.quick-switcher-item {display:grid;grid-template-columns:72px minmax(0,1fr) auto;gap:13px;align-items:center;width:100%;padding:12px 13px;text-align:left;color:var(--ink);background:transparent;border:0;border-left:2px solid transparent;cursor:pointer;font:600 13px/1.3 inherit}
+.quick-switcher-item {display:grid;grid-template-columns:72px minmax(0,1fr) auto;gap:13px;align-items:center;width:100%;padding:12px 13px;text-align:left;color:var(--ink);background:transparent;border:0;border-left:2px solid transparent;cursor:pointer;font-size:13px;font-weight:600;line-height:1.3}
 .quick-switcher-item[aria-selected="true"],.quick-switcher-item:hover {background:var(--surface-hover);border-left-color:var(--accent)}
 .quick-switcher-type {font:650 10px/1.2 ui-monospace,"Cascadia Code",monospace;color:var(--accent);text-transform:uppercase}
 .quick-switcher-item small {color:var(--muted);font:500 10px/1.2 ui-monospace,"Cascadia Code",monospace}
