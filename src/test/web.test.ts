@@ -239,6 +239,23 @@ describe('local Skill Hub HTTP security and user workflows', () => {
     assert.doesNotMatch(page, /<[^>]+\sclass="[^"]*"[^>]+\sclass="/, 'no duplicate class attributes');
   });
 
+  it('renders the operating surface without changing endpoint or approval boundaries', () => {
+    const html = renderWebUi('surface-nonce', 'surface-csrf');
+    assert.match(html, /id="global-search-toggle"/);
+    assert.match(html, /id="quick-switcher" class="quick-switcher hidden"/);
+    assert.match(html, /id="theme-toggle"/);
+    assert.match(html, /agent-commons-ui-theme/);
+    assert.match(html, /role="combobox"[^>]*aria-controls="quick-switcher-results"/);
+    assert.match(html, /THE LOCAL AGENT CONTROL PLANE/);
+    assert.match(html, /--surface-hover:/);
+    assert.match(html, /:root\[data-theme="light"\]/);
+    assert.doesNotMatch(html, /__DESIGN_CSS__|__COMMAND_JS__/);
+    assert.doesNotMatch(html, /fetch\(['"]https?:/);
+    const js = [...html.matchAll(/<script nonce="surface-nonce">([\s\S]*?)<\/script>/g)];
+    assert.equal(js.length, 1);
+    assert.doesNotThrow(() => new vm.Script(js[0]![1]!));
+  });
+
   it('provides a keyboard skip link, labelled sections and accessible status channels', () => {
     const page = renderWebUi('unit-nonce', 'unit-csrf');
     assert.match(page, /<a class="skip-link" href="#main-content">Skip to main content<\/a>/);
