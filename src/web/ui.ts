@@ -265,6 +265,8 @@ Object.assign(FR,{
   'Inspect integrity':'Voir l’intégrité',
   'Managed skill integrity checked':'Intégrité des skills gérés vérifiée',
   'No managed skills to verify':'Aucun skill géré à vérifier',
+  'Workspace refresh unavailable':'Actualisation de l’espace local indisponible',
+  'The displayed inventory may be stale. Retry refresh to verify local state.':'Les données affichées peuvent être anciennes. Actualisez pour vérifier l’état local.',
   'Review flagged installations before further changes.':'Examinez les installations signalées avant toute modification.',
   'Install reviewed skills to enable integrity checks.':'Installez des skills approuvés pour activer les contrôles d’intégrité.',
   'Local agent control plane':'Plan de contrôle local',
@@ -965,7 +967,11 @@ async function refresh(announce=false){
     if(announce){$('workspace-status').textContent=mcpError?'Workspace refreshed; MCP status unavailable.':'Workspace and integrity results updated.';translateUI()}
   }catch(err){
     if(generation!==refreshGeneration)return;
+    $('overview-signal').classList.add('needs-attention');
+    $('overview-signal-title').textContent='Workspace refresh unavailable';
+    $('overview-signal-detail').textContent='The displayed inventory may be stale. Retry refresh to verify local state.';
     showToast(err.message,true);
+    translateUI();
     if(announce){$('workspace-status').textContent='Workspace refresh failed.';translateUI()}
   }
 }
