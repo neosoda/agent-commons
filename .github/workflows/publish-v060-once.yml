@@ -45,10 +45,9 @@ jobs:
           if ($pkg.version -ne '0.6.0' -or $lock.version -ne '0.6.0' -or $lock['packages']['']['version'] -ne '0.6.0') { throw 'Package/lock version mismatch' }
           $mainHead = (gh api "repos/$env:GH_REPO/branches/main" --jq '.commit.sha').Trim()
           if ($LASTEXITCODE -ne 0 -or $mainHead -ne $env:GITHUB_SHA) { throw 'Release commit is not current main' }
-          gh api "repos/$env:GH_REPO/git/ref/tags/v0.6.0" *> $null
-          if ($LASTEXITCODE -eq 0) { throw 'Release tag already exists; never replace it' }
-          gh release view v0.6.0 --repo $env:GH_REPO *> $null
-          if ($LASTEXITCODE -eq 0) { throw 'Release already exists; never replace it' }
+          $tags = @(gh api "repos/$env:GH_REPO/git/refs/tags" | ConvertFrom-Json)
+          if ($LASTEXITCODE -ne 0) { throw 'Cannot check existing release tags' }
+          if (@($tags | Where-Object { $_.ref -eq 'refs/tags/v0.6.0' }).Count -ne 0) { throw 'Release tag already exists; never replace it' }
 
       - name: Require successful exact-main CI, Chromium and Windows portable
         shell: pwsh
@@ -109,8 +108,9 @@ jobs:
           if ($text -ne ($sha + '  AgentCommons-win-x64-portable.zip')) { throw 'Checksum mismatch' }
           $mainHead = (gh api "repos/$env:GH_REPO/branches/main" --jq '.commit.sha').Trim()
           if ($LASTEXITCODE -ne 0 -or $mainHead -ne $env:GITHUB_SHA) { throw 'Main moved during release; do not publish' }
-          gh api "repos/$env:GH_REPO/git/ref/tags/v0.6.0" *> $null
-          if ($LASTEXITCODE -eq 0) { throw 'Existing release tag; do not republish' }
+          $tags = @(gh api "repos/$env:GH_REPO/git/refs/tags" | ConvertFrom-Json)
+          if ($LASTEXITCODE -ne 0) { throw 'Cannot recheck release tags' }
+          if (@($tags | Where-Object { $_.ref -eq 'refs/tags/v0.6.0' }).Count -ne 0) { throw 'Existing release tag; do not republish' }
           gh release create v0.6.0 $zip $checksum --repo $env:GH_REPO --target $env:GITHUB_SHA --draft --title 'Agent Commons v0.6.0 — Moteur local expérimental et Operating Surface' --notes-file docs/releases/v0.6.0-release-notes.md
           if ($LASTEXITCODE -ne 0) { throw 'Cannot create release draft and upload both assets' }
           $published = gh api "repos/$env:GH_REPO/releases/tags/v0.6.0" | ConvertFrom-Json
