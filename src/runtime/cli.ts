@@ -36,7 +36,7 @@ export async function main(argv = process.argv.slice(2)): Promise<number> {
     const model=args['model'] ?? process.env['AGENT_COMMONS_LOCAL_MODEL'];
     if (!model) throw new Error('Select a local model with --model or AGENT_COMMONS_LOCAL_MODEL');
     const store = new MissionStore(path.join(os.homedir(), '.agents','missions'));
-    const state = args['resume'] ? store.load(args['resume']) : store.create(args['task']!);
+    const state = args['resume'] ? store.load(args['resume'], workspace.workspaceId) : store.create(args['task']!, workspace.workspaceId);
     const limits:Limits={...DEFAULT_LIMITS};
     const budgets:[string,keyof Limits,number][]=[['max-steps','maxSteps',1],['max-tool-calls','maxToolCalls',1],['max-tokens','maxTokens',1],['max-minutes','maxDurationMs',60000],['max-cloud-calls','maxCloudCalls',1]];
     for (const [option,key,mult] of budgets) if(args[option] !== undefined) {

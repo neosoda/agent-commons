@@ -46,3 +46,9 @@ Les checkpoints sont conservés sous `~/.agents/missions/` avec leurs compteurs 
 - **Sécurité résiduelle** : pas de véritable sandbox OS, ni d'isolation des scripts npm, ni de terminaison garantie des processus enfants lors des timeouts. Ne pas lancer sur des dépôts non fiables, avec un compte administrateur, ou contre des données sensibles sans isolation supplémentaire. Les filtres de secrets ne peuvent garantir l'absence absolue de fuite.
 
 Tests automatisés du module : `node --test dist/test/agent-runtime.test.js`. Un serveur HTTP LM Studio simulé permet de valider l'enchaînement de vrais appels `fetch`; ce n'est pas un test de performance ou d'intelligence d'un modèle réel.
+
+## Durcissement des reprises (20 novembre 2026)
+
+Chaque nouvelle mission CLI est liée à l'empreinte SHA-256 du chemin canonique du dépôt : la reprise sur un autre checkout est refusée (et les anciens checkpoints non liés doivent être recréés). Les limites de tours, tokens, outils et appels cloud restent cumulatives ; le plafond de durée concerne chaque exécution séparée, afin de permettre la reprise après une longue pause.
+
+Les noms de périphériques Windows et flux NTFS alternatifs (ADS) sont refusés. Une escalade cloud sans `--allow-cloud-source` ne peut pas effectuer de `write_file` : le moteur s'arrête en `needs-approval` si le modèle cloud tente une écriture. Cela ne constitue pas encore une sandbox OS.
