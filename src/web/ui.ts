@@ -1,9 +1,14 @@
+import { OPERATING_SURFACE_STYLES } from './operating-surface.js';
+import { OPERATING_SURFACE_CONTROLS } from './operating-surface-controls.js';
+
 /**
  * Dependency-free local Skill Hub UI. Text from catalog/agents is always rendered
  * with textContent, never inserted as HTML. No external fonts, scripts or CDNs.
  */
 export function renderWebUi(nonce: string, csrf: string): string {
-  return HTML.replaceAll('__NONCE__', nonce).replace('__CSRF__', csrf);
+  return HTML.replaceAll('__NONCE__', nonce).replace('__CSRF__', csrf)
+    .replace('__DESIGN_CSS__', OPERATING_SURFACE_STYLES)
+    .replace('__COMMAND_JS__', OPERATING_SURFACE_CONTROLS);
 }
 
 const HTML = String.raw`<!doctype html>
@@ -26,26 +31,28 @@ const HTML = String.raw`<!doctype html>
 @media(max-width:1000px){.skill-card .bottom{align-items:flex-start}.card-actions{margin-left:0;width:100%}.catalog-guide .btn{margin-left:0}}
 @media(max-width:420px){.catalog-results{flex-wrap:wrap}.catalog-results .btn{flex:1}.catalog-results .subtle{flex-basis:100%}.catalog-switch{width:100%}.catalog-switch button{padding:9px 11px;flex:1}.extension-steps li{flex-direction:column;gap:2px}.extension-steps span{text-align:left}.extension-actions .btn{flex:1}.card-actions .btn{flex:1}}
 @media(max-width:730px){#page-catalog .section-head{margin-top:8px}#page-catalog h1{font-size:28px;letter-spacing:-.6px;margin:0 0 12px}#page-catalog .section-head .dim{font-size:13px}.catalog-guide{display:none}#page-catalog .filter-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}#catalog-search{grid-column:1/-1}#page-catalog .field{min-width:0;width:100%;padding:9px 11px;font-size:13px}.catalog-results{flex-wrap:wrap;margin:12px 0;gap:8px}.catalog-results #catalog-count{flex-basis:100%}#extension-summary{font-size:11px}.catalog-switch{margin:12px 0}}
+__DESIGN_CSS__
 </style></head>
 <body><a class="skip-link" href="#main-content">Skip to main content</a><div class="layout">
 <aside class="sidebar">
-<div class="brand"><span class="brand-mark">A</span><span>Agent Commons</span></div>
+<div class="brand"><span class="brand-mark" aria-hidden="true">A/</span><span class="brand-lockup">Agent Commons<small>Local agent control plane</small></span></div>
 <div class="side-label">Workspace</div>
 <nav class="nav" aria-label="Dashboard sections">
-<button data-page="overview" aria-controls="page-overview" class="active" aria-current="page"><span aria-hidden="true">⌂</span> <span>Overview</span></button>
-<button data-page="catalog" aria-controls="page-catalog"><span aria-hidden="true">◈</span> <span>Skills & MCP</span></button>
-<button data-page="agents" aria-controls="page-agents"><span aria-hidden="true">▤</span> <span>My agents</span></button>
-<button data-page="mcp-center" aria-controls="page-mcp-center"><span aria-hidden="true">⚙</span> <span>MCP Control Center</span></button>
-<button data-page="integrity" aria-controls="page-integrity"><span aria-hidden="true">◇</span> <span>Integrity</span></button>
-<button data-page="backups" aria-controls="page-backups"><span aria-hidden="true">↶</span> <span>Backups</span></button>
+<button data-page="overview" aria-controls="page-overview" class="active" aria-current="page"><span aria-hidden="true">01</span> <span>Overview</span></button>
+<button data-page="catalog" aria-controls="page-catalog"><span aria-hidden="true">02</span> <span>Skills & MCP</span></button>
+<button data-page="agents" aria-controls="page-agents"><span aria-hidden="true">03</span> <span>My agents</span></button>
+<button data-page="mcp-center" aria-controls="page-mcp-center"><span aria-hidden="true">04</span> <span>MCP Control Center</span></button>
+<button data-page="integrity" aria-controls="page-integrity"><span aria-hidden="true">05</span> <span>Integrity</span></button>
+<button data-page="backups" aria-controls="page-backups"><span aria-hidden="true">06</span> <span>Backups</span></button>
 </nav>
 <div class="sidebar-bottom"><span class="status-dot"></span>Local workspace<br><span class="subtle">127.0.0.1 only · no cloud account</span></div>
 </aside>
 <main class="main" id="main-content" tabindex="-1">
-<div class="top"><div class="eyebrow">YOUR AI WORKSPACE / CONTROL CENTER</div><div class="top-right"><span class="pill">● Local-first</span><select id="language-select" aria-label="Interface language" class="lang-select"><option value="en">English</option><option value="fr">Français</option></select><button class="btn small ghost" id="refresh">↻ Refresh</button></div></div>
+<div class="top"><div class="eyebrow">WORKSPACE / <span id="current-view">Overview</span></div><div class="top-right"><button id="global-search-toggle" type="button" aria-haspopup="dialog" aria-controls="quick-switcher" aria-keyshortcuts="Control+K Meta+K"><span class="search-glyph" aria-hidden="true">⌕</span><span class="search-label">Find anything</span><span class="keycap" aria-hidden="true">Ctrl K</span></button><span class="pill">● Local-first</span><button class="btn small ghost" id="theme-toggle" type="button" aria-label="Switch to light theme" aria-pressed="false" title="Switch theme">◑</button><select id="language-select" aria-label="Interface language" class="lang-select"><option value="en">English</option><option value="fr">Français</option></select><button class="btn small ghost" id="refresh">↻ Refresh</button></div></div>
 <section class="page active" id="page-overview">
-<div class="hero"><div class="eyebrow">ONE LIBRARY · EVERY AGENT</div><h1>Your AI toolkit.<br>One place to manage it.</h1><p>Discover skills, organize profiles and synchronize your agents. You stay in control: preview changes before applying them.</p><div class="actions"><button class="btn primary" data-go="catalog">Explore tools</button><button class="btn" data-go="agents">Manage agents</button></div></div>
+<div class="hero"><div class="eyebrow">THE LOCAL AGENT CONTROL PLANE</div><h1>Your agents.<br><em>Under control.</em></h1><p>One deliberate workspace to discover capabilities, inspect your agents and manage synchronization. Every installation and change stays under your control.</p><div class="actions"><button class="btn primary" data-go="catalog">Explore tools</button><button class="btn" data-go="agents">Manage agents</button></div></div>
 <div class="metrics" id="metrics"></div>
+<div class="overview-signal" id="overview-signal" role="status" aria-live="polite"><div><span class="eyebrow">CURRENT WORKSPACE SIGNAL</span><strong id="overview-signal-title">Loading local state…</strong><p id="overview-signal-detail" class="subtle"></p></div><button class="btn small ghost" data-go="integrity">Inspect integrity</button></div>
 <div class="split"><div class="panel"><h3>Connected agents</h3><p>Installed environments detected on this machine.</p><div id="overview-agents"></div></div><div class="panel"><h3>Workspace health</h3><p>Quick read of locally managed skills.</p><div id="overview-health"></div><button class="btn small" data-go="integrity">View integrity report</button></div></div>
 </section>
 <section class="page" id="page-catalog"><div class="section-head"><div><h1>Skills & MCP catalog</h1><div class="dim">Install and manage reviewed Skills and MCP packages, inspect versions, and choose which agents to synchronize. Every change requires your approval.</div></div></div>
@@ -81,6 +88,7 @@ const HTML = String.raw`<!doctype html>
 <section class="page" id="page-backups"><div class="eyebrow">RECOVERY</div><h1>Snapshots & recovery</h1><p class="dim">Review stored snapshots, create a backup or restore a previous state. Restoring replaces saved managed paths and requires explicit confirmation.</p><div class="panel"><h3>Backup now</h3><p>Create a full point-in-time snapshot of agent skills and MCP configurations.</p><button class="btn primary" id="backup-create">Create backup</button></div><div class="panel"><h3>Available snapshots</h3><div id="backup-items"></div></div></section>
 <div class="footer">Agent Commons · Local web UI · No telemetry · No background sync · Source/license review ≠ code security audit</div>
 </main></div>
+<div id="quick-switcher" class="quick-switcher hidden"><section class="quick-switcher-dialog" role="dialog" aria-modal="true" aria-labelledby="quick-switcher-heading"><h2 class="sr-only" id="quick-switcher-heading">Search all sections and local skills</h2><div class="quick-switcher-header"><span class="quick-switcher-icon" aria-hidden="true">⌕</span><input id="quick-switcher-input" type="search" autocomplete="off" spellcheck="false" role="combobox" aria-expanded="true" aria-autocomplete="list" aria-controls="quick-switcher-results" aria-label="Search navigation and skills" placeholder="Type a page, skill or agent…" /><button class="btn small ghost" type="button" id="quick-switcher-close" aria-label="Close search">Esc</button></div><div id="quick-switcher-results" class="quick-switcher-results" role="listbox" aria-label="Search results"></div><div class="quick-switcher-footer"><span><kbd>↑</kbd> <kbd>↓</kbd> Navigate</span><span><kbd>↵</kbd> Open</span><span><kbd>Esc</kbd> Close</span></div></section></div>
 <div id="workspace-status" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></div><div id="modal-root"></div><div id="toast" class="toast hidden" role="status" aria-live="polite" aria-atomic="true"></div>
 <script nonce="__NONCE__">
 'use strict';
@@ -251,7 +259,35 @@ Object.assign(FR,{
   'Remove or re-point them first (MCP editor for the central manifest; native entries in each client).':'Supprimez-les ou modifiez leur cible avant de continuer (éditeur MCP pour le manifeste central ; entrées natives dans chaque client).',
   'Selected MCP clients synchronized':'Clients MCP choisis synchronisés'
 });
+Object.assign(FR,{
+  'CURRENT WORKSPACE SIGNAL':'ÉTAT DE L’ESPACE LOCAL',
+  'Loading local state…':'Chargement des données locales…',
+  'Inspect integrity':'Voir l’intégrité',
+  'Managed skill integrity checked':'Intégrité des skills gérés vérifiée',
+  'No managed skills to verify':'Aucun skill géré à vérifier',
+  'Workspace refresh unavailable':'Actualisation de l’espace local indisponible',
+  'The displayed inventory may be stale. Retry refresh to verify local state.':'Les données affichées peuvent être anciennes. Actualisez pour vérifier l’état local.',
+  'Review flagged installations before further changes.':'Examinez les installations signalées avant toute modification.',
+  'Install reviewed skills to enable integrity checks.':'Installez des skills approuvés pour activer les contrôles d’intégrité.',
+  'Local agent control plane':'Plan de contrôle local',
+  'Find anything':'Rechercher',
+  'THE LOCAL AGENT CONTROL PLANE':'PILOTAGE LOCAL DES AGENTS',
+  'Your agents.':'Vos agents.',
+  'Under control.':'Sous contrôle.',
+  'One deliberate workspace to discover capabilities, inspect your agents and manage synchronization. Every installation and change stays under your control.':'Un espace conçu pour découvrir les outils, examiner vos agents et piloter la synchronisation. Chaque installation et modification reste sous votre contrôle.',
+  'Search all sections and local skills':'Rechercher dans les sections et les skills locaux',
+  'Search navigation and skills':'Rechercher dans les vues et les skills',
+  'Type a page, skill or agent…':'Saisir une vue, un skill ou un agent…',
+  'Search results':'Résultats de recherche',
+  'Close search':'Fermer la recherche',
+  'Navigate':'Naviguer',
+  'Open':'Ouvrir',
+  'Close':'Fermer',
+  'WORKSPACE / ':'ESPACE / '
+});
 const FR_PATTERNS=[
+  [/^(\\d+) skill integrity warnings require review$/,n=>n+' alertes d’intégrité à examiner'],
+  [/^(\\d+) managed skill installations checked$/,n=>n+' installations gérées vérifiées'],
   [/^Install MCP · (.+)$/,id=>'Installer le MCP · '+id],
   [/^Update MCP · (.+)$/,id=>'Mettre à jour le MCP · '+id],
   [/^Repair MCP · (.+)$/,id=>'Réparer le MCP · '+id],
@@ -376,7 +412,19 @@ bg.addEventListener('click',e=>{if(e.target===bg&&!pending)closeDialog()})}
 function labelStatus(s){const b=node('span',s,'tag '+(s==='intact'||s==='installed'?'good':s==='unsafe'||s==='modified'?'bad':s==='untracked'||s==='missing'?'warn':''));return b}
 function row(title,detail,right){const e=node('div',null,'row-item');const l=node('div');l.append(node('strong',title),node('small',detail));e.append(l);if(right)e.append(right);return e}
 function renderMetrics(){const installed=state.inventory.agents.filter(a=>a.installed);const values=[['Public skills',state.catalog.length],['Shared skills',state.inventory.centralSkills.length],['Active agents',installed.length],['MCP servers',state.inventory.centralMcpServers.length]];clear($('metrics'));values.forEach(([name,count])=>{const card=node('div',null,'metric');card.append(node('div',count,'value'),node('div',name,'label'));$('metrics').append(card)})}
-function renderOverview(){renderMetrics();clear($('overview-agents'));const agents=state.inventory.agents.filter(a=>a.installed);if(!agents.length)$('overview-agents').append(node('p','No supported agents detected on this machine.','dim'));agents.slice(0,8).forEach(a=>{const element=row(a.name,a.linkedSkills.length+' linked skills · '+a.mcpServers.length+' MCP servers',labelStatus('installed'));element.querySelector('strong').dataset.noI18n='true';$('overview-agents').append(element)});clear($('overview-health'));const bad=state.integrity.results.filter(s=>s.status!=='intact');$('overview-health').append(row('Managed skills checked',state.integrity.scanned+' reviewed-catalog installations',labelStatus(bad.length?'attention':'intact')));$('overview-health').append(row('Integrity warnings',bad.length+' items needing attention',bad.length?labelStatus('untracked'):labelStatus('intact')));$('overview-health').append(row('Local backups',state.inventory.backups.length+' available snapshots',null))}
+function renderOverview(){
+  renderMetrics();
+  const issues=state.integrity.results.filter(item=>item.status!=='intact').length;
+  const scanned=state.integrity.scanned;
+  const signal=$('overview-signal');
+  signal.classList.toggle('needs-attention',issues>0);
+  $('overview-signal-title').textContent=issues>0?
+    issues+' skill integrity warnings require review':
+    scanned>0?'Managed skill integrity checked':'No managed skills to verify';
+  $('overview-signal-detail').textContent=issues>0?
+    'Review flagged installations before further changes.':
+    scanned>0?scanned+' managed skill installations checked':'Install reviewed skills to enable integrity checks.';
+  clear($('overview-agents'));const agents=state.inventory.agents.filter(a=>a.installed);if(!agents.length)$('overview-agents').append(node('p','No supported agents detected on this machine.','dim'));agents.slice(0,8).forEach(a=>{const element=row(a.name,a.linkedSkills.length+' linked skills · '+a.mcpServers.length+' MCP servers',labelStatus('installed'));element.querySelector('strong').dataset.noI18n='true';$('overview-agents').append(element)});clear($('overview-health'));const bad=state.integrity.results.filter(s=>s.status!=='intact');$('overview-health').append(row('Managed skills checked',state.integrity.scanned+' reviewed-catalog installations',labelStatus(bad.length?'attention':'intact')));$('overview-health').append(row('Integrity warnings',bad.length+' items needing attention',bad.length?labelStatus('untracked'):labelStatus('intact')));$('overview-health').append(row('Local backups',state.inventory.backups.length+' available snapshots',null))}
 function discoveredTools(){
   const tools=state.catalog.map(s=>({kind:'skill',id:s.id,name:s.name,description:s.description,category:s.category,
     categoryName:state.categories.find(c=>c.id===s.category)?.label||s.category,installed:s.installed,skill:s,tags:s.tags,author:s.author}));
@@ -919,7 +967,11 @@ async function refresh(announce=false){
     if(announce){$('workspace-status').textContent=mcpError?'Workspace refreshed; MCP status unavailable.':'Workspace and integrity results updated.';translateUI()}
   }catch(err){
     if(generation!==refreshGeneration)return;
+    $('overview-signal').classList.add('needs-attention');
+    $('overview-signal-title').textContent='Workspace refresh unavailable';
+    $('overview-signal-detail').textContent='The displayed inventory may be stale. Retry refresh to verify local state.';
     showToast(err.message,true);
+    translateUI();
     if(announce){$('workspace-status').textContent='Workspace refresh failed.';translateUI()}
   }
 }
@@ -1100,4 +1152,5 @@ $('backup-create').onclick=()=>modal('Create full backup','Capture agent skill a
 try{language=localStorage.getItem('agent-commons-ui-language')||'en'}catch{language='en'}
 setLanguage(language);
 refresh();
+__COMMAND_JS__
 </script></body></html>`;

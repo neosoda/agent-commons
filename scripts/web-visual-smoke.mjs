@@ -55,6 +55,27 @@ try {
   assert.ok(await page.locator('#page-catalog h1').evaluate(el => el === document.activeElement),
     'navigating sections moves focus to the section heading');
 
+  // Operating Surface: search is keyboard-first and targets actual pages.
+  await page.keyboard.press('Control+k');
+  assert.equal(await page.locator('#quick-switcher').isVisible(), true);
+  assert.equal(await page.locator('#quick-switcher-input').evaluate(el => el === document.activeElement), true);
+  await page.locator('#quick-switcher-input').fill('Integrity');
+  await page.keyboard.press('Enter');
+  assert.equal(await page.locator('#page-integrity').isVisible(), true);
+  assert.equal(await page.locator('#quick-switcher').isVisible(), false);
+  await page.keyboard.press('Control+k');
+  await page.keyboard.press('Escape');
+  assert.equal(await page.locator('#quick-switcher').isVisible(), false);
+
+  // Appearance is local-only and survives reload; restore dark for legacy smoke.
+  await page.locator('#theme-toggle').click();
+  assert.equal(await page.locator('html').getAttribute('data-theme'), 'light');
+  assert.equal(await page.evaluate(() => localStorage.getItem('agent-commons-ui-theme')), 'light');
+  await page.reload({ waitUntil: 'networkidle' });
+  assert.equal(await page.locator('html').getAttribute('data-theme'), 'light');
+  await page.locator('#theme-toggle').click();
+  assert.equal(await page.locator('html').getAttribute('data-theme'), 'dark');
+
   // WCAG 2.2 AA non-text contrast: fields, outlined controls, dialog perimeter.
   // Computed styles are checked in real Chromium, not from guessed stylesheet values.
   const controlContrast = await page.evaluate(() => {
