@@ -76,6 +76,20 @@ node dist/cli/index.js mcp probe --agent codex
 
 **Vous découvrez Agent Commons ?** Commencez avec un seul agent : `sync --dry-run --agent codex` (remplacez `codex` par son identifiant). L'option `--home <chemin>` permet aussi de tester le logiciel dans un répertoire utilisateur distinct.
 
+## Moteur de missions IA locales — expérimental (v0.6.0)
+
+Le nouveau **moteur de missions** est distinct du Skill Hub. Il peut dialoguer avec un modèle compatible OpenAI dans **LM Studio**, inspecter un dépôt Git, modifier des fichiers avec permission et exécuter des tests approuvés. Il sauvegarde les checkpoints, borne les appels d'outils et détecte les répétitions, la stagnation et certaines oscillations de fichiers A → B → A.
+
+Depuis le dépôt cloné, lancez `npm ci` puis `npm run build`, et chargez dans LM Studio un modèle capable d'appels d'outils sur `127.0.0.1:1234` :
+
+```powershell
+node dist/runtime/cli.js --workspace "A:\PROJETS\MON-DEPOT" --task "Inspecte ce dépôt et identifie un défaut vérifiable" --model "ID_MODELE_LM_STUDIO"
+```
+
+Pour autoriser les modifications et les scripts sur une **branche de test d'un dépôt fiable**, ajoutez `--allow-write --allow-tests`. Les scripts `npm test` restent du code arbitraire : ne jamais les activer sur un dépôt non fiable. Le cloud est désactivé par défaut et tout partage de source exige un opt-in distinct.
+
+**Limites actuelles :** pas encore d'outils MCP dans la boucle de missions, pas de sandbox OS, pas de daemon 24/7 et aucun benchmark validé sur une vraie RTX 5070 Ti. Ce n'est **pas** encore un orchestrateur multi-agents de production. [Guide complet](docs/LOCAL_AGENT_RUNTIME.md).
+
 ## Découverte de skills économe en tokens
 
 Ne sélectionnez **que les skills utiles à la tâche**, sans ajouter d'agents, de hooks ou de contenu dans le contexte automatiquement :
@@ -122,7 +136,7 @@ et chemins dangereux sont contrôlés ; les ressources restent chargées à la d
 
 Une interface locale, responsive et sans framework frontend supplémentaire permet de gérer Agent Commons sans mémoriser toutes ses commandes.
 
-**Operating Surface (refonte en cours de validation)** : identité éditoriale graphite/corail/ivoire, navigation compacte, thème clair/sombre, recherche rapide des vues, agents et outils locaux via **Ctrl+K**, **⌘K** ou **/**. La recherche ouvre uniquement les vues et filtres réels ; elle ne déclenche aucune écriture. [Direction UX, raccourcis et sécurité](docs/WEB_OPERATING_SURFACE.md).
+**Operating Surface (livrée avec v0.6.0)** : identité éditoriale graphite/corail/ivoire, navigation compacte, thème clair/sombre, recherche rapide des vues, agents et outils locaux via **Ctrl+K**, **⌘K** ou **/**. La recherche ouvre uniquement les vues et filtres réels ; elle ne déclenche aucune écriture. [Direction UX, raccourcis et sécurité](docs/WEB_OPERATING_SURFACE.md).
 
 Après récupération et compilation du dépôt :
 
