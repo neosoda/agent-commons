@@ -42,7 +42,7 @@ jobs:
           $ErrorActionPreference = 'Stop'
           $pkg = Get-Content package.json -Raw | ConvertFrom-Json
           $lock = Get-Content package-lock.json -Raw | ConvertFrom-Json
-          if ($pkg.version -ne '0.6.0' -or $lock.version -ne '0.6.0' -or $lock.packages.''.version -ne '0.6.0') { throw 'Package/lock version mismatch' }
+          if ($pkg.version -ne '0.6.0' -or $lock.version -ne '0.6.0' -or $lock.packages.PSObject.Properties[''].Value.version -ne '0.6.0') { throw 'Package/lock version mismatch' }
           $mainHead = (gh api "repos/$env:GH_REPO/branches/main" --jq '.commit.sha').Trim()
           if ($LASTEXITCODE -ne 0 -or $mainHead -ne $env:GITHUB_SHA) { throw 'Release commit is not current main' }
           gh api "repos/$env:GH_REPO/git/ref/tags/v0.6.0" *> $null
