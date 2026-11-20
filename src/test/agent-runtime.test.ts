@@ -78,6 +78,50 @@ describe('bounded local agent runtime',()=>{
       assert.equal(calls,2);
     }finally{f.cleanup();}
   });
+  it('stops A-B-A file oscillation before reapplying an earlier version',async()=>{
+    const f=fixture();try{
+      const turns=[request('read_file',{path:'a.ts'}),
+        request('write_file',{path:'a.ts',content:'export const x = 2;\n'}),
+        request('write_file',{path:'a.ts',content:'export const x = 1;\n'}),
+        request('write_file',{path:'a.ts',content:'export const x = 2;\n'})];
+      // The third write is rejected: unlike identical-call detection, each prior write changed the workspace.
+      const r=await new MissionRunner(f.store,sequence(turns),new WorkspaceTools(f.root,true,false),shortLimits).run(f.store.create('Fix code'));
+      assert.equal(r.status,'blocked');assert.match(r.reason,/oscillation detected/);
+      assert.equal(r.calls,3);assert.equal(r.steps,4);
+      assert.match(fs.readFileSync(path.join(f.root,'a.ts'),'utf8'),/x = 1/);
+      const checkpoint=fs.readFileSync(path.join(f.base,'missions',r.id+'.json'),'utf8');
+      assert.ok(!checkpoint.includes('export const x'));
+      assert.equal(Object.keys(r.writeHistory??{}).length,1);
+    }finally{f.cleanup();}
+  });
+  it('retains oscillation protection after checkpoint resume',async()=>{
+    const f=fixture();try{
+      const first=await new MissionRunner(f.store,sequence([
+        request('read_file',{path:'a.ts'}),
+        request('write_file',{path:'a.ts',content:'export const x = 2;\n'}),
+        request('write_file',{path:'a.ts',content:'export const x = 1;\n'})
+      ]),new WorkspaceTools(f.root,true,false),{...shortLimits,maxSteps:3}).run(f.store.create('Fix code'));
+      assert.equal(first.calls,3);
+      const resumed=f.store.load(first.id);
+      const result=await new MissionRunner(f.store,sequence([
+        request('write_file',{path:'a.ts',content:'export const x = 2;\n'})
+      ]),new WorkspaceTools(f.root,true,false),shortLimits).run(resumed);
+      assert.equal(result.status,'blocked');assert.match(result.reason,/oscillation detected/);
+      assert.equal(result.calls,3);
+    }finally{f.cleanup();}
+  });
+  it('allows distinct successive edits to finish after verification',async()=>{
+    const f=fixture();try{
+      fs.writeFileSync(path.join(f.root,'package.json'),JSON.stringify({private:true,scripts:{test:'node -e "process.exit(0)"'}}));
+      const turns=[request('read_file',{path:'a.ts'}),
+        request('write_file',{path:'a.ts',content:'export const x = 2;\n'}),
+        request('write_file',{path:'a.ts',content:'export const x = 3;\n'}),
+        request('verify',{check:'test'}),{finish:'Verified latest version'}];
+      const r=await new MissionRunner(f.store,sequence(turns),new WorkspaceTools(f.root,true,true),shortLimits).run(f.store.create('Fix code'));
+      assert.equal(r.status,'completed');assert.equal(r.calls,4);
+      assert.equal(r.tested,true);assert.match(fs.readFileSync(path.join(f.root,'a.ts'),'utf8'),/x = 3/);
+    }finally{f.cleanup();}
+  });
   it('honors token and step execution budgets',async()=>{
     const f=fixture();try{
       const state=f.store.create('Inspect');
