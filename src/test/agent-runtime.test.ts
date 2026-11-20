@@ -123,4 +123,46 @@ describe('bounded local agent runtime',()=>{
       assert.equal(r.ok,false);assert.equal(r.tested,undefined);
     }finally{f.cleanup();}
   });
+  it('binds saved missions to the exact checkout',()=>{
+    const f=fixture();try{
+      const id=new WorkspaceTools(f.root,false,false).workspaceId;
+      const other=path.join(f.base,'other');fs.mkdirSync(other);fs.mkdirSync(path.join(other,'.git'));
+      const otherId=new WorkspaceTools(other,false,false).workspaceId;
+      const state=f.store.create('Work on this checkout',id);
+      assert.equal(f.store.load(state.id,id).workspaceId,id);
+      assert.throws(()=>f.store.load(state.id,otherId),/another workspace/);
+      assert.throws(()=>f.store.load(f.store.create('Legacy mission').id,id),/workspace binding/);
+      assert.ok(!fs.readFileSync(path.join(f.base,'missions',state.id+'.json'),'utf8').includes(f.root));
+    }finally{f.cleanup();}
+  });
+  it('resumes after a long pause while retaining cumulative limits',async()=>{
+    const f=fixture();try{
+      const state=f.store.create('Read after restart');state.startedAt=Date.now()-3600_000;f.store.save(state);
+      const resumed=f.store.load(state.id);
+      const model=sequence([request('read_file',{path:'a.ts'}),{finish:'Inspected'}]);
+      const result=await new MissionRunner(f.store,model,new WorkspaceTools(f.root,false,false),shortLimits).run(resumed);
+      assert.equal(result.status,'completed');assert.equal(result.calls,1);
+      assert.equal(result.startedAt,state.startedAt);
+    }finally{f.cleanup();}
+  });
+  it('rejects Windows alternate data streams and reserved device aliases',async()=>{
+    const f=fixture();try{
+      const tool=new WorkspaceTools(f.root,true,false);
+      for(const filename of ['a.ts:secret','CON','NUL.txt','src/COM1','LPT1']) {
+        const result=await tool.execute({name:'write_file',arguments:{path:filename,content:'unexpected'}});
+        assert.equal(result.ok,false,filename);
+      }
+    }finally{f.cleanup();}
+  });
+  it('blocks cloud write attempts when source sharing is not approved',async()=>{
+    const f=fixture();try{
+      const local=sequence([request('read_file',{path:'a.ts'}),request('read_file',{path:'a.ts'})]);
+      const cloud=sequence([request('write_file',{path:'a.ts',content:'export const x = 99;\n'})]);
+      const state=f.store.create('Fix a bug');
+      const result=await new MissionRunner(f.store,local,new WorkspaceTools(f.root,true,false),shortLimits,cloud,false).run(state);
+      assert.equal(result.status,'needs-approval');assert.equal(result.cloudCalls,1);
+      assert.match(result.reason,/Cloud code modifications/);
+      assert.match(fs.readFileSync(path.join(f.root,'a.ts'),'utf8'),/x = 1/);
+    }finally{f.cleanup();}
+  });
 });

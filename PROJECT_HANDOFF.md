@@ -481,3 +481,9 @@ Six pinned metadata-only skills from the FrankX Hermes discovery list were selec
 - Preserve security: 127.0.0.1-only unauthenticated UI, CSRF, Host/Origin protection, no exposure of secrets, no automatic skill/MCP install/sync, no fake controls.
 
 **Remaining delivery gate:** require six Node 22/24 Windows/Ubuntu/macOS CI jobs, Chromium viewport and interaction QA, and Windows portable jobs to pass on the PR's exact HEAD SHA before any merge; verify `main` afterward. Real local testing on a user's actual Windows agent environment is not yet verified.
+
+## 33. Bounded local agent runtime and follow-up hardening (2026-11-20)
+
+- [PR #92](https://github.com/neosoda/agent-commons/pull/92) merged by squash as `cf30a02f1f2a15fd3e651883379de6b698effe04`. New independent `src/runtime/` includes LM Studio-compatible model client, bounded workspace tools, anti-loop mission runner, checkpoints and explicit optional cloud recovery; `agent-commons-agent` CLI is opt-in. PR-head CI all 6 platform/Node jobs, Chromium and Windows portable completed successfully. Main subsequently advanced with Operating Surface #91 at `042a7ee93721b28053e31fcbb8ce84bacc5fd747`.
+- This follow-up improves **recovery integrity**: CLI missions are bound to a hashed canonical Git checkout; wall-time limit resets only between launches (step/token/tool/cloud budgets stay cumulative), Windows ADS/device paths are denied, and cloud calls without source-sharing approval cannot write files. Four regression tests added, bringing the isolated runtime suite to 14 passing tests before CI.
+- This remains **experimental**: no actual LM Studio/RTX 5070 Ti benchmark, real Windows account integration test, MCP-in-the-loop, true OS sandbox, guaranteed descendant process cleanup, or persistent dashboard mission management. Never claim complete autonomous production readiness. Validate this change's exact PR-head CI matrix, browser and Windows portable workflows before merging.

@@ -26,6 +26,7 @@ export interface MissionState {
   version: 1;
   id: string;
   goal: string;
+  workspaceId?: string;
   status: MissionStatus;
   reason: string;
   steps: number;
@@ -62,16 +63,17 @@ export class MissionStore {
     if (!validId.test(id)) throw new Error('Invalid mission id');
     return path.join(this.base, `${id}.json`);
   }
-  create(goal: string): MissionState {
+  create(goal: string, workspaceId?: string): MissionState {
     if (!goal.trim() || goal.length > 4000) throw new Error('Goal must be 1-4000 characters');
+    if (workspaceId !== undefined && !/^[a-f0-9]{64}$/.test(workspaceId)) throw new Error('Invalid workspace fingerprint');
     const now = Date.now();
-    const state: MissionState = { version: 1, id: crypto.randomBytes(12).toString('hex'), goal: short(goal, 4000),
+    const state: MissionState = { version: 1, id: crypto.randomBytes(12).toString('hex'), goal: short(goal, 4000), workspaceId,
       status: 'running', reason: '', steps: 0, calls: 0, tokens: 0, cloudCalls: 0,
       idleSteps: 0, changed: false, tested: false, evidence: 0, inspected: false, startedAt: now, updatedAt: now,
       observations: [], fingerprints: {}, revision: 0 };
     this.save(state); return state;
   }
-  load(id: string): MissionState {
+  load(id: string, workspaceId?: string): MissionState {
     this.ensure();
     const file = this.file(id);
     if (fs.lstatSync(file).isSymbolicLink() || fs.statSync(file).size > 256 * 1024) throw new Error('Unsafe mission checkpoint');
@@ -81,6 +83,9 @@ export class MissionStore {
       throw new Error('Invalid mission checkpoint');
     }
     const state = data as MissionState;
+    if (workspaceId !== undefined && state.workspaceId !== workspaceId) {
+      throw new Error('Mission checkpoint belongs to another workspace or predates workspace binding');
+    }
     // Re-reading after interruption is legitimate; retain budgets and evidence.
     state.fingerprints = {}; state.idleSteps = 0;
     return state;
@@ -107,6 +112,9 @@ export class MissionRunner {
   async run(state: MissionState): Promise<MissionState> {
     if (state.status === 'completed') return state;
     state.status = 'running';
+    // Wall-clock limit applies to this execution, not the time spent paused between sessions.
+    // Token, step, tool and cloud budgets remain cumulative in the saved checkpoint.
+    const runStartedAt = Date.now();
     let usingCloud = false;
     const liveObservations = state.observations.slice(-12);
     const stop = (status: MissionStatus, reason: string) => { state.status = status; state.reason = short(reason); this.store.save(state); return state; };
@@ -122,7 +130,7 @@ export class MissionRunner {
       return true;
     };
     while (true) {
-      if (Date.now() - state.startedAt >= this.limits.maxDurationMs) return stop('blocked', 'Elapsed time budget exhausted');
+      if (Date.now() - runStartedAt >= this.limits.maxDurationMs) return stop('blocked', 'Elapsed time budget exhausted');
       if (state.steps >= this.limits.maxSteps) return stop('blocked', 'Step budget exhausted');
       if (state.calls >= this.limits.maxToolCalls) return stop('blocked', 'Tool-call budget exhausted');
       if (state.tokens >= this.limits.maxTokens) return stop('blocked', 'Token budget exhausted');
@@ -151,6 +159,9 @@ export class MissionRunner {
         state.observations.push('Model returned no usable action');
         liveObservations.push('Model returned no usable action');
       } else {
+        if (usingCloud && !this.allowCloudSource && turn.call.name === 'write_file') {
+          return stop('needs-approval', 'Cloud code modifications require explicit --allow-cloud-source');
+        }
         const name = turn.call.name;
         const args = turn.call.arguments;
         const fingerprint = SHA(`${state.revision}:${name}:${JSON.stringify(args)}`);

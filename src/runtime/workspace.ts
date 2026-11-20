@@ -7,6 +7,7 @@ import type { ToolExecutor, ToolRequest, ToolResult } from './mission.js';
 
 const BLOCKED = new Set(['.git', '.env', '.agents', 'node_modules', '.ssh', '.aws', '.npmrc', '.pypirc', 'id_rsa', 'id_ed25519', 'credentials', 'secrets']);
 const SAFE_FILENAME = /(?:\.(?:key|pem|p12|pfx|keystore|kdbx)|^\.env(?:\.|$))/i;
+const RESERVED_DEVICE = /^(?:con|prn|aux|nul|com[1-9]|lpt[1-9])(?:\..*)?$/i;
 const MAX_FILE = 128 * 1024;
 const MAX_WRITE = 64 * 1024;
 const MAX_OUTPUT = 12_000;
@@ -32,6 +33,7 @@ function runFixed(command: string, args: string[], cwd: string, timeout: number)
 /** Small, explicit set of operations confined to one physical Git checkout. */
 export class WorkspaceTools implements ToolExecutor {
   private readonly root: string;
+  readonly workspaceId: string;
   private readonly seen = new Set<string>();
   private revision = 0;
   constructor(workspace: string, private readonly allowWrites: boolean, private readonly allowTests: boolean) {
@@ -42,11 +44,12 @@ export class WorkspaceTools implements ToolExecutor {
     if (!st.isDirectory() || st.isSymbolicLink()) throw new Error('Use an existing physical Git checkout');
     this.root = fs.realpathSync(selected);
     if (!fs.existsSync(path.join(this.root, '.git'))) throw new Error('Use an existing physical Git checkout');
+    this.workspaceId = crypto.createHash('sha256').update(this.root).digest('hex');
   }
   private safe(input: unknown, file = false): string {
-    if (typeof input !== 'string' || input.length > 512 || path.isAbsolute(input) || input.includes('\0')) throw new Error('Invalid relative path');
+    if (typeof input !== 'string' || input.length > 512 || path.isAbsolute(input) || input.includes('\0') || input.includes(':')) throw new Error('Invalid relative path');
     const parts = input.replace(/\\/g, '/').split('/');
-    if (parts.some(p => p === '..' || p === '.' || BLOCKED.has(p.toLowerCase()) || SAFE_FILENAME.test(p))) throw new Error('Protected path');
+    if (parts.some(p => p === '..' || p === '.' || BLOCKED.has(p.toLowerCase()) || SAFE_FILENAME.test(p) || RESERVED_DEVICE.test(p))) throw new Error('Protected path');
     const resolved = path.resolve(this.root, input || '.');
     if (resolved !== this.root && !resolved.startsWith(this.root + path.sep)) throw new Error('Path escapes workspace');
     let current = this.root;
@@ -64,7 +67,7 @@ export class WorkspaceTools implements ToolExecutor {
       if (call.name === 'list_files') {
         if (Object.keys(a).some(k => k !== 'path')) throw new Error('Unexpected argument');
         const dir = this.safe(a['path'] ?? '');
-        const entries = fs.readdirSync(dir, {withFileTypes:true}).filter(x => !BLOCKED.has(x.name.toLowerCase()) && !SAFE_FILENAME.test(x.name) && !x.isSymbolicLink()).slice(0,150).map(x => `${x.isDirectory() ? 'dir' : 'file'} ${x.name}`);
+        const entries = fs.readdirSync(dir, {withFileTypes:true}).filter(x => !BLOCKED.has(x.name.toLowerCase()) && !SAFE_FILENAME.test(x.name) && !RESERVED_DEVICE.test(x.name) && !x.isSymbolicLink()).slice(0,150).map(x => `${x.isDirectory() ? 'dir' : 'file'} ${x.name}`);
         const key = `list:${dir}:${this.revision}`; const progress = !this.seen.has(key); this.seen.add(key);
         return {ok:true,progress,output:entries.join('\n')};
       }
