@@ -76,6 +76,20 @@ node dist/cli/index.js mcp probe --agent codex
 
 **New to Agent Commons?** Start with only one agent, using `sync --dry-run --agent codex` (replace `codex` with your agent's ID). The `--home <path>` flag lets you test against a separate home directory first.
 
+## Local AI mission runner — experimental (v0.6.0)
+
+The new **mission runtime** is separate from the Skill Hub. It can call an OpenAI-compatible model hosted by **LM Studio**, inspect a Git checkout, edit files with explicit permission and run approved project checks. It stores resumable checkpoints, bounds tool calls and detects repetition, stagnation and some A → B → A file oscillations.
+
+From a cloned repository, run `npm ci` then `npm run build`; load a tool-calling model in LM Studio at `127.0.0.1:1234`:
+
+```powershell
+node dist/runtime/cli.js --workspace "A:\PROJETS\MY-REPO" --task "Inspect this checkout and identify one verifiable defect" --model "EXACT_LM_STUDIO_MODEL_ID"
+```
+
+To allow edits and project scripts **only in a trusted disposable Git branch**, add `--allow-write --allow-tests`. Project test scripts execute arbitrary code and must never be enabled for untrusted checkouts. Cloud fallback and source sharing require separate explicit approval.
+
+**Current limits:** no MCP tools inside the mission loop, no OS sandbox, no 24/7 daemon, and no real RTX 5070 Ti model benchmarks yet. This is **not** a production-ready multi-agent orchestrator. [Full guide](docs/LOCAL_AGENT_RUNTIME.md).
+
 ## Token-conscious skill discovery
 
 Choose skills **only when a task needs them**, with no extra agents, hooks or
@@ -125,7 +139,7 @@ loaded only when explicitly requested. [Full guide](docs/CONTEXT_ROUTING.md).
 
 **New:** a responsive, dependency-free local interface to manage Agent Commons without memorizing commands.
 
-**Operating Surface (redesign awaiting QA)**: editorial graphite/coral/porcelain identity, compact navigation, light/dark appearance, and cross-section search for real local tools and agents via **Ctrl+K**, **⌘K**, or **/**. Search only navigates and filters existing data; it never performs mutations. [UX, shortcuts and security](docs/WEB_OPERATING_SURFACE.md).
+**Operating Surface (shipped in v0.6.0)**: editorial graphite/coral/porcelain identity, compact navigation, light/dark appearance, and cross-section search for real local tools and agents via **Ctrl+K**, **⌘K**, or **/**. Search only navigates and filters existing data; it never performs mutations. [UX, shortcuts and security](docs/WEB_OPERATING_SURFACE.md).
 
 After cloning and building the project, run:
 

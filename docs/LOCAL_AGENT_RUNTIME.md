@@ -4,7 +4,7 @@ Cette extension ajoute **un exécuteur de missions bornées** indépendant du ge
 
 ## Installation et premier essai
 
-Depuis une copie de travail Git d'Agent Commons sur une **branche dédiée**, appliquer `agent-commons-local-runtime.patch`, puis exécuter :
+Depuis **v0.6.0**, le moteur est déjà intégré dans le dépôt ; aucun patch n'est nécessaire. Utilisez une **branche dédiée** dans un dépôt fiable, puis exécutez :
 
 ```powershell
 npm ci

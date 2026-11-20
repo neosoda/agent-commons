@@ -7,8 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-11-20
+
+Release notes: docs/releases/v0.6.0-release-notes.md
+
 ### Added
-- Optional, commit-pinned `motion-educator` skill (38 upstream engine/reference files), bilingual documentation, generated credits and synthetic install/verify regression test.
+- Experimental bounded local mission runner with LM Studio-compatible tool calling, opt-in Git workspace edits and project checks, resumable checkpoints, optional cloud recovery and anti-loop safeguards (including file-content oscillation detection).
+- Pinned optional Motion Educator catalog integration and six reviewed Hermes metadata-only skills; neither installs nor executes third-party code automatically.
+
+### Changed
+- Redesigned Operating Surface: persistent themes and keyboard quick search over actual local agents, skills and MCP references.
+- Bilingual README and runtime guide now document the experimental CLI, opt-in permission flags, boundaries and limitations.
+
+### Fixed
+- Safer checkpoint restore bound to the exact checkout, cumulative execution budgets, cloud-write approval and Windows reserved paths; macOS temporary directory normalization.
+
+### Known limits
+- The runtime still lacks live MCP tools, a real OS sandbox, a 24/7 daemon, a mission dashboard and an RTX 5070 Ti benchmark. GitHub ZIP remains unsigned; npm is not yet published.
 
 ## [0.5.4] - 2026-11-18
 
