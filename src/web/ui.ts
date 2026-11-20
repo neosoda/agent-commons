@@ -52,6 +52,7 @@ __DESIGN_CSS__
 <section class="page active" id="page-overview">
 <div class="hero"><div class="eyebrow">THE LOCAL AGENT CONTROL PLANE</div><h1>Your agents.<br><em>Under control.</em></h1><p>One deliberate workspace to discover capabilities, inspect your agents and manage synchronization. Every installation and change stays under your control.</p><div class="actions"><button class="btn primary" data-go="catalog">Explore tools</button><button class="btn" data-go="agents">Manage agents</button></div></div>
 <div class="metrics" id="metrics"></div>
+<div class="overview-signal" id="overview-signal" role="status" aria-live="polite"><div><span class="eyebrow">CURRENT WORKSPACE SIGNAL</span><strong id="overview-signal-title">Loading local state…</strong><p id="overview-signal-detail" class="subtle"></p></div><button class="btn small ghost" data-go="integrity">Inspect integrity</button></div>
 <div class="split"><div class="panel"><h3>Connected agents</h3><p>Installed environments detected on this machine.</p><div id="overview-agents"></div></div><div class="panel"><h3>Workspace health</h3><p>Quick read of locally managed skills.</p><div id="overview-health"></div><button class="btn small" data-go="integrity">View integrity report</button></div></div>
 </section>
 <section class="page" id="page-catalog"><div class="section-head"><div><h1>Skills & MCP catalog</h1><div class="dim">Install and manage reviewed Skills and MCP packages, inspect versions, and choose which agents to synchronize. Every change requires your approval.</div></div></div>
@@ -259,6 +260,13 @@ Object.assign(FR,{
   'Selected MCP clients synchronized':'Clients MCP choisis synchronisés'
 });
 Object.assign(FR,{
+  'CURRENT WORKSPACE SIGNAL':'ÉTAT DE L’ESPACE LOCAL',
+  'Loading local state…':'Chargement des données locales…',
+  'Inspect integrity':'Voir l’intégrité',
+  'Managed skill integrity checked':'Intégrité des skills gérés vérifiée',
+  'No managed skills to verify':'Aucun skill géré à vérifier',
+  'Review flagged installations before further changes.':'Examinez les installations signalées avant toute modification.',
+  'Install reviewed skills to enable integrity checks.':'Installez des skills approuvés pour activer les contrôles d’intégrité.',
   'Local agent control plane':'Plan de contrôle local',
   'Find anything':'Rechercher',
   'THE LOCAL AGENT CONTROL PLANE':'PILOTAGE LOCAL DES AGENTS',
@@ -276,6 +284,8 @@ Object.assign(FR,{
   'WORKSPACE / ':'ESPACE / '
 });
 const FR_PATTERNS=[
+  [/^(\\d+) skill integrity warnings require review$/,n=>n+' alertes d’intégrité à examiner'],
+  [/^(\\d+) managed skill installations checked$/,n=>n+' installations gérées vérifiées'],
   [/^Install MCP · (.+)$/,id=>'Installer le MCP · '+id],
   [/^Update MCP · (.+)$/,id=>'Mettre à jour le MCP · '+id],
   [/^Repair MCP · (.+)$/,id=>'Réparer le MCP · '+id],
@@ -400,7 +410,19 @@ bg.addEventListener('click',e=>{if(e.target===bg&&!pending)closeDialog()})}
 function labelStatus(s){const b=node('span',s,'tag '+(s==='intact'||s==='installed'?'good':s==='unsafe'||s==='modified'?'bad':s==='untracked'||s==='missing'?'warn':''));return b}
 function row(title,detail,right){const e=node('div',null,'row-item');const l=node('div');l.append(node('strong',title),node('small',detail));e.append(l);if(right)e.append(right);return e}
 function renderMetrics(){const installed=state.inventory.agents.filter(a=>a.installed);const values=[['Public skills',state.catalog.length],['Shared skills',state.inventory.centralSkills.length],['Active agents',installed.length],['MCP servers',state.inventory.centralMcpServers.length]];clear($('metrics'));values.forEach(([name,count])=>{const card=node('div',null,'metric');card.append(node('div',count,'value'),node('div',name,'label'));$('metrics').append(card)})}
-function renderOverview(){renderMetrics();clear($('overview-agents'));const agents=state.inventory.agents.filter(a=>a.installed);if(!agents.length)$('overview-agents').append(node('p','No supported agents detected on this machine.','dim'));agents.slice(0,8).forEach(a=>{const element=row(a.name,a.linkedSkills.length+' linked skills · '+a.mcpServers.length+' MCP servers',labelStatus('installed'));element.querySelector('strong').dataset.noI18n='true';$('overview-agents').append(element)});clear($('overview-health'));const bad=state.integrity.results.filter(s=>s.status!=='intact');$('overview-health').append(row('Managed skills checked',state.integrity.scanned+' reviewed-catalog installations',labelStatus(bad.length?'attention':'intact')));$('overview-health').append(row('Integrity warnings',bad.length+' items needing attention',bad.length?labelStatus('untracked'):labelStatus('intact')));$('overview-health').append(row('Local backups',state.inventory.backups.length+' available snapshots',null))}
+function renderOverview(){
+  renderMetrics();
+  const issues=state.integrity.results.filter(item=>item.status!=='intact').length;
+  const scanned=state.integrity.scanned;
+  const signal=$('overview-signal');
+  signal.classList.toggle('needs-attention',issues>0);
+  $('overview-signal-title').textContent=issues>0?
+    issues+' skill integrity warnings require review':
+    scanned>0?'Managed skill integrity checked':'No managed skills to verify';
+  $('overview-signal-detail').textContent=issues>0?
+    'Review flagged installations before further changes.':
+    scanned>0?scanned+' managed skill installations checked':'Install reviewed skills to enable integrity checks.';
+  clear($('overview-agents'));const agents=state.inventory.agents.filter(a=>a.installed);if(!agents.length)$('overview-agents').append(node('p','No supported agents detected on this machine.','dim'));agents.slice(0,8).forEach(a=>{const element=row(a.name,a.linkedSkills.length+' linked skills · '+a.mcpServers.length+' MCP servers',labelStatus('installed'));element.querySelector('strong').dataset.noI18n='true';$('overview-agents').append(element)});clear($('overview-health'));const bad=state.integrity.results.filter(s=>s.status!=='intact');$('overview-health').append(row('Managed skills checked',state.integrity.scanned+' reviewed-catalog installations',labelStatus(bad.length?'attention':'intact')));$('overview-health').append(row('Integrity warnings',bad.length+' items needing attention',bad.length?labelStatus('untracked'):labelStatus('intact')));$('overview-health').append(row('Local backups',state.inventory.backups.length+' available snapshots',null))}
 function discoveredTools(){
   const tools=state.catalog.map(s=>({kind:'skill',id:s.id,name:s.name,description:s.description,category:s.category,
     categoryName:state.categories.find(c=>c.id===s.category)?.label||s.category,installed:s.installed,skill:s,tags:s.tags,author:s.author}));
