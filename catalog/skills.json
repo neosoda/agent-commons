@@ -3399,6 +3399,41 @@
       ]
     },
     {
+      "id": "motion-educator",
+      "name": "Motion Educator",
+      "description": "Create sourced educational motion explainers and lessons with an illustrated storyboard first, deterministic 3D film engine, diagrams, captions, optional narration, audio and MP4 rendering.",
+      "category": "design",
+      "author": "Zeative",
+      "repository": "https://github.com/zeative/motion-educator",
+      "source": "https://github.com/zeative/motion-educator/tree/c7914463f915e628f41270eae4e77de6a23460e1",
+      "path": ".",
+      "ref": "c7914463f915e628f41270eae4e77de6a23460e1",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/zeative/motion-educator/blob/c7914463f915e628f41270eae4e77de6a23460e1/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-20",
+        "licenseChecked": "2026-11-20",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "educational-video",
+        "storyboard",
+        "explainer",
+        "animation",
+        "threejs",
+        "video",
+        "narration",
+        "motion-design"
+      ],
+      "installPaths": [
+        "SKILL.md",
+        "package.json",
+        "references",
+        "kit"
+      ]
+    },
+    {
       "id": "motion-graphics",
       "name": "Motion Graphics",
       "description": "Archived upstream: Use when creating a short, design-led motion graphic where motion is the message — kinetic typography, stat count-up, chart/data-viz hit, logo sting / brand lockup, lower-third / callout / social overlay, animated map (highlight regions, connect places, zoom to a location), animated tweet / news-article / headline, webpage / UI animation (scroll, cursor, callouts), or fusing a real image's geometry into a chart. Usually under ",

@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Optional, commit-pinned `motion-educator` skill (38 upstream engine/reference files), bilingual documentation, generated credits and synthetic install/verify regression test.
+
 ## [0.5.4] - 2026-11-18
 
 Release notes: docs/releases/v0.5.4-release-notes.md
