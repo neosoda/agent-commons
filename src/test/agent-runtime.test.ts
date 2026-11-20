@@ -122,6 +122,21 @@ describe('bounded local agent runtime',()=>{
       assert.equal(r.tested,true);assert.match(fs.readFileSync(path.join(f.root,'a.ts'),'utf8'),/x = 3/);
     }finally{f.cleanup();}
   });
+  it('does not confuse distinct case-sensitive Linux files',async()=>{
+    if (process.platform === 'win32') return;
+    const f=fixture();try{
+      fs.writeFileSync(path.join(f.root,'A.ts'),'export const y = 0;\n');
+      fs.writeFileSync(path.join(f.root,'package.json'),JSON.stringify({private:true,scripts:{test:'node -e "process.exit(0)"'}}));
+      const turns=[request('read_file',{path:'a.ts'}),
+        request('write_file',{path:'A.ts',content:'export const y = 2;\n'}),
+        request('write_file',{path:'a.ts',content:'export const x = 3;\n'}),
+        request('write_file',{path:'A.ts',content:'export const y = 2;\n'}),
+        request('verify',{check:'test'}),{finish:'Both files checked'}];
+      const r=await new MissionRunner(f.store,sequence(turns),new WorkspaceTools(f.root,true,true),shortLimits).run(f.store.create('Update both case-sensitive files'));
+      assert.equal(r.status,'completed');assert.equal(r.calls,5);
+      assert.equal(Object.keys(r.writeHistory??{}).length,2);
+    }finally{f.cleanup();}
+  });
   it('honors token and step execution budgets',async()=>{
     const f=fixture();try{
       const state=f.store.create('Inspect');
