@@ -62,7 +62,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .btn:hover:not(:disabled) {transform:none;background:var(--surface-hover);border-color:var(--ink);color:var(--ink)}
 .btn.primary {background:var(--accent);color:var(--signal-ink);border:1px solid var(--accent);font-weight:790}
 .btn.primary:hover:not(:disabled) {background:var(--ink);color:var(--bg);border-color:var(--ink)}
-.btn.ghost {background:transparent;border-color:var(--stroke)}
+.btn.ghost {background:transparent;border-color:var(--line-strong)}
 .btn.danger {color:var(--bad);border-color:var(--bad);background:transparent}
 .btn.danger:hover:not(:disabled) {color:var(--bg);background:var(--bad);border-color:var(--bad)}
 .btn.small {padding:7px 10px;min-height:36px}
