@@ -40,7 +40,7 @@ describe('original Laws of UX psychology skill', () => {
     assert.equal(entry.licenseEvidence, entry.repository + '/blob/' + entry.ref + '/LICENSE');
     assert.deepEqual(new Set(entry.installPaths), new Set(filenames));
     assert.deepEqual(entry.dependencies, []);
-    assert.match(files.get('SKILL.md')!.toString(), /^---\nname: ux-psychology\n/);
+    assert.match(files.get('SKILL.md')!.toString().replace(/\r\n/g, '\n'), /^---\nname: ux-psychology\n/);
     const guide = files.get('references/principles.md')!.toString();
     assert.equal((guide.match(/^## \d{2}\./gm) ?? []).length, 30);
     assert.match(files.get('references/sources.md')!.toString(), /Jon Yablonski/);
