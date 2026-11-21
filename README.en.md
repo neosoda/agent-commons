@@ -129,6 +129,8 @@ Dependencies, overlaps and unsafe paths are handled; reference resources are
 loaded only when explicitly requested. [Full guide](docs/CONTEXT_ROUTING.md).
 
 
+**New UX Psychology skill:** an original, actionable guide to 30 [Laws of UX](https://lawsofux.com/fr/) topics, with UX audits, accessible implementation and practical validation. Find `ux-psychology` in the catalog (preview/approval before install, references loaded on demand). [Guide and credits](docs/UX_PSYCHOLOGY.en.md).
+
 **Reviewed Hermes selection (20 Nov 2026):** six opt-in catalog references for accurate task state, compact handoffs, bounded multi-agent coordination, local inference and safer third-party skills. **Nothing is installed or loaded automatically.** [Hermes curation guide](docs/HERMES_CURATED.en.md).
 
 ## Local Skill Hub — browser dashboard
@@ -601,7 +603,7 @@ Runtime and npm dependency license labels above match the checked-in package man
 ### Upstream repositories referenced by the public Skill Hub
 
 <!-- BEGIN GENERATED SKILL REPOSITORY CREDITS -->
-The curated public catalog references **208 skills across 30 upstream repositories**. These are **metadata-only references**: Agent Commons does not bundle or automatically install their skills. Licenses are recorded per pinned skill in [the full index](docs/skills/README.md); repositories with more than one license must be checked per skill.
+The curated public catalog references **209 skills across 31 upstream repositories**. These are **metadata-only references**: Agent Commons does not bundle or automatically install their skills. Licenses are recorded per pinned skill in [the full index](docs/skills/README.md); repositories with more than one license must be checked per skill.
 
 | Upstream repository | Author / maintainer | Skill references | Declared license(s) |
 |:--|:--|--:|:--|
@@ -621,6 +623,7 @@ The curated public catalog references **208 skills across 30 upstream repositori
 | [markoblogo/abvx-agent-skills](https://github.com/markoblogo/abvx-agent-skills) | Anton Biletskiy-Volokh | 4 | MIT |
 | [mattpocock/skills](https://github.com/mattpocock/skills) | Matt Pocock | 5 | MIT |
 | [morellid/ai-act-skill](https://github.com/morellid/ai-act-skill) | Davide Morelli | 1 | MIT |
+| [neosoda/agent-commons](https://github.com/neosoda/agent-commons) | Agent Commons contributors | 1 | MIT |
 | [nextlevelbuilder/ui-ux-pro-max-skill](https://github.com/nextlevelbuilder/ui-ux-pro-max-skill) | Next Level Builder | 7 | Apache-2.0 / MIT |
 | [ninjasweb/video-engine-skill](https://github.com/ninjasweb/video-engine-skill) | ninjasweb | 1 | MIT |
 | [noamdorr/saas-product-demo-video](https://github.com/noamdorr/saas-product-demo-video) | Noam Dorr | 1 | MIT |

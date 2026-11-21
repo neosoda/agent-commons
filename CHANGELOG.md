@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Original opt-in `ux-psychology` skill inspired by 30 Laws of UX concepts, including progressive-loading reference guides, reproducible audit workflow, design patterns, independent source credits and bilingual integration documentation.
+- Reviewed, pinned catalog entry and isolated installation/routing regression checks. No third-party asset redistribution, auto-install or agent configuration change.
+
 ## [0.6.0] - 2026-11-20
 
 Release notes: docs/releases/v0.6.0-release-notes.md

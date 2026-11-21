@@ -126,6 +126,8 @@ et chemins dangereux sont contrôlés ; les ressources restent chargées à la d
 [Documentation détaillée](docs/CONTEXT_ROUTING.md).
 
 
+**Nouveau skill UX Psychology :** 30 notions de [Laws of UX](https://lawsofux.com/fr/) transformées en méthodes originales d'audit, de conception, d'accessibilité et de validation. Disponible dans le catalogue sous `ux-psychology` (installation avec aperçu/accord, ressources chargées à la demande). [Guide et crédits](docs/UX_PSYCHOLOGY.md).
+
 **Sélection Hermes vérifiée (20/11/2026) :** six références légères pour le suivi des tâches, la reprise de contexte, l'orchestration bornée, l'inférence locale et la sécurité des skills. Ajoutées au catalogue **sans installation ni chargement automatique** : [guide Hermes](docs/HERMES_CURATED.md).
 
 ## Skill Hub local — interface web
@@ -586,7 +588,7 @@ Les licences indiquées pour les dépendances npm proviennent du manifeste, du l
 ### Dépôts référencés dans le catalogue public
 
 <!-- BEGIN GENERATED SKILL REPOSITORY CREDITS -->
-Le catalogue public référence **208 skills provenant de 30 dépôts sources**. Il s'agit **uniquement de métadonnées** : Agent Commons ne regroupe pas et n'installe pas automatiquement ces skills. Les licences sont indiquées pour chaque skill épinglé dans [l'index complet](docs/skills/README.md) ; si plusieurs licences figurent pour un dépôt, vérifiez celle applicable à chaque skill.
+Le catalogue public référence **209 skills provenant de 31 dépôts sources**. Il s'agit **uniquement de métadonnées** : Agent Commons ne regroupe pas et n'installe pas automatiquement ces skills. Les licences sont indiquées pour chaque skill épinglé dans [l'index complet](docs/skills/README.md) ; si plusieurs licences figurent pour un dépôt, vérifiez celle applicable à chaque skill.
 
 | Dépôt source | Auteur / responsable | Skills référencés | Licence(s) déclarée(s) |
 |:--|:--|--:|:--|
@@ -606,6 +608,7 @@ Le catalogue public référence **208 skills provenant de 30 dépôts sources**.
 | [markoblogo/abvx-agent-skills](https://github.com/markoblogo/abvx-agent-skills) | Anton Biletskiy-Volokh | 4 | MIT |
 | [mattpocock/skills](https://github.com/mattpocock/skills) | Matt Pocock | 5 | MIT |
 | [morellid/ai-act-skill](https://github.com/morellid/ai-act-skill) | Davide Morelli | 1 | MIT |
+| [neosoda/agent-commons](https://github.com/neosoda/agent-commons) | Agent Commons contributors | 1 | MIT |
 | [nextlevelbuilder/ui-ux-pro-max-skill](https://github.com/nextlevelbuilder/ui-ux-pro-max-skill) | Next Level Builder | 7 | Apache-2.0 / MIT |
 | [ninjasweb/video-engine-skill](https://github.com/ninjasweb/video-engine-skill) | ninjasweb | 1 | MIT |
 | [noamdorr/saas-product-demo-video](https://github.com/noamdorr/saas-product-demo-video) | Noam Dorr | 1 | MIT |
