@@ -4266,6 +4266,56 @@
       ]
     },
     {
+      "id": "simulab",
+      "name": "SimuLab — Interactive 3D Labs",
+      "description": "Build self-contained interactive isometric 3D teaching labs with sourced numeric models, guided chapters and optional 60 fps video/audio rendering. Educational simulation, visual explainers and interactive demos; runtime dependencies require manual setup.",
+      "category": "design",
+      "author": "ecapri-dev (@0xKapri)",
+      "repository": "https://github.com/ecapri-dev/simulab-skill",
+      "source": "https://github.com/ecapri-dev/simulab-skill/tree/a0561f868d9c642d92c667294d98b98c367a45ab",
+      "path": ".",
+      "ref": "a0561f868d9c642d92c667294d98b98c367a45ab",
+      "license": "MIT (bundled fonts: OFL-1.1)",
+      "licenseEvidence": "https://github.com/ecapri-dev/simulab-skill/blob/a0561f868d9c642d92c667294d98b98c367a45ab/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-21",
+        "licenseChecked": "2026-11-21",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [
+        "Node.js 20 or newer (Agent Commons requires 22 or newer)",
+        "Playwright + Chromium (install manually for browser render)",
+        "Python 3 + numpy + scipy and ffmpeg (optional for video/audio)",
+        "Bash / WSL on Windows for provided video scripts"
+      ],
+      "tags": [
+        "simulab",
+        "simulation",
+        "3d",
+        "isometric",
+        "interactive",
+        "visual-learning",
+        "educational-video",
+        "animation",
+        "teaching",
+        "playwright",
+        "video",
+        "audio"
+      ],
+      "installPaths": [
+        "SKILL.md",
+        "CATALOGO.md",
+        "PROMPTS.md",
+        "LICENSE",
+        "package.json",
+        "requirements.txt",
+        "assets",
+        "demos",
+        "kit",
+        "tools"
+      ]
+    },
+    {
       "id": "skill-creator",
       "name": "Skill Creator",
       "description": "Create, test, benchmark and improve reusable agent skills.",
