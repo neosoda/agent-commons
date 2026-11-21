@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Optional pinned SimuLab catalog integration for sourced, standalone isometric 3D educational labs and optional video/audio; reviewed 71-file upstream subset with MIT source and OFL font attribution, explicit install, no dependency execution, bilingual guides and synthetic-home install/verify checks.
+
+### Added
 - Original opt-in `ux-psychology` skill inspired by 30 Laws of UX concepts, including progressive-loading reference guides, reproducible audit workflow, design patterns, independent source credits and bilingual integration documentation.
 - Reviewed, pinned catalog entry and isolated installation/routing regression checks. No third-party asset redistribution, auto-install or agent configuration change.
 

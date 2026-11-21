@@ -126,6 +126,8 @@ et chemins dangereux sont contrôlés ; les ressources restent chargées à la d
 [Documentation détaillée](docs/CONTEXT_ROUTING.md).
 
 
+**Nouveau — SimuLab :** créez des laboratoires 3D pédagogiques interactifs, autonomes en HTML, à partir de modèles chiffrés sourcés. Export vidéo et son facultatifs, dépendances à installer **manuellement** après validation. Entrée `simulab` épinglée au catalogue, sans exécution ni synchronisation automatique. [Guide et crédits](docs/SIMULAB.md).
+
 **Nouveau skill UX Psychology :** 30 notions de [Laws of UX](https://lawsofux.com/fr/) transformées en méthodes originales d'audit, de conception, d'accessibilité et de validation. Disponible dans le catalogue sous `ux-psychology` (installation avec aperçu/accord, ressources chargées à la demande). [Guide et crédits](docs/UX_PSYCHOLOGY.md).
 
 **Sélection Hermes vérifiée (20/11/2026) :** six références légères pour le suivi des tâches, la reprise de contexte, l'orchestration bornée, l'inférence locale et la sécurité des skills. Ajoutées au catalogue **sans installation ni chargement automatique** : [guide Hermes](docs/HERMES_CURATED.md).
@@ -588,7 +590,7 @@ Les licences indiquées pour les dépendances npm proviennent du manifeste, du l
 ### Dépôts référencés dans le catalogue public
 
 <!-- BEGIN GENERATED SKILL REPOSITORY CREDITS -->
-Le catalogue public référence **209 skills provenant de 31 dépôts sources**. Il s'agit **uniquement de métadonnées** : Agent Commons ne regroupe pas et n'installe pas automatiquement ces skills. Les licences sont indiquées pour chaque skill épinglé dans [l'index complet](docs/skills/README.md) ; si plusieurs licences figurent pour un dépôt, vérifiez celle applicable à chaque skill.
+Le catalogue public référence **210 skills provenant de 32 dépôts sources**. Il s'agit **uniquement de métadonnées** : Agent Commons ne regroupe pas et n'installe pas automatiquement ces skills. Les licences sont indiquées pour chaque skill épinglé dans [l'index complet](docs/skills/README.md) ; si plusieurs licences figurent pour un dépôt, vérifiez celle applicable à chaque skill.
 
 | Dépôt source | Auteur / responsable | Skills référencés | Licence(s) déclarée(s) |
 |:--|:--|--:|:--|
@@ -598,6 +600,7 @@ Le catalogue public référence **209 skills provenant de 31 dépôts sources**.
 | [cloudflare/security-audit-skill](https://github.com/cloudflare/security-audit-skill) | Cloudflare | 1 | MIT |
 | [coreyhaines31/marketingskills](https://github.com/coreyhaines31/marketingskills) | Corey Haines | 1 | MIT |
 | [DojoCodingLabs/remotion-superpowers](https://github.com/DojoCodingLabs/remotion-superpowers) | Dojo Coding Labs | 15 | MIT |
+| [ecapri-dev/simulab-skill](https://github.com/ecapri-dev/simulab-skill) | ecapri-dev (@0xKapri) | 1 | MIT (bundled fonts: OFL-1.1) |
 | [frankxai/awesome-hermes-agent-skills](https://github.com/frankxai/awesome-hermes-agent-skills) | Frank Riemer / GenCreator | 1 | MIT |
 | [heygen-com/hyperframes](https://github.com/heygen-com/hyperframes) | HeyGen | 21 | Apache-2.0 |
 | [Jakeschincariol/founder-skill](https://github.com/Jakeschincariol/founder-skill) | Jake Schincariol | 11 | MIT |
