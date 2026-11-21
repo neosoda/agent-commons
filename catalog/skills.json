@@ -4283,7 +4283,7 @@
         "scope": "source-and-license-only"
       },
       "dependencies": [
-        "Node.js >=20 (Agent Commons requires >=22)",
+        "Node.js 20 or newer (Agent Commons requires 22 or newer)",
         "Playwright + Chromium (install manually for browser render)",
         "Python 3 + numpy + scipy and ffmpeg (optional for video/audio)",
         "Bash / WSL on Windows for provided video scripts"
