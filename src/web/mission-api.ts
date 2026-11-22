@@ -26,6 +26,7 @@ function missionView(job: QueueEntry, state: MissionState | null) {
     status: job.status,
     missionStatus: state?.status ?? 'unavailable',
     model: job.model,
+    adviser: job.delegate ?? null,
     priority: job.priority,
     scheduledFor: job.runAt,
     attempts: job.attempts,
