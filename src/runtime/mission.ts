@@ -171,7 +171,7 @@ export class MissionStore {
 export class MissionRunner {
   constructor(readonly store: MissionStore, readonly local: ModelClient, readonly tools: ToolExecutor,
     readonly limits: Limits = DEFAULT_LIMITS, readonly cloud?: ModelClient, readonly allowCloudSource = false,
-    readonly extensions: { guidance?: string; mcpTools?: string[]; skillIds?: string[] } = {}) {
+    readonly extensions: { guidance?: string; mcpTools?: string[]; skillIds?: string[]; plan?: boolean } = {}) {
     for (const value of Object.values(limits)) if (!Number.isSafeInteger(value) || value < 0) throw new Error('Invalid execution limit');
   }
   async run(state: MissionState): Promise<MissionState> {
@@ -199,7 +199,7 @@ export class MissionRunner {
       return stop('needs_approval', 'Previous side-effecting operation has uncertain outcome; reconcile before resuming');
     }
     // Planning is advisory and never counts as inspected evidence or verification.
-    if (!state.plan && this.local.plan) {
+    if (!state.plan && this.extensions.plan === true && this.local.plan) {
       state.status = 'planning';
       this.store.save(state);
       try {
@@ -325,7 +325,10 @@ export class MissionRunner {
         }
         let result: ToolResult;
         try { result = await this.tools.execute(turn.call); }
-        catch { return stop('needs_approval', 'Tool threw during a potentially effectful action; outcome must be reconciled'); }
+        catch {
+          if (uncertain) return stop('needs_approval', 'Tool threw during a potentially effectful action; outcome must be reconciled');
+          result = { ok: false, progress: false, output: 'Tool execution failed' };
+        }
         if (uncertain && !result.ok) {
           return stop('needs_approval', 'Side-effecting tool failed with an uncertain outcome; reconcile before retrying');
         }
