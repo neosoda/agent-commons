@@ -9,7 +9,7 @@ import { OpenAICompatibleModel } from './provider.js';
 function getOptions(argv: string[]): {args:Record<string,string>; flags:Set<string>} {
   const args:Record<string,string> = {};
   const flags = new Set<string>();
-  const values = new Set(['task','workspace','resume','model','url','max-steps','max-tokens','max-tool-calls','max-minutes','max-cloud-calls','allow-mcp-tool']);
+  const values = new Set(['task','workspace','resume','model','url','max-steps','max-tokens','max-tool-calls','max-minutes','max-cloud-calls','allow-mcp-tool','pause','cancel','acknowledge-pending']);
   const booleans = new Set(['allow-write','allow-tests','cloud','allow-cloud-source','help']);
   for (let i=0; i<argv.length; i++) {
     const item=argv[i]; if (!item?.startsWith('--')) throw new Error(`Unknown parameter ${item}`);
@@ -28,17 +28,37 @@ Optional --cloud --allow-cloud-source (explicit approval for sharing code) uses 
 Budgets: --max-steps 30 --max-tool-calls 24 --max-tokens 24000 --max-minutes 20 --max-cloud-calls 2.
 Writes and project-script execution are disabled unless explicitly enabled. Never run project scripts from untrusted repos.
 Installed relevant skills are selected automatically. To authorize an MCP tool per mission, repeat --allow-mcp-tool server/tool (only trusted tools; may have side effects).
+Lifecycle: --workspace <repo> --pause <id> | --cancel <id> | --acknowledge-pending <id> (reconcile side effects manually before acknowledgement).
 `;
 export async function main(argv = process.argv.slice(2)): Promise<number> {
   try {
     const {args,flags}=getOptions(argv);
     if (flags.has('help')) {console.log(help);return 0;}
-    if (!args['workspace'] || (!args['task'] && !args['resume']) || (args['task'] && args['resume'])) throw new Error('Specify workspace and exactly one of task or resume');
+    if (!args['workspace']) throw new Error('Specify --workspace');
+    const controls = ['pause','cancel','acknowledge-pending'].filter(k => args[k] !== undefined);
+    if (controls.length > 1 || (controls.length && (args['task'] || args['resume']))) {
+      throw new Error('Use one lifecycle command at a time');
+    }
     const workspace = new WorkspaceTools(path.resolve(args['workspace']),flags.has('allow-write'),flags.has('allow-tests'));
-    const model=args['model'] ?? process.env['AGENT_COMMONS_LOCAL_MODEL'];
-    if (!model) throw new Error('Select a local model with --model or AGENT_COMMONS_LOCAL_MODEL');
     const ctx = createEnvironmentContext();
     const store = new MissionStore(path.join(ctx.commonsDir, 'missions'));
+    if (controls.length) {
+      const control = controls[0]!;
+      const id = args[control]!;
+      if (control === 'acknowledge-pending') {
+        store.acknowledgePending(id, workspace.workspaceId);
+        console.log('Action reconciled by operator; resume the mission explicitly.');
+      } else {
+        store.requestControl(id, workspace.workspaceId, control as 'pause' | 'cancel');
+        console.log('Mission ' + control + ' requested: ' + id);
+      }
+      return 0;
+    }
+    if ((!args['task'] && !args['resume']) || (args['task'] && args['resume'])) {
+      throw new Error('Specify exactly one of --task or --resume');
+    }
+    const model=args['model'] ?? process.env['AGENT_COMMONS_LOCAL_MODEL'];
+    if (!model) throw new Error('Select a local model with --model or AGENT_COMMONS_LOCAL_MODEL');
     const state = args['resume'] ? store.load(args['resume'], workspace.workspaceId) : store.create(args['task']!, workspace.workspaceId);
     const skills = selectMissionSkills(ctx, state.goal);
     const permissions = (args['allow-mcp-tool'] ?? '').split(',').map(x => x.trim()).filter(Boolean);
