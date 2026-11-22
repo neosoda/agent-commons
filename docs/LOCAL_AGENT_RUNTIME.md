@@ -109,3 +109,33 @@ node dist/runtime/cli.js --workspace "A:\PROJETS\MON-DEPOT" --memory-search "tes
 ```
 
 Les entrées sont limitées à 4 Kio et soumises à la détection de secrets existante. Base limitée à 1 000 entrées par checkout, mode WAL et index FTS5. Ce dispositif n'est ni un moteur de recherche sémantique ni une preuve cryptographique du résultat d'un modèle. L'API SQLite native de Node 22 est encore signalée expérimentale par certaines versions de Node ; la compatibilité est vérifiée en CI avant fusion.
+
+## P4 — File de missions persistante et worker local (en développement)
+
+Le moteur peut mettre en file des missions dans `~/.agents/queue.sqlite`, avec priorité (0 à 9) et lancement différé en minutes, sans stocker de clés API dans la file. La file pointe vers des checkpoints créés lors de l'enqueue ; si le worker est interrompu, il ne recrée pas une mission avec un nouvel identifiant.
+
+```powershell
+# Planifier une mission (lecture seule par défaut)
+node dist/runtime/cli.js --workspace "A:\PROJETS\MON-DEPOT" --task "Vérifie les tests et les défauts du projet" --model "ID_EXACT_DU_MODELE" --enqueue --priority 7 --delay-minutes 15
+
+# Démarrer un worker interactif local (arrêt Ctrl+C)
+node dist/runtime/cli.js --worker
+
+# Effectuer un seul passage, utile en test
+node dist/runtime/cli.js --worker --once
+
+# Suivre la file, relancer manuellement ou annuler un travail en attente
+node dist/runtime/cli.js --queue-list
+node dist/runtime/cli.js --workspace "A:\PROJETS\MON-DEPOT" --queue-requeue "ID_JOB"
+node dist/runtime/cli.js --workspace "A:\PROJETS\MON-DEPOT" --queue-cancel "ID_JOB"
+```
+
+La file conserve le chemin du checkout, le modèle et les autorisations au moment de l'enqueue. L'exécution reste **locale-first** ; cloud et endpoint distant ne sont pas permis dans les tâches planifiées. Un seul worker et une seule mission active à la fois (verrou SQLite + heartbeat, plafonds d'exécution du moteur). Les journaux structurés sont dans `~/.agents/queue-events.jsonl` sans texte de code ou sorties de modèle.
+
+Si un worker disparaît pendant une mission, son job finit `needs_review` à l'expiration du bail. Il **ne sera pas relancé tout seul**. Inspectez l'état réel du checkout, le checkpoint et les éventuels effets de bord. Si `pendingAction` est présent, réconciliez-le explicitement avec `--acknowledge-pending ID_MISSION` avant `--queue-requeue ID_JOB`. Ne démarrez pas simultanément le worker et une exécution CLI directe de la même mission.
+
+**Démarrage Windows :** depuis le dépôt compilé, `powershell -File scripts/install-worker.ps1` crée une tâche du Planificateur Windows au démarrage de la session de l'utilisateur courant, sans privilèges administrateur. `-Uninstall` la retire. Le poste et la session utilisateur doivent rester actifs.
+
+**Linux :** installez `scripts/agent-commons-worker.service` dans `~/.config/systemd/user/`, ajustez au besoin `ExecStart`, puis `systemctl --user daemon-reload && systemctl --user enable --now agent-commons-worker.service`. Cette unité fonctionne sous le compte utilisateur, sans accès privilégié par défaut.
+
+**Limites :** le worker ne fournit pas une sandbox OS, ne force pas la terminaison immédiate d'une action en cours, ne garantit pas l'exécution si le poste est éteint, ni la reprise automatique des effets de bord incertains. Le dashboard et l'orchestration multi-agents restent des incréments séparés.
