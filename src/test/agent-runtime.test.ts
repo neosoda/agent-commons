@@ -70,13 +70,60 @@ describe('bounded local agent runtime',()=>{
   it('escalates once on observable repetition, then stops',async()=>{
     const f=fixture();try{
       let calls=0;
-      const local:ModelClient={next:async()=>{calls++;return request('read_file',{path:'a.ts'});}};
-      const cloud=sequence([{finish:'Read code successfully'}]);
+      const local:ModelClient={next:async()=>{calls++;return calls===3 ? {finish:'Inspection complete'} : request('read_file',{path:'a.ts'});}};
+      const cloud=sequence([{text:'Consider summarizing the inspected file.'}]);
       const s=await new MissionRunner(f.store,local,new WorkspaceTools(f.root,false,false),{...shortLimits,maxCloudCalls:1},cloud).run(f.store.create('Read and report'));
       assert.equal(s.status,'completed');assert.equal(s.cloudCalls,1);
-      // One bounded escalation is enough to complete a read-only mission.
-      assert.equal(calls,2);
+      // Cloud advice does not execute workspace tools: the local model finishes.
+      assert.equal(calls,3);
     }finally{f.cleanup();}
+  });
+  it('uses advisory cloud once, then returns execution to local and hides source by default',async()=>{
+    const f=fixture();try{
+      let localCalls=0, adviceCalls=0;
+      const local:ModelClient={next:async({observations})=>{
+        localCalls++;
+        if(localCalls<=2)return request('read_file',{path:'a.ts'});
+        assert.ok(observations.some(s=>s.includes('Cloud advice (untrusted')));
+        return {finish:'Completed locally using an inspected file'};
+      }};
+      const cloud:ModelClient={
+        next:async()=>{throw new Error('Cloud must not act as tool executor');},
+        advise:async({observations})=>{
+          adviceCalls++;
+          assert.equal(observations.some(x=>x.includes('export const x')),false);
+          return {text:'Try a different local verification strategy',tokens:25};
+        }
+      };
+      const r=await new MissionRunner(f.store,local,new WorkspaceTools(f.root,false,false),
+        shortLimits,cloud,false).run(f.store.create('Inspect safely'));
+      assert.equal(r.status,'completed');
+      assert.equal(r.calls,1);assert.equal(r.cloudCalls,1);
+      assert.equal(r.steps,4);assert.equal(r.tokens,25);
+      assert.equal(localCalls,3);assert.equal(adviceCalls,1);
+      const checkpoint=fs.readFileSync(path.join(f.base,'missions',r.id+'.json'),'utf8');
+      assert.equal(checkpoint.includes('Try a different local verification strategy'),false);
+    }finally{f.cleanup();}
+  });
+  it('gets an actual HTTP advisory response without offering cloud any execution tools',async()=>{
+    let requests=0;
+    const server=http.createServer(async(req,res)=>{
+      let body='';for await(const part of req)body+=part.toString();
+      const input=JSON.parse(body) as {tools?:unknown;messages:{content:string}[]};
+      requests++;
+      assert.equal(input.tools,undefined);
+      assert.match(input.messages[0]!.content,/read-only second-opinion/);
+      res.writeHead(200,{'content-type':'application/json'});
+      res.end(JSON.stringify({choices:[{message:{content:'Inspect local test output before retrying.'}}],usage:{total_tokens:17}}));
+    });
+    try{
+      await new Promise<void>(resolve=>server.listen(0,'127.0.0.1',resolve));
+      const address=server.address();assert.ok(address&&typeof address!=='string');
+      const model=new OpenAICompatibleModel({url:`http://127.0.0.1:${address.port}/v1/chat/completions`,model:'test-cloud',apiKey:'test-key'});
+      const result=await model.advise({goal:'Fix a bug',observations:['A test failed']});
+      assert.match(result.text,/Inspect local test output/);assert.equal(result.tokens,17);
+      assert.equal(requests,1);
+    }finally{await new Promise<void>(resolve=>server.close(()=>resolve()));}
   });
   it('stops A-B-A file oscillation before reapplying an earlier version',async()=>{
     const f=fixture();try{
@@ -220,7 +267,7 @@ describe('bounded local agent runtime',()=>{
       const state=f.store.create('Fix a bug');
       const result=await new MissionRunner(f.store,local,new WorkspaceTools(f.root,true,false),shortLimits,cloud,false).run(state);
       assert.equal(result.status,'needs-approval');assert.equal(result.cloudCalls,1);
-      assert.match(result.reason,/Cloud code modifications/);
+      assert.match(result.reason,/Cloud adviser attempted a workspace tool/);
       assert.match(fs.readFileSync(path.join(f.root,'a.ts'),'utf8'),/x = 1/);
     }finally{f.cleanup();}
   });
