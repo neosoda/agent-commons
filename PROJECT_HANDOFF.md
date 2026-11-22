@@ -532,3 +532,10 @@ Catalog entry `simulab` is metadata-only until explicit preview/approved install
 **Verification at handoff:** final exact-head CI, Windows portable, Chromium checks must all be completed and confirmed before PR merge. A PR run initially passed full cross-platform CI and Windows portable on `dfe35c54`, but this handoff update changes the PR head, so **those earlier checks alone do not authorize merge**. Do not claim real RTX 5070 Ti / LM Studio model validation, production reliability, LAN gateway, skills/MCP mission integration, daemon, dashboard mission controls, or a new release. No changes to the user's Windows host were performed.
 
 **Next concrete action:** wait for all eight checks on this documentation commit's exact head, squash-merge PR #105 only if all succeed, then verify all eight post-merge `main` checks. Continue with the primary missing vertical slice: real skill/MCP selection and tools usable in a local-model mission, then persistent queue and dashboard; these are not yet implemented.
+
+## P1 autonome — travail en cours au 22 novembre 2026
+
+Après fusion de la PR #105, `main` était `39ef6fc900eebb44711fb73056c0ed291d4ce78a` (état lu en direct le 22/11). Branche de travail `feat/runtime-skills-mcp-p1-20261122` : intégration des skills physiques via `routeSkills`, contexte injecté au modèle local, exécution MCP stdio/HTTP avec liste d'autorisation explicite par outil, preuve de handshake et traces de mission (IDs / nombre d'appels, pas de contenu brut). Réutilisation de `probeMcpServer` et `loadCentralMcpManifest` ; aucune modification des configurations agents réelles.
+
+**Statut : non fusionné à la rédaction de ce paragraphe.** Ne pas considérer les tests, les 8 gates GitHub ou une recette Windows/LM Studio comme acquis avant leurs résultats réels. La suite doit valider l'incrément de bout en bout, puis passer à la machine à états persistante.
+
