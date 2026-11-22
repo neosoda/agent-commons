@@ -1,5 +1,6 @@
 import { OPERATING_SURFACE_STYLES } from './operating-surface.js';
 import { OPERATING_SURFACE_CONTROLS } from './operating-surface-controls.js';
+import { MISSION_DASHBOARD_CSS, MISSION_DASHBOARD_JS } from './mission-ui.js';
 
 /**
  * Dependency-free local Skill Hub UI. Text from catalog/agents is always rendered
@@ -8,7 +9,9 @@ import { OPERATING_SURFACE_CONTROLS } from './operating-surface-controls.js';
 export function renderWebUi(nonce: string, csrf: string): string {
   return HTML.replaceAll('__NONCE__', nonce).replace('__CSRF__', csrf)
     .replace('__DESIGN_CSS__', OPERATING_SURFACE_STYLES)
-    .replace('__COMMAND_JS__', OPERATING_SURFACE_CONTROLS);
+    .replace('__COMMAND_JS__', OPERATING_SURFACE_CONTROLS)
+    .replace('__MISSION_CSS__', MISSION_DASHBOARD_CSS)
+    .replace('__MISSION_JS__', MISSION_DASHBOARD_JS);
 }
 
 const HTML = String.raw`<!doctype html>
@@ -32,6 +35,7 @@ const HTML = String.raw`<!doctype html>
 @media(max-width:420px){.catalog-results{flex-wrap:wrap}.catalog-results .btn{flex:1}.catalog-results .subtle{flex-basis:100%}.catalog-switch{width:100%}.catalog-switch button{padding:9px 11px;flex:1}.extension-steps li{flex-direction:column;gap:2px}.extension-steps span{text-align:left}.extension-actions .btn{flex:1}.card-actions .btn{flex:1}}
 @media(max-width:730px){#page-catalog .section-head{margin-top:8px}#page-catalog h1{font-size:28px;letter-spacing:-.6px;margin:0 0 12px}#page-catalog .section-head .dim{font-size:13px}.catalog-guide{display:none}#page-catalog .filter-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}#catalog-search{grid-column:1/-1}#page-catalog .field{min-width:0;width:100%;padding:9px 11px;font-size:13px}.catalog-results{flex-wrap:wrap;margin:12px 0;gap:8px}.catalog-results #catalog-count{flex-basis:100%}#extension-summary{font-size:11px}.catalog-switch{margin:12px 0}}
 __DESIGN_CSS__
+__MISSION_CSS__
 </style></head>
 <body><a class="skip-link" href="#main-content">Skip to main content</a><div class="layout">
 <aside class="sidebar">
@@ -44,6 +48,7 @@ __DESIGN_CSS__
 <button data-page="mcp-center" aria-controls="page-mcp-center"><span aria-hidden="true">04</span> <span>MCP Control Center</span></button>
 <button data-page="integrity" aria-controls="page-integrity"><span aria-hidden="true">05</span> <span>Integrity</span></button>
 <button data-page="backups" aria-controls="page-backups"><span aria-hidden="true">06</span> <span>Backups</span></button>
+<button data-page="missions" aria-controls="page-missions"><span aria-hidden="true">07</span> <span>Missions</span></button>
 </nav>
 <div class="sidebar-bottom"><span class="status-dot"></span>Local workspace<br><span class="subtle">127.0.0.1 only · no cloud account</span></div>
 </aside>
@@ -86,6 +91,43 @@ __DESIGN_CSS__
 </section>
 <section class="page" id="page-integrity"><div class="eyebrow">READ-ONLY · OFFLINE</div><h1>Skill integrity</h1><p class="dim">Inspect local managed skills for changed Git blobs, missing files, extra files, unsafe links and invalid receipts. Matching hashes do not certify that third-party code is safe.</p><div class="panel"><div class="actions"><button class="btn" id="verify-again">Run verification</button><button class="btn" id="doctor-run">Run agent diagnostics</button></div><pre class="result-box hidden mt-16" id="doctor-report" role="status" aria-live="polite"></pre><div id="integrity-items" class="mt-15"></div></div></section>
 <section class="page" id="page-backups"><div class="eyebrow">RECOVERY</div><h1>Snapshots & recovery</h1><p class="dim">Review stored snapshots, create a backup or restore a previous state. Restoring replaces saved managed paths and requires explicit confirmation.</p><div class="panel"><h3>Backup now</h3><p>Create a full point-in-time snapshot of agent skills and MCP configurations.</p><button class="btn primary" id="backup-create">Create backup</button></div><div class="panel"><h3>Available snapshots</h3><div id="backup-items"></div></div></section>
+<section class="page" id="page-missions" aria-label="Mission Control">
+<div class="eyebrow">AUTONOMOUS OPERATIONS</div>
+<h1>Mission Control</h1>
+<p class="dim">Schedule local-first missions and follow real plans, tool events and checkpoints. The local worker must be running. No cloud or LAN exposure.</p>
+<div class="mission-layout">
+  <div class="panel">
+    <h3>New mission</h3>
+    <form id="mission-create" class="mission-form">
+      <label for="mission-workspace">Authorized Git checkout
+        <input class="field" id="mission-workspace" type="text" required placeholder="A:\PROJETS\MYREPO" autocomplete="off">
+      </label>
+      <label for="mission-goal">Goal
+        <textarea class="field" id="mission-goal" required maxlength="2000" placeholder="Inspect and verify a bug in the project"></textarea>
+      </label>
+      <label for="mission-model">Local LM Studio model ID
+        <input class="field" id="mission-model" type="text" required maxlength="200" placeholder="exact-local-model-id" autocomplete="off">
+      </label>
+      <label for="mission-priority">Priority (0–9)
+        <input class="field" id="mission-priority" type="number" min="0" max="9" value="5" required>
+      </label>
+      <label for="mission-delay">Delay in minutes
+        <input class="field" id="mission-delay" type="number" min="0" max="43200" value="0" required>
+      </label>
+      <div class="mission-flags">
+        <label for="mission-allow-write"><input id="mission-allow-write" type="checkbox"> Allow Git workspace writes</label>
+        <label for="mission-allow-tests"><input id="mission-allow-tests" type="checkbox"> Allow project test commands</label>
+      </div>
+      <button class="btn primary" id="mission-submit" type="submit">Add to queue</button>
+      <p class="subtle">Read-only by default. No scripts or third-party MCP tools are approved automatically.</p>
+    </form>
+  </div>
+  <div class="panel">
+    <div class="section-head"><h2>Mission queue</h2><button type="button" id="mission-refresh" class="btn small">Refresh</button></div>
+    <div id="mission-list" aria-live="polite" role="status"><p class="dim">Open Mission Control to load real jobs.</p></div>
+  </div>
+</div>
+</section>
 <div class="footer">Agent Commons · Local web UI · No telemetry · No background sync · Source/license review ≠ code security audit</div>
 </main></div>
 <div id="quick-switcher" class="quick-switcher hidden"><section class="quick-switcher-dialog" role="dialog" aria-modal="true" aria-labelledby="quick-switcher-heading"><h2 class="sr-only" id="quick-switcher-heading">Search all sections and local skills</h2><div class="quick-switcher-header"><span class="quick-switcher-icon" aria-hidden="true">⌕</span><input id="quick-switcher-input" type="search" autocomplete="off" spellcheck="false" role="combobox" aria-expanded="true" aria-autocomplete="list" aria-controls="quick-switcher-results" aria-label="Search navigation and skills" placeholder="Type a page, skill or agent…" /><button class="btn small ghost" type="button" id="quick-switcher-close" aria-label="Close search">Esc</button></div><div id="quick-switcher-results" class="quick-switcher-results" role="listbox" aria-label="Search results"></div><div class="quick-switcher-footer"><span><kbd>↑</kbd> <kbd>↓</kbd> Navigate</span><span><kbd>↵</kbd> Open</span><span><kbd>Esc</kbd> Close</span></div></section></div>
@@ -1153,4 +1195,5 @@ try{language=localStorage.getItem('agent-commons-ui-language')||'en'}catch{langu
 setLanguage(language);
 refresh();
 __COMMAND_JS__
+__MISSION_JS__
 </script></body></html>`;

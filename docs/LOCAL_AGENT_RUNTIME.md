@@ -139,3 +139,13 @@ Si un worker disparaît pendant une mission, son job finit `needs_review` à l'e
 **Linux :** installez `scripts/agent-commons-worker.service` dans `~/.config/systemd/user/`, ajustez au besoin `ExecStart`, puis `systemctl --user daemon-reload && systemctl --user enable --now agent-commons-worker.service`. Cette unité fonctionne sous le compte utilisateur, sans accès privilégié par défaut.
 
 **Limites :** le worker ne fournit pas une sandbox OS, ne force pas la terminaison immédiate d'une action en cours, ne garantit pas l'exécution si le poste est éteint, ni la reprise automatique des effets de bord incertains. Le dashboard et l'orchestration multi-agents restent des incréments séparés.
+
+## P5 — Mission Control dans le Skill Hub existant (en validation)
+
+Le dashboard local Agent Commons (127.0.0.1 uniquement) possède désormais une rubrique **Missions** : création de mission et ajout à la queue, objectif, dépôt Git autorisé, modèle local, priorité, délai, permissions d'écriture/tests explicites. Les opérations passent par les mécanismes existants de contrôles Host/Origin, jeton CSRF, anti-concurrence et consentement. Les tâches planifiées utilisent le worker de P4 ; ouvrir le dashboard **ne lance pas un worker caché**.
+
+La rubrique lit la file SQLite et les vrais checkpoints : état, étapes du plan, skills sélectionnés, modèle actif, appels MCP, tokens, appels cloud, nombre de contrôles vérifiés et métadonnées de journaux. Rafraîchissement automatique toutes les cinq secondes uniquement lorsque la page est visible. Pause, annulation et remise en file sont disponibles dans la rubrique, avec une confirmation supplémentaire en cas de résultats incertains. Les tentatives non autorisées sont refusées côté serveur.
+
+Les vues HTTP n'affichent **jamais** les chemins complets des dépôts, le contenu des fichiers, les prompts, les secrets ni la sortie MCP brute. Les plans du modèle sont non vérifiés ; leurs textes sont affichés en tant que texte brut, sans interprétation HTML. La consommation RAM/VRAM n'est pas mesurée et n'est pas inventée.
+
+**Périmètre de sécurité :** interface uniquement loopback, aucune exposition LAN/Internet ; pas d'authentification distante dans cette itération. Pour utiliser le dashboard depuis un autre PC sur le LAN, il faudra une passerelle authentifiée et isolée : ne modifiez pas le bind HTTP pour l'ouvrir sans contrôle. Les validations personnelles sur le modèle et le hardware restent à faire.

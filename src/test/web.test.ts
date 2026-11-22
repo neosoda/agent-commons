@@ -203,6 +203,47 @@ describe('local Skill Hub HTTP security and user workflows', () => {
     assert.equal(fs.readFileSync(path.join(home, '.codex', 'config.toml'), 'utf8'), config);
   });
 
+  it('queues and controls real missions through the existing CSRF-protected local dashboard API', async () => {
+    const repo = path.join(home, 'web-mission-repo');
+    fs.mkdirSync(path.join(repo, '.git'), { recursive: true });
+    fs.writeFileSync(path.join(repo, 'readme.md'), 'private source content that must never reach HTTP');
+    const empty = await fetch(instance.url + '/api/missions');
+    assert.equal(empty.status, 200);
+    assert.deepEqual((await empty.json() as {jobs:unknown[]}).jobs, []);
+    const input = {
+      action: 'mission-enqueue', workspace: repo, goal: 'Inspect private source content',
+      model: 'local-test', priority: 7, delayMinutes: 10,
+      allowWrite: false, allowTests: false
+    };
+    assert.equal((await post(input)).status, 400, 'approval is required');
+    const csrfDenied = await post({ ...input, approved: true }, { 'x-agent-commons-csrf': 'invalid' });
+    assert.equal(csrfDenied.status, 403);
+    const created = await post({ ...input, approved: true });
+    assert.equal(created.status, 200);
+    const receipt = await created.json() as { id: string; missionId: string };
+    assert.match(receipt.id, /^[a-f0-9]{24}$/);
+    assert.match(receipt.missionId, /^[a-f0-9]{24}$/);
+    const listing = await fetch(instance.url + '/api/missions');
+    assert.equal(listing.status, 200);
+    const raw = await listing.text();
+    assert.doesNotMatch(raw, /private source content|web-mission-repo/);
+    assert.equal(raw.includes(home), false, 'web must not expose local paths');
+    const jobs = (JSON.parse(raw) as {jobs:Array<{id:string; status:string;model:string;priority:number;plan:string[]}>}).jobs;
+    assert.equal(jobs.length, 1);
+    assert.equal(jobs[0]!.id, receipt.id);
+    assert.equal(jobs[0]!.status, 'queued');
+    assert.equal(jobs[0]!.priority, 7);
+    assert.equal(jobs[0]!.model, 'local-test');
+    const detail = await fetch(instance.url + '/api/mission?id=' + receipt.id);
+    assert.equal(detail.status, 200);
+    assert.equal((await detail.json() as {missionId:string}).missionId, receipt.missionId);
+    assert.equal((await post({ action:'mission-pause', jobId:receipt.id, approved:true })).status, 400);
+    assert.equal((await post({ action:'mission-cancel', jobId:receipt.id, approved:true })).status, 200);
+    const after = await fetch(instance.url + '/api/missions');
+    assert.equal((await after.json() as {jobs:Array<{status:string}>}).jobs[0]!.status, 'cancelled');
+    assert.equal((await post({ action:'mission-requeue', jobId:receipt.id, approved:true })).status, 400);
+  });
+
   it('serves the dashboard with strict security headers, no CDN and an ephemeral token', async () => {
     const response = await fetch(instance.url);
     const page = await response.text();
@@ -226,7 +267,7 @@ describe('local Skill Hub HTTP security and user workflows', () => {
     const scripts = [...page.matchAll(/<script nonce="sample-nonce">([\s\S]*?)<\/script>/g)];
     assert.equal(scripts.length, 1, 'exactly one inline application script');
     assert.doesNotThrow(() => new vm.Script(scripts[0]![1]!));
-    for (const section of ['overview', 'catalog', 'agents', 'mcp-center', 'integrity', 'backups']) {
+    for (const section of ['overview', 'catalog', 'agents', 'mcp-center', 'integrity', 'backups', 'missions']) {
       assert.ok(page.includes('id="page-' + section + '"'), 'missing page ' + section);
       assert.ok(page.includes('data-page="' + section + '"'), 'missing navigation ' + section);
     }

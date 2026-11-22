@@ -14,6 +14,7 @@ import { createFullBackup, listBackups, restoreBackup } from '../core/backup.js'
 import { createEnvironmentContext } from '../core/context.js';
 import type { EnvironmentContext, SyncReport } from '../types.js';
 import { renderWebUi } from './ui.js';
+import { applyMissionWebAction, getMissionView, listMissionViews, type MissionWebAction } from './mission-api.js';
 import { applyMcpEdit, mcpEditorOverview, previewMcpEdit, type McpEditorRequest } from './mcp-editor.js';
 import { syncInputRevision, type SyncPreviewKind } from './sync-revision.js';
 import { inspectMcpControlCenter, previewMcpProfile, saveMcpProfile, deleteMcpProfile, runMcpProfileSync } from '../mcp/control-center.js';
@@ -153,7 +154,10 @@ const PUBLIC_ERRORS = new Set([
   'Invalid MCP directory selection.', 'This MCP does not need directory access.',
   'This MCP requires explicitly selected directories.', 'Choose absolute local MCP directories.',
   'Choose existing, non-root, physical MCP directories.', 'Network MCP directories require manual configuration.',
-  'Duplicate MCP directory.', 'Managed MCP binary is missing.'
+  'Duplicate MCP directory.', 'Managed MCP binary is missing.',
+  'Invalid mission job identifier.', 'Invalid mission parameters.',
+  'Invalid mission scheduling.', 'Mission is not currently running.',
+  'Unsupported mission action.'
 ]);
 function publicError(error: unknown, _ctx: EnvironmentContext): string {
   const message = error instanceof Error ? error.message : '';
@@ -318,6 +322,12 @@ export async function startWebServer(options: WebOptions = {}): Promise<WebInsta
         res.end(renderWebUi(nonce, csrf));
         return;
       }
+      if (req.method === 'GET' && path.pathname === '/api/missions') {
+        json(res, 200, listMissionViews(ctx)); return;
+      }
+      if (req.method === 'GET' && path.pathname === '/api/mission') {
+        json(res, 200, getMissionView(ctx, path.searchParams.get('id') ?? '')); return;
+      }
       if (req.method === 'GET' && path.pathname === '/api/state') {
         json(res, 200, safeState(ctx)); return;
       }
@@ -389,6 +399,12 @@ export async function startWebServer(options: WebOptions = {}): Promise<WebInsta
       try {
         const body = await readJson(req);
         const action = body.action;
+        if (typeof action === 'string' && [
+          'mission-enqueue', 'mission-pause', 'mission-cancel', 'mission-requeue'
+        ].includes(action)) {
+          requireApproval(body);
+          json(res, 200, applyMissionWebAction(ctx, body as unknown as MissionWebAction)); return;
+        }
         if (action === 'install' || action === 'update' || action === 'uninstall') {
           requireApproval(body);
           const id = checkedId(body.id);
