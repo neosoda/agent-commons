@@ -111,6 +111,9 @@ export class MissionQueue {
       this.db.prepare(
         "UPDATE jobs SET status='needs_review',owner=NULL,lease_until=NULL,updated_at=? WHERE status='running' AND lease_until < ?"
       ).run(now, now);
+      // Never run a second job while any active lease still belongs to an earlier worker.
+      const running = this.db.prepare("SELECT id FROM jobs WHERE status='running' LIMIT 1").get();
+      if (running) { this.db.exec('COMMIT'); return null; }
       const due = this.db.prepare(
         "SELECT * FROM jobs WHERE status='queued' AND run_at<=? ORDER BY priority DESC,run_at,id LIMIT 1"
       ).get(now) as SqlEntry | undefined;
