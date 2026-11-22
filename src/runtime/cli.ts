@@ -166,6 +166,7 @@ export async function main(argv = process.argv.slice(2)): Promise<number> {
           !Number.isSafeInteger(delay) || delay < 0 || delay > 43200) {
         throw new Error('Invalid queue priority or delay');
       }
+      if (args['delegate']) loadDelegate(ctx, args['delegate']);
       const state = store.create(args['task']!, workspace.workspaceId);
       const queue = new MissionQueue(ctx.commonsDir);
       try {
