@@ -3,13 +3,16 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { redactSecrets } from '../security/scrubber.js';
 
-export type MissionStatus = 'running' | 'completed' | 'partial' | 'blocked' | 'needs-approval';
+export type MissionStatus = 'queued' | 'planning' | 'running' | 'verifying' | 'paused' |
+  'completed' | 'partial' | 'blocked' | 'needs_approval' | 'failed' | 'cancelled' | 'needs-approval';
 export type ToolName = 'list_files' | 'read_file' | 'write_file' | 'verify' | 'mcp_call';
 export interface ToolRequest { name: ToolName; arguments: Record<string, unknown> }
 export interface ToolResult { ok: boolean; output: string; progress: boolean; changed?: boolean; tested?: boolean }
 export interface ModelTurn { call?: ToolRequest; finish?: string; text?: string; tokens?: number }
 export interface ModelClient {
   next(input: { goal: string; observations: string[]; guidance?: string; mcpTools?: string[] }): Promise<ModelTurn>;
+  /** Optional local-only plan; this is never treated as proof of progress. */
+  plan?(goal: string): Promise<{ steps: string[]; tokens?: number }>; 
   /** Advisory-only fallback; never grants the cloud permission to execute workspace tools. */
   advise?(input: { goal: string; observations: string[] }): Promise<{ text: string; tokens?: number }>;
 }
@@ -53,6 +56,10 @@ export interface MissionState {
   skillIds?: string[];
   /** Successful MCP calls; tool result bodies are never checkpointed. */
   mcpCalls?: number;
+  /** Proposed steps from the local model. A plan is not evidence of execution. */
+  plan?: string[];
+  /** Persisted before uncertain side effects; requires explicit reconciliation on crash. */
+  pendingAction?: { name: string; digest: string };
 }
 const SHA = (v: string) => crypto.createHash('sha256').update(v).digest('hex');
 const short = (v: string, n = 700) => redactSecrets(v).slice(0, n);
@@ -78,7 +85,7 @@ export class MissionStore {
     if (workspaceId !== undefined && !/^[a-f0-9]{64}$/.test(workspaceId)) throw new Error('Invalid workspace fingerprint');
     const now = Date.now();
     const state: MissionState = { version: 1, id: crypto.randomBytes(12).toString('hex'), goal: short(goal, 4000), workspaceId,
-      status: 'running', reason: '', steps: 0, calls: 0, tokens: 0, cloudCalls: 0,
+      status: 'queued', reason: '', steps: 0, calls: 0, tokens: 0, cloudCalls: 0,
       idleSteps: 0, changed: false, tested: false, evidence: 0, inspected: false, startedAt: now, updatedAt: now,
       observations: [], fingerprints: {}, writeHistory: {}, revision: 0 };
     this.save(state); return state;
@@ -101,6 +108,52 @@ export class MissionStore {
     if (!state.writeHistory || typeof state.writeHistory !== 'object' || Array.isArray(state.writeHistory)) state.writeHistory = {};
     return state;
   }
+  private controlFile(id: string): string {
+    return path.join(this.base, '.' + path.basename(this.file(id)) + '.control');
+  }
+  /** An independent control record survives concurrent runner checkpoint writes. */
+  requestControl(id: string, workspaceId: string, command: 'pause' | 'cancel'): void {
+    const state = this.load(id, workspaceId);
+    if (state.status === 'completed' || state.status === 'cancelled') {
+      throw new Error('Mission is already terminal');
+    }
+    const file = this.controlFile(id);
+    if (fs.existsSync(file) && fs.lstatSync(file).isSymbolicLink()) throw new Error('Unsafe mission control');
+    const temp = file + '.' + crypto.randomBytes(5).toString('hex') + '.tmp';
+    try {
+      fs.writeFileSync(temp, command, { mode: 0o600, flag: 'wx' });
+      fs.renameSync(temp, file);
+    } finally { if (fs.existsSync(temp)) fs.unlinkSync(temp); }
+  }
+  readControl(id: string): 'pause' | 'cancel' | null {
+    this.ensure();
+    const file = this.controlFile(id);
+    if (!fs.existsSync(file)) return null;
+    if (fs.lstatSync(file).isSymbolicLink() || fs.statSync(file).size > 16) {
+      throw new Error('Unsafe mission control');
+    }
+    const signal = fs.readFileSync(file, 'utf8');
+    if (signal !== 'pause' && signal !== 'cancel') throw new Error('Invalid mission control');
+    return signal;
+  }
+  clearControl(id: string): void {
+    const file = this.controlFile(id);
+    if (fs.existsSync(file)) {
+      if (fs.lstatSync(file).isSymbolicLink()) throw new Error('Unsafe mission control');
+      fs.unlinkSync(file);
+    }
+  }
+  /** Operator has inspected an uncertain side effect. No tool is replayed here. */
+  acknowledgePending(id: string, workspaceId: string): MissionState {
+    const state = this.load(id, workspaceId);
+    if (!state.pendingAction) throw new Error('No pending action to reconcile');
+    state.pendingAction = undefined;
+    state.status = 'blocked';
+    state.reason = 'Pending action manually reconciled; resume explicitly';
+    this.save(state);
+    return state;
+  }
+
   save(state: MissionState): void {
     this.ensure();
     const file = this.file(state.id);
