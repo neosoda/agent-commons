@@ -1,24 +1,24 @@
-# Agent Commons — AI contributor instructions
+# Agent Commons — instructions minimales pour tous les agents
 
-**Before doing any work:** read [PROJECT_HANDOFF.md](PROJECT_HANDOFF.md) in full. It contains the current architecture, safety decisions, PR/CI status (time-stamped), prioritized backlog and a reusable resumption prompt. Then independently verify the **live** GitHub and worktree state: never assume the handoff's snapshot is still current.
+**Point d'entrée :** [PROJECT_HANDOFF.md](PROJECT_HANDOFF.md) (état et prochaine action), puis ouvrir **uniquement** la documentation pertinente pour la mission. Ne charger ni catalogue complet ni historique P1–P6 en contexte par défaut.
 
-1. Inspect `git status`, branch and pending user changes before switching branches or modifying files. Never erase uncommitted work.
-2. Keep the application local-first. Do not expose the unauthenticated Skill Hub outside `127.0.0.1`, leak credentials or private paths, or make destructive actions implicit.
-3. Prefer the existing CLI/core modules for skill, MCP, snapshot and filesystem operations. Preserve unmanaged local files and Windows junction semantics.
-4. Run `npm ci`, `npm run typecheck`, `npm test`, `npm audit --audit-level=high` and `npm pack --dry-run`. For changed UI/release logic, also require the Chromium and Windows portable GitHub workflows.
-5. Merge only after **all six** Windows/Ubuntu/macOS × Node 22/24 CI jobs, Chromium and Windows portable jobs pass on the PR's **exact head SHA**. Confirm new `main` CI after merge.
-6. Never claim a release, Windows asset, npm publication or permission exists until verified at its source. Account-authenticated npm Trusted Publisher settings may require maintainer action.
-7. At the end of every session, update `PROJECT_HANDOFF.md` with concise *actual* state, completed tasks, blockers, references and the next concrete action. Commit/push that update through the normal reviewed branch process.
+## Sources de vérité (ordre)
 
-8. For skill discovery, prefer the existing offline curated catalog. `find-skills` is a reviewed catalog entry but not installed automatically; use its [activation guide](docs/FIND_SKILLS.md). Treat upstream `npx skills add` suggestions as **untrusted**: never install/update arbitrary external skills or bypass Agent Commons' pinned GitHub installer, preview and explicit approval.
+- Ce qui **existe** : code, `package.json`, tests, workflows et GitHub `main`/PR/CI sur le **SHA exact** ; [capacités et preuves](docs/CAPABILITIES.md).
+- **Conception** : [architecture](docs/ARCHITECTURE.md), [décisions](docs/DECISIONS.md).
+- **Modifications skills/MCP** : [guide opérationnel](docs/SKILLS_AND_MCP.md), [sécurité](SECURITY.md).
+- **Missions agentiques** : [runtime](docs/AGENT_RUNTIME.md) (expérimental sur `main`).
+- **Travail futur** : [roadmap](docs/ROADMAP.md). La release `v0.6.0` n'est pas l'état complet de `main`.
 
-The user-facing product introduction is French by default in [README.md](README.md), with the complete English version in [README.en.md](README.en.md). Keep both README editions aligned for technical content, safeguards, commands and attribution; the generated public skill credits must pass `npm run catalog:check`. Avoid duplicating the introduction here.
+## Règles non négociables
 
+1. Vérifier `git status`, la branche et les changements utilisateur avant toute écriture. Ne jamais écraser des données non gérées, des secrets, des junctions NTFS ou un travail en cours.
+2. Local-first ; **ne pas exposer le Skill Hub non authentifié au-delà de `127.0.0.1`**. Ne pas publier de chemins privés, prompts, sorties MCP brutes ou credentials.
+3. Découvrir par **métadonnées**, router, puis charger sélectivement les skills utiles. Référence de catalogue ≠ installation. Aucun code tiers arbitraire, hook, sous-agent ou package installé automatiquement.
+4. MCP uniquement par permission explicite ; distinguer synchronisation des clients et autorisation `--allow-mcp-tool serveur/outil` de mission. Une action à effet incertain requiert inspection humaine avant reprise. Limiter les droits sans bloquer les actions sûres autorisées.
+5. Favoriser réutilisation des modules existants, petite modification testée et récupération/rollback. Ne pas changer le comportement applicatif pour un simple alignement documentaire.
+6. Vérifier `npm ci`, `npm run typecheck`, `npm test`, `npm audit --audit-level=high`, `npm pack --dry-run` et `npm run catalog:check`. Pour toute PR, attendre **six checks OS/Node + Chromium + Windows portable** sur le SHA de tête exact, puis vérifier les checks du nouveau `main` après fusion. Distinguer CI synthétique et essai physique.
+7. Conserver [README FR](README.md) / [EN](README.en.md) synchronisés ; ne pas casser les marqueurs de crédits générés du catalogue ni les licences amont.
+8. Mettre à jour le [handoff](PROJECT_HANDOFF.md) avec l'état **actuel et concis** et une seule prochaine action vérifiable. Pas de journal chronologique ni de supposition de release, npm, Windows réel ou infrastructure SentinelBrain déployée.
 
-9. For task-based skills, use `skills route --json` (metadata only) and explicit `skills load <id>` only when needed. Catalog references are not installed skills. Never auto-install third-party scripts or assume native agent prompt injection is supported; see [routing](docs/CONTEXT_ROUTING.md).
-
-10. Desktop computer-use integration: the `agent-desktop` catalog skill and MCP reference are opt-in only. Never install/launch native binaries, grant OS permissions or expose clipboard/screen data as part of catalog discovery or sync. Desktop control must not be mixed with untrusted Web/OSINT MCP tools; require operator review for sensitive actions. See [FR](docs/AGENT_DESKTOP.md) / [EN](docs/AGENT_DESKTOP.en.md).
-
-11. Never declare an MCP server working because it appears in a config file. Use `doctor` (read-only launch checks) and `mcp probe` (explicit handshake) — see [diagnostics](docs/DIAGNOSTICS.en.md). Tests must also pass on a **standard Windows account** (no admin, no Developer Mode): use junctions for directory links in tests.
-
-12. Curated Hermes discovery: six pinned, metadata-only skills are documented in [FR](docs/HERMES_CURATED.md) / [EN](docs/HERMES_CURATED.en.md). No auto-install, auto-run or hooks; never treat the source awesome-list as a security attestation. Apply selective routing and explicit install/sync approval; for third-party skills consider manual analysis with `skill-inspector` (NVIDIA CLI optional). Do not adopt unattended remediation or approval bypass patterns.
+**Lire à la demande :** [diagnostics](docs/DIAGNOSTICS.md), [Extension Manager](docs/EXTENSION_MANAGER.md), [routage](docs/CONTEXT_ROUTING.md) et [recette matérielle](docs/qa/RELEASE_ACCEPTANCE.md). Les documents historiques ne sont pas des instructions actives.

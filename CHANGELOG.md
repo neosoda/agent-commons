@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Documentation
+- Consolidated the real `main` (post-v0.6.0) architecture, capabilities, runtime, skills/MCP, security decisions and prioritized roadmap into focused canonical documents; replaced the historic handoff with a short operational resume.
+- Reduced bilingual public READMEs without discarding generated upstream repository/license credits; moved legacy long-form progress logs to immutable Git-history archive links.
+- Corrected stale v0.5.x security support wording, main/release confusion, escaped Markdown fences and the contradictory MCP installer documentation. No application behavior changed and no new release was created.
+
 ### Added
 - Optional pinned SimuLab catalog integration for sourced, standalone isometric 3D educational labs and optional video/audio; reviewed 71-file upstream subset with MIT source and OFL font attribution, explicit install, no dependency execution, bilingual guides and synthetic-home install/verify checks.
 

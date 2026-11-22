@@ -1,4 +1,6 @@
-# MCP Control Center — v0.4.0
+# MCP Control Center — configuration et profils (historique v0.4.0)
+
+**Current package installation/update/removal capability is documented in [Extension Manager](EXTENSION_MANAGER.md).** Catalog browsing remains read-only, but the separately approved Extension Manager can install pinned MCP packages and provision their commands. The [single operational guide](SKILLS_AND_MCP.md) defines the current separation of discovery, package installation, configuration, and synchronization.
 
 The MCP Control Center is part of the existing local Skill Hub (agent-commons web).
 It is not another service; the UI stays bound to 127.0.0.1.
@@ -38,7 +40,7 @@ Verified on 2026-11-14:
 - Docker MCP Gateway and GitHub MCP: official sources, manually provisioned, no guessed release version.
 - Web Search and OSINT: no universal trustworthy server/package selected; installation unavailable pending upstream verification.
 
-The catalog is metadata-only. It never downloads, installs, upgrades, removes or launches third-party binaries. Guided executable installation, launch diagnostics and generic import of existing client commands remain unimplemented. Provision MCP servers using their official instructions with restricted permissions and credentials outside Git; review the package before executing.
+**Browsing** the catalog is metadata-only: it never downloads or launches software. The separate reviewed **Extension Manager** implements explicit preview/approval-based install, repair, update and uninstall for selected pinned npm/uv packages (Playwright, Filesystem, Fetch, Git), plus guided configuration for those four. Other servers still require manual provisioning. Use `doctor` (read-only) and `mcp probe` (explicit live launch) for diagnostics. Provision MCP servers with restricted permissions and credentials outside Git; review third-party code before executing it.
 
 ## Profile configuration
 
