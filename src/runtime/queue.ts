@@ -14,6 +14,9 @@ export interface QueueEntry {
   allowWrite: boolean;
   allowTests: boolean;
   allowMcp: string[];
+  /** Optional explicitly authorized cloud CLI adviser, never a coding worker. */
+  delegate?: string;
+  allowCloudSource?: boolean;
   priority: number;
   runAt: number;
   status: QueueStatus;
@@ -29,11 +32,12 @@ interface SqlEntry {
 const idPattern = /^[a-f0-9]{24}$/;
 const workspacePattern = /^[a-f0-9]{64}$/;
 const fromRow = (row: SqlEntry): QueueEntry => {
-  const opts = JSON.parse(row.permissions) as { allowWrite: boolean; allowTests: boolean; allowMcp: string[] };
+  const opts = JSON.parse(row.permissions) as { allowWrite: boolean; allowTests: boolean; allowMcp: string[]; delegate?: string; allowCloudSource?: boolean };
   return {
     id: row.id, missionId: row.mission_id, workspace: row.workspace,
     workspaceId: row.workspace_id, model: row.model,
     allowWrite: opts.allowWrite, allowTests: opts.allowTests, allowMcp: opts.allowMcp,
+    delegate: opts.delegate, allowCloudSource: opts.allowCloudSource,
     priority: row.priority, runAt: row.run_at, status: row.status, attempts: row.attempts,
     leaseUntil: row.lease_until, owner: row.owner
   };
@@ -67,12 +71,15 @@ export class MissionQueue {
         !entry.model.trim() || entry.model.length > 200 ||
         !Number.isSafeInteger(entry.priority) || entry.priority < 0 || entry.priority > 9 ||
         !Number.isSafeInteger(entry.runAt) || entry.runAt < 0 ||
-        entry.allowMcp.length > 8 || entry.allowMcp.some(v => !/^[\w.-]+\/[\w.-]+$/.test(v))) {
+        entry.allowMcp.length > 8 || entry.allowMcp.some(v => !/^[\w.-]+\/[\w.-]+$/.test(v)) ||
+        (entry.delegate !== undefined && !['codex','claude','gemini','opencode','orchestrator'].includes(entry.delegate)) ||
+        (entry.allowCloudSource === true && !entry.delegate)) {
       throw new Error('Invalid durable mission queue entry');
     }
     const id = crypto.randomBytes(12).toString('hex');
     const permissions = JSON.stringify({
-      allowWrite: entry.allowWrite, allowTests: entry.allowTests, allowMcp: entry.allowMcp
+      allowWrite: entry.allowWrite, allowTests: entry.allowTests, allowMcp: entry.allowMcp,
+      delegate: entry.delegate, allowCloudSource: entry.allowCloudSource === true
     });
     this.db.prepare(
       "INSERT INTO jobs(id,mission_id,workspace,workspace_id,model,permissions,priority,run_at,status,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?)"

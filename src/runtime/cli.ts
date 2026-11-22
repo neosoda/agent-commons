@@ -2,6 +2,7 @@
 import path from 'node:path';
 import { createEnvironmentContext } from '../core/context.js';
 import { PersistentMissionMemory } from './memory.js';
+import { DelegatedCliAdvisor, loadDelegate, type DelegateName } from './delegate.js';
 import { MissionQueue } from './queue.js';
 import { LocalQueueWorker, serveQueue, workerEventFile } from './worker.js';
 import { MissionToolsWithMcp, prepareApprovedMcp, selectMissionSkills } from './extensions.js';
@@ -12,7 +13,7 @@ import { OpenAICompatibleModel } from './provider.js';
 function getOptions(argv: string[]): {args:Record<string,string>; flags:Set<string>} {
   const args:Record<string,string> = {};
   const flags = new Set<string>();
-  const values = new Set(['task','workspace','resume','model','url','max-steps','max-tokens','max-tool-calls','max-minutes','max-cloud-calls','allow-mcp-tool','pause','cancel','acknowledge-pending','remember','memory-kind','memory-search','queue-requeue','queue-cancel','priority','delay-minutes']);
+  const values = new Set(['task','workspace','resume','model','url','max-steps','max-tokens','max-tool-calls','max-minutes','max-cloud-calls','allow-mcp-tool','pause','cancel','acknowledge-pending','remember','memory-kind','memory-search','queue-requeue','queue-cancel','priority','delay-minutes','delegate','delegate-test']);
   const booleans = new Set(['allow-write','allow-tests','cloud','allow-cloud-source','help','worker','once','enqueue','queue-list']);
   for (let i=0; i<argv.length; i++) {
     const item=argv[i]; if (!item?.startsWith('--')) throw new Error(`Unknown parameter ${item}`);
@@ -36,12 +37,26 @@ Memory: --workspace <repo> --remember "approved decision" --memory-kind decision
 Durable queue: --workspace <repo> --task "goal" --model <id> --enqueue [--priority 5] [--delay-minutes 30].
 Worker: --worker [--once] (runs while PC is on); --queue-list, --workspace <repo> --queue-requeue <job-id> or --queue-cancel <job-id>.
 A stale job requires explicit operator reconciliation: no automatic replay of uncertain effects.
+Optional cloud CLI advice: --delegate codex|claude|gemini|opencode|orchestrator, configured in ~/.agents/delegates.json.
+The default remains one local agent. Consultation occurs only after stagnation and local execution resumes.
+Explicit physical CLI smoke test: --delegate-test codex (may consume provider quota; no project data shared).
 `;
 export async function main(argv = process.argv.slice(2)): Promise<number> {
   try {
     const {args,flags}=getOptions(argv);
     if (flags.has('help')) {console.log(help);return 0;}
     const ctx = createEnvironmentContext();
+    if (args['delegate-test']) {
+      if (args['delegate'] || flags.has('worker') || args['workspace'] || args['task']) {
+        throw new Error('Delegate smoke test cannot run a project mission');
+      }
+      const client = args['delegate-test']!;
+      const advisor = new DelegatedCliAdvisor(client as DelegateName, loadDelegate(ctx, client));
+      const answer = await advisor.advise({ goal: 'Return one sentence confirming you can provide read-only advice.', observations: [] });
+      console.log('Adviser responded: ' + answer.text.slice(0, 350));
+      return 0;
+    }
+    if (flags.has('cloud') && args['delegate']) throw new Error('Choose HTTP cloud or CLI delegate, not both');
     if (flags.has('worker')) {
       if (flags.has('enqueue') || args['workspace'] || args['task'] || args['resume']) {
         throw new Error('Worker cannot also run or enqueue a mission');
@@ -54,6 +69,8 @@ export async function main(argv = process.argv.slice(2)): Promise<number> {
         if (job.allowWrite) options.push('--allow-write');
         if (job.allowTests) options.push('--allow-tests');
         for (const name of job.allowMcp) options.push('--allow-mcp-tool', name);
+        if (job.delegate) options.push('--delegate', job.delegate);
+        if (job.allowCloudSource) options.push('--allow-cloud-source');
         await main(options);
         const state = new MissionStore(path.join(ctx.commonsDir, 'missions')).load(job.missionId, job.workspaceId);
         return state.status;
@@ -139,8 +156,8 @@ export async function main(argv = process.argv.slice(2)): Promise<number> {
     const model=args['model'] ?? process.env['AGENT_COMMONS_LOCAL_MODEL'];
     if (!model) throw new Error('Select a local model with --model or AGENT_COMMONS_LOCAL_MODEL');
     if (flags.has('enqueue')) {
-      if (args['resume'] || !args['task'] || flags.has('cloud') || flags.has('allow-cloud-source') ||
-          args['url'] || controls.length) {
+      if (args['resume'] || !args['task'] || flags.has('cloud') ||
+          (flags.has('allow-cloud-source') && !args['delegate']) || args['url'] || controls.length) {
         throw new Error('Enqueue requires a new local-only task; remote endpoints/cloud are not queued');
       }
       const priority = Number(args['priority'] ?? '5');
@@ -149,6 +166,7 @@ export async function main(argv = process.argv.slice(2)): Promise<number> {
           !Number.isSafeInteger(delay) || delay < 0 || delay > 43200) {
         throw new Error('Invalid queue priority or delay');
       }
+      if (args['delegate']) loadDelegate(ctx, args['delegate']);
       const state = store.create(args['task']!, workspace.workspaceId);
       const queue = new MissionQueue(ctx.commonsDir);
       try {
@@ -156,6 +174,7 @@ export async function main(argv = process.argv.slice(2)): Promise<number> {
           missionId: state.id, workspace: path.resolve(args['workspace']), workspaceId: workspace.workspaceId,
           model, allowWrite: flags.has('allow-write'), allowTests: flags.has('allow-tests'),
           allowMcp: (args['allow-mcp-tool'] ?? '').split(',').filter(Boolean),
+          delegate: args['delegate'], allowCloudSource: flags.has('allow-cloud-source'),
           priority, runAt: Date.now() + delay * 60000
         });
         console.log('Queued: ' + id + ' | mission: ' + state.id);
@@ -183,9 +202,12 @@ export async function main(argv = process.argv.slice(2)): Promise<number> {
       limits[key]=n*mult;
     }
     const local=new OpenAICompatibleModel({url:args['url']??process.env['AGENT_COMMONS_LOCAL_URL']??'http://127.0.0.1:1234/v1/chat/completions',model});
-    const cloud=flags.has('cloud') ? new OpenAICompatibleModel({
-      url:process.env['AGENT_COMMONS_CLOUD_URL']??'',model:process.env['AGENT_COMMONS_CLOUD_MODEL']??'',apiKey:process.env['AGENT_COMMONS_CLOUD_API_KEY']
-    }):undefined;
+    const cloud = args['delegate'] ?
+      new DelegatedCliAdvisor(args['delegate'] as DelegateName,
+        loadDelegate(ctx, args['delegate']), flags.has('allow-cloud-source')) :
+      flags.has('cloud') ? new OpenAICompatibleModel({
+        url:process.env['AGENT_COMMONS_CLOUD_URL']??'',model:process.env['AGENT_COMMONS_CLOUD_MODEL']??'',apiKey:process.env['AGENT_COMMONS_CLOUD_API_KEY']
+      }):undefined;
     console.log(`Mission: ${state.id} | workspace: ${path.resolve(args['workspace'])}`);
     console.log('Selected skills: ' + (skills.ids.join(', ') || 'none') +
       ' | approved MCP tools: ' + approved.allowed.length);
