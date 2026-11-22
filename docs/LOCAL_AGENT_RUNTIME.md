@@ -58,7 +58,7 @@ Les noms de périphériques Windows et flux NTFS alternatifs (ADS) sont refusés
 
 En cas d'escalade, un seul appel consultatif cloud est effectué par tentative. Le modèle local conserve la responsabilité des outils et du résultat final. Une nouvelle escalade exige une progression vérifiable depuis le dernier conseil. Le budget de tokens signalé par la réponse cloud est comptabilisé, mais il ne garantit pas la maîtrise du coût financier : configurer un plafond côté fournisseur. Les tests HTTP du client ne remplacent pas une recette sur le PC Windows et un véritable endpoint LM Studio.
 
-## P1 — Skills et outils MCP pendant une mission (branche de développement, non encore publiée)
+## P1 — Skills et outils MCP pendant une mission (PR #106 fusionnée ; pas de nouvelle release)
 
 Au démarrage de chaque mission, le moteur utilise le routeur de skills existant pour sélectionner au plus deux skills physiques installés dans `~/.agents/skills`. Seules les instructions sélectionnées sont fournies au modèle, avec un budget estimé de 1 600 tokens. Aucun script de skill n'est exécuté ou installé automatiquement.
 
@@ -70,5 +70,27 @@ node dist/runtime/cli.js --workspace "A:\PROJETS\MON-DEPOT-TEST" --task "Analyse
 
 Plusieurs `--allow-mcp-tool serveur/outil` peuvent être indiqués ; chaque outil est contrôlé avant la mission et à l'exécution. Aucun autre outil MCP n'est exposé au modèle. Les résultats sont traités comme entrées non fiables et seuls des métadonnées et condensats sont conservés dans les checkpoints. MCP stdio et Streamable HTTP (HTTPS ou loopback HTTP) sont pris en charge sans secrets HTTP ; les endpoints nécessitant une authentification ne sont pas validés par ce chemin.
 
-**Limites :** les autorisations sont des options CLI, pas encore des validations interactives à l'argument près. N'autorisez donc que des outils dont les effets de bord sont acceptables pour la mission, idéalement en lecture seule. Chaque appel MCP réalise son propre handshake plutôt qu'une connexion conservée. Pas de sandbox système, ni de recette avec la RTX 5070 Ti / LM Studio à distance. Ne pas confondre les tests HTTP simulant une API modèle avec une vraie inférence locale. Statut P1 à confirmer sur CI avant toute fusion.
+**Limites :** les autorisations sont des options CLI, pas encore des validations interactives à l'argument près. N'autorisez donc que des outils dont les effets de bord sont acceptables pour la mission, idéalement en lecture seule. Chaque appel MCP réalise son propre handshake plutôt qu'une connexion conservée. Pas de sandbox système, ni de recette avec la RTX 5070 Ti / LM Studio à distance. Ne pas confondre les tests HTTP simulant une API modèle avec une vraie inférence locale. PR #106 fusionnée sur main au commit a661fed8996737df24d6984532b33efeb6918725 : 8/8 validations PR et 8/8 validations main réussies. Aucune recette physique sur LM Studio/RTX 5070 Ti n'est revendiquée.
 
+
+## P2 — Plan, états persistants et reprise conservatrice (travail en cours)
+
+Chaque mission CLI démarre désormais en état `queued`, puis le modèle **local** propose au maximum cinq étapes lors d'un appel de planification sans outils. Le plan est conservé dans le checkpoint ; il ne constitue **pas** une preuve de réussite. Les états `planning`, `running`, `verifying`, `paused`, `cancelled`, `needs_approval`, `partial`, `blocked` et `completed` reflètent les étapes réelles du moteur.
+
+Commandes coopératives depuis un second terminal, avec le même espace de travail :
+
+```powershell
+node dist/runtime/cli.js --workspace "A:\PROJETS\MON-DEPOT-TEST" --pause "ID_MISSION"
+node dist/runtime/cli.js --workspace "A:\PROJETS\MON-DEPOT-TEST" --cancel "ID_MISSION"
+node dist/runtime/cli.js --workspace "A:\PROJETS\MON-DEPOT-TEST" --resume "ID_MISSION" --model "ID_EXACT_LM_STUDIO"
+```
+
+Une demande de pause/annulation est enregistrée indépendamment du checkpoint ; le worker la prend en compte entre deux actions, pas instantanément au milieu d'un outil bloqué.
+
+Avant une écriture, un appel MCP ou un test de projet susceptible d'avoir des effets de bord, le moteur inscrit une intention dans le checkpoint. Après un crash ou un résultat ambigu, il s'arrête en `needs_approval` et ne rejoue **jamais automatiquement** cette action. Après inspection réelle de l'état du projet, le responsable peut confirmer la réconciliation :
+
+```powershell
+node dist/runtime/cli.js --workspace "A:\PROJETS\MON-DEPOT-TEST" --acknowledge-pending "ID_MISSION"
+```
+
+Cette confirmation **n'exécute pas** l'action et ne garantit pas sa réussite ; une écriture incertaine reste marquée comme modification non testée. Les actions longues ne sont pas interruptibles au niveau OS, et le processus ne dispose pas d'une sandbox. Ce P2 ne constitue pas encore un worker 24/7, un scheduler, un système de verrouillage multi-processus ou un dashboard.

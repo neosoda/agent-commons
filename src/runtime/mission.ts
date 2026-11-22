@@ -3,13 +3,16 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { redactSecrets } from '../security/scrubber.js';
 
-export type MissionStatus = 'running' | 'completed' | 'partial' | 'blocked' | 'needs-approval';
+export type MissionStatus = 'queued' | 'planning' | 'running' | 'verifying' | 'paused' |
+  'completed' | 'partial' | 'blocked' | 'needs_approval' | 'failed' | 'cancelled' | 'needs-approval';
 export type ToolName = 'list_files' | 'read_file' | 'write_file' | 'verify' | 'mcp_call';
 export interface ToolRequest { name: ToolName; arguments: Record<string, unknown> }
 export interface ToolResult { ok: boolean; output: string; progress: boolean; changed?: boolean; tested?: boolean }
 export interface ModelTurn { call?: ToolRequest; finish?: string; text?: string; tokens?: number }
 export interface ModelClient {
   next(input: { goal: string; observations: string[]; guidance?: string; mcpTools?: string[] }): Promise<ModelTurn>;
+  /** Optional local-only plan; this is never treated as proof of progress. */
+  plan?(goal: string): Promise<{ steps: string[]; tokens?: number }>; 
   /** Advisory-only fallback; never grants the cloud permission to execute workspace tools. */
   advise?(input: { goal: string; observations: string[] }): Promise<{ text: string; tokens?: number }>;
 }
@@ -53,6 +56,10 @@ export interface MissionState {
   skillIds?: string[];
   /** Successful MCP calls; tool result bodies are never checkpointed. */
   mcpCalls?: number;
+  /** Proposed steps from the local model. A plan is not evidence of execution. */
+  plan?: string[];
+  /** Persisted before uncertain side effects; requires explicit reconciliation on crash. */
+  pendingAction?: { name: string; digest: string };
 }
 const SHA = (v: string) => crypto.createHash('sha256').update(v).digest('hex');
 const short = (v: string, n = 700) => redactSecrets(v).slice(0, n);
@@ -78,7 +85,7 @@ export class MissionStore {
     if (workspaceId !== undefined && !/^[a-f0-9]{64}$/.test(workspaceId)) throw new Error('Invalid workspace fingerprint');
     const now = Date.now();
     const state: MissionState = { version: 1, id: crypto.randomBytes(12).toString('hex'), goal: short(goal, 4000), workspaceId,
-      status: 'running', reason: '', steps: 0, calls: 0, tokens: 0, cloudCalls: 0,
+      status: 'queued', reason: '', steps: 0, calls: 0, tokens: 0, cloudCalls: 0,
       idleSteps: 0, changed: false, tested: false, evidence: 0, inspected: false, startedAt: now, updatedAt: now,
       observations: [], fingerprints: {}, writeHistory: {}, revision: 0 };
     this.save(state); return state;
@@ -101,6 +108,56 @@ export class MissionStore {
     if (!state.writeHistory || typeof state.writeHistory !== 'object' || Array.isArray(state.writeHistory)) state.writeHistory = {};
     return state;
   }
+  private controlFile(id: string): string {
+    return path.join(this.base, '.' + path.basename(this.file(id)) + '.control');
+  }
+  /** An independent control record survives concurrent runner checkpoint writes. */
+  requestControl(id: string, workspaceId: string, command: 'pause' | 'cancel'): void {
+    const state = this.load(id, workspaceId);
+    if (state.status === 'completed' || state.status === 'cancelled') {
+      throw new Error('Mission is already terminal');
+    }
+    const file = this.controlFile(id);
+    if (fs.existsSync(file) && fs.lstatSync(file).isSymbolicLink()) throw new Error('Unsafe mission control');
+    const temp = file + '.' + crypto.randomBytes(5).toString('hex') + '.tmp';
+    try {
+      fs.writeFileSync(temp, command, { mode: 0o600, flag: 'wx' });
+      fs.renameSync(temp, file);
+    } finally { if (fs.existsSync(temp)) fs.unlinkSync(temp); }
+  }
+  readControl(id: string): 'pause' | 'cancel' | null {
+    this.ensure();
+    const file = this.controlFile(id);
+    if (!fs.existsSync(file)) return null;
+    if (fs.lstatSync(file).isSymbolicLink() || fs.statSync(file).size > 16) {
+      throw new Error('Unsafe mission control');
+    }
+    const signal = fs.readFileSync(file, 'utf8');
+    if (signal !== 'pause' && signal !== 'cancel') throw new Error('Invalid mission control');
+    return signal;
+  }
+  clearControl(id: string): void {
+    const file = this.controlFile(id);
+    if (fs.existsSync(file)) {
+      if (fs.lstatSync(file).isSymbolicLink()) throw new Error('Unsafe mission control');
+      fs.unlinkSync(file);
+    }
+  }
+  /** Operator has inspected an uncertain side effect. No tool is replayed here. */
+  acknowledgePending(id: string, workspaceId: string): MissionState {
+    const state = this.load(id, workspaceId);
+    if (!state.pendingAction) throw new Error('No pending action to reconcile');
+    if (state.pendingAction.name === 'write_file') {
+      state.changed = true;
+      state.tested = false;
+    }
+    state.pendingAction = undefined;
+    state.status = 'blocked';
+    state.reason = 'Pending action manually reconciled; resume explicitly';
+    this.save(state);
+    return state;
+  }
+
   save(state: MissionState): void {
     this.ensure();
     const file = this.file(state.id);
@@ -118,11 +175,11 @@ export class MissionStore {
 export class MissionRunner {
   constructor(readonly store: MissionStore, readonly local: ModelClient, readonly tools: ToolExecutor,
     readonly limits: Limits = DEFAULT_LIMITS, readonly cloud?: ModelClient, readonly allowCloudSource = false,
-    readonly extensions: { guidance?: string; mcpTools?: string[]; skillIds?: string[] } = {}) {
+    readonly extensions: { guidance?: string; mcpTools?: string[]; skillIds?: string[]; plan?: boolean } = {}) {
     for (const value of Object.values(limits)) if (!Number.isSafeInteger(value) || value < 0) throw new Error('Invalid execution limit');
   }
   async run(state: MissionState): Promise<MissionState> {
-    if (state.status === 'completed') return state;
+    if (state.status === 'completed' || state.status === 'cancelled') return state;
     state.status = 'running';
     state.skillIds = this.extensions.skillIds ?? state.skillIds ?? [];
     // Wall-clock limit applies to this execution, not the time spent paused between sessions.
@@ -133,6 +190,34 @@ export class MissionRunner {
     let evidenceAtLastAdvice = -1;
     const liveObservations = state.observations.slice(-12);
     const stop = (status: MissionStatus, reason: string) => { state.status = status; state.reason = short(reason); this.store.save(state); return state; };
+    const processControl = (): MissionState | null => {
+      const command = this.store.readControl(state.id);
+      if (!command) return null;
+      this.store.clearControl(state.id);
+      return stop(command === 'pause' ? 'paused' : 'cancelled',
+        command === 'pause' ? 'Paused by operator' : 'Cancelled by operator');
+    };
+    const earlyControl = processControl();
+    if (earlyControl) return earlyControl;
+    if (state.pendingAction) {
+      return stop('needs_approval', 'Previous side-effecting operation has uncertain outcome; reconcile before resuming');
+    }
+    // Planning is advisory and never counts as inspected evidence or verification.
+    if (!state.plan && this.extensions.plan === true && this.local.plan) {
+      state.status = 'planning';
+      this.store.save(state);
+      try {
+        const proposal = await this.local.plan(state.goal);
+        state.tokens += Math.max(0, Math.trunc(proposal.tokens ?? 0));
+        state.plan = proposal.steps.filter(step => typeof step === 'string' && step.trim())
+          .slice(0, 6).map(step => short(step, 200));
+      } catch {
+        state.plan = [];
+        state.observations.push('Local planning unavailable; using bounded execution loop');
+      }
+    }
+    state.status = 'running';
+    this.store.save(state);
     const escalate = (reason: string): boolean => {
       if (!this.cloud || usingCloud || state.cloudCalls >= this.limits.maxCloudCalls ||
           evidenceAtLastAdvice === state.evidence) return false;
@@ -144,6 +229,8 @@ export class MissionRunner {
       return true;
     };
     while (true) {
+      const signal = processControl();
+      if (signal) return signal;
       if (Date.now() - runStartedAt >= this.limits.maxDurationMs) return stop('blocked', 'Elapsed time budget exhausted');
       if (state.steps >= this.limits.maxSteps) return stop('blocked', 'Step budget exhausted');
       if (state.calls >= this.limits.maxToolCalls) return stop('blocked', 'Tool-call budget exhausted');
@@ -160,7 +247,7 @@ export class MissionRunner {
           else {
             // Compatibility for injected ModelClient implementations from earlier versions.
             const turn = await this.cloud!.next(input);
-            if (turn.call) return stop(turn.call.name === 'write_file' ? 'needs-approval' : 'blocked',
+            if (turn.call) return stop(turn.call.name === 'write_file' ? 'needs_approval' : 'blocked',
               'Cloud adviser attempted a workspace tool instead of providing guidance');
             advice = { text: turn.text ?? turn.finish ?? '', tokens: turn.tokens };
           }
@@ -183,7 +270,9 @@ export class MissionRunner {
       let turn: ModelTurn;
       state.steps++;
       try { turn = await this.local.next({ goal: state.goal, observations: liveObservations.slice(-6),
-        guidance: this.extensions.guidance, mcpTools: this.extensions.mcpTools }); }
+        guidance: [this.extensions.guidance ?? '', state.plan?.length ?
+          'LOCAL PLAN (unverified, adapt based on tool evidence):\n' + state.plan.join('\n') : '']
+          .filter(Boolean).join('\n\n'), mcpTools: this.extensions.mcpTools }); }
       catch {
         state.idleSteps++;
         state.observations.push('Model request failed; no action performed');
@@ -195,6 +284,8 @@ export class MissionRunner {
       state.tokens += Math.max(0, Math.trunc(turn.tokens ?? 0));
       if (state.tokens > this.limits.maxTokens) return stop('blocked', 'Token budget exhausted');
       if (turn.finish !== undefined) {
+        state.status = 'verifying';
+        this.store.save(state);
         if (state.evidence === 0 || !state.inspected) return stop('blocked', 'Model claimed completion without verified inspection evidence');
         if (state.changed && !state.tested) return stop('partial', 'Files modified, but no successful test run was observed');
         return stop('completed', short(turn.finish, 400));
@@ -225,9 +316,28 @@ export class MissionRunner {
           continue;
         }
         state.calls++;
+        const uncertain = name === 'write_file' || name === 'mcp_call' ||
+          (name === 'verify' && args?.['check'] !== 'diff');
+        if (uncertain) {
+          // Write intent before invoking side effects. On crash, never replay blindly.
+          state.pendingAction = { name, digest: fingerprint };
+          this.store.save(state);
+        }
+        if (name === 'verify') {
+          state.status = 'verifying';
+          this.store.save(state);
+        }
         let result: ToolResult;
         try { result = await this.tools.execute(turn.call); }
-        catch { result = { ok: false, progress: false, output: 'Tool execution failed' }; }
+        catch {
+          if (uncertain) return stop('needs_approval', 'Tool threw during a potentially effectful action; outcome must be reconciled');
+          result = { ok: false, progress: false, output: 'Tool execution failed' };
+        }
+        if (uncertain && !result.ok) {
+          return stop('needs_approval', 'Side-effecting tool failed with an uncertain outcome; reconcile before retrying');
+        }
+        state.pendingAction = undefined;
+        state.status = 'running';
         const progress = result.ok && result.progress;
         if (progress) { state.idleSteps = 0; state.evidence++; if (name === 'read_file' || name === 'list_files') state.inspected = true; }
         else state.idleSteps++;

@@ -266,7 +266,7 @@ describe('bounded local agent runtime',()=>{
       const cloud=sequence([request('write_file',{path:'a.ts',content:'export const x = 99;\n'})]);
       const state=f.store.create('Fix a bug');
       const result=await new MissionRunner(f.store,local,new WorkspaceTools(f.root,true,false),shortLimits,cloud,false).run(state);
-      assert.equal(result.status,'needs-approval');assert.equal(result.cloudCalls,1);
+      assert.equal(result.status,'needs_approval');assert.equal(result.cloudCalls,1);
       assert.match(result.reason,/Cloud adviser attempted a workspace tool/);
       assert.match(fs.readFileSync(path.join(f.root,'a.ts'),'utf8'),/x = 1/);
     }finally{f.cleanup();}

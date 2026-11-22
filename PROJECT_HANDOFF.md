@@ -537,5 +537,11 @@ Catalog entry `simulab` is metadata-only until explicit preview/approved install
 
 Après fusion de la PR #105, `main` était `39ef6fc900eebb44711fb73056c0ed291d4ce78a` (état lu en direct le 22/11). Branche de travail `feat/runtime-skills-mcp-p1-20261122` : intégration des skills physiques via `routeSkills`, contexte injecté au modèle local, exécution MCP stdio/HTTP avec liste d'autorisation explicite par outil, preuve de handshake et traces de mission (IDs / nombre d'appels, pas de contenu brut). Réutilisation de `probeMcpServer` et `loadCentralMcpManifest` ; aucune modification des configurations agents réelles.
 
-**Statut : non fusionné à la rédaction de ce paragraphe.** Ne pas considérer les tests, les 8 gates GitHub ou une recette Windows/LM Studio comme acquis avant leurs résultats réels. La suite doit valider l'incrément de bout en bout, puis passer à la machine à états persistante.
+**P1 fusionnée :** [PR #106](https://github.com/neosoda/agent-commons/pull/106), squash merge `a661fed8996737df24d6984532b33efeb6918725`. Huit validations sur le SHA de PR `2c92135c915358724dae1be4248cd45d5c89a605` et huit validations sur le SHA fusionné `a661fed8996737df24d6984532b33efeb6918725` terminées en succès (6 CI + Chromium + Windows portable). Recette physique LM Studio/RTX non effectuée.
 
+
+## P2 — état de travail au 22 novembre 2026
+
+Branche `feat/runtime-persistent-state-p2-20261122` basée sur `a661fed8996737df24d6984532b33efeb6918725`, [PR #107](https://github.com/neosoda/agent-commons/pull/107) ouverte. Évolution ciblée du moteur : états persistants observables, plan local borné sans outils, demandes coopératives de pause/annulation par fichier de contrôle distinct, intention de modification durable avant écriture/appel MCP/test de projet, refus de rejeu automatique d'une opération à résultat incertain, réconciliation opérateur explicite. Tests synthétiques prévus pour plan, reprise, pause, annulation et crash entre effet de bord et confirmation.
+
+**Statut initial : non fusionnée et non validée sur CI à la rédaction.** P2 reste partiel : pas de scheduler, plan hiérarchique avec adaptation native, queue durable, daemon, ni garanties de verrouillage multiprocessus. Ne pas les annoncer opérationnels.
