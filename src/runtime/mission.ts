@@ -147,6 +147,10 @@ export class MissionStore {
   acknowledgePending(id: string, workspaceId: string): MissionState {
     const state = this.load(id, workspaceId);
     if (!state.pendingAction) throw new Error('No pending action to reconcile');
+    if (state.pendingAction.name === 'write_file') {
+      state.changed = true;
+      state.tested = false;
+    }
     state.pendingAction = undefined;
     state.status = 'blocked';
     state.reason = 'Pending action manually reconciled; resume explicitly';
