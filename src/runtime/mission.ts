@@ -8,7 +8,11 @@ export type ToolName = 'list_files' | 'read_file' | 'write_file' | 'verify';
 export interface ToolRequest { name: ToolName; arguments: Record<string, unknown> }
 export interface ToolResult { ok: boolean; output: string; progress: boolean; changed?: boolean; tested?: boolean }
 export interface ModelTurn { call?: ToolRequest; finish?: string; text?: string; tokens?: number }
-export interface ModelClient { next(input: { goal: string; observations: string[] }): Promise<ModelTurn> }
+export interface ModelClient {
+  next(input: { goal: string; observations: string[] }): Promise<ModelTurn>;
+  /** Advisory-only fallback; never grants the cloud permission to execute workspace tools. */
+  advise?(input: { goal: string; observations: string[] }): Promise<{ text: string; tokens?: number }>;
+}
 export interface ToolExecutor { execute(request: ToolRequest): Promise<ToolResult> }
 export interface Limits {
   maxSteps: number;
@@ -119,14 +123,15 @@ export class MissionRunner {
     // Token, step, tool and cloud budgets remain cumulative in the saved checkpoint.
     const runStartedAt = Date.now();
     let usingCloud = false;
+    // A second opinion is useful only if the local run has progressed since the previous one.
+    let evidenceAtLastAdvice = -1;
     const liveObservations = state.observations.slice(-12);
     const stop = (status: MissionStatus, reason: string) => { state.status = status; state.reason = short(reason); this.store.save(state); return state; };
     const escalate = (reason: string): boolean => {
-      if (!this.cloud || usingCloud || state.cloudCalls >= this.limits.maxCloudCalls) return false;
+      if (!this.cloud || usingCloud || state.cloudCalls >= this.limits.maxCloudCalls ||
+          evidenceAtLastAdvice === state.evidence) return false;
       usingCloud = true;
-      state.idleSteps = 0;
-      state.fingerprints = {};
-      state.observations.push(`Recovery mode: local agent blocked (${short(reason, 180)}). Cloud budget is limited.`);
+      state.observations.push(`Cloud advice requested: local agent blocked (${short(reason, 180)}).`);
       liveObservations.push(state.observations[state.observations.length - 1]!);
       state.observations = state.observations.slice(-12);
       this.store.save(state);
@@ -138,10 +143,40 @@ export class MissionRunner {
       if (state.calls >= this.limits.maxToolCalls) return stop('blocked', 'Tool-call budget exhausted');
       if (state.tokens >= this.limits.maxTokens) return stop('blocked', 'Token budget exhausted');
       if (usingCloud && state.cloudCalls >= this.limits.maxCloudCalls) return stop('blocked', 'Cloud call budget exhausted');
+      if (usingCloud) {
+        state.steps++;
+        state.cloudCalls++;
+        // Never expose tool output/source to the cloud unless explicitly opted in.
+        const input = { goal: state.goal, observations: (this.allowCloudSource ? liveObservations : state.observations).slice(-6) };
+        let advice: { text: string; tokens?: number };
+        try {
+          if (this.cloud!.advise) advice = await this.cloud!.advise(input);
+          else {
+            // Compatibility for injected ModelClient implementations from earlier versions.
+            const turn = await this.cloud!.next(input);
+            if (turn.call) return stop(turn.call.name === 'write_file' ? 'needs-approval' : 'blocked',
+              'Cloud adviser attempted a workspace tool instead of providing guidance');
+            advice = { text: turn.text ?? turn.finish ?? '', tokens: turn.tokens };
+          }
+        } catch {
+          return stop('blocked', 'Cloud adviser request failed');
+        }
+        state.tokens += Math.max(0, Math.trunc(advice.tokens ?? 0));
+        if (state.tokens > this.limits.maxTokens) return stop('blocked', 'Token budget exhausted');
+        const suggestion = short(advice.text, 1600).trim();
+        if (!suggestion) return stop('blocked', 'Cloud adviser provided no usable guidance');
+        evidenceAtLastAdvice = state.evidence;
+        state.observations.push(`Cloud advice received; sha256=${SHA(suggestion).slice(0, 12)}; bytes=${Buffer.byteLength(suggestion)}`);
+        state.observations = state.observations.slice(-12);
+        liveObservations.push(`Cloud advice (untrusted, must be verified): ${suggestion}`);
+        state.idleSteps = 0;
+        usingCloud = false; // Return execution and all tool permissions to the local model.
+        this.store.save(state);
+        continue;
+      }
       let turn: ModelTurn;
       state.steps++;
-      if (usingCloud) state.cloudCalls++;
-      try { turn = await (usingCloud ? this.cloud! : this.local).next({ goal: state.goal, observations: (usingCloud && !this.allowCloudSource ? state.observations : liveObservations).slice(-6) }); }
+      try { turn = await this.local.next({ goal: state.goal, observations: liveObservations.slice(-6) }); }
       catch {
         state.idleSteps++;
         state.observations.push('Model request failed; no action performed');
@@ -162,9 +197,6 @@ export class MissionRunner {
         state.observations.push('Model returned no usable action');
         liveObservations.push('Model returned no usable action');
       } else {
-        if (usingCloud && !this.allowCloudSource && turn.call.name === 'write_file') {
-          return stop('needs-approval', 'Cloud code modifications require explicit --allow-cloud-source');
-        }
         const name = turn.call.name;
         const args = turn.call.arguments;
         // File contents may alternate A -> B -> A while every write appears as progress.
