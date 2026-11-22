@@ -76,19 +76,22 @@ node dist/cli/index.js mcp probe --agent codex
 
 **New to Agent Commons?** Start with only one agent, using `sync --dry-run --agent codex` (replace `codex` with your agent's ID). The `--home <path>` flag lets you test against a separate home directory first.
 
-## Local AI mission runner — experimental (v0.6.0)
+## Local autonomous mission runner — current main branch
 
-The new **mission runtime** is separate from the Skill Hub. It can call an OpenAI-compatible model hosted by **LM Studio**, inspect a Git checkout, edit files with explicit permission and run approved project checks. It stores resumable checkpoints, bounds tool calls and detects repetition, stagnation and some A → B → A file oscillations.
+The mission runtime started in v0.6.0 and has since gained **automatic installed-skill selection, approved real MCP calls, local planning, durable checkpoints, workspace-scoped SQLite memory, a prioritized job queue, an optional background worker and a real Mission Control panel** in the existing web UI (PRs #106–#110). These additions on \`main\` are **not necessarily included in the latest published release**.
 
-From a cloned repository, run `npm ci` then `npm run build`; load a tool-calling model in LM Studio at `127.0.0.1:1234`:
+\`\`\`powershell
+# After npm ci ; npm run build — use the exact model loaded in LM Studio
+node dist/runtime/cli.js --workspace "A:\PROJETS\MY-REPO" --task "Inspect and verify a code defect" --model "LOCAL_MODEL_ID"
 
-```powershell
-node dist/runtime/cli.js --workspace "A:\PROJETS\MY-REPO" --task "Inspect this checkout and identify one verifiable defect" --model "EXACT_LM_STUDIO_MODEL_ID"
-```
+# Enqueue a task and run the local worker
+node dist/runtime/cli.js --workspace "A:\PROJETS\MY-REPO" --task "Review code quality" --model "LOCAL_MODEL_ID" --enqueue --priority 5
+node dist/runtime/cli.js --worker
+\`\`\`
 
-To allow edits and project scripts **only in a trusted disposable Git branch**, add `--allow-write --allow-tests`. Project test scripts execute arbitrary code and must never be enabled for untrusted checkouts. Cloud fallback and source sharing require separate explicit approval.
+Writes and project tests remain disabled unless explicitly enabled; MCP tools require \`--allow-mcp-tool server/tool\`. Optional delegated CLI advice (Codex, Claude, Gemini, OpenCode, Agent Orchestrator) requires an operator-provided manifest and local client authentication; it never replaces the primary local executor.
 
-**Current limits:** no MCP tools inside the mission loop, no OS sandbox, no 24/7 daemon, and no real RTX 5070 Ti model benchmarks yet. This is **not** a production-ready multi-agent orchestrator. [Full guide](docs/LOCAL_AGENT_RUNTIME.md).
+**Limits:** no physical end-to-end certification on the user's Windows 11 / LM Studio / RTX 5070 Ti setup, no OS-level sandbox guarantee, no measured external CLI costs, and no remotely authenticated LAN dashboard. Treat release artifacts and source-branch functionality separately. [Detailed runtime guide](docs/LOCAL_AGENT_RUNTIME.md).
 
 ## Token-conscious skill discovery
 
