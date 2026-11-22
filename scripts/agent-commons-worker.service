@@ -1,0 +1,15 @@
+[Unit]
+Description=Agent Commons local mission worker
+After=default.target
+
+[Service]
+Type=simple
+# Install agent-commons-agent in ~/.local/bin or adjust ExecStart to your chosen executable.
+ExecStart=%h/.local/bin/agent-commons-agent --worker
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+UMask=0077
+
+[Install]
+WantedBy=default.target
