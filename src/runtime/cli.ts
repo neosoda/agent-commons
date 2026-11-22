@@ -78,7 +78,7 @@ export async function main(argv = process.argv.slice(2)): Promise<number> {
     console.log('Selected skills: ' + (skills.ids.join(', ') || 'none') +
       ' | approved MCP tools: ' + approved.allowed.length);
     const result=await new MissionRunner(store,local,executor,limits,cloud,flags.has('allow-cloud-source'),{
-      guidance:skills.instructions, skillIds:skills.ids, mcpTools:approved.allowed
+      guidance:skills.instructions, skillIds:skills.ids, mcpTools:approved.allowed, plan:true
     }).run(state);
     console.log(`Status: ${result.status} | reason: ${result.reason} | steps=${result.steps}, tools=${result.calls}, tokens=${result.tokens}, cloud=${result.cloudCalls}, mcp=${result.mcpCalls ?? 0}`);
     return result.status === 'completed' ? 0 : result.status === 'partial' ? 2 : 1;
