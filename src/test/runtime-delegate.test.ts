@@ -60,6 +60,7 @@ describe('P6 explicit local-first multi-CLI advice', () => {
       const scripted = [
         { call: { name: 'list_files' as const, arguments: {} } },
         { text: 'Unable to proceed' }, { text: 'Still stuck' },
+        { text: 'Third consecutive unproductive turn' },
         { finish: 'Re-examined the issue after advice' }
       ];
       let localCalls = 0;
@@ -72,7 +73,7 @@ describe('P6 explicit local-first multi-CLI advice', () => {
       ).run(store.create('Inspect failing assertion', workspace.workspaceId));
       assert.equal(result.status, 'completed');
       assert.equal(result.cloudCalls, 1);
-      assert.equal(localCalls, 4);
+      assert.equal(localCalls, 5);
       assert.ok(result.observations.some(x => x.startsWith('Cloud advice received; sha256=')));
       assert.ok(!result.observations.some(x => x.includes('Inspect the failing assertion before retrying')));
     } finally { f.cleanup(); }
