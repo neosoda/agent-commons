@@ -4,12 +4,12 @@ import path from 'node:path';
 import { redactSecrets } from '../security/scrubber.js';
 
 export type MissionStatus = 'running' | 'completed' | 'partial' | 'blocked' | 'needs-approval';
-export type ToolName = 'list_files' | 'read_file' | 'write_file' | 'verify';
+export type ToolName = 'list_files' | 'read_file' | 'write_file' | 'verify' | 'mcp_call';
 export interface ToolRequest { name: ToolName; arguments: Record<string, unknown> }
 export interface ToolResult { ok: boolean; output: string; progress: boolean; changed?: boolean; tested?: boolean }
 export interface ModelTurn { call?: ToolRequest; finish?: string; text?: string; tokens?: number }
 export interface ModelClient {
-  next(input: { goal: string; observations: string[] }): Promise<ModelTurn>;
+  next(input: { goal: string; observations: string[]; guidance?: string; mcpTools?: string[] }): Promise<ModelTurn>;
   /** Advisory-only fallback; never grants the cloud permission to execute workspace tools. */
   advise?(input: { goal: string; observations: string[] }): Promise<{ text: string; tokens?: number }>;
 }
@@ -49,6 +49,10 @@ export interface MissionState {
   /** Hashed file paths and recent content versions; no source or paths in checkpoints. */
   writeHistory?: Record<string, string[]>;
   revision: number;
+  /** Skill IDs selected from the physical local catalog for this run. */
+  skillIds?: string[];
+  /** Successful MCP calls; tool result bodies are never checkpointed. */
+  mcpCalls?: number;
 }
 const SHA = (v: string) => crypto.createHash('sha256').update(v).digest('hex');
 const short = (v: string, n = 700) => redactSecrets(v).slice(0, n);
@@ -113,12 +117,14 @@ export class MissionStore {
 /** Trust verified tool observations, never the model's claim that progress happened. */
 export class MissionRunner {
   constructor(readonly store: MissionStore, readonly local: ModelClient, readonly tools: ToolExecutor,
-    readonly limits: Limits = DEFAULT_LIMITS, readonly cloud?: ModelClient, readonly allowCloudSource = false) {
+    readonly limits: Limits = DEFAULT_LIMITS, readonly cloud?: ModelClient, readonly allowCloudSource = false,
+    readonly extensions: { guidance?: string; mcpTools?: string[]; skillIds?: string[] } = {}) {
     for (const value of Object.values(limits)) if (!Number.isSafeInteger(value) || value < 0) throw new Error('Invalid execution limit');
   }
   async run(state: MissionState): Promise<MissionState> {
     if (state.status === 'completed') return state;
     state.status = 'running';
+    state.skillIds = this.extensions.skillIds ?? state.skillIds ?? [];
     // Wall-clock limit applies to this execution, not the time spent paused between sessions.
     // Token, step, tool and cloud budgets remain cumulative in the saved checkpoint.
     const runStartedAt = Date.now();
@@ -176,7 +182,8 @@ export class MissionRunner {
       }
       let turn: ModelTurn;
       state.steps++;
-      try { turn = await this.local.next({ goal: state.goal, observations: liveObservations.slice(-6) }); }
+      try { turn = await this.local.next({ goal: state.goal, observations: liveObservations.slice(-6),
+        guidance: this.extensions.guidance, mcpTools: this.extensions.mcpTools }); }
       catch {
         state.idleSteps++;
         state.observations.push('Model request failed; no action performed');
@@ -236,6 +243,7 @@ export class MissionRunner {
           state.changed = true; state.tested = false; state.revision++; state.fingerprints = {};
         }
         if (result.tested && result.ok) state.tested = true;
+        if (name === 'mcp_call' && result.ok) state.mcpCalls = (state.mcpCalls ?? 0) + 1;
         // Persist only metadata and a hash: tool output may contain private source, paths or tokens.
         const digest = SHA(result.output).slice(0, 12);
         state.observations.push(`${name}: ${result.ok ? 'ok' : 'failed'}; output_sha256=${digest}; bytes=${Buffer.byteLength(result.output)}; changed=${!!result.changed}; tested=${!!result.tested}`);

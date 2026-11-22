@@ -315,28 +315,67 @@ async function probeHttpServer(url: string, options: ProbeOptions, started: numb
   const done = (r: Omit<ProbeResult, 'durationMs' | 'transport'>): ProbeResult =>
     ({ transport: 'http', durationMs: Date.now() - started, ...r });
   const timeoutMs = options.timeoutMs ?? 20000;
-  const headers: Record<string, string> = { 'content-type': 'application/json', accept: 'application/json, text/event-stream' };
+  const headers: Record<string, string> = {
+    'content-type': 'application/json', accept: 'application/json, text/event-stream'
+  };
+  let session: string | null = null;
+  let stage: ProbeResult['stage'] = 'initialize';
   const post = (body: unknown, extra: Record<string, string> = {}) =>
-    fetch(url, { method: 'POST', headers: { ...headers, ...extra }, body: JSON.stringify(body), signal: AbortSignal.timeout(timeoutMs) });
+    fetch(url, { method: 'POST', headers: { ...headers, ...extra },
+      body: JSON.stringify(body), signal: AbortSignal.timeout(timeoutMs) });
   try {
     const res = await post({ jsonrpc: '2.0', id: 1, method: 'initialize',
       params: { protocolVersion: PROTOCOL_VERSION, capabilities: {}, clientInfo: CLIENT_INFO } });
     if (res.status === 401 || res.status === 403) {
-      return done({ ok: false, authRequired: true, stage: 'initialize', error: `Reachable, but authentication is required (HTTP ${res.status}); credentials are not used by the probe.` });
+      return done({ ok: false, authRequired: true, stage, error: 'MCP HTTP authentication is required; no credentials were sent.' });
     }
-    if (!res.ok) return done({ ok: false, stage: 'initialize', error: `HTTP ${res.status}` });
+    if (!res.ok) return done({ ok: false, stage, error: 'HTTP ' + res.status });
     const init = await readJsonRpc(res);
-    const session = res.headers.get('mcp-session-id');
-    const extra: Record<string, string> = session ? { 'mcp-session-id': session } : {};
+    if (init['error']) return done({ ok: false, stage, error: 'MCP initialize rejected' });
     const result = (init['result'] ?? {}) as { protocolVersion?: string; serverInfo?: { name?: string; version?: string } };
-    await post({ jsonrpc: '2.0', method: 'notifications/initialized' }, extra).then(r => r.text()).catch(() => undefined);
+    session = res.headers.get('mcp-session-id');
+    const extra: Record<string, string> = {
+      'mcp-protocol-version': result.protocolVersion ?? PROTOCOL_VERSION,
+      ...(session ? { 'mcp-session-id': session } : {})
+    };
+    // Notifications receive 202/no JSON-RPC result.
+    const notify = await post({ jsonrpc: '2.0', method: 'notifications/initialized' }, extra);
+    await notify.body?.cancel();
+    if (!notify.ok) return done({ ok: false, stage, error: 'MCP initialization notification rejected' });
+    stage = 'tools/list';
     const listRes = await post({ jsonrpc: '2.0', id: 2, method: 'tools/list', params: {} }, extra);
-    if (!listRes.ok) return done({ ok: false, stage: 'tools/list', error: `HTTP ${listRes.status}` });
+    if (!listRes.ok) return done({ ok: false, stage, error: 'HTTP ' + listRes.status });
     const list = await readJsonRpc(listRes);
-    const tools = (((list['result'] ?? {}) as { tools?: Array<{ name?: string }> }).tools ?? []).map(t => String(t.name ?? '')).filter(Boolean);
-    return done({ ok: true, stage: 'done', serverName: result.serverInfo?.name, serverVersion: result.serverInfo?.version,
-      protocolVersion: result.protocolVersion, tools });
+    if (list['error']) return done({ ok: false, stage, error: 'MCP tools/list rejected' });
+    const tools = (((list['result'] ?? {}) as { tools?: Array<{ name?: string }> }).tools ?? [])
+      .map(t => String(t.name ?? '')).filter(Boolean);
+    let toolResult: string | undefined;
+    if (options.callTool) {
+      stage = 'tools/call';
+      if (!tools.includes(options.callTool)) {
+        return done({ ok: false, stage, error: 'Requested tool is not advertised by this MCP server' });
+      }
+      const callRes = await post({ jsonrpc: '2.0', id: 3, method: 'tools/call',
+        params: { name: options.callTool, arguments: options.toolArguments ?? {} } }, extra);
+      if (callRes.status === 401 || callRes.status === 403) {
+        return done({ ok: false, authRequired: true, stage, error: 'MCP HTTP tool requires authentication' });
+      }
+      if (!callRes.ok) return done({ ok: false, stage, error: 'HTTP ' + callRes.status });
+      const call = await readJsonRpc(callRes);
+      if (call['error']) return done({ ok: false, stage, error: 'MCP tools/call rejected' });
+      const output = call['result'] as { isError?: boolean } | undefined;
+      if (output?.isError) return done({ ok: false, stage, error: 'MCP tool reported a failure' });
+      toolResult = summarizeToolResult(output);
+    }
+    return done({ ok: true, stage: 'done', serverName: result.serverInfo?.name,
+      serverVersion: result.serverInfo?.version, protocolVersion: result.protocolVersion, tools, toolResult });
   } catch (err) {
-    return done({ ok: false, stage: 'initialize', error: redactSecrets((err as Error).message).slice(0, 300) });
+    return done({ ok: false, stage, error: redactSecrets((err as Error).message).slice(0, 300) });
+  } finally {
+    if (session) {
+      // Close the server-side session even if a tool or list operation failed.
+      await fetch(url, { method: 'DELETE', headers: { 'mcp-session-id': session },
+        signal: AbortSignal.timeout(1500) }).then(r => r.body?.cancel()).catch(() => undefined);
+    }
   }
 }

@@ -57,3 +57,18 @@ Les noms de périphériques Windows et flux NTFS alternatifs (ADS) sont refusés
 ## Correction locale-first (22 novembre 2026)
 
 En cas d'escalade, un seul appel consultatif cloud est effectué par tentative. Le modèle local conserve la responsabilité des outils et du résultat final. Une nouvelle escalade exige une progression vérifiable depuis le dernier conseil. Le budget de tokens signalé par la réponse cloud est comptabilisé, mais il ne garantit pas la maîtrise du coût financier : configurer un plafond côté fournisseur. Les tests HTTP du client ne remplacent pas une recette sur le PC Windows et un véritable endpoint LM Studio.
+
+## P1 — Skills et outils MCP pendant une mission (branche de développement, non encore publiée)
+
+Au démarrage de chaque mission, le moteur utilise le routeur de skills existant pour sélectionner au plus deux skills physiques installés dans `~/.agents/skills`. Seules les instructions sélectionnées sont fournies au modèle, avec un budget estimé de 1 600 tokens. Aucun script de skill n'est exécuté ou installé automatiquement.
+
+Le moteur sait maintenant appeler un véritable outil MCP **uniquement sur autorisation explicite** par couple serveur/outil. Le serveur doit être déclaré dans le manifeste central `~/.agents/mcp.json`, puis répondre à `initialize` et `tools/list`. Exemple, après avoir configuré le serveur `demo` qui expose `echo` :
+
+```powershell
+node dist/runtime/cli.js --workspace "A:\PROJETS\MON-DEPOT-TEST" --task "Analyse le code et utilise l'outil MCP echo pour vérifier la connexion" --model "ID_EXACT_LM_STUDIO" --allow-mcp-tool demo/echo
+```
+
+Plusieurs `--allow-mcp-tool serveur/outil` peuvent être indiqués ; chaque outil est contrôlé avant la mission et à l'exécution. Aucun autre outil MCP n'est exposé au modèle. Les résultats sont traités comme entrées non fiables et seuls des métadonnées et condensats sont conservés dans les checkpoints. MCP stdio et Streamable HTTP (HTTPS ou loopback HTTP) sont pris en charge sans secrets HTTP ; les endpoints nécessitant une authentification ne sont pas validés par ce chemin.
+
+**Limites :** les autorisations sont des options CLI, pas encore des validations interactives à l'argument près. N'autorisez donc que des outils dont les effets de bord sont acceptables pour la mission, idéalement en lecture seule. Chaque appel MCP réalise son propre handshake plutôt qu'une connexion conservée. Pas de sandbox système, ni de recette avec la RTX 5070 Ti / LM Studio à distance. Ne pas confondre les tests HTTP simulant une API modèle avec une vraie inférence locale. Statut P1 à confirmer sur CI avant toute fusion.
+
