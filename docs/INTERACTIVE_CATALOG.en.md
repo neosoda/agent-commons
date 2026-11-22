@@ -4,7 +4,9 @@ The **loopback-only Skill Hub** (`127.0.0.1`) has a single discovery page for sk
 
 
 
-**On PR #76 (v0.5 development branch)**: the catalog now exposes real previewed Skills install/update/remove actions plus **Install / Update / Repair / Uninstall** for approved, locally managed MCP packages. Provisioning into the shared manifest and targeted native-client sync are separate approved steps. Removing an MCP package does not remove existing native client entries. See the [Extension Manager guide](EXTENSION_MANAGER.md).Start `agent-commons web` and select **Skills & MCP**.
+**Current `main` as of 2026-11-22**: the catalog exposes real previewed Skills install/update/remove actions plus **Install / Update / Repair / Uninstall** for approved, locally managed MCP packages. Provisioning into the shared manifest and targeted native-client sync are separate approved steps. Removing an MCP package does not remove existing native client entries. See the [Extension Manager guide](EXTENSION_MANAGER.md).
+
+Start `agent-commons web` and select **Skills & MCP**.
 
 - **Skills**: pinned public references and the shared local skill inventory; categories include development, DevOps, security, design, AI, documentation and productivity.
 - **MCP servers**: vetted entries plus server names found in the central manifest or detected native client configurations; classified into web, development/Git, infrastructure, other.
