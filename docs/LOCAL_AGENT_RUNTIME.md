@@ -94,3 +94,18 @@ node dist/runtime/cli.js --workspace "A:\PROJETS\MON-DEPOT-TEST" --acknowledge-p
 ```
 
 Cette confirmation **n'exécute pas** l'action et ne garantit pas sa réussite ; une écriture incertaine reste marquée comme modification non testée. Les actions longues ne sont pas interruptibles au niveau OS, et le processus ne dispose pas d'une sandbox. Ce P2 ne constitue pas encore un worker 24/7, un scheduler, un système de verrouillage multi-processus ou un dashboard.
+
+## P3 — Mémoire de mission SQLite, sélective et vérifiée (incrément en cours)
+
+Agent Commons conserve désormais une mémoire **locale par dépôt** dans `~/.agents/memory.sqlite` (SQLite FTS5 ; aucun service ou vecteur externe). Les recherches sont lexicales et limitées à quatre résultats par défaut. Une mission reçoit uniquement les notes approuvées pertinentes ; tout contexte mémorisé doit être revérifié sur les fichiers actuels. Les connaissances d'un dépôt ne sont jamais proposées à un autre checkout.
+
+Les résultats des missions sont enregistrés automatiquement sous forme de **métadonnées objectives** (états, compteurs de vérification, empreintes de l'objectif), sans conserver le code, les prompts, les sorties MCP ou les conseils cloud. Les échecs et les résultats non suffisamment vérifiés restent non validés et ne sont jamais injectés dans l'IA. Aucun résultat généré par le modèle n'est automatiquement promu au rang de connaissance du projet.
+
+Pour approuver manuellement une décision ou une connaissance :
+
+```powershell
+node dist/runtime/cli.js --workspace "A:\PROJETS\MON-DEPOT" --remember "Utiliser Vitest pour les tests frontend" --memory-kind decision
+node dist/runtime/cli.js --workspace "A:\PROJETS\MON-DEPOT" --memory-search "tests frontend"
+```
+
+Les entrées sont limitées à 4 Kio et soumises à la détection de secrets existante. Base limitée à 1 000 entrées par checkout, mode WAL et index FTS5. Ce dispositif n'est ni un moteur de recherche sémantique ni une preuve cryptographique du résultat d'un modèle. L'API SQLite native de Node 22 est encore signalée expérimentale par certaines versions de Node ; la compatibilité est vérifiée en CI avant fusion.
