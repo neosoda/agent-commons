@@ -128,4 +128,53 @@ describe('P1 mission skills and real MCP execution', () => {
       assert.ok(seen[1]!.messages.some(m => m.content.includes('Follow selected skill')));
     } finally { await new Promise<void>(resolve => server.close(() => resolve())); }
   });
+  it('calls an actual streamable HTTP MCP server with session cleanup', async () => {
+    const f = fixture(); let calls = 0, deletions = 0;
+    const server = http.createServer(async (req, res) => {
+      if (req.method === 'DELETE') {
+        deletions++;
+        res.writeHead(200); res.end(); return;
+      }
+      let body = ''; for await (const part of req) body += part.toString();
+      const message = JSON.parse(body) as {
+        id?: number; method: string; params?: { name?: string; arguments?: { text?: string } };
+      };
+      res.setHeader('mcp-session-id', 'test-session');
+      if (message.method === 'notifications/initialized') {
+        res.writeHead(202); res.end(); return;
+      }
+      res.setHeader('content-type', 'application/json');
+      const answer = message.method === 'initialize' ?
+        { protocolVersion: '2025-06-18', serverInfo: { name: 'fixture-http', version: '1' } } :
+        message.method === 'tools/list' ?
+          { tools: [{ name: 'echo', inputSchema: { type: 'object' } }] } :
+          { content: [{ type: 'text', text: message.params?.arguments?.text ?? '' }] };
+      if (message.method === 'tools/call') {
+        calls++;
+        assert.equal(message.params?.name, 'echo');
+      }
+      res.writeHead(200);
+      res.end(JSON.stringify({ jsonrpc: '2.0', id: message.id, result: answer }));
+    });
+    try {
+      await new Promise<void>(resolve => server.listen(0, '127.0.0.1', resolve));
+      const address = server.address(); assert.ok(address && typeof address !== 'string');
+      fs.writeFileSync(f.ctx.centralMcpPath, JSON.stringify({
+        mcpServers: { web: { url: 'http://127.0.0.1:' + address.port } }
+      }));
+      const approved = await prepareApprovedMcp(f.ctx, ['web/echo']);
+      const executor = new MissionToolsWithMcp(new WorkspaceTools(f.project, false, false), approved);
+      const output = await executor.execute(call('mcp_call', {
+        server: 'web', tool: 'echo', args: { text: 'HTTP verified' }
+      }).call);
+      assert.equal(output.ok, true, output.output);
+      assert.match(output.output, /HTTP verified/);
+      assert.equal(calls, 1);
+      assert.equal(deletions, 2, 'both discovery and tool call sessions closed');
+    } finally {
+      await new Promise<void>(resolve => server.close(() => resolve()));
+      f.cleanup();
+    }
+  });
+
 });
