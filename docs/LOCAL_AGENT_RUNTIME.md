@@ -149,3 +149,47 @@ La rubrique lit la file SQLite et les vrais checkpoints : état, étapes du plan
 Les vues HTTP n'affichent **jamais** les chemins complets des dépôts, le contenu des fichiers, les prompts, les secrets ni la sortie MCP brute. Les plans du modèle sont non vérifiés ; leurs textes sont affichés en tant que texte brut, sans interprétation HTML. La consommation RAM/VRAM n'est pas mesurée et n'est pas inventée.
 
 **Périmètre de sécurité :** interface uniquement loopback, aucune exposition LAN/Internet ; pas d'authentification distante dans cette itération. Pour utiliser le dashboard depuis un autre PC sur le LAN, il faudra une passerelle authentifiée et isolée : ne modifiez pas le bind HTTP pour l'ouvrir sans contrôle. Les validations personnelles sur le modèle et le hardware restent à faire.
+
+## P6 — Consultation facultative de clients IA externes (en validation)
+
+**Configuration par défaut : aucun second agent ni service cloud.** Le modèle local et ses permissions gardent la main. En cas de stagnation mesurée, le moteur peut demander un **avis consultatif borné** à une CLI approuvée, puis repasser systématiquement au modèle local. L'avis n'a jamais le droit d'exécuter les outils de mission, de pousser du code ou d'accorder une autorisation.
+
+Fichier privé \`~/.agents/delegates.json\` : les clients sont déclarés explicitement, sans installation ni modification automatique. Exemple pour **Codex CLI** (vérifier que la version locale accepte bien ces arguments) :
+
+\`\`\`json
+{
+  "version": 1,
+  "delegates": {
+    "codex": {
+      "command": "codex",
+      "args": ["exec", "--sandbox", "read-only", "-"],
+      "readOnlyAdvice": true,
+      "timeoutMs": 60000
+    }
+  }
+}
+\`\`\`
+
+Le registre accepte les identifiants \`codex\`, \`claude\`, \`gemini\`, \`opencode\`, \`orchestrator\`, mais **n'invente pas leur CLI ou leurs options** : configurez le mode strictement consultatif réel de chaque version installée, et validez son authentification séparément. \`readOnlyAdvice:true\` est une affirmation de l'opérateur, **pas** une preuve technique de sandboxing. Un compte utilisateur non privilégié et les protections propres à la CLI sont indispensables. L'intégration Agent Orchestrator ne crée ni ne gère encore des sessions de travail multi-agents ; elle peut uniquement appeler une CLI explicitement configurée qui lit le prompt sur stdin.
+
+\`\`\`powershell
+# Test authentifié ponctuel et sans source projet (peut consommer un quota externe)
+node dist/runtime/cli.js --delegate-test codex
+
+# Une mission normale : local d'abord, avis de Codex seulement en cas de blocage
+node dist/runtime/cli.js --workspace "A:\\PROJETS\\MON-DEPOT" --task "Corrige un bug et vérifie les tests" --model "ID_MODELE_LOCAL" --delegate codex --max-cloud-calls 1
+
+# La délégation reste possible avec la file persistante
+node dist/runtime/cli.js --workspace "A:\\PROJETS\\MON-DEPOT" --task "Analyse un problème" --model "ID_MODELE_LOCAL" --enqueue --delegate codex
+\`\`\`
+
+L'exécution d'une CLI externe est limitée à **90 secondes maximum par avis**, avec plafonds d'entrée/sortie, répertoire temporaire dédié, lancement sans shell et environnement hérité filtré. Windows \`.cmd\` suit les protections d'invocation existantes. La transmission de source privée est interdite par défaut ; l'option existante \`--allow-cloud-source\` exige une décision expresse. Le client ne reçoit pas les chemins du workspace ni les handles d'outils.
+
+Les connexions CLI peuvent consommer des crédits/quotas ou dépendre d'un login local. La présence de l'exécutable n'est **pas une preuve d'authentification**. Aucune dépense réelle, compatibilité de version, ni capacité Windows/RTX/LM Studio n'est considérée validée tant que le test physique correspondant n'a pas été exécuté. Le coût et les tokens de la CLI externe restent non mesurés : seuls les appels sont comptabilisés. Ces consultations ne remplacent pas un orchestrateur de coding agents disposant de validations PR et de sandbox OS.
+
+### Références CLI consultées (novembre 2026)
+
+- Codex CLI, exécution non interactive avec sandbox de lecture seule : https://learn.chatgpt.com/docs/non-interactive-mode
+- Claude Code, mode \`plan\` et \`-p\` : https://support.claude.com/en/articles/14554922-claude-code-user-faq
+- Gemini CLI, headless et sandbox : https://google-gemini.github.io/gemini-cli/docs/cli/headless.html et https://geminicli.com/docs/cli/sandbox/
+- OpenCode, règles de permissions : https://opencode.ai/docs/permissions
