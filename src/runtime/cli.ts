@@ -2,6 +2,8 @@
 import path from 'node:path';
 import { createEnvironmentContext } from '../core/context.js';
 import { PersistentMissionMemory } from './memory.js';
+import { MissionQueue } from './queue.js';
+import { LocalQueueWorker, serveQueue, workerEventFile } from './worker.js';
 import { MissionToolsWithMcp, prepareApprovedMcp, selectMissionSkills } from './extensions.js';
 import { MissionRunner, MissionStore, DEFAULT_LIMITS, type Limits } from './mission.js';
 import { WorkspaceTools } from './workspace.js';
@@ -10,8 +12,8 @@ import { OpenAICompatibleModel } from './provider.js';
 function getOptions(argv: string[]): {args:Record<string,string>; flags:Set<string>} {
   const args:Record<string,string> = {};
   const flags = new Set<string>();
-  const values = new Set(['task','workspace','resume','model','url','max-steps','max-tokens','max-tool-calls','max-minutes','max-cloud-calls','allow-mcp-tool','pause','cancel','acknowledge-pending','remember','memory-kind','memory-search']);
-  const booleans = new Set(['allow-write','allow-tests','cloud','allow-cloud-source','help']);
+  const values = new Set(['task','workspace','resume','model','url','max-steps','max-tokens','max-tool-calls','max-minutes','max-cloud-calls','allow-mcp-tool','pause','cancel','acknowledge-pending','remember','memory-kind','memory-search','queue-requeue','queue-cancel','priority','delay-minutes']);
+  const booleans = new Set(['allow-write','allow-tests','cloud','allow-cloud-source','help','worker','once','enqueue','queue-list']);
   for (let i=0; i<argv.length; i++) {
     const item=argv[i]; if (!item?.startsWith('--')) throw new Error(`Unknown parameter ${item}`);
     const name=item.slice(2);
@@ -31,19 +33,75 @@ Writes and project-script execution are disabled unless explicitly enabled. Neve
 Installed relevant skills are selected automatically. To authorize an MCP tool per mission, repeat --allow-mcp-tool server/tool (only trusted tools; may have side effects).
 Lifecycle: --workspace <repo> --pause <id> | --cancel <id> | --acknowledge-pending <id> (reconcile side effects manually before acknowledgement).
 Memory: --workspace <repo> --remember "approved decision" --memory-kind decision|project|strategy, or --memory-search "topic" (no model required).
+Durable queue: --workspace <repo> --task "goal" --model <id> --enqueue [--priority 5] [--delay-minutes 30].
+Worker: --worker [--once] (runs while PC is on); --queue-list, --workspace <repo> --queue-requeue <job-id> or --queue-cancel <job-id>.
+A stale job requires explicit operator reconciliation: no automatic replay of uncertain effects.
 `;
 export async function main(argv = process.argv.slice(2)): Promise<number> {
   try {
     const {args,flags}=getOptions(argv);
     if (flags.has('help')) {console.log(help);return 0;}
+    const ctx = createEnvironmentContext();
+    if (flags.has('worker')) {
+      if (flags.has('enqueue') || args['workspace'] || args['task'] || args['resume']) {
+        throw new Error('Worker cannot also run or enqueue a mission');
+      }
+      const queue = new MissionQueue(ctx.commonsDir);
+      const worker = new LocalQueueWorker(queue, async (job) => {
+        const workspace = new WorkspaceTools(job.workspace, job.allowWrite, job.allowTests);
+        if (workspace.workspaceId !== job.workspaceId) throw new Error('Workspace identity has changed');
+        const options = ['--workspace', job.workspace, '--resume', job.missionId, '--model', job.model];
+        if (job.allowWrite) options.push('--allow-write');
+        if (job.allowTests) options.push('--allow-tests');
+        for (const name of job.allowMcp) options.push('--allow-mcp-tool', name);
+        await main(options);
+        const state = new MissionStore(path.join(ctx.commonsDir, 'missions')).load(job.missionId, job.workspaceId);
+        return state.status;
+      }, workerEventFile(ctx.commonsDir));
+      let stopping = false;
+      const stop = () => { stopping = true; };
+      process.on('SIGINT', stop); process.on('SIGTERM', stop);
+      try { await serveQueue(worker, flags.has('once'), () => stopping); }
+      finally {
+        process.off('SIGINT', stop); process.off('SIGTERM', stop);
+        queue.close();
+      }
+      return 0;
+    }
+    if (flags.has('queue-list')) {
+      if (args['workspace'] || args['task'] || args['resume']) throw new Error('Queue list does not take a workspace or task');
+      const queue = new MissionQueue(ctx.commonsDir);
+      try {
+        console.log(JSON.stringify(queue.list().map(j => ({
+          id: j.id, mission: j.missionId, workspace: j.workspace,
+          priority: j.priority, runAt: new Date(j.runAt).toISOString(),
+          status: j.status, attempts: j.attempts
+        })), null, 2));
+      } finally { queue.close(); }
+      return 0;
+    }
     if (!args['workspace']) throw new Error('Specify --workspace');
-    const controls = ['pause','cancel','acknowledge-pending','remember','memory-search'].filter(k => args[k] !== undefined);
+    const controls = ['pause','cancel','acknowledge-pending','remember','memory-search','queue-requeue','queue-cancel'].filter(k => args[k] !== undefined);
     if (controls.length > 1 || (controls.length && (args['task'] || args['resume'])) || (args['memory-kind'] && !args['remember'])) {
       throw new Error('Use one lifecycle command at a time');
     }
     const workspace = new WorkspaceTools(path.resolve(args['workspace']),flags.has('allow-write'),flags.has('allow-tests'));
-    const ctx = createEnvironmentContext();
     const store = new MissionStore(path.join(ctx.commonsDir, 'missions'));
+    if (controls[0] === 'queue-requeue' || controls[0] === 'queue-cancel') {
+      const queue = new MissionQueue(ctx.commonsDir);
+      try {
+        const job = queue.get(args[controls[0]]!);
+        if (job.workspaceId !== workspace.workspaceId) throw new Error('Queue job is bound to another workspace');
+        if (controls[0] === 'queue-requeue') {
+          const state = store.load(job.missionId, job.workspaceId);
+          queue.requeue(job.id, job.workspaceId, Boolean(state.pendingAction));
+        } else {
+          queue.cancel(job.id, job.workspaceId);
+        }
+        console.log('Queue action applied: ' + controls[0]);
+      } finally { queue.close(); }
+      return 0;
+    }
     if (controls.length && (controls[0] === 'remember' || controls[0] === 'memory-search')) {
       const memory = new PersistentMissionMemory(ctx.commonsDir, workspace.workspaceId);
       try {
@@ -80,6 +138,31 @@ export async function main(argv = process.argv.slice(2)): Promise<number> {
     }
     const model=args['model'] ?? process.env['AGENT_COMMONS_LOCAL_MODEL'];
     if (!model) throw new Error('Select a local model with --model or AGENT_COMMONS_LOCAL_MODEL');
+    if (flags.has('enqueue')) {
+      if (args['resume'] || !args['task'] || flags.has('cloud') || flags.has('allow-cloud-source') ||
+          args['url'] || controls.length) {
+        throw new Error('Enqueue requires a new local-only task; remote endpoints/cloud are not queued');
+      }
+      const priority = Number(args['priority'] ?? '5');
+      const delay = Number(args['delay-minutes'] ?? '0');
+      if (!Number.isSafeInteger(priority) || priority < 0 || priority > 9 ||
+          !Number.isSafeInteger(delay) || delay < 0 || delay > 43200) {
+        throw new Error('Invalid queue priority or delay');
+      }
+      const state = store.create(args['task']!, workspace.workspaceId);
+      const queue = new MissionQueue(ctx.commonsDir);
+      try {
+        const id = queue.add({
+          missionId: state.id, workspace: path.resolve(args['workspace']), workspaceId: workspace.workspaceId,
+          model, allowWrite: flags.has('allow-write'), allowTests: flags.has('allow-tests'),
+          allowMcp: (args['allow-mcp-tool'] ?? '').split(',').filter(Boolean),
+          priority, runAt: Date.now() + delay * 60000
+        });
+        console.log('Queued: ' + id + ' | mission: ' + state.id);
+      } finally { queue.close(); }
+      return 0;
+    }
+    if (args['priority'] || args['delay-minutes']) throw new Error('Priority/delay apply only to --enqueue');
     const state = args['resume'] ? store.load(args['resume'], workspace.workspaceId) : store.create(args['task']!, workspace.workspaceId);
     const skills = selectMissionSkills(ctx, state.goal);
     const memory = new PersistentMissionMemory(ctx.commonsDir, workspace.workspaceId);
