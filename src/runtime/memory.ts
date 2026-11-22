@@ -99,7 +99,7 @@ export class PersistentMissionMemory {
     const query = terms.map(term => '"' + term + '"').join(' OR ');
     const rows = this.db.prepare(
       'SELECT i.id, i.workspace_id AS workspaceId, i.kind, i.text, i.verified, i.source, i.created_at AS createdAt FROM items_search f JOIN items i ON i.id=f.rowid WHERE items_search MATCH ? AND i.workspace_id=? AND i.verified=1 ORDER BY bm25(items_search), i.created_at DESC LIMIT ?'
-    ).all(query, this.workspaceId, limit) as unknown as Array<MemoryRecord & { verified: number }>;
+    ).all(query, this.workspaceId, limit) as unknown as Array<Omit<MemoryRecord, 'verified'> & { verified: number }>;
     return rows.map(row => ({ ...row, verified: row.verified === 1 }));
   }
 
@@ -107,7 +107,7 @@ export class PersistentMissionMemory {
     if (!Number.isSafeInteger(limit) || limit < 1 || limit > 100) throw new Error('Invalid memory result limit');
     const rows = this.db.prepare(
       'SELECT id, workspace_id AS workspaceId, kind, text, verified, source, created_at AS createdAt FROM items WHERE workspace_id=? ORDER BY id DESC LIMIT ?'
-    ).all(this.workspaceId, limit) as unknown as Array<MemoryRecord & { verified: number }>;
+    ).all(this.workspaceId, limit) as unknown as Array<Omit<MemoryRecord, 'verified'> & { verified: number }>;
     return rows.map(row => ({ ...row, verified: row.verified === 1 }));
   }
 
