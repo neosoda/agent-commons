@@ -175,7 +175,7 @@ export class MissionRunner {
     for (const value of Object.values(limits)) if (!Number.isSafeInteger(value) || value < 0) throw new Error('Invalid execution limit');
   }
   async run(state: MissionState): Promise<MissionState> {
-    if (state.status === 'completed') return state;
+    if (state.status === 'completed' || state.status === 'cancelled') return state;
     state.status = 'running';
     state.skillIds = this.extensions.skillIds ?? state.skillIds ?? [];
     // Wall-clock limit applies to this execution, not the time spent paused between sessions.
@@ -186,6 +186,34 @@ export class MissionRunner {
     let evidenceAtLastAdvice = -1;
     const liveObservations = state.observations.slice(-12);
     const stop = (status: MissionStatus, reason: string) => { state.status = status; state.reason = short(reason); this.store.save(state); return state; };
+    const processControl = (): MissionState | null => {
+      const command = this.store.readControl(state.id);
+      if (!command) return null;
+      this.store.clearControl(state.id);
+      return stop(command === 'pause' ? 'paused' : 'cancelled',
+        command === 'pause' ? 'Paused by operator' : 'Cancelled by operator');
+    };
+    const earlyControl = processControl();
+    if (earlyControl) return earlyControl;
+    if (state.pendingAction) {
+      return stop('needs_approval', 'Previous side-effecting operation has uncertain outcome; reconcile before resuming');
+    }
+    // Planning is advisory and never counts as inspected evidence or verification.
+    if (!state.plan && this.local.plan) {
+      state.status = 'planning';
+      this.store.save(state);
+      try {
+        const proposal = await this.local.plan(state.goal);
+        state.tokens += Math.max(0, Math.trunc(proposal.tokens ?? 0));
+        state.plan = proposal.steps.filter(step => typeof step === 'string' && step.trim())
+          .slice(0, 6).map(step => short(step, 200));
+      } catch {
+        state.plan = [];
+        state.observations.push('Local planning unavailable; using bounded execution loop');
+      }
+    }
+    state.status = 'running';
+    this.store.save(state);
     const escalate = (reason: string): boolean => {
       if (!this.cloud || usingCloud || state.cloudCalls >= this.limits.maxCloudCalls ||
           evidenceAtLastAdvice === state.evidence) return false;
@@ -197,6 +225,8 @@ export class MissionRunner {
       return true;
     };
     while (true) {
+      const signal = processControl();
+      if (signal) return signal;
       if (Date.now() - runStartedAt >= this.limits.maxDurationMs) return stop('blocked', 'Elapsed time budget exhausted');
       if (state.steps >= this.limits.maxSteps) return stop('blocked', 'Step budget exhausted');
       if (state.calls >= this.limits.maxToolCalls) return stop('blocked', 'Tool-call budget exhausted');
@@ -213,7 +243,7 @@ export class MissionRunner {
           else {
             // Compatibility for injected ModelClient implementations from earlier versions.
             const turn = await this.cloud!.next(input);
-            if (turn.call) return stop(turn.call.name === 'write_file' ? 'needs-approval' : 'blocked',
+            if (turn.call) return stop(turn.call.name === 'write_file' ? 'needs_approval' : 'blocked',
               'Cloud adviser attempted a workspace tool instead of providing guidance');
             advice = { text: turn.text ?? turn.finish ?? '', tokens: turn.tokens };
           }
@@ -236,7 +266,9 @@ export class MissionRunner {
       let turn: ModelTurn;
       state.steps++;
       try { turn = await this.local.next({ goal: state.goal, observations: liveObservations.slice(-6),
-        guidance: this.extensions.guidance, mcpTools: this.extensions.mcpTools }); }
+        guidance: [this.extensions.guidance ?? '', state.plan?.length ?
+          'LOCAL PLAN (unverified, adapt based on tool evidence):\n' + state.plan.join('\n') : '']
+          .filter(Boolean).join('\n\n'), mcpTools: this.extensions.mcpTools }); }
       catch {
         state.idleSteps++;
         state.observations.push('Model request failed; no action performed');
@@ -248,6 +280,8 @@ export class MissionRunner {
       state.tokens += Math.max(0, Math.trunc(turn.tokens ?? 0));
       if (state.tokens > this.limits.maxTokens) return stop('blocked', 'Token budget exhausted');
       if (turn.finish !== undefined) {
+        state.status = 'verifying';
+        this.store.save(state);
         if (state.evidence === 0 || !state.inspected) return stop('blocked', 'Model claimed completion without verified inspection evidence');
         if (state.changed && !state.tested) return stop('partial', 'Files modified, but no successful test run was observed');
         return stop('completed', short(turn.finish, 400));
@@ -278,9 +312,25 @@ export class MissionRunner {
           continue;
         }
         state.calls++;
+        const uncertain = name === 'write_file' || name === 'mcp_call' ||
+          (name === 'verify' && args?.['check'] !== 'diff');
+        if (uncertain) {
+          // Write intent before invoking side effects. On crash, never replay blindly.
+          state.pendingAction = { name, digest: fingerprint };
+          this.store.save(state);
+        }
+        if (name === 'verify') {
+          state.status = 'verifying';
+          this.store.save(state);
+        }
         let result: ToolResult;
         try { result = await this.tools.execute(turn.call); }
-        catch { result = { ok: false, progress: false, output: 'Tool execution failed' }; }
+        catch { return stop('needs_approval', 'Tool threw during a potentially effectful action; outcome must be reconciled'); }
+        if (uncertain && !result.ok) {
+          return stop('needs_approval', 'Side-effecting tool failed with an uncertain outcome; reconcile before retrying');
+        }
+        state.pendingAction = undefined;
+        state.status = 'running';
         const progress = result.ok && result.progress;
         if (progress) { state.idleSteps = 0; state.evidence++; if (name === 'read_file' || name === 'list_files') state.inspected = true; }
         else state.idleSteps++;
