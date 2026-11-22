@@ -76,19 +76,25 @@ node dist/cli/index.js mcp probe --agent codex
 
 **Vous découvrez Agent Commons ?** Commencez avec un seul agent : `sync --dry-run --agent codex` (remplacez `codex` par son identifiant). L'option `--home <chemin>` permet aussi de tester le logiciel dans un répertoire utilisateur distinct.
 
-## Moteur de missions IA locales — expérimental (v0.6.0)
+## Moteur autonome local — développement sur main
 
-Le nouveau **moteur de missions** est distinct du Skill Hub. Il peut dialoguer avec un modèle compatible OpenAI dans **LM Studio**, inspecter un dépôt Git, modifier des fichiers avec permission et exécuter des tests approuvés. Il sauvegarde les checkpoints, borne les appels d'outils et détecte les répétitions, la stagnation et certaines oscillations de fichiers A → B → A.
+Le **moteur de missions** (proposé dans la release v0.6.0, enrichi depuis par les PR #106 à #110) sait désormais sélectionner les skills installés, appeler de vrais outils MCP approuvés, créer des plans locaux, vérifier les opérations et enregistrer les états/checkpoints. Il utilise SQLite pour sa mémoire **par dépôt** et sa file de missions, avec priorité, démarrage différé et worker local. L'interface existante contient une rubrique **Missions** qui reflète les véritables états et mesures. Il ne faut **pas** confondre ces nouveautés de \`main\` avec le contenu de la dernière release stable publiée.
 
-Depuis le dépôt cloné, lancez `npm ci` puis `npm run build`, et chargez dans LM Studio un modèle capable d'appels d'outils sur `127.0.0.1:1234` :
+Le fonctionnement reste **local-first**, avec LM Studio comme serveur de modèle compatible OpenAI et l'écriture/test désactivés par défaut :
 
-```powershell
-node dist/runtime/cli.js --workspace "A:\PROJETS\MON-DEPOT" --task "Inspecte ce dépôt et identifie un défaut vérifiable" --model "ID_MODELE_LM_STUDIO"
-```
+\`\`\`powershell
+# Depuis les sources : npm ci ; npm run build
+node dist/runtime/cli.js --workspace "A:\PROJETS\MON-DEPOT" --task "Analyse ce dépôt et vérifie un défaut" --model "MODELE_LM_STUDIO"
 
-Pour autoriser les modifications et les scripts sur une **branche de test d'un dépôt fiable**, ajoutez `--allow-write --allow-tests`. Les scripts `npm test` restent du code arbitraire : ne jamais les activer sur un dépôt non fiable. Le cloud est désactivé par défaut et tout partage de source exige un opt-in distinct.
+# Planifier en différé puis lancer un worker tant que le poste reste allumé
+node dist/runtime/cli.js --workspace "A:\PROJETS\MON-DEPOT" --task "Vérifie la qualité du dépôt" --model "MODELE_LM_STUDIO" --enqueue --priority 5
+node dist/runtime/cli.js --worker
+node dist/runtime/cli.js --queue-list
+\`\`\`
 
-**Limites actuelles :** pas encore d'outils MCP dans la boucle de missions, pas de sandbox OS, pas de daemon 24/7 et aucun benchmark validé sur une vraie RTX 5070 Ti. Ce n'est **pas** encore un orchestrateur multi-agents de production. [Guide complet](docs/LOCAL_AGENT_RUNTIME.md).
+Les outils MCP sont autorisés **par nom** avec \`--allow-mcp-tool serveur/outil\` ; rien n'est installé ou exécuté depuis un skill sans autorisation. Le cloud est désactivé par défaut. La branche P6 ajoute une consultation facultative de clients CLI (Codex, Claude, Gemini, OpenCode ou Agent Orchestrator) via un manifeste approuvé : le modèle local reprend ensuite le travail. Les authentifications des CLI et leur consommation de crédits doivent être testées sur chaque machine.
+
+**État de validation :** les nouvelles fonctionnalités de \`main\` passent des tests multiplateformes et des tests d'intégration, **mais pas encore** une recette physique complète sur Windows 11 + LM Studio + RTX 5070 Ti. La sandbox OS, les coûts réels de modèles externes, les permissions d'outils CLI et l'accès LAN authentifié restent des limites explicites : ne pas considérer le système comme un orchestrateur de production sans ces validations. [Guide de configuration et d'exploitation](docs/LOCAL_AGENT_RUNTIME.md).
 
 ## Découverte de skills économe en tokens
 
