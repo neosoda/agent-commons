@@ -5,7 +5,7 @@ import { spawn, spawnSync } from 'node:child_process';
 import { buildInvocation, resolveCommand } from '../mcp/health.js';
 import { redactSecrets } from '../security/scrubber.js';
 import type { EnvironmentContext } from '../types.js';
-import type { ModelClient } from './mission.js';
+import type { ModelClient, ModelTurn } from './mission.js';
 
 export type DelegateName = 'codex' | 'claude' | 'gemini' | 'opencode' | 'orchestrator';
 const names = new Set<DelegateName>(['codex','claude','gemini','opencode','orchestrator']);
@@ -65,9 +65,10 @@ function killProcessTree(pid: number | undefined): void {
     } else process.kill(pid, 'SIGKILL');
   } catch { /* already stopped */ }
 }
-export class DelegatedCliAdvisor implements Pick<ModelClient,'advise'> {
+export class DelegatedCliAdvisor implements ModelClient {
   constructor(readonly client: DelegateName, readonly spec: DelegateSpec,
     readonly allowSource = false) {}
+  async next(): Promise<ModelTurn> { throw new Error('Delegated adviser cannot execute local mission steps'); }
   async advise(input: { goal: string; observations: string[] }): Promise<{ text: string; tokens?: number }> {
     const goal = input.goal.slice(0, 2000);
     if (!this.allowSource && (danger.test(goal) || goal.includes(String.fromCharCode(96).repeat(3)) ||
