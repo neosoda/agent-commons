@@ -542,6 +542,6 @@ Après fusion de la PR #105, `main` était `39ef6fc900eebb44711fb73056c0ed291d4c
 
 ## P2 — état de travail au 22 novembre 2026
 
-Branche `feat/runtime-persistent-state-p2-20261122` basée sur `a661fed8996737df24d6984532b33efeb6918725`. Évolution ciblée du moteur : états persistants observables, plan local borné sans outils, demandes coopératives de pause/annulation par fichier de contrôle distinct, intention de modification durable avant écriture/appel MCP/test de projet, refus de rejeu automatique d'une opération à résultat incertain, réconciliation opérateur explicite. Tests synthétiques prévus pour plan, reprise, pause, annulation et crash entre effet de bord et confirmation.
+Branche `feat/runtime-persistent-state-p2-20261122` basée sur `a661fed8996737df24d6984532b33efeb6918725`, [PR #107](https://github.com/neosoda/agent-commons/pull/107) ouverte. Évolution ciblée du moteur : états persistants observables, plan local borné sans outils, demandes coopératives de pause/annulation par fichier de contrôle distinct, intention de modification durable avant écriture/appel MCP/test de projet, refus de rejeu automatique d'une opération à résultat incertain, réconciliation opérateur explicite. Tests synthétiques prévus pour plan, reprise, pause, annulation et crash entre effet de bord et confirmation.
 
 **Statut initial : non fusionnée et non validée sur CI à la rédaction.** P2 reste partiel : pas de scheduler, plan hiérarchique avec adaptation native, queue durable, daemon, ni garanties de verrouillage multiprocessus. Ne pas les annoncer opérationnels.
