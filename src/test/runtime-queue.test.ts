@@ -91,6 +91,29 @@ describe('P4 persistent queue and worker', () => {
       assert.ok(!fs.readFileSync(log, 'utf8').includes('Inspect the repository'));
     } finally { f.close(); }
   });
+  it('retains explicit advisory permissions in the existing queue format', () => {
+    const f = fixture(); try {
+      const state = f.store.create('Consult only after local stagnation', f.workspaceId);
+      const original = f.queue.list();
+      assert.equal(original.length, 0);
+      const id = f.queue.add({
+        missionId: state.id, workspace: path.join(f.base, 'project'), workspaceId: f.workspaceId,
+        model: 'local', allowWrite: false, allowTests: false, allowMcp: [],
+        delegate: 'codex', allowCloudSource: false, priority: 5, runAt: Date.now()
+      });
+      const queued = f.queue.get(id);
+      assert.equal(queued.delegate, 'codex');
+      assert.equal(queued.allowCloudSource, false);
+      assert.equal(queued.status, 'queued');
+      const forbidden = f.store.create('Reject unknown delegates', f.workspaceId);
+      assert.throws(() => f.queue.add({
+        missionId: forbidden.id, workspace: path.join(f.base, 'project'), workspaceId: f.workspaceId,
+        model: 'local', allowWrite: false, allowTests: false, allowMcp: [],
+        delegate: 'unapproved', priority: 5, runAt: Date.now()
+      }), /Invalid durable/);
+    } finally { f.close(); }
+  });
+
   it('preserves workspace binding and refuses automatic retry of completed jobs', () => {
     const f = fixture(); try {
       const job = f.add();
