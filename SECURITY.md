@@ -1,67 +1,39 @@
-# Security Policy
+# Security Policy — Agent Commons
 
-Agent Commons is a **local-first** configuration management tool. It reads and can
-modify local AI agent skills, MCP configuration files and backups **only when
-explicitly requested**. Treat those changes as potentially destructive:
-preview first, use a backup, and keep independent recovery copies for important data.
+**Statut :** projet local-first, avec une surface d'administration non authentifiée, et un **runtime agentique expérimental** sur `main`. L'utilisation sur un dépôt fiable avec un compte utilisateur non privilégié reste la base de sécurité ; les tests CI et les checksums ne prouvent pas l'absence de vulnérabilités.
 
-## Supported versions
+## Versions
 
-| Version | Security fixes |
+| Version | Statut au 22/11/2026 |
 |---|---|
-| 0.5.x | Supported (current) |
-| 0.4.x | Superseded; upgrade to 0.5.x |
-| 0.3.x | Unsupported; upgrade to 0.5.x |
-| 0.2.x | Unsupported; upgrade to 0.5.x |
-| 0.1.x | Unsupported |
+| `v0.6.0` | **Dernière release GitHub publiée** (20/11/2026), support courant publié |
+| `main` post-v0.6.0 | Développement actif, runtime P1–P6 fusionné mais non publié comme nouvelle release |
+| `v0.5.x` | Anciennes versions ; mettre à niveau vers `v0.6.0` |
+| `v0.4.x` et antérieures | Historiques, non recommandées |
 
-## Security boundaries and guarantees
+Une nouvelle fonctionnalité sur `main` n'est pas automatiquement un correctif livré aux installations `v0.6.0`. Vérifier [release](https://github.com/neosoda/agent-commons/releases) et [changelog](CHANGELOG.md) avant toute assertion.
 
-- **Skill Hub:** binds exclusively to `127.0.0.1`, has **no login**, rejects
-  foreign Host/Origin requests, uses a per-process CSRF token and a restrictive
-  Content Security Policy. **Never** put this administrative UI behind a tunnel,
-  reverse proxy, port forward or public/LAN listener.
-- **No telemetry:** Agent Commons does not transmit analytics or private reports.
-  Inventory, diagnostics, public catalog browsing and ordinary sync run locally.
-  **Exception:** a user-triggered installation/update of a public GitHub skill
-  downloads pinned GitHub metadata/blobs over HTTPS. Do not describe the entire
-  application as permanently offline.
-- **Managed filesystem paths:** symlinks and Windows NTFS junctions are inspected
-  without following links into unrelated data; unrelated physical skill folders
-  and unknown native configuration fields are preserved wherever possible.
-- **Mutations:** preview and explicit approval are required from the Skill Hub.
-  Synchronization uses a short-lived, single-use preview revision guard (starting
-  with the next patch after v0.3.0); on-disk snapshots and rollback are used for
-  managed changes. These safeguards reduce risk but **do not** guarantee crash
-  atomicity or cross-process filesystem locking.
-- **Secrets:** browser responses deliberately omit MCP command arguments, URLs,
-  environment values and arbitrary private exception messages. Native configs
-  may still contain credentials; never share backup archives or recovery folders.
-- **Supply chain:** curated pinned source/licence metadata is **not a code
-  security audit**. Review third-party skills before installing/running them.
-  The Windows portable ZIP is currently unsigned. Verify the release SHA-256.
+## Frontières effectives
 
-## MCP diagnostics boundaries
+- **Skill Hub :** bind strict à `127.0.0.1`, **sans login** ; contrôles Host/Origin, jeton CSRF de processus, CSP et prévisualisations à validation unique. **Ne jamais exposer par proxy inverse, tunnel, port forwarding ou écoute LAN.**
+- **Écritures et backups :** aperçu et consentement explicites dans l'UI, contrôle de révision et snapshots avant les mutations gérées ; les profils, liens Windows et configurations clientes non gérées doivent être préservés. Ce ne sont ni des transactions atomiques à toute épreuve ni des garanties de rollback après crash.
+- **Secrets :** ne pas les enregistrer dans Git, prompts, logs, interface, catalogues ou rapports publics. Les réponses web omettent commandes/arguments/env/URLs privés ; les fichiers natifs et archives peuvent toujours contenir des credentials. Les contrôles de redaction ne garantissent pas zéro fuite.
+- **Réseau :** les opérations ordinaires restent locales, sans télémétrie applicative ; l'installation approuvée d'un skill GitHub ou d'un package MCP utilise le réseau et exécuter un MCP tiers dépend de sa configuration. N'affirmez pas un mode « toujours hors ligne ».
+- **Installation de tiers :** catalogue épinglé et licences documentées ne constituent **pas** un audit du code externe. Extension Manager utilise des versions approuvées, phases indépendantes install/config/sync et prévisualisations ; les MCP manuels (Docker Gateway, desktop, GitHub) restent hors installation automatique.
+- **Diagnostics :** `doctor` inspecte en lecture seule les commandes/chemins ; `mcp probe` exécute **explicitement** le serveur choisi, handshake MCP et appel d'outil seulement s'il est demandé. Un endpoint à auth non disponible peut rester non vérifié. Les launchers Windows à syntaxe dangereuse sont refusés.
+- **Profils MCP :** ils contrôlent les **ajouts synchronisés** et non l'accès réel aux serveurs déjà natifs chez les clients. Ne jamais confondre profil, isolation système et autorisation de l'outil lors d'une mission.
 
-- `doctor` stays read-only: MCP launch checks resolve commands on PATH and test file existence without executing anything.
-- `mcp probe` **executes the configured server commands** and is only available as an explicit CLI command, never from the web UI. It starts one server at a time, stops the whole process tree afterwards, never prints environment values and never sends credentials to HTTP servers (authentication-gated servers are reported as unverified).
-- On Windows, batch launchers (`.cmd`/`.bat`) are run through `cmd.exe /d /s /c` with every argument quoted; arguments containing `"`, `%`, `!`, `^` or line breaks are refused instead of escaped.
-- The bundled demo server (`mcp demo-server`) has no network, file system or secret access.
+## Runtime expérimental : menaces résiduelles
 
-## Reporting a vulnerability
+- Écriture (`--allow-write`), tests de dépôt (`--allow-tests`) et outils MCP (`--allow-mcp-tool serveur/outil`) sont désactivés/non exposés par défaut. Seuls des chemins contrôlés et outils bornés sont proposés, sans shell générique, mais **aucune sandbox OS forte** n'isole le modèle ou les scripts npm de confiance.
+- Les outils MCP sont filtrés par nom, **pas par effets et arguments**. Un appel autorisé peut modifier des fichiers, des conteneurs ou accéder au réseau. Choisir des serveurs et comptes restreints, idéalement lecture seule ; empêcher la combinaison OSINT non fiable avec Docker/desktop privilégiés.
+- Chaque intention à effet de bord est sauvegardée avant l'action ; un résultat incertain implique `needs_approval`/`needs_review` et inspection humaine, jamais un rejeu automatique. Pause/annulation coopératives : un processus bloqué peut persister.
+- Mémoire `memory.sqlite` cloisonnée par checkout, approbation explicite des connaissances, contrôles de secrets et pas de promotion automatique de texte du modèle. Queue/checkpoints/logs contiennent des métadonnées, mais restent des données privées à protéger sur disque.
+- Conseil cloud/CLI facultatif (`--cloud` ou `--delegate`) **sans outils**, retour au modèle local. Un `readOnlyAdvice: true` déclaré dans `delegates.json` ne prouve pas la sandbox d'une CLI externe. `--allow-cloud-source` autorise le transfert de source vers un tiers : exiger consentement et vérifier le fournisseur/coût.
+- Endpoint modèle compatible OpenAI sur un autre PC, distribution LAN, accès distant de Mission Control et mutualisation SentinelBrain : **non qualifiés, non sécurisés par ce projet**. Définir TLS, identité, autorisations, confinement réseau et contrôle des secrets avant tout essai distant.
 
-Please report vulnerabilities **privately** via
-[GitHub Security Advisories](https://github.com/neosoda/agent-commons/security/advisories/new).
-Do not post secret values or exploitable details in a public issue.
+## Signalement responsable
 
-Provide the affected version, platform/Node version, reproduction steps using
-an isolated `--home` directory and a minimized example that contains no real secrets.
+[Ouvrir une alerte de sécurité privée GitHub](https://github.com/neosoda/agent-commons/security/advisories/new). Ne pas publier d'exploit ou de clé dans une issue. Joindre OS, version/commit, Node, étapes de reproduction isolées avec `--home` et données synthétiques.
 
-
-## MCP Control Center safety boundaries (v0.4.0)
-
-- LM Studio integration uses the documented native MCP JSON file only, never a cache copy. It does not create skill directories, and will not replace unrelated native MCP entries.
-- MCP catalog browsing is strictly read-only; no third-party package download/installation or arbitrary Docker process can be initiated from the catalog UI.
-- MCP profiles authorize only **selected additions** from the central manifest; they do **not** disable unselected tools on a client, and are not an isolation mechanism.
-- A custom profile cannot mix untrusted Web Search/OSINT/Fetch tools with the privileged Docker MCP Gateway. Server-side access control (filesystem roots, Docker profiles, API permissions) must be enforced separately.
-- Per-client synchronization requires a fresh one-time, revision-checked preview and explicit approval, using existing snapshots and safe rollback. No existing secrets, commands, environment values or native configuration paths are sent to the browser.
+Le portable Windows actuel est **non signé** ; vérifier les empreintes SHA-256 officielles. Une signature et une recette SmartScreen/NVDA/VoiceOver restent distinctes de la réussite de CI. [Limites détaillées](docs/CAPABILITIES.md) · [Plan d'action](docs/ROADMAP.md).
