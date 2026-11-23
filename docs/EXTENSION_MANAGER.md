@@ -6,7 +6,7 @@ Le catalogue Skills & MCP du Skill Hub local devient un gestionnaire d'extension
 
 - Skills : installation, mise à jour vers la révision épinglée, vérification d'intégrité, désinstallation des exemplaires gérés, profils et synchronisation sélective déjà existants.
 - MCP : installation isolée, réparation, mise à jour vers la version approuvée dans le catalogue et suppression des packages gérés.
-- Provisionnement : Playwright, Fetch, Filesystem et Git peuvent être déclarés dans le manifeste MCP central à partir de leurs exécutables installés. Sélection de clients ; chemins explicites obligatoires pour Filesystem et Git.
+- Provisionnement : Playwright, Fetch, Filesystem, Git et XERJ peuvent être déclarés dans le manifeste MCP central à partir de leurs exécutables installés. Sélection de clients ; chemins explicites obligatoires pour Filesystem et Git.
 - Synchronisation ciblée : choisir les clients compatibles (dont LM Studio), vérifier la simulation et confirmer. Les entrées natives sans rapport sont conservées.
 - Vérification des mises à jour : compare les installations aux versions et révisions approuvées dans le catalogue **local**. Pas de requête automatique vers les dernières versions npm/PyPI/GitHub.
 
@@ -18,10 +18,13 @@ Le catalogue Skills & MCP du Skill Hub local devient un gestionnaire d'extension
 | Filesystem | npm (version épinglée) | Node.js, npm, répertoires autorisés explicitement |
 | Fetch | uv (version épinglée) | uv, Python compatible |
 | Git | uv (version épinglée) | uv, Git, dépôt choisi explicitement |
+| XERJ | Archive officielle v1.0.0-rc.104 vérifiée par SHA-256 | Windows/Linux/macOS, instance locale et roots autorisés explicitement ; [guide](XERJ.md) |
 | GitHub, Docker Gateway, Agent Desktop | Manuel | Revue des permissions et des prérequis |
 | Web Search et OSINT génériques | Indisponible | Aucun package fiable retenu |
 
 L'archive Windows portable d'Agent Commons n'intègre pas nécessairement npm, uv ou Python. Le gestionnaire peut réclamer leur installation locale.
+
+XERJ se rattache aussi à un binaire existant trouvé dans PATH sans le modifier. Le nœud de recherche reste optionnel et son interface est intégrée au MCP Control Center. Voir [XERJ](XERJ.md).
 
 Les packages sont isolés sous ~/.agents/mcp-packages et suivis dans ~/.agents/mcp-installations.json. Les commandes utilisent des arguments construits exclusivement à partir du catalogue approuvé ; aucun texte de commande arbitraire n'est exécuté depuis le navigateur. Les scripts de post-installation npm sont désactivés et uv impose les roues binaires. Cela n'empêche pas le code MCP tiers d'être exécuté quand un client le lance.
 
