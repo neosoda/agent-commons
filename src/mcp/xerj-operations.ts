@@ -32,10 +32,14 @@ function checkedRoot(ctx:EnvironmentContext,root:string):string {
   if(typeof root!=='string'||root.length>450||!path.isAbsolute(root))throw new Error('Invalid XERJ indexing root.');
   const resolved=path.resolve(root),parsed=path.parse(resolved);
   if(resolved===parsed.root||!isPhysical(resolved))throw new Error('XERJ root must be an existing physical directory.');
-  // Reject symlink/junctions in any parent; otherwise an apparently safe path
-  // could resolve outside the explicitly approved tree.
-  if(path.resolve(fs.realpathSync(resolved))!==resolved)
-    throw new Error('XERJ indexing root must not traverse linked directories.');
+  // Reject links/junctions in every user-controlled path component.
+  // macOS ships /var, /tmp and /etc as OS-managed links to /private/*:
+  // these trusted root aliases are not user-controlled project symlinks.
+  for(let part=resolved;part!==path.parse(part).root;part=path.dirname(part)){
+    if(fs.lstatSync(part).isSymbolicLink() &&
+      !(ctx.platform==='darwin'&&['/var','/tmp','/etc'].includes(part)))
+      throw new Error('XERJ indexing root must not traverse linked directories.');
+  }
   if(ctx.platform==='win32'&&resolved.startsWith('\\\\'))throw new Error('Network XERJ roots are not supported.');
   const forbidden=[ctx.commonsDir,ctx.backupsDir,ctx.homeDir].map(x=>path.resolve(x));
   if(forbidden.some(f=>resolved===f || f.startsWith(resolved+path.sep) ||
