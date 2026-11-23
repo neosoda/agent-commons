@@ -44,13 +44,16 @@ describe('P2 persistent lifecycle and interrupted side effects', () => {
       let calls = 0;
       const model: ModelClient = { next: async () => {
         calls++;
-        if (calls === 1) {
-          f.store.requestControl(state.id, f.workspace.workspaceId, 'pause');
-          return { call: { name: 'read_file', arguments: { path: 'a.ts' } } };
-        }
+        if (calls === 1) return { call: { name: 'read_file', arguments: { path: 'a.ts' } } };
         return { finish: 'Inspected' };
       } };
-      const paused = await new MissionRunner(f.store, model, f.workspace, limits).run(state);
+      const pausingTools: ToolExecutor = { execute: async request => {
+        const result = await f.workspace.execute(request);
+        // A pause received during an already-running tool is applied at the next safe boundary.
+        f.store.requestControl(state.id, f.workspace.workspaceId, 'pause');
+        return result;
+      } };
+      const paused = await new MissionRunner(f.store, model, pausingTools, limits).run(state);
       assert.equal(paused.status, 'paused');
       assert.equal(paused.calls, 1);
       assert.equal(paused.evidence, 1);

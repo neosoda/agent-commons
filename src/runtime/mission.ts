@@ -282,6 +282,10 @@ export class MissionRunner {
         continue;
       }
       state.tokens += Math.max(0, Math.trunc(turn.tokens ?? 0));
+      // An operator may pause/cancel while the model response is in flight.
+      // Never dispatch a tool call produced before that control was observed.
+      const afterModelControl = processControl();
+      if (afterModelControl) return afterModelControl;
       if (state.tokens > this.limits.maxTokens) return stop('blocked', 'Token budget exhausted');
       if (turn.finish !== undefined) {
         state.status = 'verifying';
