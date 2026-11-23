@@ -15,7 +15,7 @@
 
 Agent Commons centralizes your **skills**, **MCP** servers and synchronization for Codex, Claude Code, Gemini CLI, Antigravity, OpenCode and other clients. A local interface, discoverable catalog, previewed operations and backups make repetitive setup unnecessary.
 
-**Verified baseline, November 22, 2026:** 21 recognized AI environments, 210 skill **references**, 9 MCP **references**. Catalog entries are not installed packages. Multi-OS CI, Chromium and Windows portable checks succeeded on `main` `ab19b475`.
+**Verified baseline, November 22, 2026:** 21 recognized AI environments, 210 skill **references**, 9 MCP **references** on Nov 22 (10 including the new XERJ integration). Catalog entries are not installed packages. Multi-OS CI, Chromium and Windows portable checks succeeded on `main` `ab19b475`.
 
 > **Do not confuse two states:** [v0.6.0](https://github.com/neosoda/agent-commons/releases/tag/v0.6.0) is the latest published release. Since then, PRs #105–#111 added a more capable **experimental mission runtime** to `main`; those additions are **not in the published release**. See [capabilities and evidence](docs/CAPABILITIES.md).
 
@@ -40,6 +40,10 @@ node dist/cli/index.js web
 ```
 
 Try with `--home <test-directory>` first to avoid affecting your regular profile. `doctor` does not start MCP servers; `mcp probe` performs an **explicit live** test. The `@neosoda/agent-commons` npm publication is **not independently verified**: use source or GitHub releases until its registry listing is confirmed.
+
+## Optional local XERJ search
+
+**XERJ v1.0.0-rc.104** is available through the existing Extension Manager and MCP Control Center: official SHA-256 verified installation, existing executable detection, local node controls, explicit indexed roots, search and per-client MCP sync. Browsing does not install or run anything; SQLite memory is not replaced. Query-1 and Reader-1 are **not** bundled. **[XERJ setup and Codex/Claude workflow](docs/XERJ.md).**
 
 ## What it does
 
