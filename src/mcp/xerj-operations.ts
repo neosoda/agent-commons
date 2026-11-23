@@ -4,7 +4,6 @@
  */
 import crypto from 'node:crypto';
 import fs from 'node:fs';
-import os from 'node:os';
 import path from 'node:path';
 import {spawn,type ChildProcess} from 'node:child_process';
 import {detectAgents} from '../agents/detector.js';
@@ -12,6 +11,7 @@ import {SnapshotSession,restoreBackup} from '../core/backup.js';
 import {inspectPath,writeFileAtomicSync} from '../core/links.js';
 import type {EnvironmentContext} from '../types.js';
 import {inspectManagedMcps} from './extension-manager.js';
+import {findExistingXerj} from './xerj-binary.js';
 
 const NODE_URL='http://127.0.0.1:9200';
 const ROOTS_MAX=8;
@@ -26,13 +26,7 @@ export function xerjBinary(ctx:EnvironmentContext):string|null {
   if(status?.healthy){
     return path.join(ctx.commonsDir,'mcp-packages','xerj',ctx.platform==='win32'?'xerj.exe':'xerj');
   }
-  const exe=ctx.platform==='win32'?'xerj.exe':'xerj';
-  const paths=(process.env['PATH']??'').split(path.delimiter).filter(x=>path.isAbsolute(x));
-  for(const dir of paths){
-    const file=path.join(dir,exe);
-    if(inspectPath(file).state==='file')return file;
-  }
-  return null;
+  return findExistingXerj(ctx.platform);
 }
 function checkedRoot(ctx:EnvironmentContext,root:string):string {
   if(typeof root!=='string'||root.length>450||!path.isAbsolute(root))throw new Error('Invalid XERJ indexing root.');
@@ -40,7 +34,7 @@ function checkedRoot(ctx:EnvironmentContext,root:string):string {
   if(resolved===parsed.root||!isPhysical(resolved))throw new Error('XERJ root must be an existing physical directory.');
   if(ctx.platform==='win32'&&resolved.startsWith('\\\\'))throw new Error('Network XERJ roots are not supported.');
   const forbidden=[ctx.commonsDir,ctx.backupsDir,ctx.homeDir].map(x=>path.resolve(x));
-  if(forbidden.some(f=>resolved===f||f.startsWith(resolved+path.sep)))
+  if(forbidden.some(f=>resolved===f||f.startsWith(resolved+path.sep)||resolved.startsWith(f+path.sep)&&f!==path.resolve(ctx.homeDir)))
     throw new Error('XERJ root would include private Agent Commons data or the home directory.');
   if(resolved.split(path.sep).some(p=>['.ssh','.gnupg','.aws','.config','.git'].includes(p.toLowerCase())))
     throw new Error('Sensitive XERJ roots are not accepted.');
@@ -98,7 +92,7 @@ async function invoke(ctx:EnvironmentContext,args:string[],timeoutMs=120000) {
   if(!binary)throw new Error('XERJ binary is not installed or detectable.');
   return new Promise<{exitCode:number;output:string}>((resolve,reject)=>{
     const child=spawn(binary,args,{shell:false,windowsHide:true,stdio:['ignore','pipe','pipe'],
-      env:{...process.env,XERJ_URL:NODE_URL,XERJ_NO_AUTOSTART:'1',XERJ_API_KEY:''}});
+      env:{...process.env,XERJ_URL:NODE_URL,XERJ_NO_AUTOSTART:'1'}});
     let output='',total=0,finished=false;
     const done=(e?:Error,code?:number)=>{
       if(finished)return;finished=true;clearTimeout(timer);
