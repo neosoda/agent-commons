@@ -1089,6 +1089,84 @@ $('profile-clear').onclick=()=>{
   })
 };
 
+function renderXerj(){
+  if(!xerjState)return;
+  const x=xerjState;
+  $('xerj-node-state').textContent=[
+    x.binaryAvailable?(x.managed?'Managed binary installed':'Existing binary detected'):'Binary missing · install from Skills & MCP catalog',
+    x.reachable?(x.authRequired?'authentication required':x.healthy?'node ready':'node unhealthy'):'node offline',
+    x.indices.length+' Agent Commons indices'
+  ].join(' · ');
+  $('xerj-start').disabled=!x.binaryAvailable||x.reachable;
+  $('xerj-stop').disabled=!x.running;
+  $('xerj-index').disabled=!x.healthy||!x.roots.length;
+  $('xerj-search').disabled=!x.healthy||!x.roots.length;
+  $('xerj-remove').disabled=!x.healthy||!x.roots.length;
+  const selected=$('xerj-root').value,select=$('xerj-root');clear(select);
+  for(const root of x.roots){const option=node('option',root);option.value=root;select.append(option)}
+  if(x.roots.includes(selected))select.value=selected;
+  $('xerj-drop-root').disabled=!x.roots.length;
+}
+function xerjOutput(message){
+  const output=$('xerj-output');output.classList.remove('hidden');output.textContent=message;
+}
+async function xerjRootChange(roots){
+  const proposal=await request('/api/action',{action:'xerj-roots-preview',roots,expectedRevision:xerjState.revision});
+  modal('Authorize XERJ directory',proposal.after.length+' directories authorized; nothing is indexed automatically.',
+    'Save directory permissions',async()=>{
+      await request('/api/action',{action:'xerj-roots-apply',roots,expectedRevision:proposal.revision,approved:true});
+      xerjOutput('Allowed roots saved. Indexing requires a separate action.');await refresh();
+    });
+}
+$('xerj-add-root').onclick=async()=>{
+  try{
+    const root=$('xerj-new-root').value.trim();
+    if(!root)return;
+    await xerjRootChange([...xerjState.roots,root]);
+  }catch(err){showToast(err.message,true)}
+};
+$('xerj-drop-root').onclick=async()=>{
+  try{
+    const root=$('xerj-root').value;if(!root)return;
+    await xerjRootChange(xerjState.roots.filter(r=>r!==root));
+  }catch(err){showToast(err.message,true)}
+};
+$('xerj-start').onclick=()=>modal('Start XERJ local node',
+  'Starts an unprivileged XERJ process bound to 127.0.0.1, with data outside indexed projects. No port is opened on the LAN.',
+  'Start node',async()=>{await request('/api/action',{action:'xerj-start',approved:true});await refresh()});
+$('xerj-stop').onclick=()=>modal('Stop XERJ node',
+  'Only the node started in this Agent Commons web session will be stopped.',
+  'Stop node',async()=>{await request('/api/action',{action:'xerj-stop',approved:true});await refresh()});
+$('xerj-index').onclick=()=>{
+  const root=$('xerj-root').value;if(!root)return;
+  modal('Index approved directory',root+' · indexing can take several minutes. No other directory will be selected.',
+    'Index now',async()=>{
+      const r=await request('/api/action',{action:'xerj-index',root,approved:true});
+      xerjOutput('Indexed '+r.prefix+(r.completedWithJunk?' · some files were skipped':'')+'.');
+      await refresh();
+    });
+};
+$('xerj-search').onclick=async()=>{
+  const root=$('xerj-root').value,query=$('xerj-query').value;
+  if(!root||!query.trim())return;
+  try{
+    const r=await request('/api/action',{action:'xerj-search',root,query});
+    xerjOutput(r.empty?'No matching passages.':r.results);
+  }catch(err){showToast(err.message,true)}
+};
+$('xerj-remove').onclick=async()=>{
+  const root=$('xerj-root').value;if(!root)return;
+  try{
+    const proposal=await request('/api/action',{action:'xerj-remove-preview',root});
+    modal('Delete XERJ index',proposal.preview||('Remove index for '+root),
+      'Confirm deletion',async()=>{
+        await request('/api/action',{action:'xerj-remove-apply',root,approved:true});
+        xerjOutput('Indexed corpus removed; approved directory access remains unchanged.');
+        await refresh();
+      });
+  }catch(err){showToast(err.message,true)}
+};
+
 function renderMcpCenter(){
   if(!centerState)return;
   const catalog=$('center-catalog');clear(catalog);
