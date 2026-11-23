@@ -165,12 +165,21 @@ export async function startXerj(ctx:EnvironmentContext) {
   child.kill();
   throw new Error('XERJ failed to become healthy on loopback.');
 }
-export function stopXerj(ctx:EnvironmentContext) {
+export async function stopXerj(ctx:EnvironmentContext) {
   const child=activeNodes.get(ctx.commonsDir);
   if(!child)throw new Error('Only a XERJ process started by this web session can be stopped.');
   activeNodes.delete(ctx.commonsDir);
   child.kill('SIGTERM');
-  return {stopping:true};
+  if(child.exitCode!==null)return {stopped:true};
+  const exited=await Promise.race([
+    new Promise<boolean>(resolve=>{
+      child.once('exit',()=>resolve(true));
+      child.once('error',()=>resolve(true));
+    }),
+    new Promise<boolean>(resolve=>setTimeout(()=>resolve(false),30000))
+  ]);
+  if(!exited)throw new Error('XERJ node stop timed out; data directory preserved.');
+  return {stopped:true};
 }
 export async function indexXerj(ctx:EnvironmentContext,root:string) {
   const entry=selected(ctx,root);
