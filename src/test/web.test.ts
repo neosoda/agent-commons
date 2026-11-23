@@ -33,6 +33,34 @@ describe('local Skill Hub HTTP security and user workflows', () => {
     });
   }
 
+  it('exposes XERJ in existing MCP UI and requires a two-step authorized root change',async()=>{
+    const page=await (await fetch(instance.url)).text();
+    assert.match(page,/id="xerj-panel"/);
+    assert.match(page,/id="xerj-search"/);
+    assert.match(page,/id="xerj-index"/);
+    const status=await fetch(instance.url+'/api/xerj');
+    assert.equal(status.status,200);
+    const current=await status.json() as {roots:string[];revision:string};
+    assert.deepEqual(current.roots,[]);
+    assert.match(current.revision,/^[0-9a-f]{64}$/);
+    const project=path.join(home,'xerj-fixture');fs.mkdirSync(project);
+    const denied=await post({action:'xerj-roots-preview',roots:[home],expectedRevision:current.revision});
+    assert.equal(denied.status,400);
+    const preview=await post({action:'xerj-roots-preview',roots:[project],expectedRevision:current.revision});
+    assert.equal(preview.status,200);
+    const proposal=await preview.json() as {revision:string};
+    const missingConsent=await post({action:'xerj-roots-apply',roots:[project],expectedRevision:proposal.revision});
+    assert.equal(missingConsent.status,400);
+    const applied=await post({action:'xerj-roots-apply',roots:[project],expectedRevision:proposal.revision,approved:true});
+    assert.equal(applied.status,200);
+    const refreshed=await (await fetch(instance.url+'/api/xerj')).json() as {roots:string[]};
+    assert.deepEqual(refreshed.roots,[project]);
+    const blocked=await post({action:'xerj-index',root:home,approved:true});
+    assert.equal(blocked.status,400);
+    const search=await post({action:'xerj-search',root:project,query:'a-code-function'});
+    assert.equal(search.status,400); // no real node: cannot claim it is operational
+  });
+
   it('requires MCP package consent and rejects invalid target clients',async()=>{
     const packages=await fetch(instance.url+'/api/mcp-packages');
     assert.equal(packages.status,200);

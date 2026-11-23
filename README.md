@@ -15,7 +15,7 @@
 
 Agent Commons centralise vos **skills**, vos serveurs **MCP** et leur synchronisation pour Codex, Claude Code, Gemini CLI, Antigravity, OpenCode et d'autres outils. Une interface locale, un catalogue consultable, des opérations prévisualisées et des sauvegardes : plus besoin de tout reconfigurer à la main.
 
-**État vérifié le 22 novembre 2026 :** 21 environnements IA reconnus, 210 **références** de skills, 9 **références** MCP. Les références ne sont pas des packages installés. Les tests GitHub multi-OS, Chromium et Windows portable sont passés sur `main` `ab19b475`.
+**État vérifié le 22 novembre 2026 :** 21 environnements IA reconnus, 210 **références** de skills, 9 **références** MCP au 22/11 (10 avec XERJ intégré sur cette branche). Les références ne sont pas des packages installés. Les tests GitHub multi-OS, Chromium et Windows portable sont passés sur `main` `ab19b475`.
 
 > **Deux états à ne pas confondre :** [v0.6.0](https://github.com/neosoda/agent-commons/releases/tag/v0.6.0) est la dernière release publiée. `main` contient depuis les PR #105–#111 un **moteur de missions expérimental** plus avancé, non inclus dans cette release. Voir [capacités et preuves](docs/CAPABILITIES.md).
 
@@ -40,6 +40,10 @@ node dist/cli/index.js web
 ```
 
 Un premier essai sans modifier votre compte est possible avec `--home <dossier-de-test>`. `doctor` ne lance pas les serveurs MCP ; `mcp probe` les teste **activement** sur demande. L'installation npm du paquet `@neosoda/agent-commons` **n'est pas attestée publiée** : préférer GitHub et les sources tant que la fiche npm n'est pas vérifiée.
+
+## Recherche locale XERJ (optionnelle)
+
+**XERJ v1.0.0-rc.104** est intégré à l’Extension Manager et au MCP Control Center : installation officielle SHA-256, détection d’exécutable existant, nœud local, autorisation de dossiers, indexation/recherche, synchronisation MCP ciblée. Pas de téléchargement depuis le catalogue ni d’activation automatique. La mémoire SQLite reste inchangée ; Query-1 et Reader-1 ne sont pas déployés. **[Guide XERJ et exemple Codex/Claude](docs/XERJ.md).**
 
 ## Ce que vous pouvez faire
 

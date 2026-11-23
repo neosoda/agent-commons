@@ -9,8 +9,9 @@ import {inspectPath} from '../core/links.js';
 import {previewMcpEdit, applyMcpEdit} from '../web/mcp-editor.js';
 import type {EnvironmentContext, McpServerSpec} from '../types.js';
 import {inspectManagedMcps} from './extension-manager.js';
+import {findExistingXerj} from './xerj-binary.js';
 
-const supported=new Set(['playwright','filesystem','fetch','git']);
+const supported=new Set(['playwright','filesystem','fetch','git','xerj']);
 function inspectScope(ctx:EnvironmentContext,value:string):string {
   if(typeof value!=='string' || !path.isAbsolute(value) || value.length>450)
     throw new Error('Choose absolute local MCP directories.');
@@ -24,7 +25,8 @@ function inspectScope(ctx:EnvironmentContext,value:string):string {
 function specFor(ctx:EnvironmentContext,id:string,agents:string[],requestedRoots:string[]):McpServerSpec {
   if(!supported.has(id))throw new Error('MCP requires manual client provisioning.');
   const status=inspectManagedMcps(ctx).items.find(x=>x.id===id);
-  if(!status?.managed || !status.healthy)throw new Error('Install a healthy reviewed MCP package first.');
+  if(!(status?.managed && status.healthy) && !(id==='xerj'&&findExistingXerj(ctx.platform)))
+    throw new Error('Install a healthy reviewed MCP package first.');
   if(!Array.isArray(agents) || !agents.length || agents.length>20 || !agents.every(x=>typeof x==='string') ||
      new Set(agents).size!==agents.length)throw new Error('Choose at least one compatible MCP client.');
   const detected=detectAgents(ctx).filter(x=>x.installed&&x.mcpFormat);
@@ -43,7 +45,11 @@ function specFor(ctx:EnvironmentContext,id:string,agents:string[],requestedRoots
   const bin=ctx.platform==='win32'?'Scripts':'bin';
   const exe=path.join(prefix,'venv',bin,'mcp-server-'+id+(ctx.platform==='win32'?'.exe':''));
   let command:string,args:string[];
-  if(id==='playwright'){
+  if(id==='xerj'){
+    command=status?.healthy?path.join(prefix,ctx.platform==='win32'?'xerj.exe':'xerj'):
+      findExistingXerj(ctx.platform)!;
+    args=['mcp','--no-autostart'];
+  }else if(id==='playwright'){
     command=process.execPath;
     args=[path.join(prefix,'node_modules','@playwright','mcp','cli.js'),'--browser','chromium'];
   }else if(id==='filesystem'){

@@ -113,7 +113,7 @@ describe('MCP Control Center synthetic-only regression',()=>{
       prepare(home,{playwright:{command:'secret-executable',env:{TOKEN:'sensitive-123'}}},
         '{"mcpServers":{"foreign":{"command":"hidden-command","env":{"PASS":"hidden-value"}}}}');
       const overview=inspectMcpControlCenter(ctx);
-      assert.equal(overview.catalog.length,9);
+      assert.equal(overview.catalog.length,10);
       assert.equal(overview.clients.find(a=>a.id==='lm-studio')?.status,'valid');
       const output=JSON.stringify(overview);
       for(const value of [home,'secret-executable','sensitive-123','hidden-command','hidden-value']){

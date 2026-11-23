@@ -175,6 +175,10 @@ export function createFullBackup(
   if (inspectPath(profilesPath).state === 'file') {
     session.recordPathBeforeModify('commons', 'mcp-profile', profilesPath);
   }
+  const xerjRoots = path.join(ctx.commonsDir, 'xerj-roots.json');
+  if (inspectPath(xerjRoots).state === 'file') {
+    session.recordPathBeforeModify('commons', 'xerj-roots', xerjRoots);
+  }
   return session.commitManifest();
 }
 
@@ -270,7 +274,7 @@ function preflightRestore(
   for (const entry of manifest.entries) {
     if (!entry || typeof entry.originalPath !== 'string' ||
         typeof entry.agentId !== 'string' ||
-        !['central-skill', 'skill-entry', 'mcp-config', 'mcp-profile'].includes(entry.kind) ||
+        !['central-skill', 'skill-entry', 'mcp-config', 'mcp-profile', 'xerj-roots'].includes(entry.kind) ||
         !['missing', 'link', 'file', 'directory'].includes(entry.stateBefore)) {
       throw new Error('Invalid backup entry in snapshot manifest.');
     }
@@ -289,6 +293,8 @@ function preflightRestore(
         Boolean(agent && agent.definition.skillsSupported !== false && isImmediateSkill(agent.skillsDirPath))) ||
       (entry.kind === 'mcp-profile' && entry.agentId === 'commons' &&
         arePathsEqual(targetPath, path.join(ctx.commonsDir, 'mcp-profiles.json'), ctx.platform)) ||
+      (entry.kind === 'xerj-roots' && entry.agentId === 'commons' &&
+        arePathsEqual(targetPath, path.join(ctx.commonsDir, 'xerj-roots.json'), ctx.platform)) ||
       (entry.kind === 'mcp-config' &&
         ((entry.agentId === 'commons' &&
           arePathsEqual(targetPath, ctx.centralMcpPath, ctx.platform)) ||

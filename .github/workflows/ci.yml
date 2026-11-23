@@ -49,3 +49,25 @@ jobs:
         run: |
           npm audit --audit-level=high
           npm pack --dry-run
+
+
+  xerj-live:
+    name: Live XERJ (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-15-intel]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - name: Verify the official binary, index a real corpus, search and handshake
+        env:
+          XERJ_LIVE_TESTS: '1'
+        run: node --test dist/test/xerj-live.test.js

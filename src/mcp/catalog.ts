@@ -14,7 +14,8 @@ export interface McpCatalogEntry {
   platforms: Array<'win32'|'linux'|'darwin'>;
   transport: 'stdio';
   risk: 'medium'|'high'|'critical';
-  installation: 'manual'|'reviewed-npm'|'reviewed-uv'|'unavailable';
+  installation: 'manual'|'reviewed-npm'|'reviewed-uv'|'reviewed-binary'|'unavailable';
+  license?: string;
   packageName?: string;
   example?: { command: string; args: string[] };
 }
@@ -79,6 +80,14 @@ export const MCP_CATALOG: readonly McpCatalogEntry[] = [
     example:{command:'uvx',args:['--from','mcp-server-git==2026.11.11','mcp-server-git']}
   },
   {
+    id:'xerj',name:'XERJ',description:'Local-first code and document search, BM25, hybrid retrieval and optional namespaced agent memory.',
+    repository:'https://github.com/xerj-org/xerj',maintainer:'xerj-org',license:'Apache-2.0 (open-source engine; Query-1 excluded)',
+    version:'1.0.0-rc.104',checkedAt:'2026-11-23',
+    requirements:['Official SHA-256 verified binary','Local XERJ node (loopback by default)','Explicit index roots and MCP tool permissions'],
+    platforms:allPlatforms,transport:'stdio',risk:'high',installation:'reviewed-binary',
+    packageName:'xerj',example:{command:'xerj',args:['mcp']}
+  },
+  {
     id:'agent-desktop',name:'Agent Desktop',description:'OS accessibility-tree desktop computer use; may read private UI and act as the logged-in user.',
     repository:'https://github.com/vercel-labs/agent-desktop',maintainer:'Vercel Labs',
     version:null,checkedAt:'2026-11-15',
@@ -91,5 +100,6 @@ export const MCP_PRESETS: Readonly<Record<string,readonly string[]>> = {
   osint:['playwright','fetch','web-search','osint'],
   development:['filesystem','git','github','playwright'],
   infrastructure:['docker-mcp-gateway','filesystem'],
-  'desktop-control':['agent-desktop']
+  'desktop-control':['agent-desktop'],
+  knowledge:['xerj']
 };

@@ -8,7 +8,7 @@ It is not another service; the UI stays bound to 127.0.0.1.
 ## Delivered capabilities
 
 - Detects native MCP host configurations including LM Studio, without creating a fictitious skill directory.
-- Displays nine offline-reviewed MCP references, maintainer, source, verified version if available, requirements, compatibility, transport and risk.
+- Displays ten offline-reviewed MCP references, maintainer, source, verified version if available, requirements, compatibility, transport and risk.
 - Inventories configured server names and malformed native configuration status without returning executable paths, secret values or environment variables to the browser.
 - Provides predefined OSINT, Development and Infrastructure profiles and named custom allowlists.
 - Prevents mixing untrusted OSINT/fetch tools and the Docker MCP Gateway in one custom profile.
@@ -16,6 +16,10 @@ It is not another service; the UI stays bound to 127.0.0.1.
 - Leaves unrelated native MCP entries, conflicting names and client-specific fields in place; reuses the existing pre-sync snapshot and restore mechanism.
 
 An MCP profile does not REMOVE or disable native client tools. Its allowlist limits only what Agent Commons synchronizes. For actual context savings, disable unneeded servers in the client as well.
+
+## Local XERJ search integration
+
+XERJ v1.0.0-rc.104 is an optional SHA-256 verified official Rust binary. The existing MCP Control Center supports local node status, explicit allowed folders, indexing, searching and deletion previews. Configure and sync its **stdio** endpoint only for selected clients; no global activation or LAN listener is created. See [XERJ](XERJ.md). XERJ's Query-1 and Reader-1 are separate offerings and are not deployed here.
 
 ## LM Studio native integration
 
