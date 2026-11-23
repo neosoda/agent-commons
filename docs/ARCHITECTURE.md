@@ -31,6 +31,8 @@ CLI agent-commons-agent
 - `src/runtime/delegate.ts` lance une **CLI déjà installée et déclarée** en conseil borné ; ni session multi-agent mutante, ni sous-agent autonome concurrent.
 - `src/mcp/extension-manager.ts` gère les packages MCP approuvés sous `~/.agents/mcp-packages/` et leurs reçus `mcp-installations.json` ; `extension-provision.ts` configure séparément les exécutables dans le manifeste central. Découverte, installation, configuration et synchronisation sont **quatre actes distincts**.
 
+**Recherche locale XERJ (opt-in) :** `src/mcp/xerj-binary.ts` ajoute l'installation épinglée au gestionnaire MCP existant ; `src/mcp/xerj-operations.ts` contrôle un nœud local `127.0.0.1`, un registre de racines validées `~/.agents/xerj-roots.json`, l'indexation et la recherche. `extension-provision.ts` publie `xerj mcp` via le manifeste standard et `src/sync/mcp.ts` synchronise vers les clients retenus. Ce n'est ni un deuxième gestionnaire MCP, ni un remplacement de `memory.sqlite`. Voir [XERJ](XERJ.md).
+
 ## Exécution et déploiement
 
 Node.js >=22, TypeScript, dépendance d'exécution `jsonc-parser` ; pas de backend distant requis. Déploiement actuel = local, Windows/macOS/Linux, et ZIP Windows portable publié. Le service worker Windows ou Linux est facultatif et fonctionne sous l'utilisateur courant. Les capacités MCP effectives dépendent des serveurs configurés, installés, démarrables et autorisés. Voir [skills/MCP](SKILLS_AND_MCP.md).
