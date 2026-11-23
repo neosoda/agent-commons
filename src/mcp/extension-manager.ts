@@ -8,7 +8,7 @@ import os from 'node:os';
 import path from 'node:path';
 import {spawn} from 'node:child_process';
 import {inspectPath, writeFileAtomicSync} from '../core/links.js';
-import {stageXerjBinary} from './xerj-binary.js';
+import {findExistingXerj,stageXerjBinary} from './xerj-binary.js';
 import {MCP_CATALOG} from './catalog.js';
 import {readAgentMcpServers,type McpLaunchSpec} from './health.js';
 import {detectAgents} from '../agents/detector.js';
@@ -128,7 +128,7 @@ export function inspectManagedMcps(ctx:EnvironmentContext){
       reviewedVersion:item.version,managed,healthy,unmanaged:!managed&&folder!=='missing',
       updateAvailable:healthy&&!!item.version&&item.version!==installed?.version,
       canInstall:['reviewed-npm','reviewed-uv','reviewed-binary'].includes(item.installation),
-      risk:item.risk,configured:false};
+      risk:item.risk,externalAvailable:item.id==='xerj'&&!!findExistingXerj(ctx.platform),configured:false};
   })};
 }
 /**
