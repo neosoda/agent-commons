@@ -20,6 +20,7 @@ import { syncInputRevision, type SyncPreviewKind } from './sync-revision.js';
 import { inspectMcpControlCenter, previewMcpProfile, saveMcpProfile, deleteMcpProfile, runMcpProfileSync } from '../mcp/control-center.js';
 import { inspectManagedMcps, previewManagedMcp, applyManagedMcp } from '../mcp/extension-manager.js';
 import {previewMcpProvision,applyMcpProvision} from '../mcp/extension-provision.js';
+import {inspectXerj,previewXerjRoots,saveXerjRoots,startXerj,stopXerj,indexXerj,searchXerj,removeXerj} from '../mcp/xerj-operations.js';
 
 const IDENTIFIER = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const SNAPSHOT = /^snapshot-\d{8}-\d{6}-[a-f0-9]{6}$/;
@@ -334,6 +335,9 @@ export async function startWebServer(options: WebOptions = {}): Promise<WebInsta
       if (req.method === 'GET' && path.pathname === '/api/mcp-center') {
         json(res, 200, inspectMcpControlCenter(ctx)); return;
       }
+      if (req.method === 'GET' && path.pathname === '/api/xerj') {
+        json(res,200,await inspectXerj(ctx)); return;
+      }
       if (req.method === 'GET' && path.pathname === '/api/mcp-packages') {
         json(res, 200, inspectManagedMcps(ctx)); return;
       }
@@ -413,6 +417,34 @@ export async function startWebServer(options: WebOptions = {}): Promise<WebInsta
             uninstallCatalogSkill(ctx, id, { yes: true });
           const snapshotId = result.snapshotId;
           json(res, 200, { applied: true, snapshotId }); return;
+        }
+        if(action==='xerj-roots-preview'||action==='xerj-roots-apply'){
+          const roots=body.roots;
+          if(!Array.isArray(roots)||roots.length>8||
+            !roots.every(r=>typeof r==='string'&&r.length<=450))
+            throw new Error('Invalid XERJ indexing roots.');
+          const revision=typeof body.expectedRevision==='string'?body.expectedRevision:undefined;
+          if(action==='xerj-roots-preview'){
+            json(res,200,previewXerjRoots(ctx,roots,revision));return;
+          }
+          requireApproval(body);
+          json(res,200,saveXerjRoots(ctx,roots,revision??''));return;
+        }
+        if(action==='xerj-start'||action==='xerj-stop'){
+          requireApproval(body);
+          json(res,200,action==='xerj-start'?await startXerj(ctx):stopXerj(ctx));return;
+        }
+        if(action==='xerj-index'||action==='xerj-search'||
+           action==='xerj-remove-preview'||action==='xerj-remove-apply'){
+          const root=typeof body.root==='string'?body.root:'';
+          if(action==='xerj-search'){
+            json(res,200,await searchXerj(ctx,root,typeof body.query==='string'?body.query:''));return;
+          }
+          if(action==='xerj-remove-preview'){
+            json(res,200,await removeXerj(ctx,root,false));return;
+          }
+          requireApproval(body);
+          json(res,200,action==='xerj-index'?await indexXerj(ctx,root):await removeXerj(ctx,root,true));return;
         }
         if (action === 'mcp-package-apply') {
           requireApproval(body);
