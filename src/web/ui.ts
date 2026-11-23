@@ -82,6 +82,26 @@ __MISSION_CSS__
 <div class="panel"><h2>Client inventory</h2><div id="center-clients"></div></div>
 </div>
 <p class="dim">A valid configuration is not proof that a server runs. Check launch targets with “agent-commons doctor” and test the MCP handshake with “agent-commons mcp probe”.</p>
+<div class="panel" id="xerj-panel">
+<h2>XERJ · local knowledge search</h2>
+<p class="dim">Optional search node. Index only explicit directories; clients and tools still need separate MCP approval.</p>
+<p class="subtle" id="xerj-node-state" role="status">Checking XERJ…</p>
+<div class="filter-row">
+<button class="btn small primary" id="xerj-start">Start local node</button>
+<button class="btn small" id="xerj-stop">Stop managed node</button>
+</div>
+<div class="filter-row mt-14"><input class="field" id="xerj-new-root" aria-label="New directory to index" placeholder="Absolute directory to authorize">
+<button class="btn" id="xerj-add-root">Authorize directory</button></div>
+<div class="filter-row mt-14"><select class="field" id="xerj-root" aria-label="XERJ authorized directory"></select>
+<button class="btn" id="xerj-drop-root">Revoke directory</button></div>
+<div class="filter-row mt-14">
+<button class="btn primary" id="xerj-index">Index / refresh</button>
+<button class="btn danger" id="xerj-remove">Delete this index</button>
+</div>
+<div class="filter-row mt-14"><input class="field" type="search" id="xerj-query" aria-label="Search indexed knowledge" placeholder="Function or code passage to find">
+<button class="btn" id="xerj-search">Search</button></div>
+<pre class="result-box hidden mt-16" id="xerj-output" role="status" aria-live="polite"></pre>
+</div>
 <div class="panel"><h2>MCP profiles</h2><p class="dim">Profiles add configured servers; they never remove other native MCPs. Servers not configured centrally are skipped.</p>
 <div class="filter-row"><select class="field" id="center-profile" aria-label="Choose MCP profile"></select><button class="btn" id="center-sync-preview">Preview MCP sync</button><button class="btn primary" id="center-sync-apply">Apply MCP sync</button></div>
 <h3>Target clients</h3><div id="center-agents" class="filter-row"></div><pre class="result-box hidden mt-16" id="center-report" role="status" aria-live="polite"></pre></div>
@@ -136,10 +156,10 @@ __MISSION_CSS__
 'use strict';
 const csrf=document.querySelector('meta[name="csrf-token"]').content;
 const $=id=>document.getElementById(id);
-let state=null, mcpState=null, centerState=null, packagesState=null, activePage='overview', selectedAgent='', profileSavePending=false, profileDrafts=Object.create(null), catalogKind='skill';
+let state=null, mcpState=null, centerState=null, packagesState=null, xerjState=null, activePage='overview', selectedAgent='', profileSavePending=false, profileDrafts=Object.create(null), catalogKind='skill';
 const short=x=>String(x||'').slice(0,10);
-const mcpGroups={'playwright':'web','fetch':'web','web-search':'web','osint':'web','github':'dev','git':'dev','filesystem':'infra','docker-mcp-gateway':'infra','agent-desktop':'desktop'};
-const mcpGroupNames={web:'Web & research',dev:'Development & Git',infra:'Infrastructure & files',desktop:'Desktop & computer use',other:'Other MCPs'};
+const mcpGroups={'playwright':'web','fetch':'web','web-search':'web','osint':'web','github':'dev','git':'dev','filesystem':'infra','docker-mcp-gateway':'infra','agent-desktop':'desktop','xerj':'knowledge'};
+const mcpGroupNames={web:'Web & research',dev:'Development & Git',infra:'Infrastructure & files',desktop:'Desktop & computer use',knowledge:'Knowledge & retrieval',other:'Other MCPs'};
 const skillSamples={
  'agent-desktop':['Utilise agent-desktop pour inspecter l’application au premier plan sans agir. Propose un plan et demande confirmation avant toute action.','Use agent-desktop to inspect the active application first; ask for approval before changing anything.'],
  'improve':['Utilise improve quick pour auditer mon projet sans toucher au code, prioriser les constats vérifiés et préparer trois plans exécutables.','Use improve branch to review changes in this PR and prepare self-contained plans for another agent.'],
@@ -160,6 +180,7 @@ const skillSamples={
  'ui-ux-pro-max':['Utilise ui-ux-pro-max pour améliorer la lisibilité et l’accessibilité de cette interface.']
 };
 const mcpSamples={
+  xerj:['Avec XERJ MCP, cherche une fonction dans les projets indexés et cite les passages et chemins retrouvés avant de générer du code. Ne stocke rien en mémoire sans accord.'],
  playwright:['Utilise Playwright MCP pour vérifier les parcours principaux de cette application sans modifier de données.'],
  fetch:['Utilise Fetch MCP pour lire la documentation publique de cette API et résumer ses paramètres.'],
  'web-search':['Utilise le MCP de recherche web configuré pour vérifier la documentation officielle récente avec sources.'],
@@ -574,6 +595,9 @@ function filterCatalog(){
       else if(!item.configured&&pkg.managed&&pkg.healthy)
         actions.append(catalogAction('Configure for clients','mcp-configure:'+item.id,()=>managedMcpClientDialog(item.id,true),true));
     }
+    if(item.kind==='mcp'&&item.id==='xerj'&&!item.configured&&item.packageInfo?.externalAvailable){
+      actions.append(catalogAction('Configure for clients','mcp-configure:'+item.id,()=>managedMcpClientDialog(item.id,true),true));
+    }
     if(item.kind==='mcp'&&item.configured){
       actions.append(catalogAction('Choose clients','mcp-sync:'+item.id,()=>managedMcpClientDialog(item.id,false),true));
     }
@@ -635,7 +659,7 @@ function localSkillDetails(item){
 }
 function mcpStatusLabel(item){
   return item.packageInfo?.updateAvailable?'Reviewed update available':item.packageInfo?.managed?(item.packageInfo.healthy?'Package installed':'Package needs repair'):
-    item.configured?'Configured centrally':item.detected?'Detected in client':item.unavailable?'Provider not vetted':'Reference only';
+    item.configured?'Configured centrally':item.packageInfo?.externalAvailable?'Existing local binary':item.detected?'Detected in client':item.unavailable?'Provider not vetted':'Reference only';
 }
 function mcpDetails(item){
   const bg=node('div',null,'modal-backdrop'),box=node('section',null,'modal');
@@ -649,7 +673,7 @@ function mcpDetails(item){
   const linked=(centerState?.clients||[]).filter(client=>client.installed&&client.servers.includes(item.id)).map(client=>client.name);
   const steps=node('ol',null,'extension-steps');steps.setAttribute('aria-label','MCP setup steps');
   for(const [label,complete,detail] of [
-    ['Install package',!!pkg?.healthy,pkg?.healthy?'Package installed':pkg?.canInstall?'Preview a reviewed package':'Manual provisioning'],
+    ['Install package',!!(pkg?.healthy||pkg?.externalAvailable),pkg?.healthy?'Package installed':pkg?.externalAvailable?'External XERJ executable detected':pkg?.canInstall?'Preview a reviewed package':'Manual provisioning'],
     ['Configure shared server',!!item.configured,item.configured?'Configured centrally':'Choose permissions and clients'],
     ['Detected in clients',false,linked.length?linked.join(', '):'Preview the selected client changes']
   ]){
@@ -667,7 +691,7 @@ function mcpDetails(item){
         act.onclick=()=>{unmountDialog();previewMcpPackage(op,item.id)};actions.append(act)}
       if(pkg.managed){const remove=node('button','Uninstall managed package','btn danger small');
         remove.onclick=()=>{unmountDialog();previewMcpPackage('uninstall',item.id)};actions.append(remove)}
-      if(pkg.managed&&pkg.healthy&&!item.configured){const activate=node('button','Configure for clients','btn primary small');
+      if(((pkg.managed&&pkg.healthy)||(item.id==='xerj'&&pkg.externalAvailable))&&!item.configured){const activate=node('button','Configure for clients','btn primary small');
         activate.onclick=()=>{unmountDialog();managedMcpClientDialog(item.id,true)};actions.append(activate)}
       box.append(actions);
     }
@@ -982,19 +1006,20 @@ function formatSync(r){const lines=['Mode: '+(r.dryRun?'PREVIEW':'APPLIED'),'Age
 function showSync(r){const p=$('sync-report');p.classList.remove('hidden');p.textContent=formatSync(r)}
 function renderIntegrity(){clear($('integrity-items'));if(!state.integrity.scanned){$('integrity-items').append(node('div','No managed public-catalog skill installations found.','empty'));return}state.integrity.results.forEach(r=>{const e=row(r.skill,r.checkedFiles+' files checked · '+(r.commit?short(r.commit):'no receipt'),labelStatus(r.status));e.querySelector('strong').dataset.noI18n='true';$('integrity-items').append(e);if(r.issues.length){const issues=node('div',r.issues.map(i=>i.type+': '+i.reason+(i.path?' ('+i.path+')':'')).join('\n'),'result-box');$('integrity-items').append(issues)}})}
 function renderBackups(){clear($('backup-items'));if(!state.inventory.backups.length){$('backup-items').append(node('div','No snapshots yet.','empty'));return}state.inventory.backups.forEach(b=>{const btn=node('button','Restore…','btn danger small');btn.dataset.focusKey='restore:'+b.id;btn.setAttribute('aria-label','Restore snapshot '+b.id);btn.onclick=()=>modal('Restore '+b.id,'This replaces managed paths with their historical state. Create a fresh backup first, and verify that this is the intended snapshot.','Restore',async()=>{await request('/api/action',{action:'restore',snapshot:b.id,approved:true});showToast('Snapshot restored');await refresh()},b.id);$('backup-items').append(row(b.id,b.createdAt+' · '+b.reason+' · '+b.entriesCount+' entries',btn))})}
-function renderAll(){renderOverview();renderCatalog();renderAgents();renderMcp();renderMcpCenter();renderIntegrity();renderBackups();translateUI()}
+function renderAll(){renderOverview();renderCatalog();renderAgents();renderMcp();renderMcpCenter();renderXerj();renderIntegrity();renderBackups();translateUI()}
 let refreshGeneration=0;
 async function refresh(announce=false){
   const generation=++refreshGeneration;
   if(announce){$('workspace-status').textContent='Refreshing local workspace…';translateUI()}
   try{
     const nextState=await request('/api/state');
-    let nextMcp=null,nextCenter=null,nextPackages=null,mcpError=null;
+    let nextMcp=null,nextCenter=null,nextPackages=null,nextXerj=null,mcpError=null;
     try{nextPackages=await request('/api/mcp-packages')}catch(err){mcpError=err}
     try{nextMcp=await request('/api/mcp')}catch(err){mcpError=err}
     try{nextCenter=await request('/api/mcp-center')}catch(err){mcpError=mcpError||err}
+    try{nextXerj=await request('/api/xerj')}catch(err){mcpError=mcpError||err}
     if(generation!==refreshGeneration)return; // An older response must never replace newer state.
-    state=nextState;mcpState=nextMcp;centerState=nextCenter;packagesState=nextPackages;
+    state=nextState;mcpState=nextMcp;centerState=nextCenter;packagesState=nextPackages;xerjState=nextXerj;
     const focused=document.activeElement;
     const focusedInDynamic=!!focused?.closest('#catalog-cards,#mcp-items,#backup-items,#profile-skills,#profile-categories');
     const focusKey=focusedInDynamic?focused?.dataset?.focusKey:null;
