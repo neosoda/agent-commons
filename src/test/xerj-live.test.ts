@@ -43,7 +43,7 @@ it('REAL XERJ: verified binary, node, index, search and MCP handshake',
       assert.ok((probe.tools??[]).some(t=>t==='xerj_search'||t.includes('search')),
         'A real search tool must be advertised by XERJ MCP');
     }finally{
-      if(launched)try{stopXerj(ctx)}catch{/* managed process already exited */}
-      fs.rmSync(home,{recursive:true,force:true});
+      if(launched)try{await stopXerj(ctx)}catch{/* best effort; preserve failure's original cause */}
+      fs.rmSync(home,{recursive:true,force:true,maxRetries:20,retryDelay:300});
     }
   });
