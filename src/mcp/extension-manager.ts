@@ -8,13 +8,14 @@ import os from 'node:os';
 import path from 'node:path';
 import {spawn} from 'node:child_process';
 import {inspectPath, writeFileAtomicSync} from '../core/links.js';
+import {stageXerjBinary} from './xerj-binary.js';
 import {MCP_CATALOG} from './catalog.js';
 import {readAgentMcpServers,type McpLaunchSpec} from './health.js';
 import {detectAgents} from '../agents/detector.js';
 import {loadCentralMcpManifest} from '../sync/mcp.js';
 import type {EnvironmentContext} from '../types.js';
 
-type Manager = 'npm' | 'uv';
+type Manager = 'npm' | 'uv' | 'binary';
 type Operation = 'install' | 'update' | 'repair' | 'uninstall';
 interface Receipt {version:string; package:string; manager:Manager; installedAt:string; entrySha256:string}
 interface Store {version:1; packages:Record<string,Receipt>}
@@ -26,8 +27,14 @@ const hash = (s:string) => crypto.createHash('sha256').update(s).digest('hex');
 function binaryHash(file:string):string {
   if(inspectPath(file).state!=='file')return '';
   const size=fs.statSync(file).size;
-  if(size>10*1024*1024)return '';
-  return crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex');
+  if(size>200*1024*1024)return '';
+  const fd=fs.openSync(file,'r');
+  try{
+    const hasher=crypto.createHash('sha256'),chunk=Buffer.allocUnsafe(1024*1024);
+    let read=0;
+    while((read=fs.readSync(fd,chunk,0,chunk.length,null))>0)hasher.update(chunk.subarray(0,read));
+    return hasher.digest('hex');
+  }finally{fs.closeSync(fd)}
 }
 const stateOf = (p:string) => inspectPath(p).state;
 const physical = (p:string) => ['missing','directory'].includes(stateOf(p));
@@ -52,7 +59,7 @@ function read(ctx:EnvironmentContext):{raw:string;store:Store} {
   if(Object.entries(store.packages).length>100)throw new Error('Invalid managed MCP receipt.');
   for(const [id,r] of Object.entries(store.packages)){
     if(!ID.test(id) || !r || typeof r!=='object' ||
-       !['npm','uv'].includes(r.manager) || typeof r.version!=='string' ||
+       !['npm','uv','binary'].includes(r.manager) || typeof r.version!=='string' ||
        typeof r.package!=='string' || typeof r.installedAt!=='string' ||
        typeof r.entrySha256!=='string' || !/^[a-f0-9]{64}$/.test(r.entrySha256))
       throw new Error('Invalid managed MCP receipt.');
@@ -89,12 +96,16 @@ const run:Runner = (command,args,cwd)=>new Promise((resolve,reject)=>{
 function recipe(id:string){
   const item=MCP_CATALOG.find(x=>x.id===id);
   if(!item || !item.packageName || !item.version ||
-     !['reviewed-npm','reviewed-uv'].includes(item.installation) ||
+     !['reviewed-npm','reviewed-uv','reviewed-binary'].includes(item.installation) ||
      !/^[0-9][0-9A-Za-z.+-]*$/.test(item.version))throw new Error('MCP requires manual installation or upstream review.');
-  return {item,manager:(item.installation==='reviewed-npm'?'npm':'uv') as Manager,
+  return {item,manager:(item.installation==='reviewed-npm'?'npm':item.installation==='reviewed-uv'?'uv':'binary') as Manager,
     version:item.version,packageName:item.packageName};
 }
 function program(ctx:EnvironmentContext,id:string,base:string,manager:Manager):string {
+  if(manager==='binary'){
+    if(id!=='xerj')throw new Error('No vetted MCP binary entry point.');
+    return path.join(base,ctx.platform==='win32'?'xerj.exe':'xerj');
+  }
   if(manager==='uv'){
     const bin=ctx.platform==='win32'?'Scripts':'bin';
     const name=ctx.platform==='win32'?id+'.exe':'mcp-server-'+id;
@@ -116,7 +127,7 @@ export function inspectManagedMcps(ctx:EnvironmentContext){
     return {id:item.id,manager:installed?.manager??null,installedVersion:installed?.version??null,
       reviewedVersion:item.version,managed,healthy,unmanaged:!managed&&folder!=='missing',
       updateAvailable:healthy&&!!item.version&&item.version!==installed?.version,
-      canInstall:['reviewed-npm','reviewed-uv'].includes(item.installation),
+      canInstall:['reviewed-npm','reviewed-uv','reviewed-binary'].includes(item.installation),
       risk:item.risk,configured:false};
   })};
 }
@@ -179,12 +190,15 @@ export async function applyManagedMcp(ctx:EnvironmentContext,id:string,operation
     if(operation!=='uninstall'){
       fs.mkdirSync(stage,{recursive:false});
       const r=recipe(id);
-      const command=runnerCommand(ctx,r.manager);
-      if(r.manager==='npm'){
+      if(r.manager==='binary'){
+        await stageXerjBinary(stage,ctx.platform);
+      }else if(r.manager==='npm'){
+        const command=runnerCommand(ctx,r.manager);
         await execute(command.command,[...command.args,'install','--prefix',stage,
           '--ignore-scripts','--no-audit','--no-fund','--save-exact',
           r.packageName+'@'+r.version],stage);
       }else{
+        const command=runnerCommand(ctx,r.manager);
         const venv=path.join(stage,'venv');
         await execute(command.command,['venv',venv],stage);
         const python=path.join(venv,ctx.platform==='win32'?'Scripts':'bin',
