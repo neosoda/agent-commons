@@ -86,6 +86,7 @@ __MISSION_CSS__
 <h2>XERJ · local knowledge search</h2>
 <p class="dim">Optional search node. Index only explicit directories; clients and tools still need separate MCP approval.</p>
 <p class="subtle" id="xerj-node-state" role="status">Checking XERJ…</p>
+<p class="subtle" id="xerj-indices" role="status"></p>
 <div class="filter-row">
 <button class="btn small primary" id="xerj-start">Start local node</button>
 <button class="btn small" id="xerj-stop">Stop managed node</button>
@@ -1097,6 +1098,7 @@ function renderXerj(){
     x.reachable?(x.authRequired?'authentication required':x.healthy?'node ready':'node unhealthy'):'node offline',
     x.indices.length+' Agent Commons indices'
   ].join(' · ');
+  $('xerj-indices').textContent=x.indices.length?'Indexes: '+x.indices.join(', '):'No local Agent Commons indices detected.';
   $('xerj-start').disabled=!x.binaryAvailable||x.reachable;
   $('xerj-stop').disabled=!x.running;
   $('xerj-index').disabled=!x.healthy||!x.roots.length;
