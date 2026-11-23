@@ -32,9 +32,14 @@ function checkedRoot(ctx:EnvironmentContext,root:string):string {
   if(typeof root!=='string'||root.length>450||!path.isAbsolute(root))throw new Error('Invalid XERJ indexing root.');
   const resolved=path.resolve(root),parsed=path.parse(resolved);
   if(resolved===parsed.root||!isPhysical(resolved))throw new Error('XERJ root must be an existing physical directory.');
+  // Reject symlink/junctions in any parent; otherwise an apparently safe path
+  // could resolve outside the explicitly approved tree.
+  if(path.resolve(fs.realpathSync(resolved))!==resolved)
+    throw new Error('XERJ indexing root must not traverse linked directories.');
   if(ctx.platform==='win32'&&resolved.startsWith('\\\\'))throw new Error('Network XERJ roots are not supported.');
   const forbidden=[ctx.commonsDir,ctx.backupsDir,ctx.homeDir].map(x=>path.resolve(x));
-  if(forbidden.some(f=>resolved===f||f.startsWith(resolved+path.sep)||resolved.startsWith(f+path.sep)&&f!==path.resolve(ctx.homeDir)))
+  if(forbidden.some(f=>resolved===f || f.startsWith(resolved+path.sep) ||
+    (f!==path.resolve(ctx.homeDir) && resolved.startsWith(f+path.sep))))
     throw new Error('XERJ root would include private Agent Commons data or the home directory.');
   if(resolved.split(path.sep).some(p=>['.ssh','.gnupg','.aws','.config','.git'].includes(p.toLowerCase())))
     throw new Error('Sensitive XERJ roots are not accepted.');
