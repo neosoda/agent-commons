@@ -44,13 +44,16 @@ describe('P2 persistent lifecycle and interrupted side effects', () => {
       let calls = 0;
       const model: ModelClient = { next: async () => {
         calls++;
-        if (calls === 1) {
-          f.store.requestControl(state.id, f.workspace.workspaceId, 'pause');
-          return { call: { name: 'read_file', arguments: { path: 'a.ts' } } };
-        }
+        if (calls === 1) return { call: { name: 'read_file', arguments: { path: 'a.ts' } } };
         return { finish: 'Inspected' };
       } };
-      const paused = await new MissionRunner(f.store, model, f.workspace, limits).run(state);
+      const pausingTools: ToolExecutor = { execute: async request => {
+        const result = await f.workspace.execute(request);
+        // A pause received during an already-running tool is applied at the next safe boundary.
+        f.store.requestControl(state.id, f.workspace.workspaceId, 'pause');
+        return result;
+      } };
+      const paused = await new MissionRunner(f.store, model, pausingTools, limits).run(state);
       assert.equal(paused.status, 'paused');
       assert.equal(paused.calls, 1);
       assert.equal(paused.evidence, 1);
@@ -108,6 +111,55 @@ describe('P2 persistent lifecycle and interrupted side effects', () => {
       assert.equal(reconciled.tested, false);
       const final = await new MissionRunner(f.store, model, unsafe, limits).run(reconciled);
       assert.equal(final.status, 'partial', 'reconciled edit still requires a successful test');
+    } finally { f.cleanup(); }
+  });
+
+  it('does not execute a queued write after cancellation arrives during model inference', async () => {
+    const f = fixture(); try {
+      const state = f.store.create('Cancel before the model can write', f.workspace.workspaceId);
+      let executed = 0;
+      const tools: ToolExecutor = { execute: async request => {
+        executed++;
+        return f.workspace.execute(request);
+      } };
+      const model: ModelClient = { next: async () => {
+        f.store.requestControl(state.id, f.workspace.workspaceId, 'cancel');
+        return { call: { name: 'write_file', arguments: { path: 'a.ts', content: 'export const a = 99;\n' } } };
+      } };
+      const result = await new MissionRunner(f.store, model, tools, limits).run(state);
+      assert.equal(result.status, 'cancelled');
+      assert.equal(result.calls, 0, 'an action returned after cancellation must not count or execute');
+      assert.equal(result.pendingAction, undefined);
+      assert.equal(executed, 0);
+      assert.equal(f.store.load(state.id, f.workspace.workspaceId).status, 'cancelled');
+      assert.equal(fs.readFileSync(path.join(f.root, 'a.ts'), 'utf8'), 'export const a = 1;\n');
+    } finally { f.cleanup(); }
+  });
+
+  it('pauses before a late model write and resumes from the clean checkpoint', async () => {
+    const f = fixture(); try {
+      const state = f.store.create('Pause before the model can write', f.workspace.workspaceId);
+      let turns = 0;
+      const model: ModelClient = { next: async () => {
+        turns++;
+        if (turns === 1) {
+          f.store.requestControl(state.id, f.workspace.workspaceId, 'pause');
+          return { call: { name: 'write_file', arguments: { path: 'a.ts', content: 'export const a = 99;\n' } } };
+        }
+        if (turns === 2) return { call: { name: 'read_file', arguments: { path: 'a.ts' } } };
+        return { finish: 'Inspected after resumption' };
+      } };
+      const paused = await new MissionRunner(f.store, model, f.workspace, limits).run(state);
+      assert.equal(paused.status, 'paused');
+      assert.equal(paused.calls, 0);
+      assert.equal(paused.pendingAction, undefined);
+      assert.equal(fs.readFileSync(path.join(f.root, 'a.ts'), 'utf8'), 'export const a = 1;\n');
+      const resumed = await new MissionRunner(f.store, model, f.workspace, limits)
+        .run(f.store.load(state.id, f.workspace.workspaceId));
+      assert.equal(resumed.status, 'completed');
+      assert.equal(resumed.calls, 1);
+      assert.equal(resumed.inspected, true);
+      assert.equal(fs.readFileSync(path.join(f.root, 'a.ts'), 'utf8'), 'export const a = 1;\n');
     } finally { f.cleanup(); }
   });
 });
