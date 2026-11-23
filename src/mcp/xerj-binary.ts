@@ -74,6 +74,16 @@ function extractZip(data:Buffer,executable:string):Buffer {
   if(!found)throw new Error('XERJ executable missing in official archive.');
   return found;
 }
+/** Read-only detection; does not run or adopt untrusted binaries. */
+export function findExistingXerj(platform:NodeJS.Platform):string|null {
+  const exe=platform==='win32'?'xerj.exe':'xerj';
+  for(const folder of (process.env['PATH']??'').split(path.delimiter)){
+    if(!path.isAbsolute(folder))continue;
+    const filename=path.join(folder,exe);
+    try{if(fs.lstatSync(filename).isFile())return filename;}catch{ /* not installed */ }
+  }
+  return null;
+}
 export function xerjArtifact(platform:NodeJS.Platform,arch:string=process.arch) {
   const artifact=artifacts[platform+'-'+arch];
   if(!artifact)throw new Error('No reviewed XERJ release for this OS/CPU.');
