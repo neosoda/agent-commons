@@ -171,6 +171,7 @@ const PUBLIC_ERRORS = new Set([
   'Unsafe XERJ directory.', 'Unsafe XERJ data directory.', 'Unsafe XERJ roots file.',
   'Invalid XERJ roots configuration.', 'Oversized XERJ roots file.', 'XERJ command timed out.',
   'XERJ output exceeded safe limit.', 'XERJ command could not start.',
+  'XERJ node stop timed out; data directory preserved.',
   'Invalid mission job identifier.', 'Invalid mission parameters.',
   'Invalid mission scheduling.', 'Mission is not currently running.',
   'Unsupported mission action.'
@@ -447,7 +448,7 @@ export async function startWebServer(options: WebOptions = {}): Promise<WebInsta
         }
         if(action==='xerj-start'||action==='xerj-stop'){
           requireApproval(body);
-          json(res,200,action==='xerj-start'?await startXerj(ctx):stopXerj(ctx));return;
+          json(res,200,action==='xerj-start'?await startXerj(ctx):await stopXerj(ctx));return;
         }
         if(action==='xerj-index'||action==='xerj-search'||
            action==='xerj-remove-preview'||action==='xerj-remove-apply'){
