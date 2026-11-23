@@ -16,6 +16,10 @@ Les tests d'intégration simulés et la CI ne prouvent **pas** une recette compl
 
 **Source de vérité fonctionnelle :** [CAPABILITIES](docs/CAPABILITIES.md) · [ARCHITECTURE](docs/ARCHITECTURE.md) · [AGENT_RUNTIME](docs/AGENT_RUNTIME.md) · [SKILLS_AND_MCP](docs/SKILLS_AND_MCP.md) · [SECURITY](SECURITY.md). Les décisions stables sont dans [DECISIONS](docs/DECISIONS.md). Les étapes P1–P6 **sont fusionnées**, pas « en cours » ; les preuves matérielles restent ouvertes.
 
+## Intégration XERJ (23 novembre 2026)
+
+La branche `feat/xerj-native-integration` implémente le raccordement optionnel à XERJ v1.0.0-rc.104 dans le gestionnaire MCP existant. Sources et critères de recette dans [docs/XERJ.md](docs/XERJ.md). **Ne la considérer fusionnée/validée que si la PR et ses contrôles réels sont vérifiés**. Elle ne remplace pas SQLite FTS5, n'installe aucun modèle Query-1/Reader-1 et n'expose pas SentinelBrain au LAN.
+
 ## Prochaine action concrète
 
 **P0 :** recette réelle du moteur dans un worktree Git jetable avec Windows 11 + LM Studio + modèle `tool_calls` + GPU ; confirmer édition autorisée, test, checkpoint/reprise, MCP sélectionné, worker, mémoire et absence de fuite. Relever les mesures et écarts dans un rapport de recette **daté**, puis mettre à jour [CAPABILITIES](docs/CAPABILITIES.md) et [ROADMAP](docs/ROADMAP.md). Ne pas augmenter la surface réseau avant le threat model.
