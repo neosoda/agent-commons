@@ -66,7 +66,7 @@ node dist/runtime/cli.js --workspace "/chemin/vers/un-depot" --task "Analyse ce 
 
 ### Loop Engineering universel
 
-Le skill original [Universal Product Engineering](skills/universal-product-engineering/SKILL.md) orchestre des cycles bornés de développement, tests, enrichissement et critique UX/UI anti-slop avec preuves et checkpoints. Après installation explicite et synchronisation vers le client choisi, demander : « Exécute le skill universal-product-engineering sur le projet courant. » Voir le [guide d'exploitation](docs/SKILLS_AND_MCP.md#loop-engineering-universel).
+Le skill original [Universal Product Engineering](skills/universal-product-engineering/SKILL.md) (V2) orchestre des cycles bornés de développement, tests, enrichissement et critique UX/UI anti-slop avec baseline, scorecard, hiérarchie de preuves et checkpoints. Après installation explicite et synchronisation vers le client choisi, demander : « Exécute le skill universal-product-engineering sur le projet courant. » Voir le [guide d'exploitation](docs/SKILLS_AND_MCP.md#loop-engineering-universel).
 
 ## Documentation : un chemin court vers la bonne source
 
