@@ -11,7 +11,7 @@
 | Capacité | État dans `main` | Preuves et réserve |
 |---|---|---|
 | Détection de 21 environnements et adaptation skills/MCP | Implémentée, tests CI | `src/agents/registry.ts`, `src/test/client-compat.test.ts` ; certaines intégrations réelles non testées |
-| Catalogue 210 skills / 10 références MCP (dont XERJ) | Références embarquées, tests CI | `catalog/skills.json`, `src/mcp/catalog.ts` ; **référencé ≠ installé ≠ opérationnel** |
+| Catalogue 211 skills / 10 références MCP (dont XERJ) | Références embarquées, tests CI | `catalog/skills.json`, `src/mcp/catalog.ts` ; **référencé ≠ installé ≠ opérationnel** |
 | Synchronisation, profils, snapshots, rollback | Implémentés, tests CI | `src/sync/`, `src/core/backup.ts`, tests de sécurité ; conserver les données non gérées |
 | Installation contrôlée skills et packages MCP | Implémentée, tests CI | `src/commands/skill-install.ts`, `src/mcp/extension-manager.ts` ; installation de tiers explicitement approuvée |
 | Diagnostics `doctor` / `mcp probe` | Implémentés ; essais réels ciblés Windows 17/11 | [rapport historique](qa/WINDOWS_REAL_AUDIT_2026-11-17.md) ; non généralisable à tous les MCP |

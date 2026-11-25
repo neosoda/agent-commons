@@ -48,7 +48,7 @@ Try with `--home <test-directory>` first to avoid affecting your regular profile
 ## What it does
 
 - **Configure clients:** detect native formats, synchronize selected skills/MCP entries, manage profiles and restore snapshots.
-- **Discover without context bloat:** search the catalog, rank metadata and load only the relevant `SKILL.md`. The complete 210-skill catalog is not injected into a prompt.
+- **Discover without context bloat:** search the catalog, rank metadata and load only the relevant `SKILL.md`. The complete skill catalog is not injected into a prompt.
 - **Manage extensions:** install/update reviewed skills and selected pinned MCP packages through Extension Manager, then **configure and synchronize separately**. Installed does not imply callable.
 - **Run local missions (experimental on `main`):** OpenAI-compatible LM Studio model, allowed tools, plans, per-repository SQLite FTS5 memory, persistent queue, worker and Mission Control. External AI CLIs can give **optional advice**, not execute delegated coding tasks in parallel.
 
@@ -62,6 +62,11 @@ node dist/runtime/cli.js --workspace "/path/to/repository" --task "Inspect this 
 ```
 
 **Security:** the unauthenticated Skill Hub is bound strictly to `127.0.0.1`; **never expose it directly to a LAN or the Internet**. Runtime file writes, repository tests, MCP calls and third-party installs require explicit relevant permissions. Strong OS sandboxing and full real LM Studio/RTX acceptance for the new runtime are still missing.
+
+
+### Universal Loop Engineering
+
+The original [Universal Product Engineering](skills/universal-product-engineering/SKILL.md) skill (V2) orchestrates bounded development, testing, content enrichment and anti-AI-slop UX/UI critique cycles with a measured baseline, scorecard, evidence hierarchy and checkpoints. After explicit installation and synchronization to the chosen client, ask: “Run the universal-product-engineering skill on the current project.” See the [operating guide](docs/SKILLS_AND_MCP.md#loop-engineering-universel).
 
 ## Documentation: find the right source quickly
 
@@ -83,7 +88,7 @@ Agent Commons remains **independent of SentinelBrain**: an external-PC model pro
 Agent Commons code is [MIT licensed](LICENSE). The catalog references third-party projects **without absorbing their licenses or claiming they are safe**. All authors, sources and declared licenses remain credited in the [full index](docs/skills/README.md). Project-specific integration guides are also available under `docs/`.
 
 <!-- BEGIN GENERATED SKILL REPOSITORY CREDITS -->
-The curated public catalog references **210 skills across 32 upstream repositories**. These are **metadata-only references**: Agent Commons does not bundle or automatically install their skills. Licenses are recorded per pinned skill in [the full index](docs/skills/README.md); repositories with more than one license must be checked per skill.
+The curated public catalog references **211 skills across 32 upstream repositories**. These are **metadata-only references**: Agent Commons does not bundle or automatically install their skills. Licenses are recorded per pinned skill in [the full index](docs/skills/README.md); repositories with more than one license must be checked per skill.
 
 | Upstream repository | Author / maintainer | Skill references | Declared license(s) |
 |:--|:--|--:|:--|
@@ -104,7 +109,7 @@ The curated public catalog references **210 skills across 32 upstream repositori
 | [markoblogo/abvx-agent-skills](https://github.com/markoblogo/abvx-agent-skills) | Anton Biletskiy-Volokh | 4 | MIT |
 | [mattpocock/skills](https://github.com/mattpocock/skills) | Matt Pocock | 5 | MIT |
 | [morellid/ai-act-skill](https://github.com/morellid/ai-act-skill) | Davide Morelli | 1 | MIT |
-| [neosoda/agent-commons](https://github.com/neosoda/agent-commons) | Agent Commons contributors | 1 | MIT |
+| [neosoda/agent-commons](https://github.com/neosoda/agent-commons) | Agent Commons contributors | 2 | MIT |
 | [nextlevelbuilder/ui-ux-pro-max-skill](https://github.com/nextlevelbuilder/ui-ux-pro-max-skill) | Next Level Builder | 7 | Apache-2.0 / MIT |
 | [ninjasweb/video-engine-skill](https://github.com/ninjasweb/video-engine-skill) | ninjasweb | 1 | MIT |
 | [noamdorr/saas-product-demo-video](https://github.com/noamdorr/saas-product-demo-video) | Noam Dorr | 1 | MIT |

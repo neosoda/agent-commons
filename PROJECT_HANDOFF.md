@@ -20,6 +20,10 @@ Les tests d'intégration simulés et la CI ne prouvent **pas** une recette compl
 
 La branche `feat/xerj-native-integration` implémente le raccordement optionnel à XERJ v1.0.0-rc.104 dans le gestionnaire MCP existant. Sources et critères de recette dans [docs/XERJ.md](docs/XERJ.md). **Ne la considérer fusionnée/validée que si la PR et ses contrôles réels sont vérifiés**. Elle ne remplace pas SQLite FTS5, n'installe aucun modèle Query-1/Reader-1 et n'expose pas SentinelBrain au LAN.
 
+## Skill Loop Engineering universel (25 novembre 2026)
+
+La branche `feat/universal-product-engineering` ajoute le skill original [universal-product-engineering](skills/universal-product-engineering/SKILL.md), une référence épinglée au catalogue et le guide d'activation. La V2 ajoute baseline, scorecard, preuves A/B/C/D, anti-oscillation et état persistant léger aux boucles de développement et d'UX/UI anti-slop via les outils autorisés de l'agent ; ce n'est pas un nouveau moteur runtime. Vérifier la PR et ses checks avant de déclarer la disponibilité sur main. L'installation cliente reste explicite.
+
 ## Prochaine action concrète
 
 **P0 :** recette réelle du moteur dans un worktree Git jetable avec Windows 11 + LM Studio + modèle `tool_calls` + GPU ; confirmer édition autorisée, test, checkpoint/reprise, MCP sélectionné, worker, mémoire et absence de fuite. Relever les mesures et écarts dans un rapport de recette **daté**, puis mettre à jour [CAPABILITIES](docs/CAPABILITIES.md) et [ROADMAP](docs/ROADMAP.md). Ne pas augmenter la surface réseau avant le threat model.

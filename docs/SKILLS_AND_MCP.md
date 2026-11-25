@@ -1,6 +1,6 @@
 # Skills et MCP — référence d'exploitation
 
-La **bibliothèque locale**, le **catalogue public** et les **configurations clientes** sont trois choses différentes. `catalog/skills.json` référence 210 skills (métadonnées épinglées), `src/mcp/catalog.ts` dix références MCP (XERJ compris) ; cela ne veut dire ni installé, ni actif, ni sécurisé. Les clients détectés sont documentés par [capacités](CAPABILITIES.md) et par le [registre](../src/agents/registry.ts).
+La **bibliothèque locale**, le **catalogue public** et les **configurations clientes** sont trois choses différentes. `catalog/skills.json` référence 211 skills (métadonnées épinglées), `src/mcp/catalog.ts` dix références MCP (XERJ compris) ; cela ne veut dire ni installé, ni actif, ni sécurisé. Les clients détectés sont documentés par [capacités](CAPABILITIES.md) et par le [registre](../src/agents/registry.ts).
 
 ## Démarrage et diagnostic
 
@@ -30,6 +30,23 @@ node dist/cli/index.js sync --skill ux-psychology --agent codex --dry-run
 `skills route` classe des **descriptions** des skills physiquement présents ; `skills load` charge explicitement un seul `SKILL.md`. `context "tâche"` effectue aussi un routage hors ligne avec `--expand` facultatif, dans un budget estimé. Pas d'injection globale dans les prompts de Codex/Claude/Gemini, pas de hook natif auto-installé. `~/.agents/skill-router.json` permet de limiter le nombre et le budget ; le routeur refuse les fichiers dangereux/trop grands. [Routage détaillé](CONTEXT_ROUTING.md).
 
 Installer un skill public n'est **jamais** un effet secondaire de la recherche. Utiliser l'aperçu, une source GitHub épinglée et une confirmation explicite ; contrôler les licences et les scripts avant exécution. `catalog install <id> --yes` est une décision explicite de l'opérateur, et non un mécanisme de confiance du code. Synchroniser un skill à un client ne retire pas les anciens liens ; les clients qui lisent la bibliothèque commune n'ont pas besoin d'un deuxième lien. [Catalogue et provenance](SKILL_CATALOG.md) · [index complet et crédits](skills/README.md).
+
+## Loop Engineering universel
+
+Le skill [universal-product-engineering](../skills/universal-product-engineering/SKILL.md) est une instruction portable, pas un nouveau moteur runtime. La V2 impose une boucle fermée avec baseline mesurée, scorecard, preuves A/B/C/D, anti-oscillation, budget global, checkpoints, validation finale et critique UX/UI anti-slop sur interface réelle lorsque possible. Elle réutilise l'état de suivi existant ou un seul fichier local `.loop/STATE.md` ; l'arrêt de la boucle ne signifie pas que le produit est validé.
+
+Depuis Agent Commons compilé, installation et synchronisation **sur décision de l'opérateur**, par exemple pour Codex :
+
+```bash
+agent-commons catalog info universal-product-engineering
+agent-commons catalog install universal-product-engineering --yes
+agent-commons sync --skill universal-product-engineering --agent codex --dry-run
+# Après inspection du plan :
+agent-commons sync --skill universal-product-engineering --agent codex
+agent-commons skills load universal-product-engineering
+```
+
+Dans le projet cible : « Exécute le skill universal-product-engineering sur le projet courant. » Adapter le client selon les chemins détectés. Le skill route les compétences installées selon chaque tâche ; il ne télécharge ni n'active automatiquement les références tierces. Les agents sans navigateur ou outils de test signalent les validations impossibles, sans prétendre les avoir exécutées.
 
 ## MCP : quatre étapes distinctes
 

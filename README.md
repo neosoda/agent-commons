@@ -48,7 +48,7 @@ Un premier essai sans modifier votre compte est possible avec `--home <dossier-d
 ## Ce que vous pouvez faire
 
 - **Configurer plusieurs clients :** détecter leurs formats natifs, synchroniser les skills et MCP sélectionnés, gérer les profils, restaurer les snapshots.
-- **Découvrir sans tout charger :** chercher dans le catalogue, router par métadonnées, ne charger que le `SKILL.md` pertinent. Aucun catalogue de 210 skills injecté dans le prompt.
+- **Découvrir sans tout charger :** chercher dans le catalogue, router par métadonnées, ne charger que le `SKILL.md` pertinent. Aucun catalogue de skills injecté dans le prompt.
 - **Gérer les extensions :** installer/mettre à jour les skills approuvés et certains packages MCP épinglés via l'Extension Manager, puis les **configurer et synchroniser séparément**. Les MCP installés ne sont pas automatiquement utilisables.
 - **Piloter des missions locales (expérimental sur `main`) :** modèle LM Studio compatible OpenAI, outils autorisés, plan, mémoire SQLite FTS5 par dépôt, file persistante, worker et Mission Control. Les autres CLI IA n'émettent que des **avis facultatifs**, pas des tâches déléguées en parallèle.
 
@@ -62,6 +62,11 @@ node dist/runtime/cli.js --workspace "/chemin/vers/un-depot" --task "Analyse ce 
 ```
 
 **Sécurité :** Skill Hub non authentifié, lié strictement à `127.0.0.1` ; **aucune exposition directe au LAN ou à Internet**. L'écriture du runtime, les tests du dépôt, les appels MCP et les extensions tierces exigent des autorisations adaptées. Pas encore de sandbox OS robuste ni de validation complète du nouveau moteur sur une machine LM Studio/RTX réelle.
+
+
+### Loop Engineering universel
+
+Le skill original [Universal Product Engineering](skills/universal-product-engineering/SKILL.md) (V2) orchestre des cycles bornés de développement, tests, enrichissement et critique UX/UI anti-slop avec baseline, scorecard, hiérarchie de preuves et checkpoints. Après installation explicite et synchronisation vers le client choisi, demander : « Exécute le skill universal-product-engineering sur le projet courant. » Voir le [guide d'exploitation](docs/SKILLS_AND_MCP.md#loop-engineering-universel).
 
 ## Documentation : un chemin court vers la bonne source
 
@@ -83,7 +88,7 @@ Agent Commons est **indépendant de SentinelBrain** : modèle sur un autre PC, d
 Le code Agent Commons est sous [licence MIT](LICENSE). Le catalogue référence des projets tiers **sans en absorber la licence ni présumer leur innocuité**. Tous les auteurs, sources et licences déclarées restent crédités dans l'[index détaillé](docs/skills/README.md). Les intégrations propres à un projet ont aussi leurs guides sous `docs/`.
 
 <!-- BEGIN GENERATED SKILL REPOSITORY CREDITS -->
-Le catalogue public référence **210 skills provenant de 32 dépôts sources**. Il s'agit **uniquement de métadonnées** : Agent Commons ne regroupe pas et n'installe pas automatiquement ces skills. Les licences sont indiquées pour chaque skill épinglé dans [l'index complet](docs/skills/README.md) ; si plusieurs licences figurent pour un dépôt, vérifiez celle applicable à chaque skill.
+Le catalogue public référence **211 skills provenant de 32 dépôts sources**. Il s'agit **uniquement de métadonnées** : Agent Commons ne regroupe pas et n'installe pas automatiquement ces skills. Les licences sont indiquées pour chaque skill épinglé dans [l'index complet](docs/skills/README.md) ; si plusieurs licences figurent pour un dépôt, vérifiez celle applicable à chaque skill.
 
 | Dépôt source | Auteur / responsable | Skills référencés | Licence(s) déclarée(s) |
 |:--|:--|--:|:--|
@@ -104,7 +109,7 @@ Le catalogue public référence **210 skills provenant de 32 dépôts sources**.
 | [markoblogo/abvx-agent-skills](https://github.com/markoblogo/abvx-agent-skills) | Anton Biletskiy-Volokh | 4 | MIT |
 | [mattpocock/skills](https://github.com/mattpocock/skills) | Matt Pocock | 5 | MIT |
 | [morellid/ai-act-skill](https://github.com/morellid/ai-act-skill) | Davide Morelli | 1 | MIT |
-| [neosoda/agent-commons](https://github.com/neosoda/agent-commons) | Agent Commons contributors | 1 | MIT |
+| [neosoda/agent-commons](https://github.com/neosoda/agent-commons) | Agent Commons contributors | 2 | MIT |
 | [nextlevelbuilder/ui-ux-pro-max-skill](https://github.com/nextlevelbuilder/ui-ux-pro-max-skill) | Next Level Builder | 7 | Apache-2.0 / MIT |
 | [ninjasweb/video-engine-skill](https://github.com/ninjasweb/video-engine-skill) | ninjasweb | 1 | MIT |
 | [noamdorr/saas-product-demo-video](https://github.com/noamdorr/saas-product-demo-video) | Noam Dorr | 1 | MIT |
