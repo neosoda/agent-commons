@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-21",
+  "generatedAt": "2026-11-25",
   "skills": [
     {
       "id": "3dviz-pro-max",
@@ -4937,6 +4937,41 @@
         "ecc",
         "everything-claude-code",
         "ai-automation"
+      ]
+    },
+    {
+      "id": "universal-product-engineering",
+      "name": "Universal Product Engineering",
+      "description": "Autonomous closed-loop product improvement: measurable acceptance tests, bug fixes, features, content enrichment, premium UX/UI and anti-AI-slop critique, security, verification and resumable checkpoints.",
+      "category": "ai-automation",
+      "author": "Agent Commons contributors",
+      "repository": "https://github.com/neosoda/agent-commons",
+      "source": "https://github.com/neosoda/agent-commons/tree/0e98850c082c6d939b1583683a39187db656826f/skills/universal-product-engineering",
+      "path": "skills/universal-product-engineering",
+      "ref": "0e98850c082c6d939b1583683a39187db656826f",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/neosoda/agent-commons/blob/0e98850c082c6d939b1583683a39187db656826f/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-25",
+        "licenseChecked": "2026-11-25",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "loop-engineering",
+        "product",
+        "development",
+        "ux",
+        "ui",
+        "anti-ai-slop",
+        "testing",
+        "verification",
+        "security",
+        "autonomy",
+        "content"
+      ],
+      "installPaths": [
+        "SKILL.md"
       ]
     },
     {
