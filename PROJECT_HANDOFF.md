@@ -22,7 +22,7 @@ La branche `feat/xerj-native-integration` implémente le raccordement optionnel 
 
 ## Skill Loop Engineering universel (25 novembre 2026)
 
-La branche `feat/universal-product-engineering` ajoute le skill original [universal-product-engineering](skills/universal-product-engineering/SKILL.md), une référence épinglée au catalogue et le guide d'activation. Il orchestre des boucles de développement et d'UX/UI anti-slop via les outils autorisés de l'agent ; ce n'est pas un nouveau moteur runtime. Vérifier la PR et ses checks avant de déclarer la disponibilité sur main. L'installation cliente reste explicite.
+La branche `feat/universal-product-engineering` ajoute le skill original [universal-product-engineering](skills/universal-product-engineering/SKILL.md), une référence épinglée au catalogue et le guide d'activation. La V2 ajoute baseline, scorecard, preuves A/B/C/D, anti-oscillation et état persistant léger aux boucles de développement et d'UX/UI anti-slop via les outils autorisés de l'agent ; ce n'est pas un nouveau moteur runtime. Vérifier la PR et ses checks avant de déclarer la disponibilité sur main. L'installation cliente reste explicite.
 
 ## Prochaine action concrète
 
