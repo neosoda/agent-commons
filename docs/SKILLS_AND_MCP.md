@@ -33,7 +33,7 @@ Installer un skill public n'est **jamais** un effet secondaire de la recherche. 
 
 ## Loop Engineering universel
 
-Le skill [universal-product-engineering](../skills/universal-product-engineering/SKILL.md) est une instruction portable, pas un nouveau moteur runtime. Il impose une boucle fermée avec critères d'acceptation, budget global, checkpoints, validation finale et critique UX/UI anti-slop sur interface réelle lorsque possible.
+Le skill [universal-product-engineering](../skills/universal-product-engineering/SKILL.md) est une instruction portable, pas un nouveau moteur runtime. La V2 impose une boucle fermée avec baseline mesurée, scorecard, preuves A/B/C/D, anti-oscillation, budget global, checkpoints, validation finale et critique UX/UI anti-slop sur interface réelle lorsque possible. Elle réutilise l'état de suivi existant ou un seul fichier local `.loop/STATE.md` ; l'arrêt de la boucle ne signifie pas que le produit est validé.
 
 Depuis Agent Commons compilé, installation et synchronisation **sur décision de l'opérateur**, par exemple pour Codex :
 
