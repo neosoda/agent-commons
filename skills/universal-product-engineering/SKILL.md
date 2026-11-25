@@ -1,96 +1,112 @@
 ---
 name: universal-product-engineering
-description: Autonomous loop engineering for any software project. Iteratively fix, develop, enrich, test, critique UX/UI and eliminate AI slop with measurable acceptance gates, specialist skills and resumable checkpoints.
+description: Autonomous loop engineering for any software project. Iteratively fix, develop, enrich, test, critique UX/UI and eliminate AI slop with measured baselines, acceptance gates, specialist skills and resumable checkpoints.
 ---
 
-# Universal Product Engineering — Loop Engineering
+# Universal Product Engineering — V2
 
 ## Contract
-Run on the current project, not necessarily Agent Commons. Deliver working changes, not an audit or a plan alone. Preserve product purpose, existing working behavior, user edits, privacy and architecture constraints. Improve reliability, useful features, content, UX/UI, security, performance, maintainability and deployment according to applicability. Never promise absolute bug-free software.
+Run on the current project. Deliver working improvements, not just an audit, plan or code volume. Preserve purpose, existing behavior, data, user changes and constraints. Improve reliability, meaningful features, content, UX/UI, security, performance, maintainability and deployment as applicable. Proof outranks claims; repair before building on broken foundations; favor small reversible increments and user value over sophistication. Respect repository instructions, permissions and higher-priority policies.
 
-## 1. Initialize once
-Read repository instructions and handoff, inspect Git state and existing architecture, build/test commands, CI, actual workflows and known failures. Establish reproducible baseline (commands, outcomes, screenshots if applicable). Define a bounded release goal, critical user journeys and concrete acceptance criteria. Maintain a prioritized backlog: P0 security/data loss/blockers; P1 broken critical workflows or severe UX/accessibility; P2 valuable enhancements, content and design; P3 polish. Reserve capacity for P2 once P0/P1 are stable. Do not spend the mission auditing.
+## 1. Initialize once (Phase 0)
+Infer product, audience, language, target environment, scope, constraints and budget from repository and request; record assumptions briefly. Read repository instructions and handoff; inspect Git status, architecture, dependencies, scripts, CI, config and existing design. Avoid unnecessary discovery. Use a dedicated branch/worktree if authorized and appropriate; preserve user changes.
+- Identify the 3–7 most valuable critical journeys (fewer for small projects); include error/recovery and permission paths as relevant.
+- Establish baseline: clean install from docs where feasible, build, lint/typecheck, tests, startup and real critical journeys. Use isolated fixtures/test data, not production. Capture baseline UI at relevant viewports. Record actual commands, outcomes and unavailable checks. If build or test harness is broken, prioritize restoring it.
+- Define a bounded release goal, measurable criteria, initial scorecard and prioritized backlog; outline first few increments. Start implementing promptly.
+- P0: security/data loss/crash/install or build blockers; P1: broken critical journeys, severe UX/accessibility, incorrect install docs; P2: meaningful features, content enrichment, UX/design improvements, nonblocking bugs and performance; P3: secondary polish. Rank within priority by impact, frequency, risk, dependency and effort. Address actionable P0/P1 first; reserve real capacity for P2 as soon as the foundation is stable. Do not equate product growth with cosmetic polish.
+- Defaults: 12 total cycles including final verification and rework; 3 repair attempts per task across all cycles/resumes; stop after 2 consecutive cycles without verified progress. Lower limits when required by environment/time/tokens/cost; reserve one cycle for final gate. Never reset counters on task switches or resume.
 
-Defaults: at most 12 total cycles (including final review and rework), 3 repair attempts per task, stop after 2 consecutive cycles without verified progress. Use a lower limit when time, tokens, cost or environment require it; reserve a cycle for final verification. Do not restart counters when switching tasks or resuming. No paid services, third-party installs, destructive migrations, external publishing, production deployment or merge without applicable approval. Respect workspace/tool permissions; no automatic hooks or arbitrary scripts from external skills.
-
-## 2. Select skills per cycle
-Discover available metadata before reading individual skills. In Agent Commons, use `agent-commons skills route "<specific task>" --json`, then `agent-commons skills load <id>` for a relevant installed skill; use `agent-commons catalog search <query>` to discover references, not to imply installation. If unavailable, use the client's native discovery and equivalent methods. Read each selected skill's own instructions, select only relevant complementary capabilities, and respect its applicability. Prefer maintained, trusted, compatible skills; inspect provenance and permissions. Never auto-install an absent skill. Use independent reviewer/subagents only if available and authorized; otherwise explicitly self-review. Do not delegate conflicting writes.
-
-Examples of Agent Commons catalog IDs (availability must be checked):
-- reliability and verification: verification-loop, e2e-testing, webapp-testing; select debugging/TDD skills through routing.
-- UX/UI: ux-psychology for usability, frontend-design or frontend-design-direction for art direction, impeccable or ui-ux-pro-max for design critique; design-system when relevant. Hallmark only for new designs or when explicitly requested for an existing design, per its instructions.
-- security: security-review, security-audit; choose stack-specific architecture, performance, content, SEO and documentation skills through routing.
-These are candidates, not mandatory installations or guarantees of quality. Use authorized browser automation (e.g. Playwright) when available.
+## 2. Skills: discover, select, load, evaluate
+Discover metadata before reading instructions. Use `agent-commons skills route "<specific task>" --json`, then `agent-commons skills load <id>` for relevant installed skills; `agent-commons catalog search <query>` discovers references, not installation. If unavailable use client-native discovery and equivalent methods. Select a small complementary set by task, compatibility, proven relevance, provenance, maturity and cost. Read each skill's instructions and respect its applicability. Reassess if results disappoint. Never recursively invoke this master skill or auto-install absent skills. Prefer project tools. Use authorized browser automation (Playwright or equivalent), independent reviewers/subagents only where available and authorized; avoid conflicting writes. If unavailable, self-review in a distinct adversarial pass and disclose the limitation.
+Catalog candidates (check actual installation):
+- verification-loop, e2e-testing, webapp-testing; route for debugging, TDD and stack-specific engineering.
+- UX/UI: ux-psychology for usability, frontend-design or frontend-design-direction for art direction, impeccable or ui-ux-pro-max for critique, design-system for consistency. Hallmark only for new designs or when expressly requested for existing designs per its instructions.
+- security-review, security-audit; route for performance, architecture, accessibility, content, SEO, operations and documentation.
+Candidates are not guarantees or mandatory installs. Record actual skills loaded, not merely suggested.
 
 ## 3. Master closed feedback loop
-Each cycle has a task, observable evidence and a pass/fail gate. No audit-only cycle unless implementation is genuinely blocked.
+Every cycle has a coherent bounded slice (typically 1–5 tasks), explicit criteria, evidence and decision. Do not spend cycles auditing unless implementation is blocked.
 
 ```text
-initialize baseline, release goal, backlog, budget
-while budget remains:
-  OBSERVE current evidence and checkpoint
-  SELECT highest-value feasible bounded slice
-  DEFINE acceptance tests and expected user-visible outcome
-  ROUTE and LOAD relevant skills
-  REPRODUCE defect or add failing behavioral test where practical
+INITIALIZE baseline, release goal, backlog, scorecard, budget
+while work-cycle budget remains (reserve final gate):
+  OBSERVE persisted state and current evidence
+  SELECT highest-value feasible slice
+  SPECIFY acceptance checks before implementation
+  ROUTE + LOAD appropriate skills
+  REPRODUCE defect with failing test when practical
   IMPLEMENT complete vertical slice
-  RUN targeted checks and actual workflow
-  EVALUATE evidence against acceptance criteria
-  while failed and repair budget remains:
+  TEST targeted checks, relevant full suite and real journeys
+  CRITIQUE diff, UX, security and regression risks
+  EVALUATE against explicit criteria and baseline
+  while failed and task attempts remain:
     DIAGNOSE root cause -> change hypothesis -> FIX -> RETEST
-  RUN applicable regression, security and visual gates
-  if all applicable gates pass:
-    RECORD verified outcome and checkpoint; update backlog
+  if applicable task gates PASS:
+    CHECKPOINT verified increment (atomic commit if authorized)
   else:
-    isolate/revert only own failed changes safely; mark blocker
-  REPRIORITIZE using new evidence
-  if release goal met: proceed to independent final verification
-  if stagnation or budget limit: deliver verified partial work
-reserve final cycle: clean-environment verification and critical journeys
-if final gate fails and budget remains: re-enter repair loop
-report only evidence-supported status
+    ISOLATE or safely revert only own failed change; record blocker
+  UPDATE scorecard, evidence, counters, backlog, next action
+  RETROSPECT: worked / failed / change in approach
+  REPRIORITIZE using evidence; detect oscillation or plateau
+  if release goal appears met: proceed to final gate
+  if plateau or no feasible work: deliver verified partial result
+RUN final gate within shared budget
+if failed and budget remains: re-enter relevant repair loop, then final gate
+REPORT READY / PARTIAL / BLOCKED according to evidence
 ```
 
-Each iteration should leave a usable increment. Do not weaken tests, silence real errors, fake data, introduce dead UI or bypass security to reach green. Keep unverified items separate from passed items. Never overwrite unrelated changes; do not use destructive Git resets. Commit/checkpoint only within permissions.
+Task gate: acceptance outcome observed, relevant tests pass, no introduced regression, applicable lint/types/security/visual checks pass, docs updated when affected, checkpoint recorded. Use targeted checks per edit and full applicable suite at cycle boundaries; never skip required repository gates. If baseline has preexisting failures, distinguish them and do not label a red required gate passed. No disabled/weakened tests, swallowed errors, fake data, placeholders or bypassed controls for green results. Anti-oscillation: if the same behavior is changed and reversed across cycles, stop repeating that approach; document cause, alternatives and decision. Count attempts even when changes are reverted; safely isolate failed work without destructive resets or touching user changes.
 
-## 4. Specialized feedback loops (invoke as applicable)
-- Functional: REPRODUCE -> FIX -> TEST -> REGRESSION. Cover buttons/forms, CRUD, auth/roles, API/data, imports/exports, error/retry, empty/loading/success states; test actual persistence and negative paths.
-- Product: DISCOVER -> PRIORITIZE -> DESIGN -> IMPLEMENT -> VALIDATE. Add meaningful features and automation, not gadgets. Deliver end-to-end UI/API/data/permissions/tests/docs where applicable.
-- Content: FIND GAPS -> RESEARCH -> VERIFY SOURCES -> ENRICH -> VALIDATE. Improve information architecture, translations, real data, editorial clarity and update mechanisms. No invented facts or filler.
-- Architecture/security: INSPECT -> REMEDIATE -> TEST -> REVIEW. Prefer simple, maintainable solutions; check authz boundaries, input validation, secrets, dependencies and data integrity; never disable protections.
-- Performance: MEASURE -> OPTIMIZE -> BENCHMARK -> COMPARE. Use comparable measurements and avoid speculative complexity.
-- Operations: INSTALL/BUILD -> START TEST ENVIRONMENT -> SMOKE TEST -> FIX -> RETEST. Check migrations, configuration, CI, logs, health, persistence and rollback as relevant.
-- Documentation: COMPARE -> UPDATE -> VERIFY. Maintain existing sources of truth; avoid redundant reports.
+## 4. Evidence hierarchy and scorecard
+Classify claims: A = executed command with observed outcome; B = observed behavior in running target/test environment (real workflow, rendered UI); C = code inspection; D = assumption. A/B must actually support the specific criterion; a green build is not proof of functionality, and a screenshot alone is not proof of interaction. C can support static facts but not runtime success; D is unverified. Record PASS, FAIL, UNVERIFIED or N/A with reasons. Do not invent metrics, results, coverage, or certainty.
+Track baseline, current cycle, target, status and evidence for applicable dimensions:
+| Dimension | Example measures / target |
+| --- | --- |
+| Functional | critical journeys passed/total; required tests green; regression cases |
+| Security | severe findings, tested access boundaries; no unresolved critical/high blocking risks |
+| UX/UI | accepted screens/journeys, specific critique findings resolved, responsive evidence |
+| Accessibility | serious/critical automated findings and manual keyboard/focus/contrast checks |
+| Performance | measured before/after p95, startup, or web vitals; agreed budgets |
+| Product/content | selected complete features and verified content gaps closed |
+| Operations | clean install, startup, CI, migrations/restore where applicable |
+| Maintainability | lint/types, relevant debt removed, documentation synced |
+Use comparable environments; record measurement method and exact revision. Choose targets appropriate to the product, not arbitrary universal numbers. An optional qualitative design rubric is anchored to findings, not a self-awarded score. A cycle progresses when a criterion is newly verified or a measured defect is resolved without new regressions. Stop on two cycles with no verified improvement, exhausted budget or all feasible tasks blocked. Stopping is not success; missing or waived targets remain visible.
 
-## 5. Mandatory UX/UI and anti-AI-slop loop for projects with interfaces
-Treat design as a release gate, not a cosmetic add-on. For CLI or nonvisual products adapt usability to the actual interaction surface; mark graphical checks N/A for truly headless services.
+## 5. Specialized feedback loops
+- Functional: REPRODUCE -> FIX -> TEST -> REGRESSION. Cover real actions, CRUD, auth/roles, API/data, imports/exports, persistence, invalid/empty/long/Unicode inputs, concurrency and network/session failures as relevant. Unit for logic, integration for boundaries, E2E for critical journeys. No unhandled errors on verified paths.
+- Product: DISCOVER -> PRIORITIZE -> DESIGN -> IMPLEMENT -> VALIDATE. Add useful features and automation from observed needs; deliver complete UI/API/data/permissions/error states/tests/docs where applicable. No gadgets or unnecessary architecture.
+- Content: FIND GAPS -> RESEARCH -> VERIFY SOURCES -> ENRICH -> VALIDATE. Improve real content, classification, translations, microcopy, search and update mechanisms. Cite/date factual claims as needed; label examples; no fabricated facts, metrics, testimonials or filler.
+- Architecture/code: INSPECT -> SIMPLIFY -> BUILD -> TEST -> REVIEW. Remove confirmed dead code, avoid wrappers/duplication, swallowed errors, needless dependencies and speculative rewrites. Justify significant dependencies (need, alternatives, license, maintenance).
+- Security: MODEL THREATS -> CHECK -> REMEDIATE -> RETEST. Identify assets and main risks; test authz/IDOR, validation, injection, CSRF/session/CORS/headers, uploads, rate limits, secrets and dependency vulnerabilities as applicable. Use authorized scanners; avoid exposing data or weakening protections. Never claim full OWASP compliance from a partial check.
+- Performance: MEASURE -> OPTIMIZE -> BENCHMARK -> COMPARE. Measure appropriate p95/startup/web metrics; for web consider LCP <=2.5s, INP <=200ms and CLS <=0.1 as reference field targets where applicable, not automatic lab guarantees. Avoid speculative complexity.
+- Operations: INSTALL/BUILD -> START TEST ENVIRONMENT -> SMOKE TEST -> FIX -> RETEST. Verify config, migrations, logs, health/readiness, persistence, CI, graceful shutdown and backup/restore/rollback where applicable. No production testing without separate authorization.
+- Documentation: COMPARE -> UPDATE -> VERIFY. Maintain existing source of truth; document installation, configuration, usage and operations as applicable. Avoid redundant reports.
+
+## 6. Mandatory UX/UI and anti-AI-slop loop
+For graphical interfaces, UX/UI is a blocking release gate, not decoration. For CLI/API adapt usability to help, errors, exit codes, machine output, API contracts and examples; graphical checks N/A only where genuinely inapplicable.
+Define a concise brief: audience, context, existing identity, 3 intended attributes and 3 to avoid, references for principles, palette/type/density/spacing/motion and interaction conventions. Preserve strong identity; avoid blind cloning. Use coherent semantic tokens, components and accessible interactive states.
 
 ```text
-OBSERVE real interface and user journeys
-CAPTURE baseline screenshots when possible
-IDENTIFY friction, weak hierarchy, inconsistency, AI-slop patterns
-DEFINE product-specific visual direction and acceptance criteria
-DESIGN coherent layout, typography, spacing, components, tokens
-IMPLEMENT real working interactions and responsive states
-RENDER actual application in browser or native client
-CAPTURE after screenshots; compare at relevant viewports
-TEST keyboard, focus, semantics, contrast, zoom, motion and workflows
-CRITIQUE independently if available; identify concrete defects
-REFINE -> RENDER -> RETEST until gate passes or budget exhausted
+OBSERVE real journeys -> CAPTURE baseline
+IDENTIFY friction, hierarchy and slop -> DEFINE visual acceptance
+DESIGN intentional direction -> IMPLEMENT working interactions
+RENDER actual app -> CAPTURE before/after at relevant sizes
+TEST real journeys, responsive, keyboard, focus and accessibility
+CRITIQUE specific screens -> REFINE -> RENDER -> RETEST
+repeat within shared budget until gate passes
 ```
 
-Aim for intentional, distinctive, professional design fitted to the audience. Preserve a strong existing identity and design system; improve visual hierarchy, density, navigation, meaningful feedback, clear copy and accessibility. Use references for principles, not blind cloning. Avoid generic purple/blue gradients, gratuitous glass, excessive rounding, nested card grids, decorative badges/icons, oversized headings, empty whitespace, ornamental animations and bland marketing copy. These patterns are not blanket bans: use only when justified by function and identity. Never invent metrics, testimonials or data. Do not turn every product into the same SaaS dashboard.
+Use authorized browser/native tooling; web reference sizes 390, 768, 1440 px when relevant. Assess 5-second clarity (where am I, what can I do, primary action?), persona-based walkthrough and usability heuristics (feedback, control, recognition, consistency, error prevention/recovery). This is a heuristic review, not a user study. Check hierarchy, density, typography, alignment, states, identity and finish. Record each finding with screen, severity, observation, action and evidence.
+Anti-slop: avoid generic violet/blue gradients, gratuitous glass/shadows, nested cards, repetitive bento grids, decorative badges/icons, huge headings, purposeless whitespace, generic heroes, excessive rounded surfaces, ornamental motion and bland slogans. Patterns are not blanket bans: justify by function and identity. Use real content, precise action labels, helpful errors and empty states. No fake metrics/testimonials.
+Gate: actual rendered key screens; before/after where feasible; critical interactions pass; no significant overflow/clipping, unreadable content or material visual inconsistency; keyboard/focus/names/contrast/zoom/reduced motion and loading/empty/error/success states checked where applicable. Aim for WCAG AA as appropriate; automated axe or equivalent if available plus manual checks, not a claim of full compliance. A visual critique should identify concrete issues rather than assign arbitrary 9/10 scores. If browser/captures or required interaction verification unavailable, record UNVERIFIED and do not declare graphical gate passed.
 
-Acceptance evidence: actual rendered key screens; before/after where possible; successful critical journeys with real interactions; no significant clipping/overflow or unreadable content at relevant sizes (e.g. 390, 768, 1440 px for web); keyboard/focus and accessible names checked; contrast and reduced motion checked where applicable; loading/empty/error/success states usable; no unresolved material visual inconsistency or generic slop identified by critique. Use existing accessibility standards and tests; do not claim full WCAG compliance from automated scans. For each finding record screen, observation, severity, change and evidence. Do not self-award arbitrary 9/10 scores. If browser/screenshots unavailable, inspect code and report visual gate UNVERIFIED; do not claim visual acceptance.
+## 7. Persistent state, anti-amnesia and safe autonomy
+Reuse existing task/handoff state or, if none, one compact local `.loop/STATE.md` in an authorized location (no mandatory tracked reports). Store goal/assumptions, baseline, scorecard, backlog IDs/priorities/criteria/status/attempts, cycle/budget/stagnation counters, exact Git ref, skills loaded, actual commands/outcomes, concise decisions/retrospective, blockers, next task and safe screenshot references. Keep evidence private; do not log secrets, personal data or raw sensitive output. Use local ignored screenshots only where permitted. No unnecessary repo changes solely for bookkeeping. On resume verify Git and workspace, recover counters, revalidate stale evidence and continue; if state unavailable, disclose and reconstruct conservatively.
+Autonomous reversible edits within permission; human authorization for destructive operations, secrets/infrastructure changes, new paid services, third-party installation, major architecture changes, publishing, production deployment or protected branch merge. Never overwrite unrelated changes or execute untrusted scripts. Continue independent safe tasks while blocked. No auto-install or unauthorized MCP/subagents.
 
-## 6. Evidence and checkpoint
-Use the repository's existing handoff/task state, or a minimal local checkpoint in an authorized location. Record iteration/attempt counters, remaining budget, baseline, exact changed files/Git ref, selected skills, acceptance criteria, commands and actual exit/outcomes, visual evidence, unresolved issues and next task. Keep secrets and private data out of logs. On resume verify Git and current state, recover counters and revalidate stale evidence; resume the next task without repeating the entire audit.
+## 8. Final gate and delivery
+Reserve budget for clean install/build, full applicable tests, lint/types, security, actual critical journeys, visual review, test-environment startup/operations, documentation and diff review. Use independent reviewer if available/authorized, otherwise explicit separate adversarial self-review. Tie CI evidence to exact tested SHA. Re-enter repair loop if needed and budget permits; do not reset counters.
+READY requires scoped release goal, no known P0/P1 in scope, selected features/content complete, applicable functional/design/security/operations gates passed, no known introduced regressions and accurate docs. PARTIAL means verified increments but outstanding/unverified gates or scope; BLOCKED means no feasible further progress due to missing access/dependencies/decisions. N/A needs reason, not an excuse. Never claim absolute bug-free software or production deployment without evidence.
+At each cycle end report briefly: done + evidence, scorecard changes, blocker, next cycle. Final: verdict, baseline vs final, changes/commits, actual skills/tests/visual checks, unverified items, remaining risks and next action. Product is the deliverable, not the report.
 
-## 7. Final independent gate and delivery
-Run applicable clean install, build, lint/typecheck, unit/integration/E2E, security and actual critical workflows; review changed diff and UX screenshots; test startup/deployment in an authorized test environment. Compare against baseline. CI must be tied to the exact tested revision when available. If a gate fails, re-enter the loop only within remaining budget; otherwise mark incomplete. Separate PASS, FAIL, UNVERIFIED and N/A, with reasons.
-
-Declare READY only when the bounded release goal is met, no known P0/P1 remains in scope, the chosen improvements and content are fully integrated, applicable functional/design/security/operations gates pass and documentation is accurate. Otherwise deliver PARTIAL or BLOCKED with verified work and next action. Never claim absolute completeness, real deployment or executed tests without evidence.
-
-Report concisely: verified corrections, features/content, UX/UI improvements, skills actually loaded, test commands/results, screenshots or their absence, Git status, remaining blockers and next step. The product is the deliverable, not the report.
-
-Start now: identify the current project, initialize the baseline and budget, route relevant skills, execute the first improvement cycle and continue autonomously until the stop condition.
+Start now: infer parameters, initialize baseline and budget, route relevant skills, execute the first improvement cycle and continue autonomously until a stop condition.
