@@ -66,7 +66,7 @@ node dist/runtime/cli.js --workspace "/path/to/repository" --task "Inspect this 
 
 ### Universal Loop Engineering
 
-The original [Universal Product Engineering](skills/universal-product-engineering/SKILL.md) skill orchestrates bounded development, testing, content enrichment and anti-AI-slop UX/UI critique cycles with evidence and checkpoints. After explicit installation and synchronization to the chosen client, ask: “Run the universal-product-engineering skill on the current project.” See the [operating guide](docs/SKILLS_AND_MCP.md#loop-engineering-universel).
+The original [Universal Product Engineering](skills/universal-product-engineering/SKILL.md) skill (V2) orchestrates bounded development, testing, content enrichment and anti-AI-slop UX/UI critique cycles with a measured baseline, scorecard, evidence hierarchy and checkpoints. After explicit installation and synchronization to the chosen client, ask: “Run the universal-product-engineering skill on the current project.” See the [operating guide](docs/SKILLS_AND_MCP.md#loop-engineering-universel).
 
 ## Documentation: find the right source quickly
 
