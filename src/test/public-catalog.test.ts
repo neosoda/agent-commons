@@ -28,6 +28,18 @@ describe('Public Skill Hub: source attribution, safe filtering and offline behav
     }
   });
 
+  it('keeps every catalog summary a complete sentence without leaked frontmatter', () => {
+    // Shown on Skill Hub cards and ranked by the router: cut-off text or YAML keys
+    // (allowed-tools lists, version:) are content defects, not metadata.
+    for (const skill of readPublicCatalog().catalog.skills) {
+      const d = skill.description;
+      assert.match(d, /[.!?)"”»’`]$/, skill.id + ': description must end with a complete sentence');
+      assert.doesNotMatch(d, /mcp__|\s-\s(?:Bash|Read|Write|Edit|Grep|Glob)\b|\b(?:version|allowed-tools|name):\s*["\w]/,
+        skill.id + ': description contains frontmatter');
+      assert.ok(d.length <= 480, skill.id + ': description exceeds the 480-character card limit');
+    }
+  });
+
   it('recognizes known previously inventoried upstream skills with pinned origins', () => {
     const { catalog, categories } = readPublicCatalog();
     for (const id of ['ui-ux-pro-max', 'impeccable', 'video-shotcraft']) {
