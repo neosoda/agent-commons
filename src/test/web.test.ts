@@ -237,7 +237,9 @@ describe('local Skill Hub HTTP security and user workflows', () => {
     fs.writeFileSync(path.join(repo, 'readme.md'), 'private source content that must never reach HTTP');
     const empty = await fetch(instance.url + '/api/missions');
     assert.equal(empty.status, 200);
-    assert.deepEqual((await empty.json() as {jobs:unknown[]}).jobs, []);
+    const emptyBody = await empty.json() as {jobs:unknown[]; worker:{running:boolean; lastSeenAt:number|null}};
+    assert.deepEqual(emptyBody.jobs, []);
+    assert.deepEqual(emptyBody.worker, { running: false, lastSeenAt: null }, 'no worker ever ran in this home');
     const input = {
       action: 'mission-enqueue', workspace: repo, goal: 'Inspect private source content',
       model: 'local-test', priority: 7, delayMinutes: 10,
@@ -320,6 +322,10 @@ describe('local Skill Hub HTTP security and user workflows', () => {
     assert.match(html, /:root\[data-theme="light"\]/);
     assert.doesNotMatch(html, /__DESIGN_CSS__|__COMMAND_JS__/);
     assert.doesNotMatch(html, /fetch\(['"]https?:/);
+    // Overview states facts: detection is not activity, and nothing scanned is not "intact".
+    assert.doesNotMatch(html, /Active agents|Connected agents|Under control|content:"AC \/ 01"|content:"✦"/);
+    assert.match(html, /labelStatus\(!checked\?'not checked'/);
+    assert.match(html, /id="agents-absent" hidden/);
     const js = [...html.matchAll(/<script nonce="surface-nonce">([\s\S]*?)<\/script>/g)];
     assert.equal(js.length, 1);
     assert.doesNotThrow(() => new vm.Script(js[0]![1]!));

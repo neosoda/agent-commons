@@ -169,7 +169,7 @@
     {
       "id": "agent-cost-report",
       "name": "Agent Cost Report",
-      "description": "Believable agent cost report for any period, default the last 7 full days PT, not counting today. Measured tokens from Claude Code transcripts priced at OpenRouter list prices (ESTIMATED), measured provider spend when a sanctioned source exists, note-taker cost separate, Timing-style HTML/PDF plus report.json, line-items.csv, evidence.json. - Bash - Read - Write - AskUserQuestion - mcp__plugin_claude-mem_mcp-search__search - mcp__plugin_claude-mem_mcp-search__timeline - mcp__",
+      "description": "Believable agent cost report for any period, default the last 7 full days PT, not counting today. Measured tokens from Claude Code transcripts priced at OpenRouter list prices (ESTIMATED), measured provider spend when a sanctioned source exists, note-taker cost separate, Timing-style HTML/PDF plus report.json, line-items.csv, evidence.json.",
       "category": "ai-automation",
       "author": "thedotmack",
       "repository": "https://github.com/thedotmack/claude-mem",
@@ -368,7 +368,7 @@
     {
       "id": "ai-act-compliance",
       "name": "Ai Act Compliance",
-      "description": "Supports compliance with the EU Artificial Intelligence Act (Regulation (EU) 2024/1689). Use when the user needs to classify an AI system under the AI Act risk categories (prohibited, high-risk, limited, minimal, GPAI), check provider or deployer obligations for high-risk systems, evaluate GPAI model obligations including systemic risk thresholds, verify transparency obligations under Article 50, or run a fundamental rights impact assessment (FRIA) under Article 27. Target us",
+      "description": "Supports compliance with the EU Artificial Intelligence Act (Regulation (EU) 2024/1689). Use when the user needs to classify an AI system under the AI Act risk categories (prohibited, high-risk, limited, minimal, GPAI), check provider or deployer obligations for high-risk systems, evaluate GPAI model obligations including systemic risk thresholds, verify transparency obligations under Article 50, or run a fundamental rights impact assessment (FRIA) under Article 27.",
       "category": "security",
       "author": "Davide Morelli",
       "repository": "https://github.com/morellid/ai-act-skill",
@@ -1120,7 +1120,7 @@
     {
       "id": "ccs-align",
       "name": "Ccs Align",
-      "description": "Run the CCS Align seat's hourly breathing cycle — prove the local claude-mem worker is healthy, pull needle observations through search → timeline → get_observations, land them in a seat-owned middle cache via atomic grab → append → filter exclude-marks → replace, manage exclude marks, and walk house → project → seat rules to detect conflicts (SHADOW_HOUSE, DENY_ALLOW, DRIFT, CLOCK_HEADER) with an append-only rules-report.md. Use when asked to run CCS Align, breathe the align",
+      "description": "Run the CCS Align seat's hourly breathing cycle — prove the local claude-mem worker is healthy, pull needle observations through search → timeline → get_observations, land them in a seat-owned middle cache via atomic grab → append → filter exclude-marks → replace, manage exclude marks, and walk house → project → seat rules to detect conflicts (SHADOW_HOUSE, DENY_ALLOW, DRIFT, CLOCK_HEADER) with an append-only rules-report.md.",
       "category": "development",
       "author": "thedotmack",
       "repository": "https://github.com/thedotmack/claude-mem",
@@ -1522,7 +1522,7 @@
     {
       "id": "design",
       "name": "Design",
-      "description": "Comprehensive design skill: brand identity, design tokens, UI styling, logo generation (55 styles, Gemini, Atlas Cloud, or MuAPI AI), corporate identity program (50 deliverables, CIP mockups), HTML presentations (Chart.js), banner design (22 styles, social/ads/web/print), icon design (15 styles, SVG, Gemini 3.1 Pro), social photos (HTML→screenshot, multi-platform). Actions: design logo, create CIP, generate mockups, build slides, design banner, generate icon, create social ph",
+      "description": "Comprehensive design skill: brand identity, design tokens, UI styling, logo generation (55 styles, Gemini, Atlas Cloud, or MuAPI AI), corporate identity program (50 deliverables, CIP mockups), HTML presentations (Chart.js), banner design (22 styles, social/ads/web/print), icon design (15 styles, SVG, Gemini 3.1 Pro), social photos (HTML→screenshot, multi-platform). Actions: design logo, create CIP, generate mockups, build slides, design banner, generate icon.",
       "category": "design",
       "author": "Next Level Builder",
       "repository": "https://github.com/nextlevelbuilder/ui-ux-pro-max-skill",
@@ -1591,7 +1591,7 @@
     {
       "id": "diagram-design",
       "name": "Diagram Design",
-      "description": "Create branded architecture, architecture delta, IT current-state, flowchart, sequence, state machine, ER/data model, timeline, swimlane, quadrant, radar/spider, polar chart (polar/radial lollipop), loop/flywheel, nested, tree, org chart, layer stack, exploded axonometric, axonometric plan, Venn, pyramid/funnel, treemap and marimekko, heatmap, bar and dumbbell, waterfall, line (slopegraph, ridgeline, streamgraph, bump), Gantt and scatter charts (bubble, beeswarm, box plot), h",
+      "description": "Create branded diagrams and charts as HTML/SVG/PNG: architecture, flowchart, sequence, state machine, ER/data model, timeline, swimlane, org chart, Venn, funnel, treemap, heatmap, waterfall, Gantt, scatter and many more.",
       "category": "design",
       "author": "Cathryn Lavery",
       "repository": "https://github.com/cathrynlavery/diagram-design",
@@ -1732,7 +1732,7 @@
     {
       "id": "embedded-captions",
       "name": "Embedded Captions",
-      "description": "Archived upstream: Add captions or subtitles to an existing single-subject talking-head video without editing the footage. Use for plain verbatim captions, cinematic captions embedded behind the subject, VFX captions, “炸/特效/酷炫字幕,” or a named identity from the 35-style catalog. Route by visual identity, not by backend engine. The quiet `anchor` rail is the default; embed every word only when the user explicitly wants a fully cinematic treatment. ",
+      "description": "Archived upstream: Add captions or subtitles to an existing single-subject talking-head video without editing the footage. Use for plain verbatim captions, cinematic captions embedded behind the subject, VFX captions, “炸/特效/酷炫字幕,” or a named identity from the 35-style catalog. Route by visual identity, not by backend engine. The quiet `anchor` rail is the default; embed every word only when the user explicitly wants a fully cinematic treatment.",
       "lifecycle": "archived",
       "category": "design",
       "author": "HeyGen",
@@ -1882,7 +1882,7 @@
     {
       "id": "founder-board",
       "name": "Founder Board",
-      "description": "Your board of directors. Puts a business idea in front of a three-member board, each a sub-agent reading the idea through one published framework: the Offers lens (from Alex Hormozi's $100M Offers), the Monopoly lens (from Peter Thiel's Zero to One) and the Product lens (from Walter Isaacson's biography of Steve Jobs). Each member scores the idea, names the risks that would kill it and votes fund, fund with conditions, or pass. Use when the user says \"test my business idea\", ",
+      "description": "Your board of directors. Puts a business idea in front of a three-member board, each a sub-agent reading the idea through one published framework: the Offers lens (from Alex Hormozi's $100M Offers), the Monopoly lens (from Peter Thiel's Zero to One) and the Product lens (from Walter Isaacson's biography of Steve Jobs). Each member scores the idea, names the risks that would kill it and votes fund, fund with conditions, or pass.",
       "category": "productivity",
       "author": "Jake Schincariol",
       "repository": "https://github.com/Jakeschincariol/founder-skill",
@@ -1928,7 +1928,7 @@
     {
       "id": "founder-cfo",
       "name": "Founder Cfo",
-      "description": "Your CFO. Builds the unit economics of a business before money is spent: what one unit earns after its direct costs, the real profit margin at the planned volume, the break-even point in units a day, year 1 month by month, the cash needed before it pays for itself, how long the startup spend takes to earn back, and what happens if the price drops, sales come in low or costs rise. Every number traces to an input the user can check. Use when the user says \"find the profit margi",
+      "description": "Your CFO. Builds the unit economics of a business before money is spent: what one unit earns after its direct costs, the real profit margin at the planned volume, the break-even point in units a day, year 1 month by month, the cash needed before it pays for itself, how long the startup spend takes to earn back, and what happens if the price drops, sales come in low or costs rise. Every number traces to an input the user can check.",
       "category": "productivity",
       "author": "Jake Schincariol",
       "repository": "https://github.com/Jakeschincariol/founder-skill",
@@ -1951,7 +1951,7 @@
     {
       "id": "founder-competitors",
       "name": "Founder Competitors",
-      "description": "Maps every competitor and the gap they leave. Finds the direct competitors, indirect ones and the substitutes a buyer would use instead, from public sources only, and records what each sells, at what price, how they position themselves and what their customers complain about in public reviews, every fact with a link. Ends with a positioning map and the gap the new business can own. Use when the user says \"who are my competitors\", \"is this market crowded\", \"what else is out th",
+      "description": "Maps every competitor and the gap they leave. Finds the direct competitors, indirect ones and the substitutes a buyer would use instead, from public sources only, and records what each sells, at what price, how they position themselves and what their customers complain about in public reviews, every fact with a link. Ends with a positioning map and the gap the new business can own. Use when the user says \"who are my competitors\", \"is this market crowded\".",
       "category": "productivity",
       "author": "Jake Schincariol",
       "repository": "https://github.com/Jakeschincariol/founder-skill",
@@ -1974,7 +1974,7 @@
     {
       "id": "founder-consumer",
       "name": "Founder Consumer",
-      "description": "The consumer panel. Spins up a swarm of buyer sub-agents (default 100, --quick for 20) trained on the user's target customer, each with a different income, age, buying behaviour and objection, shows every one the same pitch, and runs the business through 100 buyer scenarios to see who buys, who doesn't, and why. Tallies the answers into buy rates by segment, the reasons people pass in their own words, what would flip a no, and price answers for founder-pricing. Use when the u",
+      "description": "The consumer panel. Spins up a swarm of buyer sub-agents (default 100, --quick for 20) trained on the user's target customer, each with a different income, age, buying behaviour and objection, shows every one the same pitch, and runs the business through 100 buyer scenarios to see who buys, who doesn't, and why. Tallies the answers into buy rates by segment, the reasons people pass in their own words, what would flip a no, and price answers for founder-pricing.",
       "category": "productivity",
       "author": "Jake Schincariol",
       "repository": "https://github.com/Jakeschincariol/founder-skill",
@@ -2020,7 +2020,7 @@
     {
       "id": "founder-marketing",
       "name": "Founder Marketing",
-      "description": "Your marketing director. Turns the buyer panel and the competitor map into positioning, the channels the target customer actually uses, a 30-day launch campaign with dated posts and ads, the first ten hooks, a budget split and the numbers to watch. Every message answers an objection real or simulated buyers raised. Use when the user says \"how do I market this\", \"marketing plan\", \"launch campaign\", \"how do I get customers\", \"where do I advertise\", \"write my ads\", or \"positioni",
+      "description": "Your marketing director. Turns the buyer panel and the competitor map into positioning, the channels the target customer actually uses, a 30-day launch campaign with dated posts and ads, the first ten hooks, a budget split and the numbers to watch. Every message answers an objection real or simulated buyers raised. Use when the user says \"how do I market this\", \"marketing plan\", \"launch campaign\", \"how do I get customers\", \"where do I advertise\", \"write my ads\".",
       "category": "productivity",
       "author": "Jake Schincariol",
       "repository": "https://github.com/Jakeschincariol/founder-skill",
@@ -2043,7 +2043,7 @@
     {
       "id": "founder-offer",
       "name": "Founder Offer",
-      "description": "Builds an offer too good to refuse. Lists every problem the buyer hits on the way to the result they want, turns each into a solution, trims to what is cheap to deliver and valuable to the buyer, and stacks it with honest bonuses, a guarantee the CFO can afford, real urgency and a clear name. Scores it on the value equation (outcome, likelihood, time, effort) and re-tests it on a quick buyer panel. Use when the user says \"make my offer better\", \"why won't people buy\", \"what s",
+      "description": "Builds an offer too good to refuse. Lists every problem the buyer hits on the way to the result they want, turns each into a solution, trims to what is cheap to deliver and valuable to the buyer, and stacks it with honest bonuses, a guarantee the CFO can afford, real urgency and a clear name. Scores it on the value equation (outcome, likelihood, time, effort) and re-tests it on a quick buyer panel. Use when the user says \"make my offer better\", \"why won't people buy\".",
       "category": "productivity",
       "author": "Jake Schincariol",
       "repository": "https://github.com/Jakeschincariol/founder-skill",
@@ -2066,7 +2066,7 @@
     {
       "id": "founder-ops",
       "name": "Founder Ops",
-      "description": "Your operations manager. Works out how the business actually runs on day one: suppliers and what they cost, who works when, the step-by-step routines for opening, serving or shipping and closing, the tools to run it, the licences and permits to check, and a risk register with what to do when each thing goes wrong. Feeds real costs back to the CFO. Use when the user says \"how do I run this\", \"operations\", \"suppliers\", \"staffing\", \"SOPs\", \"what do I need to open\", \"permits\", or",
+      "description": "Your operations manager. Works out how the business actually runs on day one: suppliers and what they cost, who works when, the step-by-step routines for opening, serving or shipping and closing, the tools to run it, the licences and permits to check, and a risk register with what to do when each thing goes wrong. Feeds real costs back to the CFO. Use when the user says \"how do I run this\", \"operations\", \"suppliers\", \"staffing\", \"SOPs\", \"what do I need to open\", \"permits\".",
       "category": "productivity",
       "author": "Jake Schincariol",
       "repository": "https://github.com/Jakeschincariol/founder-skill",
@@ -2089,7 +2089,7 @@
     {
       "id": "founder-plan",
       "name": "Founder Plan",
-      "description": "Your business planner. Compiles everything the other founder skills wrote (the board's verdict, the competitors, the buyer panel, pricing, the offer, the CFO's numbers, marketing, brand, operations and the launch plan) into one business plan with a verdict at the top that is computed from the numbers, never written by hand: Profitable, Not yet (with the failing numbers) or Incomplete. Adds an executive summary and a one-page version for a partner, lender or investor. Use when",
+      "description": "Your business planner. Compiles everything the other founder skills wrote (the board's verdict, the competitors, the buyer panel, pricing, the offer, the CFO's numbers, marketing, brand, operations and the launch plan) into one business plan with a verdict at the top that is computed from the numbers, never written by hand: Profitable, Not yet (with the failing numbers) or Incomplete. Adds an executive summary and a one-page version for a partner, lender or investor.",
       "category": "productivity",
       "author": "Jake Schincariol",
       "repository": "https://github.com/Jakeschincariol/founder-skill",
@@ -2598,7 +2598,7 @@
     {
       "id": "hyperframes-audio",
       "name": "Hyperframes Audio",
-      "description": "Archived upstream: Use when audio already placed in a HyperFrames composition needs to be mixed: fade-in/fade-out, crossfade, track gain or volume, volume automation, ducking, a music bed that fights a voiceover (voiceover carve), effects on a track (EQ, compressor, limiter, gate, saturation, delay, reverb, chorus, phaser, bitcrush), automation envelopes drawn on a track's volume or any effect parameter, or one submix bus carrying a chain, a fad",
+      "description": "Archived upstream: Use when audio already placed in a HyperFrames composition needs to be mixed: fades, crossfades, track gain, volume automation, ducking under a voiceover, track effects (EQ, compression, reverb and more) and submix buses.",
       "lifecycle": "archived",
       "category": "design",
       "author": "HeyGen",
@@ -2746,7 +2746,7 @@
     {
       "id": "hyperframes-studio",
       "name": "Hyperframes Studio",
-      "description": "Archived upstream: Use when working with a person on a HyperFrames project in Studio: first, whether their message asks for a change at all (questions, loose ideas and \"don't change anything\" get an answer and a plan, not an edit); for a new film, the plan, storyboard and build order that the HyperFrames launch films follow; and how the timeline should be laid out so it reads well (one caption track, one element kind per track, every scene a sub",
+      "description": "Archived upstream: Use when working with a person on a HyperFrames project in Studio: decide whether a message asks for a change, plan a new film’s storyboard and build order, and lay out a readable timeline.",
       "lifecycle": "archived",
       "category": "design",
       "author": "HeyGen",
@@ -3284,7 +3284,7 @@
     {
       "id": "mem-setup",
       "name": "Mem Setup",
-      "description": "This skill should be used when the user asks to \"set up claude-mem\", \"pair claude-mem\", \"connect cmem\", \"add my cmem key\", \"set up cloud sync in Cowork\", or provides cmem.ai Connect values (sync token, user id, SyncHub URL) for this plugin. Configures the claude-mem-cowork plugin credentials. version: \"0.1.0",
+      "description": "This skill should be used when the user asks to \"set up claude-mem\", \"pair claude-mem\", \"connect cmem\", \"add my cmem key\", \"set up cloud sync in Cowork\", or provides cmem.ai Connect values (sync token, user id, SyncHub URL) for this plugin. Configures the claude-mem-cowork plugin credentials.",
       "category": "ai-automation",
       "author": "thedotmack",
       "repository": "https://github.com/thedotmack/claude-mem",
@@ -3436,7 +3436,7 @@
     {
       "id": "motion-graphics",
       "name": "Motion Graphics",
-      "description": "Archived upstream: Use when creating a short, design-led motion graphic where motion is the message — kinetic typography, stat count-up, chart/data-viz hit, logo sting / brand lockup, lower-third / callout / social overlay, animated map (highlight regions, connect places, zoom to a location), animated tweet / news-article / headline, webpage / UI animation (scroll, cursor, callouts), or fusing a real image's geometry into a chart. Usually under ",
+      "description": "Archived upstream: Use when creating a short, design-led motion graphic where motion is the message — kinetic typography, stat count-up, chart/data-viz hit, logo sting / brand lockup, lower-third / callout / social overlay, animated map (highlight regions, connect places, zoom to a location), animated tweet / news-article / headline, webpage / UI animation (scroll, cursor, callouts), or fusing a real image's geometry into a chart.",
       "lifecycle": "archived",
       "category": "design",
       "author": "HeyGen",
@@ -4559,7 +4559,7 @@
     {
       "id": "talking-head-recut",
       "name": "Talking Head Recut",
-      "description": "Archived upstream: Package an existing talking-head / interview / podcast video with timed, designed GRAPHIC OVERLAY cards — kinetic titles, lower-thirds, data callouts, quotes, side panels, picture-in-picture — synced to the transcript, on a 16:9 / 9:16 / 4:5 canvas of your choice; the clip plays untouched underneath. Trigger on \"graphic overlays\", \"on-screen graphics\", \"package / dress up my video\". Not plain subtitles (/embedded-captions). Un",
+      "description": "Archived upstream: Package an existing talking-head / interview / podcast video with timed, designed GRAPHIC OVERLAY cards — kinetic titles, lower-thirds, data callouts, quotes, side panels, picture-in-picture — synced to the transcript, on a 16:9 / 9:16 / 4:5 canvas of your choice; the clip plays untouched underneath. Trigger on \"graphic overlays\", \"on-screen graphics\", \"package / dress up my video\". Not plain subtitles (/embedded-captions).",
       "lifecycle": "archived",
       "category": "design",
       "author": "HeyGen",
@@ -4848,7 +4848,7 @@
     {
       "id": "ui-styling",
       "name": "Ui Styling",
-      "description": "Create beautiful, accessible user interfaces with shadcn/ui components (built on Radix UI + Tailwind), Tailwind CSS utility-first styling, and canvas-based visual designs. Use when building user interfaces, implementing design systems, creating responsive layouts, adding accessible components (dialogs, dropdowns, forms, tables), customizing themes and colors, implementing dark mode, generating visual designs and posters, or establishing consistent styling patterns across appl",
+      "description": "Create beautiful, accessible user interfaces with shadcn/ui components (built on Radix UI + Tailwind), Tailwind CSS utility-first styling, and canvas-based visual designs. Use when building user interfaces, implementing design systems, creating responsive layouts, adding accessible components (dialogs, dropdowns, forms, tables), customizing themes and colors, implementing dark mode, generating visual designs and posters.",
       "category": "design",
       "author": "Next Level Builder",
       "repository": "https://github.com/nextlevelbuilder/ui-ux-pro-max-skill",

@@ -41,11 +41,19 @@ function checkedRoot(ctx:EnvironmentContext,root:string):string {
       throw new Error('XERJ indexing root must not traverse linked directories.');
   }
   if(ctx.platform==='win32'&&resolved.startsWith('\\\\'))throw new Error('Network XERJ roots are not supported.');
-  const forbidden=[ctx.commonsDir,ctx.backupsDir,ctx.homeDir].map(x=>path.resolve(x));
-  if(forbidden.some(f=>resolved===f || f.startsWith(resolved+path.sep) ||
-    (f!==path.resolve(ctx.homeDir) && resolved.startsWith(f+path.sep))))
+  // Compare OS-canonical forms: on Windows, case variants and 8.3 aliases
+  // (C:\Users\NAME~1, .AGENT~1) name the same protected directories.
+  const canon=(x:string)=>{
+    let p=path.resolve(x);
+    try{p=fs.realpathSync.native(p);}catch{/* not created yet: compare lexically */}
+    return ctx.platform==='win32'?p.toLowerCase():p;
+  };
+  const target=canon(resolved),home=canon(ctx.homeDir);
+  const forbidden=[ctx.commonsDir,ctx.backupsDir,ctx.homeDir].map(canon);
+  if(forbidden.some(f=>target===f || f.startsWith(target+path.sep) ||
+    (f!==home && target.startsWith(f+path.sep))))
     throw new Error('XERJ root would include private Agent Commons data or the home directory.');
-  if(resolved.split(path.sep).some(p=>['.ssh','.gnupg','.aws','.config','.git'].includes(p.toLowerCase())))
+  if([...resolved.split(path.sep),...target.split(path.sep)].some(p=>['.ssh','.gnupg','.aws','.config','.git'].includes(p.toLowerCase())))
     throw new Error('Sensitive XERJ roots are not accepted.');
   return resolved;
 }

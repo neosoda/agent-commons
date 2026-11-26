@@ -5,6 +5,8 @@ import { WorkspaceTools } from '../runtime/workspace.js';
 import type { EnvironmentContext } from '../types.js';
 
 const JOB_ID = /^[a-f0-9]{24}$/;
+/** The worker polls every 1.5 s and renews leases every 5 s while a mission runs. */
+export const WORKER_STALE_MS = 15_000;
 type MissionAction = 'mission-enqueue' | 'mission-pause' | 'mission-cancel' | 'mission-requeue';
 export interface MissionWebAction {
   action: MissionAction;
@@ -51,14 +53,21 @@ function withQueue<T>(ctx: EnvironmentContext, use: (queue: MissionQueue, store:
   try { return use(queue, store); } finally { queue.close(); }
 }
 /** Never return user source, model completions, filesystem paths, secrets or raw MCP output to HTTP. */
-export function listMissionViews(ctx: EnvironmentContext): { jobs: ReturnType<typeof missionView>[] } {
-  return withQueue(ctx, (queue, store) => ({
+export function listMissionViews(ctx: EnvironmentContext, now = Date.now()): {
+  worker: { running: boolean; lastSeenAt: number | null };
+  jobs: ReturnType<typeof missionView>[];
+} {
+  return withQueue(ctx, (queue, store) => {
+    const lastSeenAt = queue.workerSeenAt();
+    return {
+    worker: { running: lastSeenAt !== null && now - lastSeenAt <= WORKER_STALE_MS, lastSeenAt },
     jobs: queue.list(50).map(job => {
       let state: MissionState | null = null;
       try { state = store.load(job.missionId, job.workspaceId); } catch { /* corrupt/missing checkpoint */ }
       return missionView(job, state);
     })
-  }));
+    };
+  });
 }
 export function getMissionView(ctx: EnvironmentContext, jobId: string) {
   if (!JOB_ID.test(jobId)) throw new Error('Invalid mission job identifier.');

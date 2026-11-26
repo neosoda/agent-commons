@@ -29,6 +29,7 @@ export class LocalQueueWorker {
   }
   async tick(now = Date.now()): Promise<boolean> {
     if (this.active) throw new Error('Worker is already executing a mission');
+    this.queue.markWorkerSeen(now);
     const job = this.queue.claim(this.owner, 30000, now);
     if (!job) { this.queue.release(this.owner); return false; }
     this.active = true;

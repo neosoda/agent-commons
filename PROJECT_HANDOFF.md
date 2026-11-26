@@ -24,6 +24,16 @@ La branche `feat/xerj-native-integration` implémente le raccordement optionnel 
 
 La branche `feat/universal-product-engineering` ajoute le skill original [universal-product-engineering](skills/universal-product-engineering/SKILL.md), une référence épinglée au catalogue et le guide d'activation. La V2 ajoute baseline, scorecard, preuves A/B/C/D, anti-oscillation et état persistant léger aux boucles de développement et d'UX/UI anti-slop via les outils autorisés de l'agent ; ce n'est pas un nouveau moteur runtime. Vérifier la PR et ses checks avant de déclarer la disponibilité sur main. L'installation cliente reste explicite.
 
+## Audit produit et correctifs (26 novembre 2026)
+
+Branche `fix/runtime-path-guard-audit-20261126`, partie de `main` `1fe87d8` (8 checks verts). Preuves A sur Windows 11 réel, HOME synthétique :
+- **P0 corrigé** : sur NTFS avec noms 8.3, `GIT~1`/`ENV~1` contournaient les chemins protégés du runtime ; une mission `--allow-write` pouvait créer `.git/hooks/pre-commit`. Revérification sous forme canonique, refus des noms finissant par point/espace, erreurs sans chemins absolus. Racines XERJ comparées sous forme canonique, sans casse.
+- **Catalogue** : 20 descriptions tronquées ou polluées par du frontmatter réparées ; test de garde ajouté.
+- **Skill Hub** : en-tête d'accueil compact (statuts au-dessus de la ligne de flottaison), « agents détectés », « non vérifié » au lieu d'« intact » sans contrôle, agents absents repliés, état du worker dans Mission Control, page Missions traduite en français.
+- Local : typecheck, 267/268 tests (1 test XERJ réel ignoré), audit 0, pack, `catalog:check`. Revue adversariale indépendante : aucun contournement ni régression. CI de la PR et fusion **non vérifiées à la rédaction**.
+
+**Backlog restant :** P1 `--allow-write` + `--allow-tests` = exécution de code arbitraire (documenté dans SECURITY, seule une sandbox OS le résout) ; P2 les phrases de déclenchement « Use when… » tronquées ne sont pas restaurées depuis l'amont épinglé (impact possible sur le routage) ; P3 `doctor` ne vérifie pas les fichiers passés en arguments aux commandes MCP.
+
 ## Prochaine action concrète
 
 **P0 :** recette réelle du moteur dans un worktree Git jetable avec Windows 11 + LM Studio + modèle `tool_calls` + GPU ; confirmer édition autorisée, test, checkpoint/reprise, MCP sélectionné, worker, mémoire et absence de fuite. Relever les mesures et écarts dans un rapport de recette **daté**, puis mettre à jour [CAPABILITIES](docs/CAPABILITIES.md) et [ROADMAP](docs/ROADMAP.md). Ne pas augmenter la surface réseau avant le threat model.
