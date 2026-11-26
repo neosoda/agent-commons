@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Security
+- Mission runtime: on Windows volumes with 8.3 short names, `GIT~1` / `ENV~1` aliases bypassed the protected-path check, so a mission with `--allow-write` could create `.git/hooks/pre-commit` or read `.env`. Paths are now re-checked in their OS-canonical form, names ending in a dot or space are refused, and tool errors no longer forward absolute private paths.
+- XERJ indexing roots: protected home/`.agents`/backup directories are compared in canonical, case-folded form on Windows.
+
+### Fixed
+- 20 curated catalog summaries were cut mid-word or carried leaked frontmatter; they now end on complete sentences and a test guards the catalog.
+- Skill Hub overview: compact header instead of a marketing hero, "Detected agents" instead of "Active/Connected", "not checked" instead of "intact" when no managed skill was scanned; My agents collapses agents that were not detected.
+- The Missions page, its confirmations and its dynamic rows were English-only in French mode; they are now translated.
+
+### Added
+- Mission Control shows whether the local worker is running (idle polls and lease heartbeats record liveness; `/api/missions` returns `worker.running`), with the command to start it when it is not.
+
 ### Documentation
 - Consolidated the real `main` (post-v0.6.0) architecture, capabilities, runtime, skills/MCP, security decisions and prioritized roadmap into focused canonical documents; replaced the historic handoff with a short operational resume.
 - Reduced bilingual public READMEs without discarding generated upstream repository/license credits; moved legacy long-form progress logs to immutable Git-history archive links.
