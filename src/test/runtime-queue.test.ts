@@ -50,6 +50,24 @@ describe('P4 persistent queue and worker', () => {
       other.close();
     } finally { f.close(); }
   });
+  it('records worker liveness while idle and during lease heartbeats', async () => {
+    const f = fixture();
+    try {
+      assert.equal(f.queue.workerSeenAt(), null);
+      const worker = new LocalQueueWorker(f.queue, async () => 'completed');
+      assert.equal(await worker.tick(1_000_000), false, 'idle poll claims nothing');
+      assert.equal(f.queue.workerSeenAt(), 1_000_000, 'an idle worker is still visible');
+      const { listMissionViews, WORKER_STALE_MS } = await import('../web/mission-api.js');
+      const { createEnvironmentContext } = await import('../core/context.js');
+      const ctx = createEnvironmentContext({ homeDir: f.base });
+      assert.equal(listMissionViews(ctx, 1_000_000 + WORKER_STALE_MS).worker.running, true);
+      assert.equal(listMissionViews(ctx, 1_000_001 + WORKER_STALE_MS).worker.running, false);
+      const { id } = f.add(5, 0);
+      assert.ok(f.queue.claim(owner, 30000, 2_000_000));
+      assert.equal(f.queue.heartbeat(owner, id, 2_005_000), true);
+      assert.equal(f.queue.workerSeenAt(), 2_005_000, 'a long mission keeps the worker visible');
+    } finally { f.close(); }
+  });
   it('prevents a second worker from claiming the active slot', () => {
     const f = fixture(); try {
       f.add();

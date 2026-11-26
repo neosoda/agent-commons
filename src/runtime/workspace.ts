@@ -12,7 +12,8 @@ const MAX_FILE = 128 * 1024;
 const MAX_WRITE = 64 * 1024;
 const MAX_OUTPUT = 12_000;
 const own = (v: Record<string, unknown>, key: string) => Object.prototype.hasOwnProperty.call(v, key);
-const isProtectedPart = (p: string) => BLOCKED.has(p.toLowerCase()) || SAFE_FILENAME.test(p) || RESERVED_DEVICE.test(p);
+// Trailing dots/spaces: Win32 tools strip them, so `.env ` would later open `.env`.
+const isProtectedPart = (p: string) => BLOCKED.has(p.toLowerCase()) || SAFE_FILENAME.test(p) || RESERVED_DEVICE.test(p) || /[. ]$/.test(p);
 /** Fixed tool-visible messages: raw Node errors embed absolute private paths. */
 const SYSTEM_ERRORS: Record<string, string> = {
   ENOENT: 'Path not found', EACCES: 'Permission denied', EPERM: 'Permission denied',
@@ -57,7 +58,8 @@ export class WorkspaceTools implements ToolExecutor {
     if (!st.isDirectory() || st.isSymbolicLink()) throw new Error('Use an existing physical Git checkout');
     this.root = fs.realpathSync(selected);
     if (!fs.existsSync(path.join(this.root, '.git'))) throw new Error('Use an existing physical Git checkout');
-    this.canonicalRoot = fs.realpathSync.native(selected);
+    // realpath.native can fail on some virtual volumes (RAM disks); the JS form still bounds the checkout.
+    try { this.canonicalRoot = fs.realpathSync.native(selected); } catch { this.canonicalRoot = this.root; }
     // Identity stays derived from the historical root so queued jobs keep their checkpoints.
     this.workspaceId = crypto.createHash('sha256').update(this.root).digest('hex');
   }

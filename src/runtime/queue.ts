@@ -61,10 +61,23 @@ export class MissionQueue {
     this.db.exec([
       "CREATE TABLE IF NOT EXISTS jobs (id TEXT PRIMARY KEY, mission_id TEXT NOT NULL UNIQUE, workspace TEXT NOT NULL, workspace_id TEXT NOT NULL, model TEXT NOT NULL, permissions TEXT NOT NULL, priority INTEGER NOT NULL, run_at INTEGER NOT NULL, status TEXT NOT NULL, attempts INTEGER NOT NULL DEFAULT 0, lease_until INTEGER, owner TEXT, updated_at INTEGER NOT NULL);",
       "CREATE INDEX IF NOT EXISTS idx_queue_due ON jobs(status,run_at,priority DESC);",
-      "CREATE TABLE IF NOT EXISTS worker_lock (name TEXT PRIMARY KEY, owner TEXT NOT NULL, lease_until INTEGER NOT NULL);"
+      "CREATE TABLE IF NOT EXISTS worker_lock (name TEXT PRIMARY KEY, owner TEXT NOT NULL, lease_until INTEGER NOT NULL);",
+      // Liveness only (no owner id): an idle worker holds no lease, so Mission Control needs a separate signal.
+      "CREATE TABLE IF NOT EXISTS worker_presence (name TEXT PRIMARY KEY, seen_at INTEGER NOT NULL);"
     ].join('\n'));
   }
   close(): void { this.db.close(); }
+  /** Records that a worker loop is alive; called on every poll and lease heartbeat. */
+  markWorkerSeen(now = Date.now()): void {
+    this.db.prepare(
+      'INSERT INTO worker_presence(name,seen_at) VALUES (?,?) ON CONFLICT(name) DO UPDATE SET seen_at=excluded.seen_at'
+    ).run('default', now);
+  }
+  /** Last time any worker polled or renewed a lease, or null if none ever ran. */
+  workerSeenAt(): number | null {
+    const row = this.db.prepare('SELECT seen_at FROM worker_presence WHERE name=?').get('default') as { seen_at: number } | undefined;
+    return row ? row.seen_at : null;
+  }
   add(entry: Omit<QueueEntry,'id'|'status'|'attempts'|'leaseUntil'|'owner'>): string {
     if (!idPattern.test(entry.missionId) || !workspacePattern.test(entry.workspaceId) ||
         !path.isAbsolute(entry.workspace) || entry.workspace.length > 1024 ||
@@ -140,6 +153,7 @@ export class MissionQueue {
     const lock = this.db.prepare('UPDATE worker_lock SET lease_until=? WHERE name=? AND owner=?')
       .run(now + leaseMs, 'default', owner);
     if (lock.changes !== 1) return false;
+    this.markWorkerSeen(now);
     const job = this.db.prepare(
       "UPDATE jobs SET lease_until=?,updated_at=? WHERE id=? AND status='running' AND owner=?"
     ).run(now + leaseMs, now, jobId, owner);

@@ -237,7 +237,9 @@ describe('local Skill Hub HTTP security and user workflows', () => {
     fs.writeFileSync(path.join(repo, 'readme.md'), 'private source content that must never reach HTTP');
     const empty = await fetch(instance.url + '/api/missions');
     assert.equal(empty.status, 200);
-    assert.deepEqual((await empty.json() as {jobs:unknown[]}).jobs, []);
+    const emptyBody = await empty.json() as {jobs:unknown[]; worker:{running:boolean; lastSeenAt:number|null}};
+    assert.deepEqual(emptyBody.jobs, []);
+    assert.deepEqual(emptyBody.worker, { running: false, lastSeenAt: null }, 'no worker ever ran in this home');
     const input = {
       action: 'mission-enqueue', workspace: repo, goal: 'Inspect private source content',
       model: 'local-test', priority: 7, delayMinutes: 10,

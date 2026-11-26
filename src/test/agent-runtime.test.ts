@@ -48,7 +48,7 @@ describe('bounded local agent runtime',()=>{
       const readonly=new WorkspaceTools(f.root,false,false);
       assert.equal((await readonly.execute({name:'write_file',arguments:{path:'a.ts',content:'x'}})).ok,false);
       const tool=new WorkspaceTools(f.root,true,false);
-      for(const name of ['../other','.env','src/../../other','.git/config']){
+      for(const name of ['../other','.env','src/../../other','.git/config','.env ','.npmrc.','id_rsa.','notes. ']){
         assert.equal((await tool.execute({name:'read_file',arguments:{path:name}})).ok,false,name);
       }
       const outer=path.join(f.base,'outside');fs.writeFileSync(outer,'private');
