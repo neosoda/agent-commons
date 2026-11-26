@@ -320,6 +320,10 @@ describe('local Skill Hub HTTP security and user workflows', () => {
     assert.match(html, /:root\[data-theme="light"\]/);
     assert.doesNotMatch(html, /__DESIGN_CSS__|__COMMAND_JS__/);
     assert.doesNotMatch(html, /fetch\(['"]https?:/);
+    // Overview states facts: detection is not activity, and nothing scanned is not "intact".
+    assert.doesNotMatch(html, /Active agents|Connected agents|Under control|content:"AC \/ 01"|content:"✦"/);
+    assert.match(html, /labelStatus\(!checked\?'not checked'/);
+    assert.match(html, /id="agents-absent" hidden/);
     const js = [...html.matchAll(/<script nonce="surface-nonce">([\s\S]*?)<\/script>/g)];
     assert.equal(js.length, 1);
     assert.doesNotThrow(() => new vm.Script(js[0]![1]!));
