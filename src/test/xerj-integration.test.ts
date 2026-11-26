@@ -50,6 +50,12 @@ describe('XERJ local integration (synthetic; no actual XERJ binary used)',()=>{
       assert.throws(()=>previewXerjRoots(ctx,[home]),/private|home/i);
       assert.throws(()=>previewXerjRoots(ctx,[os.tmpdir()]),/private|home/i);
       assert.throws(()=>previewXerjRoots(ctx,[path.join(home,'missing')]),/existing physical/);
+      if(process.platform==='win32'){
+        // Same directories under another spelling must stay protected on case-insensitive NTFS.
+        fs.mkdirSync(path.join(ctx.commonsDir,'skills'),{recursive:true});
+        assert.throws(()=>previewXerjRoots(ctx,[home.toUpperCase()]),/private|home/i);
+        assert.throws(()=>previewXerjRoots(ctx,[path.join(home.toUpperCase(),'.AGENTS','skills')]),/private|home/i);
+      }
       const p=previewXerjRoots(ctx,[a]);
       const written=saveXerjRoots(ctx,[a],p.revision);
       assert.equal(written.changed,true);

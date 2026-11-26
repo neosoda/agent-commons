@@ -12,6 +12,17 @@ const MAX_FILE = 128 * 1024;
 const MAX_WRITE = 64 * 1024;
 const MAX_OUTPUT = 12_000;
 const own = (v: Record<string, unknown>, key: string) => Object.prototype.hasOwnProperty.call(v, key);
+const isProtectedPart = (p: string) => BLOCKED.has(p.toLowerCase()) || SAFE_FILENAME.test(p) || RESERVED_DEVICE.test(p);
+/** Fixed tool-visible messages: raw Node errors embed absolute private paths. */
+const SYSTEM_ERRORS: Record<string, string> = {
+  ENOENT: 'Path not found', EACCES: 'Permission denied', EPERM: 'Permission denied',
+  EISDIR: 'Expected a file path', ENOTDIR: 'Expected a directory path', EBUSY: 'File is busy'
+};
+function toolError(err: unknown): string {
+  const code = (err as NodeJS.ErrnoException | null)?.code;
+  if (typeof code === 'string') return SYSTEM_ERRORS[code] ?? 'Filesystem operation failed';
+  return err instanceof Error ? redactSecrets(err.message).slice(0, 200) : 'Operation failed';
+}
 
 function runFixed(command: string, args: string[], cwd: string, timeout: number): Promise<{ code: number; output: string }> {
   return new Promise(resolve => {
@@ -33,6 +44,8 @@ function runFixed(command: string, args: string[], cwd: string, timeout: number)
 /** Small, explicit set of operations confined to one physical Git checkout. */
 export class WorkspaceTools implements ToolExecutor {
   private readonly root: string;
+  /** OS-canonical root (long names, on-disk case) used for containment checks. */
+  private readonly canonicalRoot: string;
   readonly workspaceId: string;
   private readonly seen = new Set<string>();
   private revision = 0;
@@ -44,12 +57,14 @@ export class WorkspaceTools implements ToolExecutor {
     if (!st.isDirectory() || st.isSymbolicLink()) throw new Error('Use an existing physical Git checkout');
     this.root = fs.realpathSync(selected);
     if (!fs.existsSync(path.join(this.root, '.git'))) throw new Error('Use an existing physical Git checkout');
+    this.canonicalRoot = fs.realpathSync.native(selected);
+    // Identity stays derived from the historical root so queued jobs keep their checkpoints.
     this.workspaceId = crypto.createHash('sha256').update(this.root).digest('hex');
   }
   private safe(input: unknown, file = false): string {
     if (typeof input !== 'string' || input.length > 512 || path.isAbsolute(input) || input.includes('\0') || input.includes(':')) throw new Error('Invalid relative path');
     const parts = input.replace(/\\/g, '/').split('/');
-    if (parts.some(p => p === '..' || p === '.' || BLOCKED.has(p.toLowerCase()) || SAFE_FILENAME.test(p) || RESERVED_DEVICE.test(p))) throw new Error('Protected path');
+    if (parts.some(p => p === '..' || p === '.' || isProtectedPart(p))) throw new Error('Protected path');
     const resolved = path.resolve(this.root, input || '.');
     if (resolved !== this.root && !resolved.startsWith(this.root + path.sep)) throw new Error('Path escapes workspace');
     let current = this.root;
@@ -58,7 +73,20 @@ export class WorkspaceTools implements ToolExecutor {
       if (fs.existsSync(current) && fs.lstatSync(current).isSymbolicLink()) throw new Error('Symlinks are excluded');
     }
     if (file && resolved === this.root) throw new Error('Expected a file path');
-    return resolved;
+    // The lexical check above sees the name as typed. Windows also resolves 8.3 aliases
+    // (GIT~1 -> .git, ENV~1 -> .env) and case variants, so re-check the OS-canonical
+    // form of the deepest existing ancestor; not-yet-existing tail names are created literally.
+    let existing = resolved;
+    const tail: string[] = [];
+    while (existing !== this.root && !fs.existsSync(existing)) {
+      tail.unshift(path.basename(existing));
+      existing = path.dirname(existing);
+    }
+    const canonical = path.join(fs.realpathSync.native(existing), ...tail);
+    const relative = path.relative(this.canonicalRoot, canonical);
+    if (relative === '..' || relative.startsWith('..' + path.sep) || path.isAbsolute(relative)) throw new Error('Path escapes workspace');
+    if (relative.split(path.sep).some(p => p && isProtectedPart(p))) throw new Error('Protected path');
+    return canonical;
   }
   async execute(call: ToolRequest): Promise<ToolResult> {
     const a = call.arguments;
@@ -115,6 +143,6 @@ export class WorkspaceTools implements ToolExecutor {
         return {ok:result.code===0,progress,tested:result.code===0 && check==='test',output:result.code === 0 ? `${check}: passed` : `${check}: failed; ${result.output.slice(0,2000)}`};
       }
       throw new Error('Unknown tool');
-    } catch (err) { return {ok:false,progress:false,output:err instanceof Error ? redactSecrets(err.message).slice(0,200) : 'Operation failed'}; }
+    } catch (err) { return {ok:false,progress:false,output:toolError(err)}; }
   }
 }

@@ -55,6 +55,47 @@ describe('bounded local agent runtime',()=>{
       try {fs.symlinkSync(outer,path.join(f.root,'linked'));assert.equal((await tool.execute({name:'read_file',arguments:{path:'linked'}})).ok,false);}catch(err){if(process.platform!=='win32')throw err;}
     }finally{f.cleanup();}
   });
+  it('re-checks OS-canonical names so Windows 8.3 aliases cannot reach .git or .env',async(t)=>{
+    const f=fixture();try{
+      fs.mkdirSync(path.join(f.root,'.git','hooks'));fs.writeFileSync(path.join(f.root,'.env'),'TOKEN=private\n');
+      const aliasOf=(name:string)=>{
+        if(process.platform!=='win32')return null;
+        for(let i=1;i<=4;i++){
+          const alias=name.replace(/^\./,'').toUpperCase().slice(0,6)+'~'+i;
+          try{if(path.basename(fs.realpathSync.native(path.join(f.root,alias)))===name)return alias;}catch{/* alias absent */}
+        }
+        return null;
+      };
+      const git=aliasOf('.git'),env=aliasOf('.env');
+      if(!git&&!env){t.skip('8.3 short names are not generated on this volume');return;}
+      const tool=new WorkspaceTools(f.root,true,false);
+      if(git){
+        for(const p of [git,`${git}/config`,`${git}/hooks`])
+          assert.equal((await tool.execute({name:p.endsWith('hooks')||p===git?'list_files':'read_file',arguments:{path:p}})).ok,false,p);
+        const w=await tool.execute({name:'write_file',arguments:{path:`${git}/hooks/pre-commit`,content:'#!/bin/sh\nexit 1\n'}});
+        assert.equal(w.ok,false);assert.equal(w.output,'Protected path');
+        assert.equal(fs.existsSync(path.join(f.root,'.git','hooks','pre-commit')),false);
+      }
+      if(env){
+        const r=await tool.execute({name:'read_file',arguments:{path:env}});
+        assert.equal(r.ok,false);assert.doesNotMatch(r.output,/private|TOKEN/);
+      }
+    }finally{f.cleanup();}
+  });
+  it('reports filesystem failures without absolute private paths',async()=>{
+    const f=fixture();try{
+      const tool=new WorkspaceTools(f.root,true,false);
+      const missing=await tool.execute({name:'read_file',arguments:{path:'missing/file.ts'}});
+      assert.equal(missing.ok,false);assert.equal(missing.output,'Path not found');
+      const dir=await tool.execute({name:'list_files',arguments:{path:'nope'}});
+      assert.equal(dir.output,'Path not found');
+      const parent=await tool.execute({name:'write_file',arguments:{path:'absent/new.ts',content:'x'}});
+      assert.equal(parent.ok,false);
+      for(const r of [missing,dir,parent])assert.ok(!r.output.includes(f.base)&&!r.output.includes(os.tmpdir()),r.output);
+      const created=await tool.execute({name:'write_file',arguments:{path:'new.ts',content:'export {};\n'}});
+      assert.equal(created.ok,true);assert.equal(fs.readFileSync(path.join(f.root,'new.ts'),'utf8'),'export {};\n');
+    }finally{f.cleanup();}
+  });
   it('keeps checkpoint compact and resumes with prior evidence',async()=>{
     const f=fixture();try{
       const state=f.store.create('Summarize code');
