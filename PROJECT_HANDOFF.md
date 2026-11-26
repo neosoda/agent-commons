@@ -34,6 +34,10 @@ Branche `fix/runtime-path-guard-audit-20261126`, partie de `main` `1fe87d8` (8 c
 
 **Backlog restant :** P1 `--allow-write` + `--allow-tests` = exécution de code arbitraire (documenté dans SECURITY, seule une sandbox OS le résout) ; P2 les phrases de déclenchement « Use when… » tronquées ne sont pas restaurées depuis l'amont épinglé (impact possible sur le routage) ; P3 `doctor` ne vérifie pas les fichiers passés en arguments aux commandes MCP.
 
+## Sellbird (26 novembre 2026)
+
+La référence MCP externe manuelle `sellbird` v0.5.0 et le profil `outreach` sont proposés sur la branche `feat/sellbird-mcp` ; voir [guide](docs/SELLBIRD.md). Aucun code AGPL incorporé, aucune installation ou recette live revendiquée. Vérifier la PR et ses checks avant de déclarer la disponibilité sur main.
+
 ## Prochaine action concrète
 
 **P0 :** recette réelle du moteur dans un worktree Git jetable avec Windows 11 + LM Studio + modèle `tool_calls` + GPU ; confirmer édition autorisée, test, checkpoint/reprise, MCP sélectionné, worker, mémoire et absence de fuite. Relever les mesures et écarts dans un rapport de recette **daté**, puis mettre à jour [CAPABILITIES](docs/CAPABILITIES.md) et [ROADMAP](docs/ROADMAP.md). Ne pas augmenter la surface réseau avant le threat model.

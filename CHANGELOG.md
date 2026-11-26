@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Added a manual external Sellbird v0.5.0 MCP catalog reference and dedicated `outreach` preset, with explicit-sync tests and a security/setup guide. No AGPL code is bundled; no automatic sending or installation.
+
 ### Security
 - Mission runtime: on Windows volumes with 8.3 short names, `GIT~1` / `ENV~1` aliases bypassed the protected-path check, so a mission with `--allow-write` could create `.git/hooks/pre-commit` or read `.env`. Paths are now re-checked in their OS-canonical form, names ending in a dot or space are refused, and tool errors no longer forward absolute private paths.
 - XERJ indexing roots: protected home/`.agents`/backup directories are compared in canonical, case-folded form on Windows.

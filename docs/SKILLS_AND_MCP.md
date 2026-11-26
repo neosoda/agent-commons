@@ -1,6 +1,6 @@
 # Skills et MCP — référence d'exploitation
 
-La **bibliothèque locale**, le **catalogue public** et les **configurations clientes** sont trois choses différentes. `catalog/skills.json` référence 211 skills (métadonnées épinglées), `src/mcp/catalog.ts` dix références MCP (XERJ compris) ; cela ne veut dire ni installé, ni actif, ni sécurisé. Les clients détectés sont documentés par [capacités](CAPABILITIES.md) et par le [registre](../src/agents/registry.ts).
+La **bibliothèque locale**, le **catalogue public** et les **configurations clientes** sont trois choses différentes. `catalog/skills.json` référence 211 skills (métadonnées épinglées), `src/mcp/catalog.ts` onze références MCP (XERJ et Sellbird compris) ; cela ne veut dire ni installé, ni actif, ni sécurisé. Les clients détectés sont documentés par [capacités](CAPABILITIES.md) et par le [registre](../src/agents/registry.ts).
 
 ## Démarrage et diagnostic
 
@@ -51,7 +51,7 @@ Dans le projet cible : « Exécute le skill universal-product-engineering sur le
 ## MCP : quatre étapes distinctes
 
 1. **Référencer** : inspecter une fiche du catalogue hors ligne ; aucun processus démarré.
-2. **Installer** : pour les packages **approuvés**, l'Extension Manager prend en charge Playwright/Filesystem via npm épinglé et Fetch/Git via uv épinglé (installation isolée, preview et confirmation). XERJ : binaire officiel épinglé avec SHA-256 et contrôles locaux explicites (voir [guide XERJ](XERJ.md)). GitHub, Docker Gateway, Agent Desktop : installation manuelle, jamais implicite.
+2. **Installer** : pour les packages **approuvés**, l'Extension Manager prend en charge Playwright/Filesystem via npm épinglé et Fetch/Git via uv épinglé (installation isolée, preview et confirmation). XERJ : binaire officiel épinglé avec SHA-256 et contrôles locaux explicites (voir [guide XERJ](XERJ.md)). GitHub, Docker Gateway, Agent Desktop, [Sellbird](SELLBIRD.md) : installation manuelle, jamais implicite.
 3. **Configurer** : ajouter dans `~/.agents/mcp.json` l'exécutable local et les paramètres utiles (répertoires autorisés pour Filesystem/Git). Les credentials restent hors des pages web.
 4. **Synchroniser** : choisir les clients et profils, prévisualiser les révisions, confirmer. Les configurations natives non gérées et les champs inconnus sont conservés ; aucun profil ne désactive rétroactivement un serveur déjà présent chez un client.
 
