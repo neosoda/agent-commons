@@ -88,11 +88,12 @@ Agent Commons remains **independent of SentinelBrain**: an external-PC model pro
 Agent Commons code is [MIT licensed](LICENSE). The catalog references third-party projects **without absorbing their licenses or claiming they are safe**. All authors, sources and declared licenses remain credited in the [full index](docs/skills/README.md). Project-specific integration guides are also available under `docs/`.
 
 <!-- BEGIN GENERATED SKILL REPOSITORY CREDITS -->
-The curated public catalog references **211 skills across 32 upstream repositories**. These are **metadata-only references**: Agent Commons does not bundle or automatically install their skills. Licenses are recorded per pinned skill in [the full index](docs/skills/README.md); repositories with more than one license must be checked per skill.
+The curated public catalog references **212 skills across 33 upstream repositories**. These are **metadata-only references**: Agent Commons does not bundle or automatically install their skills. Licenses are recorded per pinned skill in [the full index](docs/skills/README.md); repositories with more than one license must be checked per skill.
 
 | Upstream repository | Author / maintainer | Skill references | Declared license(s) |
 |:--|:--|--:|:--|
 | [affaan-m/ECC](https://github.com/affaan-m/ECC) | Affaan Mustafa / ECC contributors | 71 | MIT |
+| [AgricIDaniel/claude-seo](https://github.com/AgricIDaniel/claude-seo) | AgriciDaniel | 1 | MIT |
 | [anthropics/skills](https://github.com/anthropics/skills) | Anthropic | 4 | Apache-2.0 |
 | [cathrynlavery/diagram-design](https://github.com/cathrynlavery/diagram-design) | Cathryn Lavery | 1 | MIT |
 | [cloudflare/security-audit-skill](https://github.com/cloudflare/security-audit-skill) | Cloudflare | 1 | MIT |

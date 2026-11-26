@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-25",
+  "generatedAt": "2026-11-26",
   "skills": [
     {
       "id": "3dviz-pro-max",
@@ -1213,6 +1213,74 @@
       "tags": [
         "ai-automation",
         "claude-mem"
+      ]
+    },
+    {
+      "id": "claude-seo",
+      "name": "Claude SEO — SEO / GEO audit library",
+      "description": "Audit websites and repositories for technical SEO, crawlability, indexing, Core Web Vitals, Schema.org, E-E-A-T, content, local SEO, ecommerce, international SEO and AI search (GEO). Curated upstream reference workflows, loaded on demand; native Claude Code runtime and external data are separate opt-in setup.",
+      "category": "ai-automation",
+      "author": "AgriciDaniel",
+      "repository": "https://github.com/AgricIDaniel/claude-seo",
+      "source": "https://github.com/AgricIDaniel/claude-seo/tree/5d7d85ef32ade08dd4265cb678af8357ca6e6098",
+      "path": ".",
+      "ref": "5d7d85ef32ade08dd4265cb678af8357ca6e6098",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/AgricIDaniel/claude-seo/blob/5d7d85ef32ade08dd4265cb678af8357ca6e6098/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-26",
+        "licenseChecked": "2026-11-26",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [
+        "None for reading the curated reference library; authorized web/browser or repository tools for evidence",
+        "Full native execution requires separate Claude Code plugin, Python 3.11–3.14 and Chromium setup; external APIs are optional"
+      ],
+      "tags": [
+        "seo",
+        "geo",
+        "seo-audit",
+        "technical-seo",
+        "schema",
+        "eeat",
+        "core-web-vitals",
+        "sitemap",
+        "search-engine-optimization",
+        "ai-search",
+        "local-seo",
+        "ecommerce",
+        "hreflang",
+        "agent-readiness"
+      ],
+      "entrypoint": "skills/seo/SKILL.md",
+      "installPaths": [
+        "LICENSE",
+        "skills/seo/SKILL.md",
+        "skills/seo-agentic",
+        "skills/seo-audit",
+        "skills/seo-backlinks",
+        "skills/seo-cluster",
+        "skills/seo-competitor-pages",
+        "skills/seo-content-brief",
+        "skills/seo-content",
+        "skills/seo-drift",
+        "skills/seo-ecommerce",
+        "skills/seo-geo",
+        "skills/seo-google",
+        "skills/seo-hreflang",
+        "skills/seo-images",
+        "skills/seo-local",
+        "skills/seo-maps",
+        "skills/seo-page",
+        "skills/seo-plan",
+        "skills/seo-programmatic",
+        "skills/seo-schema",
+        "skills/seo-sitemap",
+        "skills/seo-sxo",
+        "skills/seo-technical",
+        "skills/seo",
+        "schema",
+        "data"
       ]
     },
     {
