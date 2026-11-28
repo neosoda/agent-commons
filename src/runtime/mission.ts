@@ -183,6 +183,16 @@ export class MissionStore {
   }
 }
 
+/** Arguments as the model sent them, without file contents, bounded. */
+export function describeCall(name: string, args: Record<string, unknown> | undefined): string {
+  if (!args || typeof args !== 'object') return '{}';
+  const shown: Record<string, unknown> = { ...args };
+  if (name === 'write_file' && typeof shown['content'] === 'string') {
+    shown['content'] = `<${Buffer.byteLength(shown['content'] as string)} bytes>`;
+  }
+  return short(JSON.stringify(shown), 200);
+}
+
 /** Trust verified tool observations, never the model's claim that progress happened. */
 export class MissionRunner {
   constructor(readonly store: MissionStore, readonly local: ModelClient, readonly tools: ToolExecutor,
@@ -418,7 +428,8 @@ export class MissionRunner {
         // Persist only metadata and a hash: tool output may contain private source, paths or tokens.
         const digest = SHA(result.output).slice(0, 12);
         state.observations.push(`${name}: ${result.ok ? 'ok' : 'failed'}; output_sha256=${digest}; bytes=${Buffer.byteLength(result.output)}; changed=${!!result.changed}; tested=${!!result.tested}`);
-        liveObservations.push(`${name}: ${result.ok ? 'ok' : 'failed'}; ${short(result.output, 11000)}`);
+        // Name the call (never written content) so a small model knows which file an output came from.
+        liveObservations.push(`${name} ${describeCall(name, args)}: ${result.ok ? 'ok' : 'failed'}; ${short(result.output, 11000)}`);
       }
       state.observations = state.observations.slice(-12);
       this.store.save(state);

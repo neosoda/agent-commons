@@ -134,7 +134,9 @@ export class OpenAICompatibleModel implements ModelClient {
     const msg = data.choices?.[0]?.message;
     if (!msg) throw new Error('Missing model message');
     const tokens = data.usage?.total_tokens ?? 0;
-    if (msg.tool_calls && msg.tool_calls.length !== 1) return {text:'Expected exactly one tool call',tokens};
+    // One call per turn: when several are proposed ("read both files"), run only the first;
+    // the model sees its result and proposes the next one.
+    if (msg.tool_calls && msg.tool_calls.length === 0) return {text:msg.content || 'No tool call',tokens};
     const call = msg.tool_calls?.[0]?.function;
     if (!call?.name || typeof call.arguments !== 'string') return {text:msg.content || 'No tool call',tokens};
     let args: unknown;
