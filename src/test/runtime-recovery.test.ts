@@ -69,8 +69,10 @@ it('persists a mission across model outage and worker restart without replaying 
 });
 
 it('requires authenticated TLS for remote providers and rejects credentials in URLs', () => {
-  assert.throws(() => new OpenAICompatibleModel({ url: 'http://192.0.2.1/v1/chat/completions', model: 'x', apiKey: 'x' }), /HTTPS/);
-  assert.throws(() => new OpenAICompatibleModel({ url: 'https://192.0.2.1/v1/chat/completions', model: 'x' }), /authentication/);
+  assert.throws(() => new OpenAICompatibleModel({ url: 'https://192.0.2.1/v1/chat/completions', model: 'x', apiKey: 'x' }), /loopback/);
+  assert.throws(() => new OpenAICompatibleModel({ url: 'http://192.0.2.1/v1/chat/completions', model: 'x', apiKey: 'x', allowRemote: true }), /HTTPS/);
+  assert.throws(() => new OpenAICompatibleModel({ url: 'https://192.0.2.1/v1/chat/completions', model: 'x', allowRemote: true }), /authentication/);
+  assert.doesNotThrow(() => new OpenAICompatibleModel({ url: 'https://192.0.2.1/v1/chat/completions', model: 'x', apiKey: 'x', allowRemote: true }));
   assert.throws(() => new OpenAICompatibleModel({ url: 'https://user:pass@example.test/v1/chat/completions', model: 'x', apiKey: 'x' }), /Invalid/);
 });
 

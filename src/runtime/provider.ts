@@ -2,7 +2,7 @@ import type { ModelClient, ModelTurn, ToolName, ToolRequest } from './mission.js
 
 export class ModelUnavailableError extends Error {}
 
-interface Endpoint { url: string; model: string; apiKey?: string; timeoutMs?: number }
+interface Endpoint { url: string; model: string; apiKey?: string; timeoutMs?: number; allowRemote?: boolean }
 const tools = [
   { name:'list_files',description:'List up to 150 safe entries in an existing directory', parameters:{type:'object',properties:{path:{type:'string',description:'Relative directory, or empty for project root'}},required:[]} },
   { name:'read_file',description:'Read an existing non-sensitive project file (max 128 KiB)',parameters:{type:'object',properties:{path:{type:'string'},start_line:{type:'integer',minimum:1},max_lines:{type:'integer',minimum:1,maximum:250}},required:['path']} },
@@ -34,6 +34,9 @@ export class OpenAICompatibleModel implements ModelClient {
     const loopback = ['127.0.0.1', 'localhost', '[::1]'].includes(url.hostname);
     if (!['http:', 'https:'].includes(url.protocol) || url.username || url.password || url.hash || url.search) {
       throw new Error('Invalid model endpoint');
+    }
+    if (!loopback && !config.allowRemote) {
+      throw new Error('Local model endpoint must use loopback');
     }
     if (!loopback && (url.protocol !== 'https:' || !config.apiKey)) {
       throw new Error('Remote model endpoint requires HTTPS and authentication');
