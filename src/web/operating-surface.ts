@@ -1019,6 +1019,21 @@ h1 {
   border-radius: var(--radius-card);
   color: var(--muted);
 }
+.integrity-summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px 14px;
+  margin-top: 14px;
+  padding: 12px 16px;
+  border-radius: var(--radius-card);
+  background: var(--surface-muted);
+  border: 1px solid var(--line);
+  font-size: 13px;
+}
+.integrity-summary-counts { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.integrity-filters { margin: 14px 0 0; }
 .spinner {
   display: inline-block;
   border: 2px solid var(--line-strong);
