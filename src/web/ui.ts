@@ -113,7 +113,7 @@ __MISSION_CSS__
 <div class="filter-row"><input class="field" id="center-custom-name" placeholder="Profile name (e.g. documentation)" aria-label="Custom MCP profile name"><button class="btn primary" id="center-custom-save">Preview and save profile</button><button class="btn danger" id="center-custom-delete">Delete profile</button></div>
 <div id="center-servers" class="filter-row"></div></div>
 </section>
-<section class="page" id="page-integrity"><div class="eyebrow">READ-ONLY · OFFLINE</div><h1>Skill integrity</h1><p class="dim">Inspect local managed skills for changed Git blobs, missing files, extra files, unsafe links and invalid receipts. Matching hashes do not certify that third-party code is safe.</p><div class="panel"><div class="actions"><button class="btn" id="verify-again">Run verification</button><button class="btn" id="doctor-run">Run agent diagnostics</button></div><pre class="result-box hidden mt-16" id="doctor-report" role="status" aria-live="polite"></pre><div id="integrity-items" class="mt-15"></div></div></section>
+<section class="page" id="page-integrity"><div class="eyebrow">READ-ONLY · OFFLINE</div><h1>Skill integrity</h1><p class="dim">Inspect local managed skills for changed Git blobs, missing files, extra files, unsafe links and invalid receipts. Matching hashes do not certify that third-party code is safe.</p><div class="panel"><div class="actions"><button class="btn primary" id="verify-again">Run verification</button><button class="btn" id="doctor-run">Run agent diagnostics</button></div><div id="integrity-summary" class="integrity-summary hidden" role="status" aria-live="polite"></div><div class="catalog-switch integrity-filters" id="integrity-filters" role="group" aria-label="Integrity filter"><button type="button" data-int-filter="all" aria-pressed="true" class="active">All</button><button type="button" data-int-filter="alerts" aria-pressed="false">Alerts</button><button type="button" data-int-filter="intact" aria-pressed="false">Intact</button></div><pre class="result-box hidden mt-16" id="doctor-report" role="status" aria-live="polite"></pre><div id="integrity-items" class="mt-15"></div></div></section>
 <section class="page" id="page-backups"><div class="eyebrow">RECOVERY</div><h1>Snapshots & recovery</h1><p class="dim">Review stored snapshots, create a backup or restore a previous state. Restoring replaces saved managed paths and requires explicit confirmation.</p><div class="panel"><h3>Backup now</h3><p>Create a full point-in-time snapshot of agent skills and MCP configurations.</p><button class="btn primary" id="backup-create">Create backup</button></div><div class="panel"><h3>Available snapshots</h3><div id="backup-items"></div></div></section>
 <section class="page" id="page-missions" aria-label="Mission Control">
 <div class="eyebrow">AUTONOMOUS OPERATIONS</div>
@@ -170,7 +170,7 @@ __MISSION_CSS__
 'use strict';
 const csrf=document.querySelector('meta[name="csrf-token"]').content;
 const $=id=>document.getElementById(id);
-let state=null, mcpState=null, centerState=null, packagesState=null, xerjState=null, hundredxState=null, activePage='overview', selectedAgent='', profileSavePending=false, profileDrafts=Object.create(null), catalogKind='skill';
+let state=null, mcpState=null, centerState=null, packagesState=null, xerjState=null, hundredxState=null, activePage='overview', selectedAgent='', profileSavePending=false, profileDrafts=Object.create(null), catalogKind='skill', integrityFilter='all', lastIntegrityCheckAt=null;
 const short=x=>String(x||'').slice(0,10);
 const mcpGroups={'playwright':'web','fetch':'web','web-search':'web','osint':'web','github':'dev','git':'dev','filesystem':'infra','docker-mcp-gateway':'infra','agent-desktop':'desktop','xerj':'knowledge'};
 const mcpGroupNames={web:'Web & research',dev:'Development & Git',infra:'Infrastructure & files',desktop:'Desktop & computer use',knowledge:'Knowledge & retrieval',other:'Other MCPs'};
@@ -449,9 +449,18 @@ Object.assign(FR,{
   'Shared':'Partagés',
   'Catalog':'Catalogue',
   'Warnings':'Alertes',
-  'MCP':'MCP'
+  'MCP':'MCP',
+  'All':'Tout',
+  'Alerts':'Alertes',
+  'Intact':'Intacts',
+  'Integrity filter':'Filtre d’intégrité',
+  'No matching integrity entries.':'Aucune entrée d’intégrité correspondante.',
+  'Verifying…':'Vérification…'
 });
 const FR_PATTERNS=[
+  [/^(\d+) checked · (\d+) intact · (\d+) alerts(?: · (\d+) modified\/unsafe)?$/,(t,i,a,m)=>t+' vérifiés · '+i+' intacts · '+a+' alertes'+(m?' · '+m+' modifiés/dangereux':'')],
+  [/^Last checked (.+)$/,t=>'Dernière vérification : '+t],
+  [/^Integrity check completed: (\d+) intact · (\d+) alerts$/,(i,a)=>'Contrôle d’intégrité terminé : '+i+' intacts · '+a+' alertes'],
   [/^(\d+) agents · (\d+) shared skills$/,(a,s)=>a+' agents · '+s+' skills partagés'],
   [/^(\d+) integrity warnings$/,n=>n+' alertes d’intégrité'],
   [/^(\d+) skill integrity warnings require review$/,n=>n+' alertes d’intégrité à examiner'],
@@ -1161,7 +1170,46 @@ function choicesInto(container,items,selected){clear(container);if(!items.length
 function renderProfileEditor(){if(!state)return;const saved=state.profiles.profiles[selectedAgent]||{skills:[],categories:[]};const draft=profileDrafts[selectedAgent]||(profileDrafts[selectedAgent]={skills:[...saved.skills],categories:[...saved.categories]});const query=$('profile-skill-search').value.toLowerCase().trim();choicesInto($('profile-skills'),state.inventory.centralSkills.filter(id=>!query||id.toLowerCase().includes(query)).map(id=>({id,label:id})),draft.skills);choicesInto($('profile-categories'),state.categories.map(c=>({id:c.id,label:c.label})),draft.categories);for(const [container,key] of [[$('profile-skills'),'skills'],[$('profile-categories'),'categories']]){container.querySelectorAll('input[type="checkbox"]').forEach(check=>check.addEventListener('change',()=>{const all=new Set(draft[key]);if(check.checked)all.add(check.value);else all.delete(check.value);draft[key]=[...all].sort()}))}const nativeAgent=(state.inventory.agents||[]).find(a=>a.id===selectedAgent);$('profile-native-note').classList.toggle('hidden',!nativeAgent?.readsCentralSkills);$('profile-save').disabled=!selectedAgent||profileSavePending;$('profile-clear').disabled=profileSavePending||!state.profiles.profiles[selectedAgent]}
 function formatSync(r){const lines=['Mode: '+(r.dryRun?'PREVIEW':'APPLIED'),'Agents: '+r.detectedAgentsCount,'Skill operations: '+r.skillResults.length,'MCP operations: '+r.mcpResults.length,'Snapshot: '+(r.snapshotId||'none')];r.skillResults.forEach(s=>{if(s.action!=='already-synced')lines.push('['+s.agentId+'] '+s.skillName+': '+s.action)});r.mcpResults.forEach(s=>lines.push('['+s.agentId+'] '+s.serverName+': '+s.action));r.errors.forEach(e=>lines.push('ERROR: '+e));if(!r.skillResults.length&&!r.errors.length)lines.push('No skill changes proposed.');return lines.join('\n')}
 function showSync(r){const p=$('sync-report');p.classList.remove('hidden');p.textContent=formatSync(r)}
-function renderIntegrity(){clear($('integrity-items'));if(!state.integrity.scanned){$('integrity-items').append(node('div','No managed public-catalog skill installations found.','empty'));return}state.integrity.results.forEach(r=>{const e=row(r.skill,r.checkedFiles+' files checked · '+(r.commit?short(r.commit):'no receipt'),labelStatus(r.status));e.querySelector('strong').dataset.noI18n='true';$('integrity-items').append(e);if(r.issues.length){const issues=node('div',r.issues.map(i=>i.type+': '+i.reason+(i.path?' ('+i.path+')':'')).join('\n'),'result-box');$('integrity-items').append(issues)}})}
+function renderIntegrity(){
+  const host=$('integrity-items'),summary=$('integrity-summary');
+  clear(host);
+  if(!state.integrity.scanned){
+    if(summary){summary.classList.add('hidden');clear(summary)}
+    host.append(node('div','No managed public-catalog skill installations found.','empty'));
+    return;
+  }
+  const results=state.integrity.results;
+  const intactCount=results.filter(r=>r.status==='intact').length;
+  const alertCount=results.length-intactCount;
+  const severeCount=results.filter(r=>!['intact','unmanaged'].includes(r.status)).length;
+  if(summary){
+    summary.classList.remove('hidden');
+    clear(summary);
+    const counts=node('div',null,'integrity-summary-counts');
+    counts.append(
+      node('strong',results.length+' checked · '+intactCount+' intact · '+alertCount+' alerts'+(severeCount?' · '+severeCount+' modified/unsafe':'')),
+      labelStatus(severeCount?'unsafe':alertCount?'untracked':'intact')
+    );
+    summary.append(counts);
+    if(lastIntegrityCheckAt){
+      summary.append(node('span','Last checked '+new Date(lastIntegrityCheckAt).toLocaleTimeString(),'subtle'));
+    }
+  }
+  const filtered=results.filter(r=>integrityFilter==='all'?true:integrityFilter==='intact'?r.status==='intact':r.status!=='intact');
+  if(!filtered.length){
+    host.append(node('div','No matching integrity entries.','empty'));
+    return;
+  }
+  filtered.forEach(r=>{
+    const e=row(r.skill,r.checkedFiles+' files checked · '+(r.commit?short(r.commit):'no receipt'),labelStatus(r.status));
+    e.querySelector('strong').dataset.noI18n='true';
+    host.append(e);
+    if(r.issues.length){
+      const issues=node('div',r.issues.map(i=>i.type+': '+i.reason+(i.path?' ('+i.path+')':'')).join('\n'),'result-box');
+      host.append(issues);
+    }
+  });
+}
 function renderBackups(){clear($('backup-items'));if(!state.inventory.backups.length){$('backup-items').append(node('div','No snapshots yet.','empty'));return}state.inventory.backups.forEach(b=>{const btn=node('button','Restore…','btn danger small');btn.dataset.focusKey='restore:'+b.id;btn.setAttribute('aria-label','Restore snapshot '+b.id);btn.onclick=()=>modal('Restore '+b.id,'This replaces managed paths with their historical state. Create a fresh backup first, and verify that this is the intended snapshot.','Restore',async()=>{await request('/api/action',{action:'restore',snapshot:b.id,approved:true});showToast('Snapshot restored');await refresh()},b.id);$('backup-items').append(row(b.id,b.createdAt+' · '+b.reason+' · '+b.entriesCount+' entries',btn))})}
 function renderAll(){renderOverview();renderHundredX();renderCatalog();renderAgents();renderMcp();renderMcpCenter();renderXerj();renderIntegrity();renderBackups();translateUI()}
 function renderHundredX(){
@@ -1279,7 +1327,13 @@ function hundredxSyncDialog(){
 let refreshGeneration=0;
 async function refresh(announce=false){
   const generation=++refreshGeneration;
-  if(announce){$('workspace-status').textContent='Refreshing local workspace…';translateUI()}
+  const verifyBtn=$('verify-again'),refreshBtn=$('refresh');
+  if(announce){
+    $('workspace-status').textContent='Refreshing local workspace…';
+    if(verifyBtn)verifyBtn.setAttribute('aria-busy','true');
+    if(refreshBtn)refreshBtn.setAttribute('aria-busy','true');
+    translateUI();
+  }
   try{
     const nextState=await request('/api/state');
     let nextMcp=null,nextCenter=null,nextPackages=null,nextXerj=null,nextHundredX=null,mcpError=null;
@@ -1290,6 +1344,7 @@ async function refresh(announce=false){
     try{nextHundredX=await request('/api/100x')}catch{/* non-fatal */}
     if(generation!==refreshGeneration)return; // An older response must never replace newer state.
     state=nextState;mcpState=nextMcp;centerState=nextCenter;packagesState=nextPackages;xerjState=nextXerj;hundredxState=nextHundredX;
+    lastIntegrityCheckAt=Date.now();
     const focused=document.activeElement;
     const focusedInDynamic=!!focused?.closest('#catalog-cards,#mcp-items,#backup-items,#profile-skills,#profile-categories');
     const focusKey=focusedInDynamic?focused?.dataset?.focusKey:null;
@@ -1301,7 +1356,19 @@ async function refresh(announce=false){
     }
     if(mcpError)showToast(mcpError.message,true);
     if(state.warnings?.length)showToast(state.warnings[0],true);
-    if(announce){$('workspace-status').textContent=mcpError?'Workspace refreshed; MCP status unavailable.':'Workspace and integrity results updated.';translateUI()}
+    if(announce){
+      $('workspace-status').textContent=mcpError?'Workspace refreshed; MCP status unavailable.':'Workspace and integrity results updated.';
+      if(!mcpError&&!state.warnings?.length){
+        if(activePage==='integrity'){
+          const res=state.integrity?.results||[];
+          const intact=res.filter(r=>r.status==='intact').length;
+          showToast('Integrity check completed: '+intact+' intact · '+(res.length-intact)+' alerts');
+        }else{
+          showToast('Workspace and integrity results updated.');
+        }
+      }
+      translateUI();
+    }
   }catch(err){
     if(generation!==refreshGeneration)return;
     $('overview-signal').classList.add('needs-attention');
@@ -1310,6 +1377,11 @@ async function refresh(announce=false){
     showToast(err.message,true);
     translateUI();
     if(announce){$('workspace-status').textContent='Workspace refresh failed.';translateUI()}
+  }finally{
+    if(generation===refreshGeneration){
+      if(verifyBtn)verifyBtn.removeAttribute('aria-busy');
+      if(refreshBtn)refreshBtn.removeAttribute('aria-busy');
+    }
   }
 }
 $('language-select').onchange=e=>setLanguage(e.target.value);
@@ -1564,6 +1636,13 @@ $('full-sync-apply').onclick=()=>guardedPreview($('full-sync-apply'),'full',asyn
   },'SYNC ALL')
 });
 $('verify-again').onclick=()=>refresh(true);
+document.querySelectorAll('[data-int-filter]').forEach(btn=>btn.onclick=()=>{
+  integrityFilter=btn.dataset.intFilter;
+  document.querySelectorAll('[data-int-filter]').forEach(tab=>{
+    const active=tab===btn;tab.classList.toggle('active',active);tab.setAttribute('aria-pressed',String(active));
+  });
+  if(state){renderIntegrity();translateUI();}
+});
 $('backup-create').onclick=()=>modal('Create full backup','Capture agent skill and MCP state now. This may take a moment on large local libraries.','Create backup',async()=>{const r=await request('/api/action',{action:'backup',approved:true});showToast('Backup created: '+r.id);await refresh()});
 try{language=localStorage.getItem('agent-commons-ui-language')||'en'}catch{language='en'}
 setLanguage(language);
