@@ -1,4 +1,10 @@
+import fs from 'node:fs';
 import path from 'node:path';
+import {
+  adaptExecutionProfile,
+  inspectWorkspaceHundredX,
+  isExecutionProfile
+} from '../extensions/hundredx.js';
 import { MissionQueue, type QueueEntry } from '../runtime/queue.js';
 import { MissionStore, type MissionState } from '../runtime/mission.js';
 import { WorkspaceTools } from '../runtime/workspace.js';
@@ -14,6 +20,7 @@ export interface MissionWebAction {
   workspace?: unknown;
   goal?: unknown;
   model?: unknown;
+  profile?: unknown;
   priority?: unknown;
   delayMinutes?: unknown;
   allowWrite?: unknown;
@@ -22,12 +29,31 @@ export interface MissionWebAction {
 }
 const safeObservation = /^(?:list_files|read_file|write_file|verify|mcp_call): (?:ok|failed); output_sha256=[a-f0-9]{12}; bytes=\d+; changed=(?:true|false); tested=(?:true|false)$/;
 function missionView(job: QueueEntry, state: MissionState | null) {
+  const profile = job.profile ?? state?.profile ?? 'lite';
+  const adapted = adaptExecutionProfile(profile, {
+    allowWrite: job.allowWrite,
+    allowTests: job.allowTests,
+    allowPaidReview: Boolean(job.delegate) || Boolean(job.allowCloudSource)
+  });
+  let hundredx = inspectWorkspaceHundredX('');
+  try {
+    hundredx = inspectWorkspaceHundredX(job.workspace);
+  } catch { /* unavailable workspace */ }
   return {
     id: job.id,
     missionId: job.missionId,
     status: job.status,
     missionStatus: state?.status ?? 'unavailable',
     model: job.model,
+    profile,
+    limits: {
+      maxSteps: adapted.limits.maxSteps,
+      maxToolCalls: adapted.limits.maxToolCalls,
+      maxTokens: adapted.limits.maxTokens,
+      maxDurationMs: adapted.limits.maxDurationMs,
+      maxCloudCalls: adapted.limits.maxCloudCalls,
+      paidConsumptionAuthorized: adapted.paidConsumptionAuthorized
+    },
     adviser: job.delegate ?? null,
     priority: job.priority,
     scheduledFor: job.runAt,
@@ -44,6 +70,7 @@ function missionView(job: QueueEntry, state: MissionState | null) {
     tested: Boolean(state?.tested),
     pendingReview: Boolean(state?.pendingAction) || job.status === 'needs_review',
     safeLogs: (state?.observations ?? []).filter(x => safeObservation.test(x)).slice(-12),
+    hundredx,
     updatedAt: state?.updatedAt ?? 0
   };
 }
@@ -94,18 +121,24 @@ export function applyMissionWebAction(ctx: EnvironmentContext, input: MissionWeb
       }
       const priority = input.priority ?? 5;
       const delay = input.delayMinutes ?? 0;
+      const profile = input.profile ?? 'lite';
+      if (!isExecutionProfile(profile)) {
+        throw new Error('Invalid mission profile.');
+      }
       if (typeof priority !== 'number' || !Number.isInteger(priority) || priority < 0 || priority > 9 ||
           typeof delay !== 'number' || !Number.isInteger(delay) || delay < 0 || delay > 43200) {
         throw new Error('Invalid mission scheduling.');
       }
       const workspace = new WorkspaceTools(path.resolve(input.workspace), input.allowWrite === true, input.allowTests === true);
       const state = store.create(input.goal, workspace.workspaceId);
+      state.profile = profile;
+      store.save(state);
       const id = queue.add({
         missionId: state.id, workspace: path.resolve(input.workspace), workspaceId: workspace.workspaceId,
-        model: input.model, priority, runAt: Date.now() + delay * 60000,
+        model: input.model, profile, priority, runAt: Date.now() + delay * 60000,
         allowWrite: input.allowWrite === true, allowTests: input.allowTests === true, allowMcp: []
       });
-      return { queued: true, id, missionId: state.id };
+      return { queued: true, id, missionId: state.id, profile };
     }
     if (typeof input.jobId !== 'string' || !JOB_ID.test(input.jobId)) {
       throw new Error('Invalid mission job identifier.');
@@ -127,5 +160,38 @@ export function applyMissionWebAction(ctx: EnvironmentContext, input: MissionWeb
       return { queued: true, id: job.id };
     }
     throw new Error('Unsupported mission action.');
+  });
+}
+
+/** Reads an allowlisted visual proof PNG/JPG from an existing mission workspace's .100x folder. */
+export function readMissionVisualArtifact(
+  ctx: EnvironmentContext,
+  jobId: string,
+  relPath: string
+): { contentType: string; data: Buffer } {
+  if (!JOB_ID.test(jobId)) throw new Error('Invalid mission job identifier.');
+  const clean = relPath.replace(/^\.\//, '');
+  if (!/^\.100x\/(?:hero\.(?:png|jpg|jpeg|webp)|shots\/[a-z0-9-]+\/contact-sheet\.png)$/i.test(clean)) {
+    throw new Error('Invalid mission artifact path.');
+  }
+  return withQueue(ctx, queue => {
+    const job = queue.get(jobId);
+    const root = fs.realpathSync.native(job.workspace);
+    const parts = clean.split('/');
+    let cur = root;
+    for (const seg of parts) {
+      cur = path.join(cur, seg);
+      if (!fs.existsSync(cur) || fs.lstatSync(cur).isSymbolicLink()) {
+        throw new Error('Mission artifact not found.');
+      }
+    }
+    const stat = fs.statSync(cur);
+    if (!stat.isFile() || stat.size === 0 || stat.size > 5 * 1024 * 1024) {
+      throw new Error('Mission artifact not found.');
+    }
+    const ext = path.extname(cur).toLowerCase();
+    const contentType =
+      ext === '.jpg' || ext === '.jpeg' ? 'image/jpeg' : ext === '.webp' ? 'image/webp' : 'image/png';
+    return { contentType, data: fs.readFileSync(cur) };
   });
 }

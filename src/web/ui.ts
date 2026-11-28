@@ -66,7 +66,7 @@ __MISSION_CSS__
 <div class="catalog-switch" role="group" aria-label="Catalog type"><button type="button" data-kind="skill" aria-pressed="true" class="active">Skills</button><button type="button" data-kind="mcp" aria-pressed="false">MCP servers</button><button type="button" data-kind="all" aria-pressed="false">All tools</button></div>
 <div class="filter-row"><input class="field search" id="catalog-search" type="search" placeholder="Search names, categories and uses…" aria-label="Search catalog"><select class="field" id="catalog-category" aria-label="Filter by category"><option value="">All categories</option></select><select class="field" id="catalog-status" aria-label="Filter by installation"><option value="">All statuses</option><option value="installed">Installed / configured</option><option value="available">Available / reference</option><option value="managed">Managed installations</option><option value="updates">Reviewed updates</option><option value="attention">Needs attention</option><option value="local">Local / unmanaged</option></select></div>
 <div class="catalog-results"><span class="subtle" id="catalog-count" role="status" aria-live="polite"></span><button type="button" class="btn small ghost hidden" id="catalog-reset">Clear filters</button><button class="btn small" id="extension-check">↻ Check reviewed updates</button></div>
-<p class="subtle" id="extension-summary" role="status" aria-live="polite"></p></div><div class="cards mt-14" id="catalog-cards" aria-busy="true"></div></section>
+<p class="subtle" id="extension-summary" role="status" aria-live="polite"></p></div><section class="panel" id="hundredx-panel" aria-label="100x Engineer extension"><div class="section-head"><h3>100x Engineer · formal verification & review suite</h3><span class="tag" id="hundredx-status-tag">Checking…</span></div><p class="subtle" id="hundredx-summary">Loading 100x Engineer extension status…</p><div class="actions" id="hundredx-actions"></div></section><div class="cards mt-14" id="catalog-cards" aria-busy="true"></div></section>
 <section class="page" id="page-agents"><div class="eyebrow">PERSONALIZED PER AGENT</div><h1>My agents</h1><p class="dim">Create a local selection of central skills and catalog categories for each installed agent. Saving a profile never synchronizes it automatically.</p><div class="agents-grid" id="agents-grid"></div><div class="agents-absent" id="agents-absent" hidden></div>
 <div class="section-head"><h2>Profile editor</h2><span class="tag">Explicit sync only</span></div><p class="dim hidden" id="profile-native-note">This agent reads ~/.agents/skills directly: every shared skill is already visible, and a saved profile cannot hide any of them.</p>
 <div class="panel"><div class="filter-row"><select class="field" id="profile-agent" aria-label="Choose agent"></select><input class="field search" id="profile-skill-search" type="search" placeholder="Filter locally installed skills…" aria-label="Filter skills"></div><div class="split"><div><h3>Individual skills</h3><p class="subtle">Only skills already present in your shared library can be linked.</p><div class="checkbox-list" id="profile-skills"></div></div><div><h3>Category profiles</h3><p class="subtle">Categories expand to installed skills at sync time.</p><div class="checkbox-list" id="profile-categories"></div></div></div>
@@ -129,6 +129,13 @@ __MISSION_CSS__
       <label for="mission-model">Local LM Studio model ID
         <input class="field" id="mission-model" type="text" required maxlength="200" placeholder="exact-local-model-id" autocomplete="off">
       </label>
+      <label for="mission-profile">Execution profile
+        <select class="field" id="mission-profile">
+          <option value="lite" selected>Lite (default · 12k tokens · 10m · 0 cloud)</option>
+          <option value="standard">Standard (24k tokens · 20m)</option>
+          <option value="deep">Deep (64k tokens · 45m)</option>
+        </select>
+      </label>
       <label for="mission-priority">Priority (0–9)
         <input class="field" id="mission-priority" type="number" min="0" max="9" value="5" required>
       </label>
@@ -158,7 +165,7 @@ __MISSION_CSS__
 'use strict';
 const csrf=document.querySelector('meta[name="csrf-token"]').content;
 const $=id=>document.getElementById(id);
-let state=null, mcpState=null, centerState=null, packagesState=null, xerjState=null, activePage='overview', selectedAgent='', profileSavePending=false, profileDrafts=Object.create(null), catalogKind='skill';
+let state=null, mcpState=null, centerState=null, packagesState=null, xerjState=null, hundredxState=null, activePage='overview', selectedAgent='', profileSavePending=false, profileDrafts=Object.create(null), catalogKind='skill';
 const short=x=>String(x||'').slice(0,10);
 const mcpGroups={'playwright':'web','fetch':'web','web-search':'web','osint':'web','github':'dev','git':'dev','filesystem':'infra','docker-mcp-gateway':'infra','agent-desktop':'desktop','xerj':'knowledge'};
 const mcpGroupNames={web:'Web & research',dev:'Development & Git',infra:'Infrastructure & files',desktop:'Desktop & computer use',knowledge:'Knowledge & retrieval',other:'Other MCPs'};
@@ -391,7 +398,40 @@ Object.assign(FR,{
   'Navigate':'Naviguer',
   'Open':'Ouvrir',
   'Close':'Fermer',
-  'WORKSPACE / ':'ESPACE / '
+  'WORKSPACE / ':'ESPACE / ',
+  'Execution profile':'Profil d’exécution',
+  'Lite — daily dev (bounded)':'Lite — dev quotidien (borné)',
+  'Standard — complex work':'Standard — livraisons complexes',
+  'Deep — pre-prod verification':'Deep — pré-production approfondie',
+  '100x Engineer · optional formal verification & second-model review':'100x Engineer · vérification formelle et relecture optionnelles',
+  '100x Engineer status unavailable.':'Statut de 100x Engineer indisponible.',
+  'Unavailable':'Indisponible',
+  'Needs repair':'Réparation requise',
+  'External CLI':'CLI externe',
+  'Install 100x':'Installer 100x',
+  'Repair':'Réparer',
+  'Update':'Mettre à jour',
+  'Sync skills':'Synchroniser les skills',
+  'Configure profile':'Configurer le profil',
+  'Modes (13)':'Modes (13)',
+  '100x Engineer · modes':'100x Engineer · modes',
+  'Configure 100x profile':'Configurer le profil 100x',
+  'Enable second-model review (when configured)':'Activer la relecture par un second modèle (si configurée)',
+  'Enable formal property verification':'Activer la vérification formelle des propriétés',
+  'Confirm 100x configuration':'Confirmer la configuration 100x',
+  'Apply':'Appliquer',
+  '100x profile saved':'Profil 100x enregistré',
+  'Sync 100x skills to clients':'Synchroniser les skills 100x vers les clients',
+  'Select agents to receive the installed 100x skills.':'Sélectionnez les agents qui recevront les skills 100x installés.',
+  'Preview 100x skill sync':'Aperçu de la synchronisation 100x',
+  'Confirm 100x skill sync':'Confirmer la synchronisation 100x',
+  '100x skills synchronized':'Skills 100x synchronisés',
+  '100x verification: not active in this workspace':'Vérification 100x : inactive dans cet espace',
+  'Resumable':'Reprenable',
+  'View contact sheet':'Voir la planche contact',
+  'View hero screenshot':'Voir la capture principale',
+  'Hero screenshot':'Capture principale',
+  'Checking…':'Vérification…'
 });
 const FR_PATTERNS=[
   [/^(\\d+) skill integrity warnings require review$/,n=>n+' alertes d’intégrité à examiner'],
@@ -417,7 +457,16 @@ const FR_PATTERNS=[
   [/^(\d+) items needing attention$/,n=>n+' éléments à examiner'],
   [/^(\d+) available snapshots$/,n=>n+' instantanés disponibles'],
   [/^Last seen (.+)\.$/,t=>'Vu pour la dernière fois le '+t+'.'],
-  [/^Steps (\d+) · tool calls (\d+) · tokens (\d+) · verified observations (\d+) · MCP (\d+) · cloud (\d+)$/,(a,b,c,d,e,f)=>'Étapes '+a+' · appels d’outils '+b+' · jetons '+c+' · observations vérifiées '+d+' · MCP '+e+' · cloud '+f],
+  [/^Steps (\d+) · tool calls (\d+) · tokens (\d+(?: \/ \d+)?) · verified observations (\d+) · MCP (\d+) · cloud (\d+)$/,(a,b,c,d,e,f)=>'Étapes '+a+' · appels d’outils '+b+' · jetons '+c+' · observations vérifiées '+d+' · MCP '+e+' · cloud '+f],
+  [/^· profile (.+)$/,p=>'· profil '+p],
+  [/^Skills: (\d+)\/13 · Profile: (.+) · (.+)$/, (count,profile,prereq)=>'Compétences : '+count+'/13 · Profil : '+profile+' · '+prereq],
+  [/^(Install|Update|Repair|Uninstall) 100x Engineer$/,op=>({Install:'Installer',Update:'Mettre à jour',Repair:'Réparer',Uninstall:'Désinstaller'}[op])+' 100x Engineer'],
+  [/^100x (install|update|repair|uninstall) completed$/,op=>'100x : '+({install:'installation',update:'mise à jour',repair:'réparation',uninstall:'désinstallation'}[op])+' terminée'],
+  [/^Stage: (.+)$/,s=>'Étape : '+s],
+  [/^Verdict: (.+)$/,v=>'Verdict : '+v],
+  [/^Next: (.+)$/,n=>'Suivant : '+n],
+  [/^Invariants: (\d+) holds · (\d+) stale · (\d+) broken · (\d+) unproven · (\d+) waived$/,(a,b,c,d,e)=>'Invariants : '+a+' valides · '+b+' obsolètes · '+c+' cassés · '+d+' non prouvés · '+e+' levés'],
+  [/^Contact sheet \((.+)\)$/,label=>'Planche contact ('+label+')'],
   [/^Scheduled for (.+)$/,t=>'Planifiée pour '+t],
   [/^Verified tool events \((\d+)\)$/,n=>'Événements d’outils vérifiés ('+n+')'],
   [/^· model (.+)$/,m=>'· modèle '+m],
@@ -1058,20 +1107,133 @@ function formatSync(r){const lines=['Mode: '+(r.dryRun?'PREVIEW':'APPLIED'),'Age
 function showSync(r){const p=$('sync-report');p.classList.remove('hidden');p.textContent=formatSync(r)}
 function renderIntegrity(){clear($('integrity-items'));if(!state.integrity.scanned){$('integrity-items').append(node('div','No managed public-catalog skill installations found.','empty'));return}state.integrity.results.forEach(r=>{const e=row(r.skill,r.checkedFiles+' files checked · '+(r.commit?short(r.commit):'no receipt'),labelStatus(r.status));e.querySelector('strong').dataset.noI18n='true';$('integrity-items').append(e);if(r.issues.length){const issues=node('div',r.issues.map(i=>i.type+': '+i.reason+(i.path?' ('+i.path+')':'')).join('\n'),'result-box');$('integrity-items').append(issues)}})}
 function renderBackups(){clear($('backup-items'));if(!state.inventory.backups.length){$('backup-items').append(node('div','No snapshots yet.','empty'));return}state.inventory.backups.forEach(b=>{const btn=node('button','Restore…','btn danger small');btn.dataset.focusKey='restore:'+b.id;btn.setAttribute('aria-label','Restore snapshot '+b.id);btn.onclick=()=>modal('Restore '+b.id,'This replaces managed paths with their historical state. Create a fresh backup first, and verify that this is the intended snapshot.','Restore',async()=>{await request('/api/action',{action:'restore',snapshot:b.id,approved:true});showToast('Snapshot restored');await refresh()},b.id);$('backup-items').append(row(b.id,b.createdAt+' · '+b.reason+' · '+b.entriesCount+' entries',btn))})}
-function renderAll(){renderOverview();renderCatalog();renderAgents();renderMcp();renderMcpCenter();renderXerj();renderIntegrity();renderBackups();translateUI()}
+function renderAll(){renderOverview();renderHundredX();renderCatalog();renderAgents();renderMcp();renderMcpCenter();renderXerj();renderIntegrity();renderBackups();translateUI()}
+function renderHundredX(){
+  const tag=$('hundredx-status-tag'),summary=$('hundredx-summary'),actions=$('hundredx-actions');
+  if(!tag||!summary||!actions)return;
+  clear(actions);
+  if(!hundredxState?.extension){
+    tag.textContent='Unavailable';tag.className='tag warn';
+    summary.textContent='100x Engineer status unavailable.';
+    return;
+  }
+  const ext=hundredxState.extension;
+  const statusText=ext.managed?(ext.healthy?'Installed v'+ext.installedVersion:'Needs repair'):ext.externalAvailable?'External CLI':'Not installed';
+  tag.textContent=statusText;
+  tag.className='tag '+(ext.healthy?'good':ext.unmanaged||ext.managed?'warn':'');
+  const prereq=['Node >=22: '+(ext.prerequisites.node22Plus?'OK':'missing'),'git: '+(ext.prerequisites.git?'OK':'missing'),'Playwright: '+(ext.prerequisites.chromiumCache?'cached':'absent')].join(' · ');
+  summary.textContent='Skills: '+ext.skillsInstalled.length+'/13 · Profile: '+ext.config.profile+' · '+prereq;
+  const addBtn=(label,cls,fn)=>{const b=node('button',label,'btn small'+(cls?' '+cls:''));b.type='button';b.onclick=fn;actions.append(b)};
+  if(!ext.managed&&!ext.unmanaged){
+    addBtn('Install 100x','primary',()=>previewHundredXOp('install'));
+  }else if(ext.managed){
+    if(!ext.healthy)addBtn('Repair','primary',()=>previewHundredXOp('repair'));
+    else if(ext.updateAvailable)addBtn('Update','primary',()=>previewHundredXOp('update'));
+    addBtn('Uninstall','danger',()=>previewHundredXOp('uninstall'));
+  }
+  if(ext.skillsInstalled.length>0)addBtn('Sync skills','primary',()=>hundredxSyncDialog());
+  addBtn('Configure profile','',()=>hundredxConfigDialog());
+  addBtn('Modes (13)','ghost',()=>hundredxModesDialog());
+}
+async function previewHundredXOp(op){
+  const title=(op==='uninstall'?'Uninstall':op==='repair'?'Repair':op==='update'?'Update':'Install')+' 100x Engineer';
+  await prepareCatalogPreview(title,()=>request('/api/100x-preview?op='+encodeURIComponent(op)+'&skills=1'),result=>{
+    const p=result.plan;
+    const lines=['Package: 100x-engineer-skill v'+p.version,'Commit: '+short(p.commit),'SHA-256: '+short(p.tarballSha256),
+      op==='uninstall'?'Skills to remove: '+p.skillsToRemove.length:'Skills to stage: '+p.skillsToStage.length];
+    if(p.linkedClients&&p.linkedClients.length)lines.push('Linked clients: '+p.linkedClients.join(', '));
+    modal(title,lines.join('\n')+'\n\nNo third-party install scripts are executed; a backup snapshot is created first.',title.split(' ')[0],async()=>{
+      await request('/api/action',{action:'100x-apply',operation:op,expectedRevision:p.revision,includeSkills:true,approved:true});
+      showToast('100x '+op+' completed');await refresh();
+    },op==='uninstall'?'100x':undefined);
+  });
+}
+function hundredxModesDialog(){
+  const bg=node('div',null,'modal-backdrop'),box=node('section',null,'modal');
+  box.setAttribute('role','dialog');box.setAttribute('aria-modal','true');
+  box.append(node('h2','100x Engineer · modes'));
+  const list=node('div');
+  for(const m of (hundredxState?.extension?.modes||[])){
+    list.append(row(m.id+' ['+m.kind+']',m.summary+(m.requiresSecondModel?' · second model':''),null));
+  }
+  box.append(list);
+  const buttons=node('div',null,'modal-buttons'),close=node('button','Close','btn');
+  close.onclick=closeDialog;buttons.append(close);box.append(buttons);showDialog(bg,box,close);
+  bg.onclick=e=>{if(e.target===bg)closeDialog()};
+}
+function hundredxConfigDialog(){
+  const bg=node('div',null,'modal-backdrop'),box=node('section',null,'modal');
+  box.setAttribute('role','dialog');box.setAttribute('aria-modal','true');
+  box.append(node('h2','Configure 100x profile'));
+  const ext=hundredxState?.extension;
+  const selWrap=node('label',null,'check'),sel=node('select');sel.className='field';
+  for(const p of (hundredxState?.profiles||[{id:'lite',label:'Lite'},{id:'standard',label:'Standard'},{id:'deep',label:'Deep'}])){
+    const o=rawNode('option',p.label+' — '+p.usage);o.value=p.id;sel.append(o);
+  }
+  sel.value=['lite','standard','deep'].includes(ext?.config?.profile)?ext.config.profile:'lite';
+  selWrap.append(node('span','Execution profile','subtle'),sel);box.append(selWrap);
+  const revRow=node('label',null,'check'),revCheck=node('input');revCheck.type='checkbox';revCheck.checked=ext?.config?.reviewEnabled!==false;
+  revRow.append(revCheck,node('span','Enable second-model review (when configured)'));box.append(revRow);
+  const verRow=node('label',null,'check'),verCheck=node('input');verCheck.type='checkbox';verCheck.checked=ext?.config?.verifyEnabled!==false;
+  verRow.append(verCheck,node('span','Enable formal property verification'));box.append(verRow);
+  const buttons=node('div',null,'modal-buttons'),cancel=node('button','Cancel','btn'),next=node('button','Preview','btn primary');
+  cancel.onclick=closeDialog;
+  next.onclick=async()=>{
+    const profile=sel.value,reviewEnabled=revCheck.checked,verifyEnabled=verCheck.checked;
+    try{
+      const preview=(await request('/api/action',{action:'100x-configure-preview',profile,reviewEnabled,verifyEnabled})).plan;
+      unmountDialog();
+      modal('Confirm 100x configuration','Profile: '+profile+'\nChanged: '+(preview.changed?'yes':'no')+'\nA backup snapshot is created before writing global 100x config.','Apply',async()=>{
+        await request('/api/action',{action:'100x-configure-apply',profile,reviewEnabled,verifyEnabled,expectedRevision:preview.revision,approved:true});
+        showToast('100x profile saved');await refresh();
+      });
+    }catch(err){showToast(err.message,true)}
+  };
+  buttons.append(cancel,next);box.append(buttons);showDialog(bg,box,sel);
+  bg.onclick=e=>{if(e.target===bg)closeDialog()};
+}
+function hundredxSyncDialog(){
+  const clients=(state.inventory.agents||[]).filter(agent=>agent.installed&&agent.skillsSupported);
+  if(!clients.length){showToast('No compatible skill agent detected.',true);return}
+  const bg=node('div',null,'modal-backdrop'),box=node('section',null,'modal');
+  box.setAttribute('role','dialog');box.setAttribute('aria-modal','true');
+  box.append(node('h2','Sync 100x skills to clients'),node('p','Select agents to receive the installed 100x skills.','copy'));
+  const list=node('div',null,'checkbox-list');
+  for(const agent of clients){
+    const label=node('label',null,'check'),choice=node('input');
+    choice.type='checkbox';choice.value=agent.id;
+    label.append(choice,rawNode('span',agent.name));list.append(label);
+  }
+  const buttons=node('div',null,'modal-buttons'),cancel=node('button','Cancel','btn'),next=node('button','Preview','btn primary');
+  next.disabled=true;list.onchange=()=>{next.disabled=!list.querySelector('input:checked')};
+  cancel.onclick=closeDialog;
+  next.onclick=()=>{
+    const agents=[...list.querySelectorAll('input:checked')].map(i=>i.value);
+    prepareCatalogPreview('Preview 100x skill sync',()=>request('/api/action',{action:'100x-sync-preview',agents}),result=>{
+      modal('Confirm 100x skill sync',formatSync(result),'Synchronize',async()=>{
+        const applied=await request('/api/action',{action:'100x-sync-apply',agents,approved:true,previewToken:result.previewToken});
+        if(applied.errors.length)throw Error('Skill sync returned errors.');
+        showToast('100x skills synchronized');await refresh();
+      });
+    });
+  };
+  buttons.append(cancel,next);box.append(list,buttons);showDialog(bg,box,cancel);
+  bg.onclick=e=>{if(e.target===bg)closeDialog()};
+}
 let refreshGeneration=0;
 async function refresh(announce=false){
   const generation=++refreshGeneration;
   if(announce){$('workspace-status').textContent='Refreshing local workspace…';translateUI()}
   try{
     const nextState=await request('/api/state');
-    let nextMcp=null,nextCenter=null,nextPackages=null,nextXerj=null,mcpError=null;
+    let nextMcp=null,nextCenter=null,nextPackages=null,nextXerj=null,nextHundredX=null,mcpError=null;
     try{nextPackages=await request('/api/mcp-packages')}catch(err){mcpError=err}
     try{nextMcp=await request('/api/mcp')}catch(err){mcpError=err}
     try{nextCenter=await request('/api/mcp-center')}catch(err){mcpError=mcpError||err}
     try{nextXerj=await request('/api/xerj')}catch(err){mcpError=mcpError||err}
+    try{nextHundredX=await request('/api/100x')}catch{/* non-fatal */}
     if(generation!==refreshGeneration)return; // An older response must never replace newer state.
-    state=nextState;mcpState=nextMcp;centerState=nextCenter;packagesState=nextPackages;xerjState=nextXerj;
+    state=nextState;mcpState=nextMcp;centerState=nextCenter;packagesState=nextPackages;xerjState=nextXerj;hundredxState=nextHundredX;
     const focused=document.activeElement;
     const focusedInDynamic=!!focused?.closest('#catalog-cards,#mcp-items,#backup-items,#profile-skills,#profile-categories');
     const focusKey=focusedInDynamic?focused?.dataset?.focusKey:null;

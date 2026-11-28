@@ -1,6 +1,7 @@
 import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
+import type { ExecutionProfileName } from '../extensions/hundredx.js';
 import { redactSecrets } from '../security/scrubber.js';
 import { ModelUnavailableError } from './provider.js';
 
@@ -64,6 +65,8 @@ export interface MissionState {
   revision: number;
   /** Skill IDs selected from the physical local catalog for this run. */
   skillIds?: string[];
+  /** Execution profile governing strict resource caps (lite default). */
+  profile?: ExecutionProfileName;
   /** Successful MCP calls; tool result bodies are never checkpointed. */
   mcpCalls?: number;
   /** Proposed steps from the local model. A plan is not evidence of execution. */
