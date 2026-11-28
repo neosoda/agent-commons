@@ -1,5 +1,7 @@
 import type { ModelClient, ModelTurn, ToolName, ToolRequest } from './mission.js';
 
+export class ModelUnavailableError extends Error {}
+
 interface Endpoint { url: string; model: string; apiKey?: string; timeoutMs?: number }
 const tools = [
   { name:'list_files',description:'List up to 150 safe entries in an existing directory', parameters:{type:'object',properties:{path:{type:'string',description:'Relative directory, or empty for project root'}},required:[]} },
@@ -26,14 +28,30 @@ const NAMES = new Set<ToolName>(['list_files','read_file','write_file','verify',
 /** OpenAI-compatible client, usable with LM Studio localhost or explicitly configured cloud API. */
 export class OpenAICompatibleModel implements ModelClient {
   constructor(private readonly config: Endpoint) {
-    if (!config.model || !/^https?:\/\//.test(config.url)) throw new Error('Explicit model and endpoint required');
-    if (!config.apiKey && !/^http:\/\/(?:127\.0\.0\.1|localhost)(?::\d+)?\/v1\/chat\/completions$/.test(config.url)) {
-      throw new Error('Unauthenticated model endpoint must be local loopback');
+    if (!config.model) throw new Error('Explicit model and endpoint required');
+    let url: URL;
+    try { url = new URL(config.url); } catch { throw new Error('Invalid model endpoint'); }
+    const loopback = ['127.0.0.1', 'localhost', '[::1]'].includes(url.hostname);
+    if (!['http:', 'https:'].includes(url.protocol) || url.username || url.password || url.hash || url.search) {
+      throw new Error('Invalid model endpoint');
     }
+    if (!loopback && (url.protocol !== 'https:' || !config.apiKey)) {
+      throw new Error('Remote model endpoint requires HTTPS and authentication');
+    }
+    if (config.timeoutMs !== undefined && (!Number.isSafeInteger(config.timeoutMs) || config.timeoutMs < 1 || config.timeoutMs > 300000)) {
+      throw new Error('Invalid model timeout');
+    }
+  }
+  private async request(init: RequestInit): Promise<Response> {
+    let response: Response;
+    try { response = await fetch(this.config.url, { ...init, redirect: 'error' }); }
+    catch { throw new ModelUnavailableError('Model endpoint unavailable'); }
+    if ([502, 503, 504].includes(response.status)) throw new ModelUnavailableError('Model endpoint unavailable');
+    return response;
   }
   /** Request a bounded second opinion without exposing or accepting execution tools. */
   async advise(input: { goal: string; observations: string[] }): Promise<{ text: string; tokens?: number }> {
-    const response = await fetch(this.config.url, {
+    const response = await this.request({
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -59,7 +77,7 @@ export class OpenAICompatibleModel implements ModelClient {
 
   /** One local-only planning turn, deliberately without tools or side effects. */
   async plan(goal: string): Promise<{ steps: string[]; tokens?: number }> {
-    const response = await fetch(this.config.url, {
+    const response = await this.request({
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -96,7 +114,7 @@ export class OpenAICompatibleModel implements ModelClient {
       (permittedMcp.join(', ') || '(none)') +
       '\n\nVERIFIED TOOL HISTORY (most recent last):\n' +
       input.observations.join('\n---\n') + '\n\nChoose your next single tool call or finish.';
-    const response = await fetch(this.config.url, {
+    const response = await this.request({
       method:'POST', headers: {
         'Content-Type':'application/json', ...(this.config.apiKey ? {Authorization:`Bearer ${this.config.apiKey}`} : {})
       },

@@ -50,3 +50,10 @@ La branche `feat/claude-seo-integration` ajoute un pack de références épingl�
 4. Implémenter sur branche dédiée, exécuter les validations, attendre les huit checks PR, merger si verts ; recontrôler les huit checks `main` ; mettre à jour ce handoff si l'état opérationnel change.
 
 **Historique conservé :** [versions antérieures via Git](docs/archive/INDEX.md), [CHANGELOG](CHANGELOG.md) et [releases](docs/releases/). Pas de nouvelle release créée pour une consolidation de documentation.
+
+
+## Branche SentinelBrain : reprise après indisponibilité
+
+Sur `codex/sentinelbrain-platform`, le worker remet en attente une mission dont le modèle est indisponible et conserve le checkpoint avant de la reprendre. Un test utilise un serveur HTTP simulé et rouvre la base SQLite ; il ne constitue pas une recette matérielle ni une validation de déploiement. Les fournisseurs distants exigent HTTPS et une authentification par variable d'environnement.
+
+Prochaine action : qualifier la reprise après arrêt réel du processus, puis vérifier les baux et les budgets avant toute intégration distribuée.

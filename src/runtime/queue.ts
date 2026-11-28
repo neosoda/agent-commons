@@ -4,7 +4,7 @@ import path from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 
 export type QueueStatus = 'queued' | 'running' | 'paused' | 'completed' | 'blocked' |
-  'partial' | 'failed' | 'cancelled' | 'needs_review';
+  'partial' | 'failed' | 'cancelled' | 'needs_review' | 'waiting_for_model';
 export interface QueueEntry {
   id: string;
   missionId: string;
@@ -135,7 +135,7 @@ export class MissionQueue {
       const running = this.db.prepare("SELECT id FROM jobs WHERE status='running' LIMIT 1").get();
       if (running) { this.db.exec('COMMIT'); return null; }
       const due = this.db.prepare(
-        "SELECT * FROM jobs WHERE status='queued' AND run_at<=? ORDER BY priority DESC,run_at,id LIMIT 1"
+        "SELECT * FROM jobs WHERE status IN ('queued','waiting_for_model') AND run_at<=? ORDER BY priority DESC,run_at,id LIMIT 1"
       ).get(now) as SqlEntry | undefined;
       if (!due) {
         this.db.exec('COMMIT'); return null;
@@ -163,6 +163,15 @@ export class MissionQueue {
     const updated = this.db.prepare(
       "UPDATE jobs SET status=?,owner=NULL,lease_until=NULL,updated_at=? WHERE id=? AND owner=? AND status='running'"
     ).run(status, Date.now(), jobId, owner);
+    if (updated.changes !== 1) throw new Error('Queue ownership lost; result not recorded');
+  }
+  /** Retry only a mission that returned before dispatching a tool. */
+  waitForModel(owner: string, jobId: string, now = Date.now()): void {
+    const job = this.get(jobId);
+    const delay = Math.min(300000, 30000 * 2 ** Math.min(Math.max(job.attempts - 1, 0), 4));
+    const updated = this.db.prepare(
+      "UPDATE jobs SET status='waiting_for_model',run_at=?,owner=NULL,lease_until=NULL,updated_at=? WHERE id=? AND owner=? AND status='running'"
+    ).run(now + delay, now, jobId, owner);
     if (updated.changes !== 1) throw new Error('Queue ownership lost; result not recorded');
   }
   release(owner: string): void {
