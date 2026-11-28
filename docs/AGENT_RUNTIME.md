@@ -1,6 +1,6 @@
 # Moteur agentique local — mode opératoire vérifié dans le code
 
-**Statut : expérimental sur `main`**, ajouts P1–P6 postérieurs à la release `v0.6.0`. Code : `src/runtime/` ; détail des garanties : [sécurité](../SECURITY.md) ; matrice de preuves : [capacités](CAPABILITIES.md).
+**Statut : expérimental** (publié dans `v0.6.1` depuis `main`, sans sandbox OS ni recette matérielle complète). Code : `src/runtime/` ; détail des garanties : [sécurité](../SECURITY.md) ; matrice de preuves : [capacités](CAPABILITIES.md).
 
 ## Démarrer en lecture seule
 
@@ -24,7 +24,7 @@ Les scripts du dépôt (`npm test` / `npm run typecheck`) sont du **code arbitra
 
 ## Skills et MCP pendant une mission
 
-- Le moteur choisit par métadonnées **au plus deux skills physiquement installés** et borne leurs instructions à ~1 600 tokens estimés. Il ne charge pas les 210 références publiques en contexte et n'exécute jamais un script de skill par simple découverte.
+- Le moteur choisit par métadonnées **au plus deux skills physiquement installés** et borne leurs instructions à ~1 600 tokens estimés. Il ne charge pas les 212 références publiques en contexte et n'exécute jamais un script de skill par simple découverte.
 - Pour les MCP, chaque `--allow-mcp-tool serveur/outil` n'accorde l'accès qu'à cet outil précis, depuis `~/.agents/mcp.json`, après découverte/handshake. Exemple : `--allow-mcp-tool demo/echo` après configuration effective du serveur. Une référence MCP dans le catalogue ne suffit pas. **L'outil peut avoir des effets de bord** ; le filtrage par nom n'inspecte pas chaque argument ni les permissions intrinsèques du serveur. Pas de secrets HTTP transmis dans la sonde. En mission, l'environnement d'un serveur MCP est construit par liste blanche (chemins système, profil, temporaire, locale) : toute autre variable (clé, proxy, certificat d'autorité) doit figurer dans son entrée `env`.
 - La sélection de skills d'un client et les profils MCP de synchronisation ne sont **pas** les permissions du runtime. Voir [SKILLS_AND_MCP](SKILLS_AND_MCP.md).
 

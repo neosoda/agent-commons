@@ -1,11 +1,11 @@
 # Architecture réelle d'Agent Commons
 
-**Référence :** branche `main` du 22 novembre 2026, point de départ `ab19b475`. Ce document décrit le code disponible, non une cible d'infrastructure. Voir [capacités](CAPABILITIES.md) et [décisions](DECISIONS.md).
+**Référence :** branche `main` au 28 novembre 2026 (`v0.6.1`, `2570fabf`). Ce document décrit le code disponible, non une cible d'infrastructure. Voir [capacités](CAPABILITIES.md) et [décisions](DECISIONS.md).
 
 ## Deux ensembles indépendants
 
-1. **Gestionnaire d'environnements IA** (fonctionnalités principales, publiées jusqu'à `v0.6.0`) : bibliothèque centrale `~/.agents/skills/`, catalogue public de références épinglées, manifeste `~/.agents/mcp.json`, inventaires par client, previews de synchronisation, profils, sauvegardes et restauration. Modules `src/agents/`, `src/commands/`, `src/core/`, `src/sync/`, `src/mcp/`.
-2. **Moteur de missions local expérimental** : `src/runtime/`, `src/web/mission-api.ts` et `src/web/mission-ui.ts`. Les étapes P1 à P6 sont intégrées dans `main` après la release `v0.6.0` ; aucune nouvelle release ne les a encore publiées. Une seule exécution locale pilote les outils ; les CLI externes ne donnent qu'un avis facultatif.
+1. **Gestionnaire d'environnements IA** (fonctionnalités principales) : bibliothèque centrale `~/.agents/skills/`, catalogue public de références épinglées, manifeste `~/.agents/mcp.json`, inventaires par client, previews de synchronisation, profils, sauvegardes et restauration. Modules `src/agents/`, `src/commands/`, `src/core/`, `src/sync/`, `src/mcp/`.
+2. **Moteur de missions local expérimental** : `src/runtime/`, `src/web/mission-api.ts` et `src/web/mission-ui.ts`. Les étapes P1 à P6 et les correctifs ultérieurs sont intégrés dans `main` et publiés à titre expérimental depuis `v0.6.1`. Une seule exécution locale pilote les outils ; les CLI externes ne donnent qu'un avis facultatif.
 
 ```text
 CLI agent-commons / Skill Hub (loopback)

@@ -15,9 +15,9 @@
 
 Agent Commons centralise vos **skills**, vos serveurs **MCP** et leur synchronisation pour Codex, Claude Code, Gemini CLI, Antigravity, OpenCode et d'autres outils. Une interface locale, un catalogue consultable, des opérations prévisualisées et des sauvegardes : plus besoin de tout reconfigurer à la main.
 
-**État vérifié le 22 novembre 2026 :** 21 environnements IA reconnus, 210 **références** de skills, 9 **références** MCP au 22/11 (10 avec XERJ intégré sur cette branche). Les références ne sont pas des packages installés. Les tests GitHub multi-OS, Chromium et Windows portable sont passés sur `main` `ab19b475`.
+**État vérifié le 28 novembre 2026 :** 21 environnements IA reconnus, 212 **références** de skills, 11 **références** MCP (dont XERJ et Sellbird). Les références ne sont pas des packages installés. Les 11 contrôles GitHub (6 OS/Node, 3 XERJ réels, Chromium et Windows portable) sont passés sur `main` `2570fabf`, publié en [v0.6.1](https://github.com/neosoda/agent-commons/releases/tag/v0.6.1).
 
-> **Deux états à ne pas confondre :** [v0.6.0](https://github.com/neosoda/agent-commons/releases/tag/v0.6.0) est la dernière release publiée. `main` contient depuis les PR #105–#111 un **moteur de missions expérimental** plus avancé, non inclus dans cette release. Voir [capacités et preuves](docs/CAPABILITIES.md).
+> **État de la release :** [v0.6.1](https://github.com/neosoda/agent-commons/releases/tag/v0.6.1) livre le correctif de sécurité Windows 8.3 et le **moteur de missions expérimental** depuis `main` (`2570fabf`). Ce moteur reste **expérimental** (sans sandbox OS ni recette matérielle LM Studio/RTX complète) ; l'archive Windows portable est **non signée** et aucune publication npm n'est effectuée. Voir [capacités et preuves](docs/CAPABILITIES.md).
 
 ## Installation
 

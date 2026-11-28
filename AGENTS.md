@@ -8,7 +8,7 @@
 - **Conception** : [architecture](docs/ARCHITECTURE.md), [décisions](docs/DECISIONS.md).
 - **Modifications skills/MCP** : [guide opérationnel](docs/SKILLS_AND_MCP.md), [sécurité](SECURITY.md).
 - **Missions agentiques** : [runtime](docs/AGENT_RUNTIME.md) (expérimental sur `main`).
-- **Travail futur** : [roadmap](docs/ROADMAP.md). La release `v0.6.0` n'est pas l'état complet de `main`.
+- **Travail futur** : [roadmap](docs/ROADMAP.md). La release `v0.6.1` (`2570fabf`) publie le correctif Windows 8.3 et le moteur expérimental ; vérifier GitHub pour tout commit postérieur sur `main`.
 
 ## Règles non négociables
 
