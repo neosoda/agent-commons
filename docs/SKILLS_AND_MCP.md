@@ -1,6 +1,6 @@
 # Skills et MCP — référence d'exploitation
 
-La **bibliothèque locale**, le **catalogue public** et les **configurations clientes** sont trois choses différentes. `catalog/skills.json` référence 212 skills (métadonnées épinglées), `src/mcp/catalog.ts` onze références MCP (XERJ et Sellbird compris) ; cela ne veut dire ni installé, ni actif, ni sécurisé. Les clients détectés sont documentés par [capacités](CAPABILITIES.md) et par le [registre](../src/agents/registry.ts).
+La **bibliothèque locale**, le **catalogue public** et les **configurations clientes** sont trois choses différentes. `catalog/skills.json` référence 225 skills (métadonnées épinglées, incluant les 13 modes optionnels de [100x Engineer](100X_ENGINEER.md)), `src/mcp/catalog.ts` onze références MCP (XERJ et Sellbird compris) ; cela ne veut dire ni installé, ni actif, ni sécurisé. Les clients détectés sont documentés par [capacités](CAPABILITIES.md) et par le [registre](../src/agents/registry.ts).
 
 ## Démarrage et diagnostic
 
@@ -46,7 +46,7 @@ agent-commons sync --skill universal-product-engineering --agent codex
 agent-commons skills load universal-product-engineering
 ```
 
-Dans le projet cible : « Exécute le skill universal-product-engineering sur le projet courant. » Adapter le client selon les chemins détectés. Le skill route les compétences installées selon chaque tâche ; il ne télécharge ni n'active automatiquement les références tierces. Les agents sans navigateur ou outils de test signalent les validations impossibles, sans prétendre les avoir exécutées.
+Dans le projet cible : « Exécute le skill universal-product-engineering sur le projet courant. » Adapter le client selon les chemins détectés. Le skill route les compétences installées selon chaque tâche ; il ne télécharge ni n'active automatiquement les références tierces. Lorsqu'il est installé et autorisé, [100x Engineer](100X_ENGINEER.md) (`### 2.1`) sert de moteur spécialiste optionnel (invariants `verify/ledger.tsv`, détection `stale`/`unproven`, preuves rouges de non-régression, relecture bornée et reprise `.100x/STATE.md`) sans boucle imbriquée ; son absence ne bloque jamais UPE. Les agents sans navigateur ou outils de test signalent les validations impossibles, sans prétendre les avoir exécutées.
 
 ## Claude SEO : audit SEO / GEO à la demande
 

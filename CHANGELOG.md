@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Optional [100x Engineer](docs/100X_ENGINEER.md) `v0.1.1` (MIT) integration: catalog metadata for all 13 `100x*` skills, SHA-256 verified `.tgz` install/update/repair/uninstall (`src/extensions/hundredx.ts`, CLI `agent-commons 100x ...`, `doctor` diagnostics, Web UI `#hundredx-panel`), snapshots and client skill sync.
+- Three execution profiles (`lite` default, `standard`, `deep`) with dynamic scope adaptation and strict caps (`0` paid/cloud calls unless explicitly authorized), wired into `agent-commons-agent`, `MissionQueue`, and Mission Control.
+- Optional specialist synergy in `universal-product-engineering` (`### 2.1`) for invariant verification, `stale`/`unproven` detection, seeded red proofs, bounded review rounds, and resume without nested loops.
+- Mission Control 100x view: execution stage/verdict, invariant counts and rows, must-not-break checks, review triage summary, anomalies, and path-validated visual artifact preview (`/api/mission-artifact`).
+- FR/EN smart skill routing triggers and UI translations for verification workflows and Mission Control profiles.
+
 ## [0.6.1] - 2026-11-28
 
 Release notes: docs/releases/v0.6.1-release-notes.md

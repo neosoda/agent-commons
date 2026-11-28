@@ -11,7 +11,8 @@
 | Capacité | État dans `main` | Preuves et réserve |
 |---|---|---|
 | Détection de 21 environnements et adaptation skills/MCP | Implémentée, tests CI | `src/agents/registry.ts`, `src/test/client-compat.test.ts` ; certaines intégrations réelles non testées |
-| Catalogue 212 skills / 11 références MCP (dont XERJ et Sellbird) | Références embarquées, tests CI | `catalog/skills.json`, `src/mcp/catalog.ts` ; **référencé ≠ installé ≠ opérationnel** |
+| Catalogue 225 skills / 11 références MCP (dont 100x Engineer, XERJ et Sellbird) | Références embarquées, tests CI | `catalog/skills.json`, `src/mcp/catalog.ts` ; **référencé ≠ installé ≠ opérationnel** |
+| Extension optionnelle 100x Engineer (`v0.1.1`) et profils `lite`/`standard`/`deep` | Implémentée, testée Windows 11 ; Linux/macOS/Chromium en CI | `src/extensions/hundredx.ts` ([guide](100X_ENGINEER.md)) ; installation SHA-256 sans auto-install tiers ; vérifications bornées ≠ preuve exhaustive |
 | Synchronisation, profils, snapshots, rollback | Implémentés, tests CI | `src/sync/`, `src/core/backup.ts`, tests de sécurité ; conserver les données non gérées |
 | Installation contrôlée skills et packages MCP | Implémentée, tests CI | `src/commands/skill-install.ts`, `src/mcp/extension-manager.ts` ; installation de tiers explicitement approuvée |
 | Diagnostics `doctor` / `mcp probe` | Implémentés ; essais réels ciblés Windows 17/11 | [rapport historique](qa/WINDOWS_REAL_AUDIT_2026-11-17.md) ; non généralisable à tous les MCP |
