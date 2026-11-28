@@ -1,75 +1,30 @@
 # Agent Commons — reprise opérationnelle
 
-**État de référence : 22 novembre 2026.** Vérifier les commits, PR et workflows **en direct** avant toute modification ; aucun SHA statique dans ce fichier ne remplace GitHub.
+**État de référence : 28 novembre 2026.** Vérifier les commits, PR et workflows **en direct** avant toute modification ; aucun SHA de ce fichier ne remplace GitHub.
 
 ## État prouvé
 
-- Dépôt [neosoda/agent-commons](https://github.com/neosoda/agent-commons), branche cible `main`, point de départ du nettoyage documentaire : `ab19b47598f4036ca10c1639e801c2ac29c13470`.
-- Dernière release GitHub publique contrôlée : [`v0.6.0`](https://github.com/neosoda/agent-commons/releases/tag/v0.6.0), publiée le 20/11/2026 ; **elle ne contient pas** les enrichissements runtime des PR #105–#111.
-- PR [#105–#111](https://github.com/neosoda/agent-commons/pulls?q=is%3Apr+is%3Amerged) fusionnées dans `main` au 22/11. Le point de départ `ab19b475` possède **6/6 jobs CI + Chromium + Windows portable** réussis.
-- 21 environnements IA reconnus, 210 skills et neuf MCP **référencés** ; ces nombres ne prouvent pas leur installation sur une machine.
-- Gestion et synchronisation skills/MCP, snapshots, Extension Manager et interface locale présents dans le code. Runtime autonome local **expérimental** : outils MCP approuvés, sélection de skills, plan/checkpoints, SQLite FTS5, file/worker, Mission Control et avis consultatifs CLI.
+- Dépôt [neosoda/agent-commons](https://github.com/neosoda/agent-commons), branche `main`. Au 28/11, toutes les PR jusqu'à #127 sont fusionnées ou fermées et aucune n'est ouverte ; `main` `8713af6` (PR #119) a réussi CI, Chromium et Windows portable.
+- `main` est protégé par un ruleset : **11 contrôles requis** (6 tests OS/Node, 3 XERJ réels, Chromium, Windows portable) sur une branche à jour avec `main`. L'auto-merge GitHub est désactivé : fusionner à la main avec `gh pr merge --squash --match-head-commit <sha>`.
+- Dernière release publique : [`v0.6.0`](https://github.com/neosoda/agent-commons/releases/tag/v0.6.0) du 20/11/2026. Elle **ne contient pas** les ajouts de `main` listés dans [CHANGELOG `[Unreleased]`](CHANGELOG.md), dont le correctif de sécurité 8.3 (PR #117). Aucune publication npm.
+- 21 environnements IA reconnus, 212 skills et 11 MCP **référencés** (dont XERJ et Sellbird) ; référencé ≠ installé ≠ opérationnel.
+- Gestion/synchronisation skills et MCP, snapshots, Extension Manager et Skill Hub local. Runtime de missions local **expérimental** : outils MCP autorisés un par un, plan/checkpoints, mémoire SQLite FTS5, file/worker avec état visible dans Mission Control, drain de maintenance transactionnel, avis CLI consultatifs.
 
 ## Validation et limites
 
-Les tests d'intégration simulés et la CI ne prouvent **pas** une recette complète Windows 11/LM Studio/RTX 5070 Ti. Pas de sandbox OS forte, de délégation mutante à plusieurs agents ou d'authentification d'une interface LAN. Les essais Windows historiques du 17/11 concernaient principalement la synchronisation des clients. Aucune infrastructure SentinelBrain distante n'est attestée par ce dépôt.
+La CI et les tests simulés ne prouvent **pas** une recette complète Windows 11 + LM Studio + RTX 5070 Ti. Pas de sandbox OS forte : une mission avec `--allow-write` **et** `--allow-tests` peut exécuter du code arbitraire (voir [SECURITY](SECURITY.md)). Pas de délégation multi-agent mutante, pas d'interface LAN authentifiée. Aucun déploiement AGENTS01/SentinelBrain n'est attesté par ce dépôt, même si des PR (#121, #122) préparent ce déploiement.
 
-**Source de vérité fonctionnelle :** [CAPABILITIES](docs/CAPABILITIES.md) · [ARCHITECTURE](docs/ARCHITECTURE.md) · [AGENT_RUNTIME](docs/AGENT_RUNTIME.md) · [SKILLS_AND_MCP](docs/SKILLS_AND_MCP.md) · [SECURITY](SECURITY.md). Les décisions stables sont dans [DECISIONS](docs/DECISIONS.md). Les étapes P1–P6 **sont fusionnées**, pas « en cours » ; les preuves matérielles restent ouvertes.
-
-## Intégration XERJ (23 novembre 2026)
-
-La branche `feat/xerj-native-integration` implémente le raccordement optionnel à XERJ v1.0.0-rc.104 dans le gestionnaire MCP existant. Sources et critères de recette dans [docs/XERJ.md](docs/XERJ.md). **Ne la considérer fusionnée/validée que si la PR et ses contrôles réels sont vérifiés**. Elle ne remplace pas SQLite FTS5, n'installe aucun modèle Query-1/Reader-1 et n'expose pas SentinelBrain au LAN.
-
-## Skill Loop Engineering universel (25 novembre 2026)
-
-La branche `feat/universal-product-engineering` ajoute le skill original [universal-product-engineering](skills/universal-product-engineering/SKILL.md), une référence épinglée au catalogue et le guide d'activation. La V2 ajoute baseline, scorecard, preuves A/B/C/D, anti-oscillation et état persistant léger aux boucles de développement et d'UX/UI anti-slop via les outils autorisés de l'agent ; ce n'est pas un nouveau moteur runtime. Vérifier la PR et ses checks avant de déclarer la disponibilité sur main. L'installation cliente reste explicite.
-
-## Audit produit et correctifs (26 novembre 2026)
-
-Branche `fix/runtime-path-guard-audit-20261126`, partie de `main` `1fe87d8` (8 checks verts). Preuves A sur Windows 11 réel, HOME synthétique :
-- **P0 corrigé** : sur NTFS avec noms 8.3, `GIT~1`/`ENV~1` contournaient les chemins protégés du runtime ; une mission `--allow-write` pouvait créer `.git/hooks/pre-commit`. Revérification sous forme canonique, refus des noms finissant par point/espace, erreurs sans chemins absolus. Racines XERJ comparées sous forme canonique, sans casse.
-- **Catalogue** : 20 descriptions tronquées ou polluées par du frontmatter réparées ; test de garde ajouté.
-- **Skill Hub** : en-tête d'accueil compact (statuts au-dessus de la ligne de flottaison), « agents détectés », « non vérifié » au lieu d'« intact » sans contrôle, agents absents repliés, état du worker dans Mission Control, page Missions traduite en français.
-- Local : typecheck, 267/268 tests (1 test XERJ réel ignoré), audit 0, pack, `catalog:check`. Revue adversariale indépendante : aucun contournement ni régression. [PR #117](https://github.com/neosoda/agent-commons/pull/117) : 11 checks verts sur la tête exacte `656131a`, fusionnée (squash) en `0baa8f1` ; `main` revalidé ([CI](https://github.com/neosoda/agent-commons/actions/runs/45863726302), [Chromium](https://github.com/neosoda/agent-commons/actions/runs/45863726343), [Windows portable](https://github.com/neosoda/agent-commons/actions/runs/45863726488)). Aucune release ni publication npm.
-
-**Backlog restant :** P1 `--allow-write` + `--allow-tests` = exécution de code arbitraire (documenté dans SECURITY, seule une sandbox OS le résout) ; P2 les phrases de déclenchement « Use when… » tronquées ne sont pas restaurées depuis l'amont épinglé (impact possible sur le routage) ; P3 `doctor` ne vérifie pas les fichiers passés en arguments aux commandes MCP.
-
-## Sellbird (26 novembre 2026)
-
-La référence MCP externe manuelle `sellbird` v0.5.0 et le profil `outreach` sont proposés sur la branche `feat/sellbird-mcp` ; voir [guide](docs/SELLBIRD.md). Aucun code AGPL incorporé, aucune installation ou recette live revendiquée. Vérifier la PR et ses checks avant de déclarer la disponibilité sur main.
-
-## Claude SEO (26 novembre 2026)
-
-La branche `feat/claude-seo-integration` ajoute un pack de références épinglé Claude SEO (23 workflows, MIT), un point d'entrée portable et une recette de validation simulée. Voir [docs/CLAUDE_SEO.md](docs/CLAUDE_SEO.md). Aucun script, hook, sous-agent, MCP ou runtime Python n'est installé par le pack. Vérifier la PR et ses checks avant de déclarer la disponibilité sur main.
+**Sources de vérité :** [CAPABILITIES](docs/CAPABILITIES.md) · [ARCHITECTURE](docs/ARCHITECTURE.md) · [AGENT_RUNTIME](docs/AGENT_RUNTIME.md) · [SKILLS_AND_MCP](docs/SKILLS_AND_MCP.md) · [SECURITY](SECURITY.md) · [DECISIONS](docs/DECISIONS.md) · [ROADMAP](docs/ROADMAP.md). Guides des intégrations optionnelles : [XERJ](docs/XERJ.md), [Sellbird](docs/SELLBIRD.md), [Claude SEO](docs/CLAUDE_SEO.md).
 
 ## Prochaine action concrète
 
-**P0 :** recette réelle du moteur dans un worktree Git jetable avec Windows 11 + LM Studio + modèle `tool_calls` + GPU ; confirmer édition autorisée, test, checkpoint/reprise, MCP sélectionné, worker, mémoire et absence de fuite. Relever les mesures et écarts dans un rapport de recette **daté**, puis mettre à jour [CAPABILITIES](docs/CAPABILITIES.md) et [ROADMAP](docs/ROADMAP.md). Ne pas augmenter la surface réseau avant le threat model.
+**Décision du mainteneur :** publier une release (v0.6.1 ou v0.7.0) depuis un `main` vert, pour livrer le correctif de sécurité 8.3 aux utilisateurs du ZIP Windows. Ensuite, **P0 de la [roadmap](docs/ROADMAP.md)** : recette réelle du moteur dans un worktree Git jetable (Windows 11 + LM Studio + modèle `tool_calls` + GPU), consignée dans un rapport daté.
 
 ## Reprise rapide pour un agent neuf
 
 1. Lire `AGENTS.md` puis ce handoff.
-2. Examiner `git status`, `main`, les PR ouvertes et les checks sur leur SHA exact.
-3. Ouvrir **uniquement** le document spécialisé par rapport au changement envisagé.
-4. Implémenter sur branche dédiée, exécuter les validations, attendre les huit checks PR, merger si verts ; recontrôler les huit checks `main` ; mettre à jour ce handoff si l'état opérationnel change.
+2. Examiner `git status`, `main`, les PR ouvertes et leurs contrôles sur le SHA exact.
+3. Ouvrir **uniquement** le document spécialisé utile au changement.
+4. Travailler sur une branche dédiée, lancer les validations locales, attendre les 11 contrôles requis, fusionner, recontrôler `main`, puis mettre à jour ce handoff si l'état change.
 
-**Historique conservé :** [versions antérieures via Git](docs/archive/INDEX.md), [CHANGELOG](CHANGELOG.md) et [releases](docs/releases/). Pas de nouvelle release créée pour une consolidation de documentation.
-
-
-## Branche SentinelBrain : reprise après indisponibilité
-
-Sur `codex/sentinelbrain-platform`, le worker remet en attente une mission dont le modèle est indisponible et conserve le checkpoint avant de la reprendre. Un test utilise un serveur HTTP simulé et rouvre la base SQLite ; il ne constitue pas une recette matérielle ni une validation de déploiement. Les fournisseurs distants exigent HTTPS et une authentification par variable d'environnement.
-
-Le renouvellement du bail et la clôture refusent désormais un propriétaire expiré. Les outils déjà lancés ne sont pas interrompus par cette vérification.
-
-Un test tue le processus entre deux tours et reprend le checkpoint ; les protections contre les actions répétées et la stagnation survivent au rechargement.
-
-Prochaine action : qualifier l’isolation et l’interruption des outils avant toute intégration distribuée.
-
-## Environnement des MCP de mission (28 novembre 2026)
-
-La branche `fix/mission-mcp-env` retire les identifiants des fournisseurs (`AGENT_COMMONS_*KEY/TOKEN/SECRET`, `CREDENTIALS_DIRECTORY`) de l’environnement des serveurs MCP lancés par une mission ; les variables déclarées dans le manifeste restent transmises. Validation locale Windows. Vérifier la PR et ses contrôles réels avant de déclarer le correctif disponible sur `main` ; aucun déploiement à la rédaction.
-
-## Confinement des outils de mission (28 novembre 2026)
-
-La branche `fix/mission-tool-containment` construit l'environnement MCP par liste blanche et interrompt un outil actif quand le bail est perdu ou qu'une annulation est demandée ([garanties et limites](docs/AGENT_RUNTIME.md)). Vérifier la PR, ses contrôles et le SHA réellement déployé. Prochaine action : fusion, puis déploiement sur AGENTS01 sans missions en cours. La permission d'écriture reste désactivée.
+**Historique :** [versions antérieures via Git](docs/archive/INDEX.md), [CHANGELOG](CHANGELOG.md), [releases](docs/releases/) et l'historique des PR GitHub.

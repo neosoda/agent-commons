@@ -7,38 +7,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Added
-- Added a manual external Sellbird v0.5.0 MCP catalog reference and dedicated `outreach` preset, with explicit-sync tests and a security/setup guide. No AGPL code is bundled; no automatic sending or installation.
-
-### Fixed (mission skill selection)
-- Missions no longer load skills matched only by execution vocabulary (`mcp_call`, "read once", "finish"…): such clauses are ignored for routing, a weak match loads nothing and a second skill must be comparably relevant. `skills route` is unchanged. The router remains lexical.
+Everything below is on `main` since the v0.6.0 release and is **not** in any published release yet.
 
 ### Security
-- Mission runtime: a lost queue lease, or `--cancel` / `--pause` sent during a tool, now interrupts the running tool and stops its local process tree; the lease is rechecked before every dispatch. Timeouts of MCP servers and project scripts also stop their descendants. An interrupted effect stays pending and is never replayed. This is not an OS sandbox.
-- Mission runtime: the MCP server environment is now built from an allowlist. Declare any other variable a server needs (key, proxy, extra CA) in its `env` entry.
-- Mission runtime: MCP servers no longer inherit `AGENT_COMMONS_*` provider keys, tokens or secrets, nor `CREDENTIALS_DIRECTORY`. A server that relied on one of these must declare the value in its own `env` entry.
 - Mission runtime: on Windows volumes with 8.3 short names, `GIT~1` / `ENV~1` aliases bypassed the protected-path check, so a mission with `--allow-write` could create `.git/hooks/pre-commit` or read `.env`. Paths are now re-checked in their OS-canonical form, names ending in a dot or space are refused, and tool errors no longer forward absolute private paths.
+- Mission runtime: a lost queue lease, or `--cancel` / `--pause` sent during a tool, now interrupts the running tool and stops its local process tree.
+- Mission runtime: pause/cancel requested while the model is answering is honored before the returned tool call runs.
+- Mission runtime: the MCP server environment is built from an allowlist; MCP servers no longer inherit `AGENT_COMMONS_*` provider keys, tokens or secrets, nor `CREDENTIALS_DIRECTORY`. Declare any other variable a server needs in its manifest entry.
 - XERJ indexing roots: protected home/`.agents`/backup directories are compared in canonical, case-folded form on Windows.
 
+### Added
+- Optional XERJ v1.0.0-rc.104 local search in the reviewed MCP catalog: SHA-256-pinned binary install, validated indexing roots and `knowledge` preset.
+- Optional external Sellbird v0.5.0 MCP reference (manual install only, critical risk) and dedicated `outreach` preset, with explicit-sync tests and a security/setup guide. No AGPL code is bundled; no automatic sending or installation.
+- Pinned Claude SEO reference library (23 on-demand workflows, MIT); no scripts, hooks, agents or MCP servers are installed.
+- Original `universal-product-engineering` skill (V2: measured baseline, A/B/C/D evidence, scorecard, anti-oscillation) and original opt-in `ux-psychology` skill inspired by 30 Laws of UX concepts.
+- Optional pinned SimuLab catalog integration for sourced, standalone isometric 3D educational labs (reviewed 71-file subset, MIT source and OFL font attribution).
+- Mission Control shows whether the local worker is running (idle polls and lease heartbeats record liveness; `/api/missions` returns `worker.running`), with the command to start it when it is not.
+- Runtime maintenance gate: a transactional drain lets a deployment stop the worker only when no mission can be claimed in between.
+
 ### Fixed
-- 20 curated catalog summaries were cut mid-word or carried leaked frontmatter; they now end on complete sentences and a test guards the catalog.
+- Missions load skills only on topical relevance: execution wording in the goal (`mcp_call`, "read once", "finish"…) no longer pulls in unrelated skills.
+- Mission recovery: expired leases are fenced, loop guards survive a resume, and missions whose model was unavailable are requeued with their checkpoint.
+- Catalog: 20 summaries that were cut mid-word or carried leaked frontmatter now use the pinned upstream text in complete sentences, keeping their "Use when…" routing triggers; a test guards every summary.
 - Skill Hub overview: compact header instead of a marketing hero, "Detected agents" instead of "Active/Connected", "not checked" instead of "intact" when no managed skill was scanned; My agents collapses agents that were not detected.
 - The Missions page, its confirmations and its dynamic rows were English-only in French mode; they are now translated.
 
-### Added
-- Mission Control shows whether the local worker is running (idle polls and lease heartbeats record liveness; `/api/missions` returns `worker.running`), with the command to start it when it is not.
-
 ### Documentation
-- Consolidated the real `main` (post-v0.6.0) architecture, capabilities, runtime, skills/MCP, security decisions and prioritized roadmap into focused canonical documents; replaced the historic handoff with a short operational resume.
-- Reduced bilingual public READMEs without discarding generated upstream repository/license credits; moved legacy long-form progress logs to immutable Git-history archive links.
-- Corrected stale v0.5.x security support wording, main/release confusion, escaped Markdown fences and the contradictory MCP installer documentation. No application behavior changed and no new release was created.
-
-### Added
-- Optional pinned SimuLab catalog integration for sourced, standalone isometric 3D educational labs and optional video/audio; reviewed 71-file upstream subset with MIT source and OFL font attribution, explicit install, no dependency execution, bilingual guides and synthetic-home install/verify checks.
-
-### Added
-- Original opt-in `ux-psychology` skill inspired by 30 Laws of UX concepts, including progressive-loading reference guides, reproducible audit workflow, design patterns, independent source credits and bilingual integration documentation.
-- Reviewed, pinned catalog entry and isolated installation/routing regression checks. No third-party asset redistribution, auto-install or agent configuration change.
+- Consolidated the real `main` architecture, capabilities, runtime, skills/MCP, security decisions and roadmap into focused canonical documents, with a short operational handoff; stated the contract of `main` for automated consumers.
+- Reduced bilingual public READMEs without discarding generated upstream repository/license credits; moved legacy long-form progress logs to Git-history archive links.
+- Corrected stale v0.5.x security support wording, main/release confusion, escaped Markdown fences and the contradictory MCP installer documentation.
 
 ## [0.6.0] - 2026-11-20
 

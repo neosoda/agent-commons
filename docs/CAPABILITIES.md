@@ -1,6 +1,6 @@
 # Capacités, preuves et limites
 
-**Périmètre :** code `main` au 22/11/2026, base `ab19b475` ; release GitHub actuelle `v0.6.0` (20/11/2026), distincte des ajouts `main`. Les PR [#105 à #111](https://github.com/neosoda/agent-commons/pulls?q=is%3Apr+is%3Amerged) sont fusionnées. Les huit checks GitHub étaient verts sur `ab19b475` : six combinaisons OS/Node, Chromium et ZIP Windows. **Vert en CI n'équivaut pas à validé sur matériel.**
+**Périmètre :** code `main` au 28/11/2026 (PR jusqu'à #127 fusionnées) ; release GitHub actuelle `v0.6.0` (20/11/2026), qui ne contient pas les ajouts listés dans `[Unreleased]` du [CHANGELOG](../CHANGELOG.md). Chaque fusion exige les 11 contrôles requis (6 OS/Node, 3 XERJ réels, Chromium, ZIP Windows). **Vert en CI n'équivaut pas à validé sur matériel.**
 
 ## Vocabulaire obligatoire
 
@@ -22,7 +22,7 @@
 | Plans, checkpoints, pause, reprise, anti-boucle | Expérimental, tests CI | Effets de bord incertains => `needs_approval`, jamais rejoués automatiquement |
 | Mémoire SQLite FTS5 par checkout | Expérimental, tests CI | Connaissances explicites approuvées ; résultats automatiques non promus sans validation |
 | File persistante et worker local | Expérimental, tests CI | Worker unique avec bail ; pas de disponibilité 24/7 garantie |
-| Mission Control dans le Skill Hub | Expérimental, tests CI/Chromium | Affiche vrais états ; l'UI n'active pas le worker |
+| Mission Control dans le Skill Hub | Expérimental, tests CI/Chromium | Affiche vrais états et la présence du worker (vu < 15 s) ; l'UI ne lance pas le worker |
 | Avis facultatif Codex/Claude/Gemini/OpenCode/Orchestrator CLI | Expérimental, faux exécutables testés | Versions/auth réelles à valider ; **pas** de délégation multi-agent d'exécution |
 | Sandbox OS forte, contrôle des effets MCP par argument, accès LAN authentifié | Prévu, **non implémenté** | À concevoir et à tester avant automatisation de données sensibles |
 | SentinelBrain distribué, multi-PC, modèle distant mutualisé | Préparation documentaire uniquement | **Aucun déploiement attesté** par ce dépôt |
