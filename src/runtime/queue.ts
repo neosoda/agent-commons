@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 import { isExecutionProfile, type ExecutionProfileName } from '../extensions/hundredx.js';
+import { REMOTE_WORKSPACE } from './remote-workspace.js';
 
 export type QueueStatus = 'queued' | 'running' | 'paused' | 'completed' | 'blocked' |
   'partial' | 'failed' | 'cancelled' | 'needs_review' | 'waiting_for_model';
@@ -88,7 +89,7 @@ export class MissionQueue {
   }
   add(entry: Omit<QueueEntry,'id'|'status'|'attempts'|'leaseUntil'|'owner'>): string {
     if (!idPattern.test(entry.missionId) || !workspacePattern.test(entry.workspaceId) ||
-        !path.isAbsolute(entry.workspace) || entry.workspace.length > 1024 ||
+        !(path.isAbsolute(entry.workspace) || REMOTE_WORKSPACE.test(entry.workspace)) || entry.workspace.length > 1024 ||
         !entry.model.trim() || entry.model.length > 200 ||
         !Number.isSafeInteger(entry.priority) || entry.priority < 0 || entry.priority > 9 ||
         !Number.isSafeInteger(entry.runAt) || entry.runAt < 0 ||
