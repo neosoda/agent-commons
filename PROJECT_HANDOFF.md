@@ -30,13 +30,17 @@ Branche `fix/runtime-path-guard-audit-20261126`, partie de `main` `1fe87d8` (8 c
 - **P0 corrigé** : sur NTFS avec noms 8.3, `GIT~1`/`ENV~1` contournaient les chemins protégés du runtime ; une mission `--allow-write` pouvait créer `.git/hooks/pre-commit`. Revérification sous forme canonique, refus des noms finissant par point/espace, erreurs sans chemins absolus. Racines XERJ comparées sous forme canonique, sans casse.
 - **Catalogue** : 20 descriptions tronquées ou polluées par du frontmatter réparées ; test de garde ajouté.
 - **Skill Hub** : en-tête d'accueil compact (statuts au-dessus de la ligne de flottaison), « agents détectés », « non vérifié » au lieu d'« intact » sans contrôle, agents absents repliés, état du worker dans Mission Control, page Missions traduite en français.
-- Local : typecheck, 267/268 tests (1 test XERJ réel ignoré), audit 0, pack, `catalog:check`. Revue adversariale indépendante : aucun contournement ni régression. CI de la PR et fusion **non vérifiées à la rédaction**.
+- Local : typecheck, 267/268 tests (1 test XERJ réel ignoré), audit 0, pack, `catalog:check`. Revue adversariale indépendante : aucun contournement ni régression. [PR #117](https://github.com/neosoda/agent-commons/pull/117) : 11 checks verts sur la tête exacte `656131a`, fusionnée (squash) en `0baa8f1` ; `main` revalidé ([CI](https://github.com/neosoda/agent-commons/actions/runs/45863726302), [Chromium](https://github.com/neosoda/agent-commons/actions/runs/45863726343), [Windows portable](https://github.com/neosoda/agent-commons/actions/runs/45863726488)). Aucune release ni publication npm.
 
 **Backlog restant :** P1 `--allow-write` + `--allow-tests` = exécution de code arbitraire (documenté dans SECURITY, seule une sandbox OS le résout) ; P2 les phrases de déclenchement « Use when… » tronquées ne sont pas restaurées depuis l'amont épinglé (impact possible sur le routage) ; P3 `doctor` ne vérifie pas les fichiers passés en arguments aux commandes MCP.
 
 ## Sellbird (26 novembre 2026)
 
 La référence MCP externe manuelle `sellbird` v0.5.0 et le profil `outreach` sont proposés sur la branche `feat/sellbird-mcp` ; voir [guide](docs/SELLBIRD.md). Aucun code AGPL incorporé, aucune installation ou recette live revendiquée. Vérifier la PR et ses checks avant de déclarer la disponibilité sur main.
+
+## Claude SEO (26 novembre 2026)
+
+La branche `feat/claude-seo-integration` ajoute un pack de références épinglé Claude SEO (23 workflows, MIT), un point d'entrée portable et une recette de validation simulée. Voir [docs/CLAUDE_SEO.md](docs/CLAUDE_SEO.md). Aucun script, hook, sous-agent, MCP ou runtime Python n'est installé par le pack. Vérifier la PR et ses checks avant de déclarer la disponibilité sur main.
 
 ## Prochaine action concrète
 
@@ -50,3 +54,22 @@ La référence MCP externe manuelle `sellbird` v0.5.0 et le profil `outreach` so
 4. Implémenter sur branche dédiée, exécuter les validations, attendre les huit checks PR, merger si verts ; recontrôler les huit checks `main` ; mettre à jour ce handoff si l'état opérationnel change.
 
 **Historique conservé :** [versions antérieures via Git](docs/archive/INDEX.md), [CHANGELOG](CHANGELOG.md) et [releases](docs/releases/). Pas de nouvelle release créée pour une consolidation de documentation.
+
+
+## Branche SentinelBrain : reprise après indisponibilité
+
+Sur `codex/sentinelbrain-platform`, le worker remet en attente une mission dont le modèle est indisponible et conserve le checkpoint avant de la reprendre. Un test utilise un serveur HTTP simulé et rouvre la base SQLite ; il ne constitue pas une recette matérielle ni une validation de déploiement. Les fournisseurs distants exigent HTTPS et une authentification par variable d'environnement.
+
+Le renouvellement du bail et la clôture refusent désormais un propriétaire expiré. Les outils déjà lancés ne sont pas interrompus par cette vérification.
+
+Un test tue le processus entre deux tours et reprend le checkpoint ; les protections contre les actions répétées et la stagnation survivent au rechargement.
+
+Prochaine action : qualifier l’isolation et l’interruption des outils avant toute intégration distribuée.
+
+## Environnement des MCP de mission (28 novembre 2026)
+
+La branche `fix/mission-mcp-env` retire les identifiants des fournisseurs (`AGENT_COMMONS_*KEY/TOKEN/SECRET`, `CREDENTIALS_DIRECTORY`) de l’environnement des serveurs MCP lancés par une mission ; les variables déclarées dans le manifeste restent transmises. Validation locale Windows. Vérifier la PR et ses contrôles réels avant de déclarer le correctif disponible sur `main` ; aucun déploiement à la rédaction.
+
+## Confinement des outils de mission (28 novembre 2026)
+
+La branche `fix/mission-tool-containment` construit l'environnement MCP par liste blanche et interrompt un outil actif quand le bail est perdu ou qu'une annulation est demandée ([garanties et limites](docs/AGENT_RUNTIME.md)). Vérifier la PR, ses contrôles et le SHA réellement déployé. Prochaine action : fusion, puis déploiement sur AGENTS01 sans missions en cours. La permission d'écriture reste désactivée.

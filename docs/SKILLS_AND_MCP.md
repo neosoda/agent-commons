@@ -1,6 +1,6 @@
 # Skills et MCP — référence d'exploitation
 
-La **bibliothèque locale**, le **catalogue public** et les **configurations clientes** sont trois choses différentes. `catalog/skills.json` référence 211 skills (métadonnées épinglées), `src/mcp/catalog.ts` onze références MCP (XERJ et Sellbird compris) ; cela ne veut dire ni installé, ni actif, ni sécurisé. Les clients détectés sont documentés par [capacités](CAPABILITIES.md) et par le [registre](../src/agents/registry.ts).
+La **bibliothèque locale**, le **catalogue public** et les **configurations clientes** sont trois choses différentes. `catalog/skills.json` référence 212 skills (métadonnées épinglées), `src/mcp/catalog.ts` onze références MCP (XERJ et Sellbird compris) ; cela ne veut dire ni installé, ni actif, ni sécurisé. Les clients détectés sont documentés par [capacités](CAPABILITIES.md) et par le [registre](../src/agents/registry.ts).
 
 ## Démarrage et diagnostic
 
@@ -47,6 +47,10 @@ agent-commons skills load universal-product-engineering
 ```
 
 Dans le projet cible : « Exécute le skill universal-product-engineering sur le projet courant. » Adapter le client selon les chemins détectés. Le skill route les compétences installées selon chaque tâche ; il ne télécharge ni n'active automatiquement les références tierces. Les agents sans navigateur ou outils de test signalent les validations impossibles, sans prétendre les avoir exécutées.
+
+## Claude SEO : audit SEO / GEO à la demande
+
+Le pack [claude-seo](CLAUDE_SEO.md) référence 23 workflows amont dans une seule bibliothèque installable explicitement. Les références et les modèles sont conservés ; scripts, sous-agents, hooks et extensions restent exclus. La version native Claude Code nécessite une installation séparée. Le routeur ne charge que le point d'entrée ; lire ensuite le workflow utile.
 
 ## MCP : quatre étapes distinctes
 

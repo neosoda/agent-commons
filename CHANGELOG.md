@@ -7,9 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
 - Added a manual external Sellbird v0.5.0 MCP catalog reference and dedicated `outreach` preset, with explicit-sync tests and a security/setup guide. No AGPL code is bundled; no automatic sending or installation.
 
+### Fixed (mission skill selection)
+- Missions no longer load skills matched only by execution vocabulary (`mcp_call`, "read once", "finish"…): such clauses are ignored for routing, a weak match loads nothing and a second skill must be comparably relevant. `skills route` is unchanged. The router remains lexical.
+
 ### Security
+- Mission runtime: a lost queue lease, or `--cancel` / `--pause` sent during a tool, now interrupts the running tool and stops its local process tree; the lease is rechecked before every dispatch. Timeouts of MCP servers and project scripts also stop their descendants. An interrupted effect stays pending and is never replayed. This is not an OS sandbox.
+- Mission runtime: the MCP server environment is now built from an allowlist. Declare any other variable a server needs (key, proxy, extra CA) in its `env` entry.
+- Mission runtime: MCP servers no longer inherit `AGENT_COMMONS_*` provider keys, tokens or secrets, nor `CREDENTIALS_DIRECTORY`. A server that relied on one of these must declare the value in its own `env` entry.
 - Mission runtime: on Windows volumes with 8.3 short names, `GIT~1` / `ENV~1` aliases bypassed the protected-path check, so a mission with `--allow-write` could create `.git/hooks/pre-commit` or read `.env`. Paths are now re-checked in their OS-canonical form, names ending in a dot or space are refused, and tool errors no longer forward absolute private paths.
 - XERJ indexing roots: protected home/`.agents`/backup directories are compared in canonical, case-folded form on Windows.
 

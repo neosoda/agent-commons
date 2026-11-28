@@ -45,6 +45,31 @@ describe('P1 mission skills and real MCP execution', () => {
     } finally { f.cleanup(); }
   });
 
+  it('does not load skills that only share execution vocabulary with the mission', () => {
+    const f = fixture(); try {
+      const add = (name: string, description: string) => {
+        const dir = path.join(f.ctx.centralSkillsDir, name);
+        fs.mkdirSync(dir, { recursive: true });
+        fs.writeFileSync(path.join(dir, 'SKILL.md'),
+          '---\nname: ' + name + '\ndescription: ' + description + '\n---\n# Guide\n');
+      };
+      add('mcp-server-patterns', 'Build an MCP server with tools and resources');
+      add('backend-api', 'Server routes, request handling and tool endpoints');
+      add('release-notes', 'Summarize code changes for readers');
+      const mechanics = 'Read README.md exactly once, then call mcp_call with server knowledgesentinel, tool ' +
+        'coolify_list_apps, args {}. Then finish, naming each application and the request_id of the answer. ' +
+        'Do not repeat any tool.';
+      assert.deepEqual(selectMissionSkills(f.ctx, mechanics).ids, []);
+      assert.deepEqual(selectMissionSkills(f.ctx,
+        'Review code security vulnerabilities. Read a.ts exactly once, then immediately finish. Do not repeat any tool.').ids,
+        ['security-review']);
+      assert.ok(selectMissionSkills(f.ctx, 'Design a new MCP server with tools and resources').ids
+        .includes('mcp-server-patterns'), 'a real topic is still routed');
+      assert.deepEqual(selectMissionSkills(f.ctx, 'Prepare holiday pictures for readers').ids, [],
+        'one incidental word is not enough to inject guidance');
+    } finally { f.cleanup(); }
+  });
+
   it('requires explicit per-tool approval and a successful real MCP handshake', async () => {
     const f = fixture(); try {
       const approved = await prepareApprovedMcp(f.ctx, ['demo/echo']);
@@ -57,6 +82,42 @@ describe('P1 mission skills and real MCP execution', () => {
       assert.equal(denied.ok, false);
       assert.match(denied.output, /not approved/);
     } finally { f.cleanup(); }
+  });
+
+  it('starts MCP servers without the runtime provider credentials', async () => {
+    const f = fixture();
+    // Provider credentials, but also anything else the runtime happens to hold.
+    const secrets = ['AGENT_COMMONS_LOCAL_API_KEY', 'AGENT_COMMONS_CLOUD_API_KEY', 'CREDENTIALS_DIRECTORY',
+      'OPENAI_API_KEY', 'GITHUB_TOKEN', 'SSH_AUTH_SOCK', 'NODE_EXTRA_CA_CERTS', 'HTTPS_PROXY', 'UNRELATED_SETTING'];
+    const previous = secrets.map(name => [name, process.env[name]] as const);
+    try {
+      for (const name of secrets) process.env[name] = 'synthetic-value';
+      // Reports which names it can see; the runtime must have removed all of them.
+      const script = path.join(f.home, 'env-server.mjs');
+      fs.writeFileSync(script, `
+        import readline from 'node:readline';
+        readline.createInterface({ input: process.stdin }).on('line', line => {
+          const message = JSON.parse(line);
+          if (message.id === undefined) return;
+          const seen = ${JSON.stringify(secrets)}.filter(name => process.env[name]);
+          const path = Object.keys(process.env).some(name => name.toUpperCase() === 'PATH');
+          const result = message.method === 'tools/list' ? { tools: [{ name: 'seen' }] }
+            : message.method === 'tools/call' ? { content: [{ type: 'text', text: 'visible=' + seen.length + ' path=' + path + ' declared=' + process.env.DECLARED }] }
+            : { protocolVersion: '2025-06-18', capabilities: {}, serverInfo: { name: 'env', version: '1' } };
+          process.stdout.write(JSON.stringify({ jsonrpc: '2.0', id: message.id, result }) + '\\n');
+        });`);
+      fs.writeFileSync(f.ctx.centralMcpPath, JSON.stringify({ mcpServers: {
+        env: { command: process.execPath, args: [script], env: { DECLARED: 'kept' } } } }));
+      const approved = await prepareApprovedMcp(f.ctx, ['env/seen']);
+      const result = await new MissionToolsWithMcp(new WorkspaceTools(f.project, false, false), approved)
+        .execute(call('mcp_call', { server: 'env', tool: 'seen', args: {} }).call);
+      assert.equal(result.output, 'visible=0 path=true declared=kept');
+    } finally {
+      for (const [name, value] of previous) {
+        if (value === undefined) delete process.env[name]; else process.env[name] = value;
+      }
+      f.cleanup();
+    }
   });
 
   it('refuses unconfigured or unavailable MCP tools before running a mission', async () => {
