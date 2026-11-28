@@ -14,9 +14,20 @@ import { createFullBackup, listBackups, restoreBackup } from '../core/backup.js'
 import { createEnvironmentContext } from '../core/context.js';
 import type { EnvironmentContext, SyncReport } from '../types.js';
 import { renderWebUi } from './ui.js';
-import { applyMissionWebAction, getMissionView, listMissionViews, type MissionWebAction } from './mission-api.js';
+import { applyMissionWebAction, getMissionView, listMissionViews, readMissionVisualArtifact, type MissionWebAction } from './mission-api.js';
 import { applyMcpEdit, mcpEditorOverview, previewMcpEdit, type McpEditorRequest } from './mcp-editor.js';
 import { syncInputRevision, type SyncPreviewKind } from './sync-revision.js';
+import {
+  applyConfigureHundredX,
+  applyHundredX,
+  diagnoseHundredX,
+  EXECUTION_PROFILES,
+  inspectHundredX,
+  isExecutionProfile,
+  previewConfigureHundredX,
+  previewHundredX,
+  type HundredXOperation
+} from '../extensions/hundredx.js';
 import { inspectMcpControlCenter, previewMcpProfile, saveMcpProfile, deleteMcpProfile, runMcpProfileSync } from '../mcp/control-center.js';
 import { inspectManagedMcps, previewManagedMcp, applyManagedMcp } from '../mcp/extension-manager.js';
 import {previewMcpProvision,applyMcpProvision} from '../mcp/extension-provision.js';
@@ -173,8 +184,19 @@ const PUBLIC_ERRORS = new Set([
   'XERJ output exceeded safe limit.', 'XERJ command could not start.',
   'XERJ node stop timed out; data directory preserved.',
   'Invalid mission job identifier.', 'Invalid mission parameters.',
-  'Invalid mission scheduling.', 'Mission is not currently running.',
-  'Unsupported mission action.'
+  'Invalid mission scheduling.', 'Invalid mission profile.', 'Invalid mission artifact path.',
+  'Mission artifact not found.', 'Mission is not currently running.',
+  'Unsupported mission action.',
+  'Unknown 100x extension operation.', '100x extension already exists.',
+  '100x extension is not managed by Agent Commons.', 'Unsafe 100x extension path.',
+  '100x preview required.', '100x state changed since preview.',
+  'Unsafe 100x extension storage path.', 'Invalid 100x installation receipt.',
+  '100x release download failed.', '100x release SHA-256 verification failed.',
+  '100x release archive exceeded size limit.', '100x release redirected to an untrusted host.',
+  'Execution profile must be lite, standard or deep.', 'Unsafe 100x configuration directory.',
+  'Unsafe 100x configuration file.', 'Invalid 100x configuration JSON.',
+  '100x configuration preview required.', '100x configuration changed since preview.',
+  'No 100x skills are installed in the shared library.'
 ]);
 function publicError(error: unknown, _ctx: EnvironmentContext): string {
   const message = error instanceof Error ? error.message : '';
@@ -345,6 +367,30 @@ export async function startWebServer(options: WebOptions = {}): Promise<WebInsta
       if (req.method === 'GET' && path.pathname === '/api/mission') {
         json(res, 200, getMissionView(ctx, path.searchParams.get('id') ?? '')); return;
       }
+      if (req.method === 'GET' && path.pathname === '/api/mission-artifact') {
+        const artifact = readMissionVisualArtifact(
+          ctx,
+          path.searchParams.get('jobId') ?? '',
+          path.searchParams.get('path') ?? ''
+        );
+        res.writeHead(200, { 'Content-Type': artifact.contentType });
+        res.end(artifact.data);
+        return;
+      }
+      if (req.method === 'GET' && path.pathname === '/api/100x') {
+        json(res, 200, {
+          extension: inspectHundredX(ctx),
+          profiles: Object.values(EXECUTION_PROFILES),
+          diagnostics: diagnoseHundredX(ctx)
+        });
+        return;
+      }
+      if (req.method === 'GET' && path.pathname === '/api/100x-preview') {
+        const op = path.searchParams.get('op') as HundredXOperation;
+        const includeSkills = path.searchParams.get('skills') !== '0';
+        json(res, 200, { plan: previewHundredX(ctx, op, { includeSkills }) });
+        return;
+      }
       if (req.method === 'GET' && path.pathname === '/api/state') {
         json(res, 200, safeState(ctx)); return;
       }
@@ -424,6 +470,54 @@ export async function startWebServer(options: WebOptions = {}): Promise<WebInsta
         ].includes(action)) {
           requireApproval(body);
           json(res, 200, applyMissionWebAction(ctx, body as unknown as MissionWebAction)); return;
+        }
+        if (action === '100x-apply') {
+          requireApproval(body);
+          const operation = body.operation as HundredXOperation;
+          const expectedRevision = typeof body.expectedRevision === 'string' ? body.expectedRevision : '';
+          const includeSkills = body.includeSkills !== false;
+          json(res, 200, await applyHundredX(ctx, operation, expectedRevision, { includeSkills, approved: true }));
+          return;
+        }
+        if (action === '100x-configure-preview' || action === '100x-configure-apply') {
+          const profile = body.profile;
+          if (!isExecutionProfile(profile)) throw new Error('Execution profile must be lite, standard or deep.');
+          const reviewEnabled = typeof body.reviewEnabled === 'boolean' ? body.reviewEnabled : undefined;
+          const verifyEnabled = typeof body.verifyEnabled === 'boolean' ? body.verifyEnabled : undefined;
+          if (action === '100x-configure-preview') {
+            const plan = previewConfigureHundredX(ctx, { profile, reviewEnabled, verifyEnabled });
+            const { targetPath: _hidden, ...publicPlan } = plan;
+            json(res, 200, { plan: publicPlan });
+            return;
+          }
+          requireApproval(body);
+          const revision = typeof body.expectedRevision === 'string' ? body.expectedRevision : '';
+          json(res, 200, applyConfigureHundredX(ctx, { profile, reviewEnabled, verifyEnabled }, revision, true));
+          return;
+        }
+        if (action === '100x-sync-preview' || action === '100x-sync-apply') {
+          const agents = checkedList(body.agents);
+          const eligible = new Set(detectAgents(ctx)
+            .filter(agent => agent.installed && agent.definition.skillsSupported !== false)
+            .map(agent => agent.definition.id));
+          if (!agents.length || new Set(agents).size !== agents.length || agents.some(agent => !eligible.has(agent))) {
+            throw new Error('Choose installed skill-compatible agents only.');
+          }
+          const installed = inspectHundredX(ctx).skillsInstalled;
+          if (!installed.length) throw new Error('No 100x skills are installed in the shared library.');
+          const scope = JSON.stringify(['100x', [...agents].sort()]);
+          const selection = { skillsOnly: true, skillFilter: installed, agentFilter: agents };
+          const trial = () => runSync(ctx, { ...selection, dryRun: true });
+          if (action === '100x-sync-preview') {
+            const { previewToken, report } = previewSync('skills', trial, scope);
+            json(res, 200, { ...report, previewToken });
+            return;
+          }
+          requireApproval(body);
+          const verified = checkSyncTicket('skills', body, trial, scope);
+          if (verified.errors.length) throw new Error('Sync preview reported errors; refusing to apply.');
+          json(res, 200, summarize(runSync(ctx, { ...selection, dryRun: false }), ctx));
+          return;
         }
         if (action === 'install' || action === 'update' || action === 'uninstall') {
           requireApproval(body);

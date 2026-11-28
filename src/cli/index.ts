@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { parseArgs } from 'node:util';
 import { readFileSync } from 'node:fs';
+import path from 'node:path';
 import { startWebServer } from '../web/server.js';
 import { runDoctor } from '../commands/doctor.js';
 import { repairCentralSkills } from '../commands/repair-central.js';
@@ -20,6 +21,19 @@ import { discoverCentralSkills } from '../sync/skills.js';
 import { readSavedProfiles, saveAgentProfile, clearAgentProfile, runSavedProfilesSync } from '../commands/saved-profiles.js';
 import { createFullBackup, listBackups, restoreBackup } from '../core/backup.js';
 import { createEnvironmentContext } from '../core/context.js';
+import {
+  applyConfigureHundredX,
+  applyHundredX,
+  diagnoseHundredX,
+  HUNDREDX_MODES,
+  inspectHundredX,
+  inspectWorkspaceHundredX,
+  isExecutionProfile,
+  previewConfigureHundredX,
+  previewHundredX,
+  runHundredXCli,
+  syncHundredXSkills
+} from '../extensions/hundredx.js';
 import { redactSecrets } from '../security/scrubber.js';
 
 // Read the installed package metadata, rather than shipping a stale hard-coded CLI version.
@@ -45,6 +59,7 @@ COMMANDS:
   skills deps <id>        Inspect dependencies without installing anything
   mcp probe [server...]   Start MCP servers explicitly and verify the MCP handshake / one tool call
   mcp demo-config         Print a secret-free demo MCP server entry for end-to-end checks
+  100x <subcommand>       Manage the optional 100x Engineer CLI, skills, profiles and ledger
   web                     Open local browser dashboard for skills, profiles and backups
   sync                    Synchronize skills and MCP configurations to installed agents
   backup                  Create a point-in-time snapshot of all agent skills and MCP configs
@@ -286,6 +301,22 @@ Options:
   --home <path>     Override user home directory
   --json            Emit JSON output
   -h, --help        Show this help message
+`.trim();
+    case '100x':
+      return `
+Usage:
+  agent-commons 100x status [--workspace <dir>] [--json] [--home <path>]
+  agent-commons 100x modes [--json]
+  agent-commons 100x doctor [--json] [--home <path>]
+  agent-commons 100x preview <install|update|repair|uninstall> [--no-skills] [--json]
+  agent-commons 100x install|update|repair|uninstall [--yes] [--dry-run] [--no-skills] [--json]
+  agent-commons 100x configure --profile <lite|standard|deep> [--dry-run | --yes] [--json]
+  agent-commons 100x sync --agent <id>... [--dry-run | --yes] [--json]
+  agent-commons 100x verify [--workspace <dir>] [--run --yes] [--json]
+
+Manages the optional pinned 100x Engineer CLI (v0.1.1, MIT, SHA-256 verified),
+its 13 skills, Lite/Standard/Deep profiles and read-only verification inspection.
+Nothing is downloaded, modified or executed without explicit approval (--yes).
 `.trim();
     default:
       return getMainHelp();
@@ -955,6 +986,139 @@ export function runCli(argv: string[] = process.argv.slice(2)): number {
  * The existing synchronous runCli API is preserved for all other commands.
  */
 export async function runCliAsync(argv: string[] = process.argv.slice(2)): Promise<number> {
+  if (argv[0] === '100x') {
+    if (argv.includes('--help') || argv.includes('-h')) {
+      console.log(getCommandHelp('100x'));
+      return 0;
+    }
+    try {
+      const parsed = parseArgs({
+        args: argv,
+        strict: true,
+        allowPositionals: true,
+        options: {
+          home: { type: 'string' },
+          json: { type: 'boolean', default: false },
+          yes: { type: 'boolean', default: false },
+          'dry-run': { type: 'boolean', default: false },
+          'no-skills': { type: 'boolean', default: false },
+          workspace: { type: 'string' },
+          profile: { type: 'string' },
+          agent: { type: 'string', multiple: true },
+          run: { type: 'boolean', default: false },
+          'review-enabled': { type: 'string' },
+          'verify-enabled': { type: 'string' }
+        }
+      });
+      const sub = parsed.positionals[1] ?? 'status';
+      const ctx = createEnvironmentContext({ homeDir: parsed.values.home });
+      const approved = Boolean(parsed.values.yes) && !parsed.values['dry-run'];
+      const includeSkills = !parsed.values['no-skills'];
+
+      if (sub === 'modes') {
+        if (parsed.values.json) console.log(JSON.stringify(HUNDREDX_MODES, null, 2));
+        else for (const m of HUNDREDX_MODES) console.log(`  ${m.id.padEnd(16)} [${m.kind}] ${m.summary}`);
+        return 0;
+      }
+      if (sub === 'status') {
+        const ext = inspectHundredX(ctx);
+        const workspace = parsed.values.workspace ? inspectWorkspaceHundredX(path.resolve(parsed.values.workspace)) : null;
+        const payload = { extension: ext, ...(workspace ? { workspace } : {}) };
+        if (parsed.values.json) console.log(JSON.stringify(payload, null, 2));
+        else {
+          console.log(`=== 100x Engineer (${ext.reviewedVersion}) ===`);
+          console.log(`CLI        : ${ext.managed ? (ext.healthy ? `installed v${ext.installedVersion}` : 'installed (repair needed)') : ext.externalAvailable ? 'external on PATH' : 'not installed'}`);
+          console.log(`Skills     : ${ext.skillsInstalled.length}/13 installed in central library`);
+          console.log(`Profile    : ${ext.config.profile} (polish=${ext.config.polishPasses}, rounds=${ext.config.reviewRounds}, review=${ext.config.reviewEnabled}, verify=${ext.config.verifyEnabled})`);
+          if (workspace) {
+            console.log(`Workspace  : ${workspace.present ? `stage=${workspace.stage ?? 'unknown'}, verdict=${workspace.verdict ?? 'open'}, invariants holds=${workspace.invariantCounts.holds} stale=${workspace.invariantCounts.stale} broken=${workspace.invariantCounts.broken}` : 'no .100x/ or verify/ledger.tsv'}`);
+          }
+        }
+        return 0;
+      }
+      if (sub === 'doctor') {
+        const diag = diagnoseHundredX(ctx);
+        if (parsed.values.json) console.log(JSON.stringify(diag, null, 2));
+        else {
+          console.log(`=== 100x Doctor ===`);
+          console.log(`CLI resolved : ${diag.cliResolved} (managed=${diag.cliManaged})`);
+          console.log(`Node >= 22   : ${diag.status.prerequisites.node22Plus}`);
+          console.log(`Git          : ${diag.status.prerequisites.git}`);
+          console.log(`POSIX sh     : ${diag.status.prerequisites.posixSh}`);
+          console.log(`Playwright   : ${diag.status.prerequisites.chromiumCache}`);
+          for (const w of diag.warnings) console.log(`  ~ ${w}`);
+          for (const i of diag.issues) console.log(`  ! ${i}`);
+        }
+        return diag.healthy ? 0 : 1;
+      }
+      if (sub === 'preview') {
+        const op = parsed.positionals[2] as 'install' | 'update' | 'repair' | 'uninstall' | undefined;
+        if (!op || !['install', 'update', 'repair', 'uninstall'].includes(op)) {
+          throw new Error('Usage: agent-commons 100x preview <install|update|repair|uninstall> [--no-skills]');
+        }
+        const plan = previewHundredX(ctx, op, { includeSkills });
+        console.log(parsed.values.json ? JSON.stringify(plan, null, 2) : `Preview ${op} 100x v${plan.version} (sha256=${plan.tarballSha256.slice(0, 12)}..., skillsToStage=${plan.skillsToStage.length}, skillsToRemove=${plan.skillsToRemove.length})`);
+        return 0;
+      }
+      if (sub === 'install' || sub === 'update' || sub === 'repair' || sub === 'uninstall') {
+        const plan = previewHundredX(ctx, sub, { includeSkills });
+        if (!approved) {
+          if (parsed.values.json) console.log(JSON.stringify({ preview: plan, applied: false }, null, 2));
+          else console.log(`Preview only (${sub}): 100x v${plan.version} (${plan.skillsToStage.length} skills to stage, ${plan.skillsToRemove.length} to remove). Pass --yes to apply.`);
+          return 0;
+        }
+        const res = await applyHundredX(ctx, sub, plan.revision, { includeSkills, approved: true });
+        if (parsed.values.json) console.log(JSON.stringify(res, null, 2));
+        else console.log(`100x ${sub} completed (snapshot: ${res.snapshotId}).`);
+        return 0;
+      }
+      if (sub === 'configure') {
+        const profile = parsed.values.profile ?? 'lite';
+        if (!isExecutionProfile(profile)) throw new Error('Specify --profile lite|standard|deep');
+        const reviewEnabled = parsed.values['review-enabled'] !== undefined ? parsed.values['review-enabled'] === 'true' : undefined;
+        const verifyEnabled = parsed.values['verify-enabled'] !== undefined ? parsed.values['verify-enabled'] === 'true' : undefined;
+        const plan = previewConfigureHundredX(ctx, { profile, reviewEnabled, verifyEnabled });
+        if (!approved) {
+          if (parsed.values.json) console.log(JSON.stringify({ preview: plan, applied: false }, null, 2));
+          else console.log(`Preview configure 100x profile=${profile}, changed=${plan.changed}. Pass --yes to apply.`);
+          return 0;
+        }
+        const res = applyConfigureHundredX(ctx, { profile, reviewEnabled, verifyEnabled }, plan.revision, true);
+        if (parsed.values.json) console.log(JSON.stringify(res, null, 2));
+        else console.log(`Configured 100x profile=${res.profile} (snapshot: ${res.snapshotId ?? 'none'}).`);
+        return 0;
+      }
+      if (sub === 'sync') {
+        const agents = parsed.values.agent ?? [];
+        if (!agents.length) throw new Error('Specify at least one --agent <id> to sync 100x skills.');
+        const report = syncHundredXSkills(ctx, agents, { dryRun: !approved });
+        if (parsed.values.json) console.log(JSON.stringify(report, null, 2));
+        else console.log(`100x skill sync (${report.dryRun ? 'dry-run' : 'applied'}): ${report.skillResults.length} action(s), ${report.errors.length} error(s).`);
+        return report.errors.length ? 1 : 0;
+      }
+      if (sub === 'verify') {
+        const root = path.resolve(parsed.values.workspace ?? process.cwd());
+        if (parsed.values.run) {
+          if (!approved) throw new Error('Running 100x verification scripts requires --yes.');
+          const res = await runHundredXCli(ctx, ['verify', 'run', '--root', root], { cwd: root, allowMutatingRun: true });
+          if (parsed.values.json) console.log(JSON.stringify(res, null, 2));
+          else console.log(res.output);
+          return res.exitCode;
+        }
+        const report = inspectWorkspaceHundredX(root);
+        if (parsed.values.json) console.log(JSON.stringify(report, null, 2));
+        else {
+          console.log(`100x Workspace Verify: present=${report.present}, holds=${report.invariantCounts.holds}, stale=${report.invariantCounts.stale}, broken=${report.invariantCounts.broken}, unproven=${report.invariantCounts.unproven}`);
+          for (const inv of report.invariants) console.log(`  [${inv.state}] ${inv.id} (${inv.kind}, ${inv.level}) - ${inv.reason}`);
+        }
+        return report.invariantCounts.broken > 0 || report.invariantCounts.stale > 0 ? 1 : 0;
+      }
+      throw new Error(`Unknown 100x subcommand: ${sub}`);
+    } catch (err) {
+      console.error('Error: ' + redactSecrets((err as Error).message));
+      return 1;
+    }
+  }
   if (argv[0] === 'web') {
     try {
       const parsed = parseArgs({ args: argv, strict: true, allowPositionals: true,

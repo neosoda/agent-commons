@@ -24,7 +24,8 @@ Le catalogue Skills & MCP du Skill Hub local devient un gestionnaire d'extension
 
 L'archive Windows portable d'Agent Commons n'intègre pas nécessairement npm, uv ou Python. Le gestionnaire peut réclamer leur installation locale.
 
-XERJ se rattache aussi à un binaire existant trouvé dans PATH sans le modifier. Le nœud de recherche reste optionnel et son interface est intégrée au MCP Control Center. Voir [XERJ](XERJ.md).
+- XERJ se rattache aussi à un binaire existant trouvé dans PATH sans le modifier. Le nœud de recherche reste optionnel et son interface est intégrée au MCP Control Center. Voir [XERJ](XERJ.md).
+- **100x Engineer (`v0.1.1`)** : suite CLI/skills optionnelle gérée séparément dans `src/extensions/hundredx.ts` (panneau `#hundredx-panel` du Skill Hub et commandes `agent-commons 100x ...`), installée par archive `.tgz` vérifiée par SHA-256 sans exécuter de scripts post-install ni installer silencieusement Playwright ou `@cursor/sdk`, avec profils (`lite`, `standard`, `deep`), snapshots, synchronisation vers les clients compatibles et diagnostics (`doctor`). Voir [100x Engineer](100X_ENGINEER.md).
 
 Les packages sont isolés sous ~/.agents/mcp-packages et suivis dans ~/.agents/mcp-installations.json. Les commandes utilisent des arguments construits exclusivement à partir du catalogue approuvé ; aucun texte de commande arbitraire n'est exécuté depuis le navigateur. Les scripts de post-installation npm sont désactivés et uv impose les roues binaires. Cela n'empêche pas le code MCP tiers d'être exécuté quand un client le lance.
 

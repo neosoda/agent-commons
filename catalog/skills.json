@@ -1,7 +1,363 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-26",
+  "generatedAt": "2026-11-28",
   "skills": [
+    {
+      "id": "100x",
+      "name": "100x Engineer",
+      "description": "Use when the owner types 100x or asks for a verified, screenshot-proven prototype worth keeping. Runs an end-to-end pipeline with formal property checks, polish passes, must-not-break tests, second-model review and evidence-backed reporting.",
+      "category": "development",
+      "author": "DeadInternetStudios",
+      "repository": "https://github.com/DeadInternetStudios/100x-engineer-skill",
+      "source": "https://github.com/DeadInternetStudios/100x-engineer-skill/tree/8b43a726e3114882061f4b0b5dc1887bb96cefa3/skills/100x",
+      "path": "skills/100x",
+      "ref": "8b43a726e3114882061f4b0b5dc1887bb96cefa3",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/DeadInternetStudios/100x-engineer-skill/blob/8b43a726e3114882061f4b0b5dc1887bb96cefa3/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-28",
+        "licenseChecked": "2026-11-28",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [],
+      "tags": [
+        "100x",
+        "formal-verification",
+        "invariants",
+        "testing",
+        "review",
+        "development"
+      ]
+    },
+    {
+      "id": "100x-adhd",
+      "name": "100x ADHD Scoping",
+      "description": "Use for /100x-adhd when the owner wants short back-and-forth turns, at most three points and one question at a time, to turn a loose idea into a concrete brief before building.",
+      "category": "productivity",
+      "author": "DeadInternetStudios",
+      "repository": "https://github.com/DeadInternetStudios/100x-engineer-skill",
+      "source": "https://github.com/DeadInternetStudios/100x-engineer-skill/tree/8b43a726e3114882061f4b0b5dc1887bb96cefa3/skills/100x-adhd",
+      "path": "skills/100x-adhd",
+      "ref": "8b43a726e3114882061f4b0b5dc1887bb96cefa3",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/DeadInternetStudios/100x-engineer-skill/blob/8b43a726e3114882061f4b0b5dc1887bb96cefa3/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-28",
+        "licenseChecked": "2026-11-28",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [
+        "100x"
+      ],
+      "tags": [
+        "100x",
+        "planning",
+        "scoping",
+        "productivity"
+      ]
+    },
+    {
+      "id": "100x-bakeoff",
+      "name": "100x Bake-off Eval",
+      "description": "Use for /100x-bakeoff when evaluating whether 100x improves output over a baseline agent without the skill. Runs a blind skill-off against skill-on comparison and reports a scored summary.",
+      "category": "ai-automation",
+      "author": "DeadInternetStudios",
+      "repository": "https://github.com/DeadInternetStudios/100x-engineer-skill",
+      "source": "https://github.com/DeadInternetStudios/100x-engineer-skill/tree/8b43a726e3114882061f4b0b5dc1887bb96cefa3/skills/100x-bakeoff",
+      "path": "skills/100x-bakeoff",
+      "ref": "8b43a726e3114882061f4b0b5dc1887bb96cefa3",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/DeadInternetStudios/100x-engineer-skill/blob/8b43a726e3114882061f4b0b5dc1887bb96cefa3/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-28",
+        "licenseChecked": "2026-11-28",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [
+        "100x"
+      ],
+      "tags": [
+        "100x",
+        "evaluation",
+        "benchmark",
+        "ai-automation"
+      ]
+    },
+    {
+      "id": "100x-continue",
+      "name": "100x Continue Run",
+      "description": "Use for /100x-continue when a 100x run stopped or hit a limit and must resume cleanly from its saved .100x/STATE.md and verification ledger state.",
+      "category": "ai-automation",
+      "author": "DeadInternetStudios",
+      "repository": "https://github.com/DeadInternetStudios/100x-engineer-skill",
+      "source": "https://github.com/DeadInternetStudios/100x-engineer-skill/tree/8b43a726e3114882061f4b0b5dc1887bb96cefa3/skills/100x-continue",
+      "path": "skills/100x-continue",
+      "ref": "8b43a726e3114882061f4b0b5dc1887bb96cefa3",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/DeadInternetStudios/100x-engineer-skill/blob/8b43a726e3114882061f4b0b5dc1887bb96cefa3/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-28",
+        "licenseChecked": "2026-11-28",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [
+        "100x"
+      ],
+      "tags": [
+        "100x",
+        "resume",
+        "checkpoints",
+        "ai-automation"
+      ]
+    },
+    {
+      "id": "100x-grind",
+      "name": "100x Grind Review Loop",
+      "description": "Use for /100x-grind when work should be judged and fixed in rounds until a fresh second model says ready to ship with no blocker or major finding. Stops after three stagnant ship tests, 15 rounds or timeout.",
+      "category": "development",
+      "author": "DeadInternetStudios",
+      "repository": "https://github.com/DeadInternetStudios/100x-engineer-skill",
+      "source": "https://github.com/DeadInternetStudios/100x-engineer-skill/tree/8b43a726e3114882061f4b0b5dc1887bb96cefa3/skills/100x-grind",
+      "path": "skills/100x-grind",
+      "ref": "8b43a726e3114882061f4b0b5dc1887bb96cefa3",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/DeadInternetStudios/100x-engineer-skill/blob/8b43a726e3114882061f4b0b5dc1887bb96cefa3/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-28",
+        "licenseChecked": "2026-11-28",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [
+        "100x",
+        "100x-judge"
+      ],
+      "tags": [
+        "100x",
+        "review",
+        "judge",
+        "quality",
+        "development"
+      ]
+    },
+    {
+      "id": "100x-judge",
+      "name": "100x Judge Review",
+      "description": "Use for /100x-judge when a second model should review what is already built across code behavior, UI/UX screenshots and ship readiness, with structured triage and fixes without building new features.",
+      "category": "development",
+      "author": "DeadInternetStudios",
+      "repository": "https://github.com/DeadInternetStudios/100x-engineer-skill",
+      "source": "https://github.com/DeadInternetStudios/100x-engineer-skill/tree/8b43a726e3114882061f4b0b5dc1887bb96cefa3/skills/100x-judge",
+      "path": "skills/100x-judge",
+      "ref": "8b43a726e3114882061f4b0b5dc1887bb96cefa3",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/DeadInternetStudios/100x-engineer-skill/blob/8b43a726e3114882061f4b0b5dc1887bb96cefa3/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-28",
+        "licenseChecked": "2026-11-28",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [
+        "100x"
+      ],
+      "tags": [
+        "100x",
+        "review",
+        "judge",
+        "ui",
+        "ux",
+        "development"
+      ]
+    },
+    {
+      "id": "100x-mockup",
+      "name": "100x Fast Mockup",
+      "description": "Use for /100x-mockup when the owner wants to see an idea as running code in about 15 minutes. Focuses strictly on the core moment, skips formal checks and judge rounds, and marks output UNREVIEWED.",
+      "category": "development",
+      "author": "DeadInternetStudios",
+      "repository": "https://github.com/DeadInternetStudios/100x-engineer-skill",
+      "source": "https://github.com/DeadInternetStudios/100x-engineer-skill/tree/8b43a726e3114882061f4b0b5dc1887bb96cefa3/skills/100x-mockup",
+      "path": "skills/100x-mockup",
+      "ref": "8b43a726e3114882061f4b0b5dc1887bb96cefa3",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/DeadInternetStudios/100x-engineer-skill/blob/8b43a726e3114882061f4b0b5dc1887bb96cefa3/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-28",
+        "licenseChecked": "2026-11-28",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [
+        "100x"
+      ],
+      "tags": [
+        "100x",
+        "prototype",
+        "mockup",
+        "development"
+      ]
+    },
+    {
+      "id": "100x-overnight",
+      "name": "100x Overnight Run",
+      "description": "Use for /100x-overnight for deadline-bounded unattended builds across one or more briefs, setting a fill clock, watchdog check-ins and ranked final reporting.",
+      "category": "ai-automation",
+      "author": "DeadInternetStudios",
+      "repository": "https://github.com/DeadInternetStudios/100x-engineer-skill",
+      "source": "https://github.com/DeadInternetStudios/100x-engineer-skill/tree/8b43a726e3114882061f4b0b5dc1887bb96cefa3/skills/100x-overnight",
+      "path": "skills/100x-overnight",
+      "ref": "8b43a726e3114882061f4b0b5dc1887bb96cefa3",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/DeadInternetStudios/100x-engineer-skill/blob/8b43a726e3114882061f4b0b5dc1887bb96cefa3/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-28",
+        "licenseChecked": "2026-11-28",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [
+        "100x"
+      ],
+      "tags": [
+        "100x",
+        "autonomous",
+        "overnight",
+        "ai-automation"
+      ]
+    },
+    {
+      "id": "100x-report",
+      "name": "100x Morning Report",
+      "description": "Use for /100x-report to inspect finished 100x runs, verdicts, judge blockers, active runs and the generated gallery report without modifying code.",
+      "category": "documentation",
+      "author": "DeadInternetStudios",
+      "repository": "https://github.com/DeadInternetStudios/100x-engineer-skill",
+      "source": "https://github.com/DeadInternetStudios/100x-engineer-skill/tree/8b43a726e3114882061f4b0b5dc1887bb96cefa3/skills/100x-report",
+      "path": "skills/100x-report",
+      "ref": "8b43a726e3114882061f4b0b5dc1887bb96cefa3",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/DeadInternetStudios/100x-engineer-skill/blob/8b43a726e3114882061f4b0b5dc1887bb96cefa3/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-28",
+        "licenseChecked": "2026-11-28",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [
+        "100x"
+      ],
+      "tags": [
+        "100x",
+        "report",
+        "evidence",
+        "documentation"
+      ]
+    },
+    {
+      "id": "100x-setup",
+      "name": "100x Setup",
+      "description": "Use for /100x-setup to configure 100x builder and reviewer models, presets (lite, medium, standard) and token budgets, or when 100x doctor reports missing configuration.",
+      "category": "ai-automation",
+      "author": "DeadInternetStudios",
+      "repository": "https://github.com/DeadInternetStudios/100x-engineer-skill",
+      "source": "https://github.com/DeadInternetStudios/100x-engineer-skill/tree/8b43a726e3114882061f4b0b5dc1887bb96cefa3/skills/100x-setup",
+      "path": "skills/100x-setup",
+      "ref": "8b43a726e3114882061f4b0b5dc1887bb96cefa3",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/DeadInternetStudios/100x-engineer-skill/blob/8b43a726e3114882061f4b0b5dc1887bb96cefa3/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-28",
+        "licenseChecked": "2026-11-28",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [
+        "100x"
+      ],
+      "tags": [
+        "100x",
+        "setup",
+        "config",
+        "ai-automation"
+      ]
+    },
+    {
+      "id": "100x-solo",
+      "name": "100x Solo Mode",
+      "description": "Use for /100x-solo to run the full 100x verification and build pipeline in a single session with no subagents or external second model, using written adversarial self-challenges instead.",
+      "category": "development",
+      "author": "DeadInternetStudios",
+      "repository": "https://github.com/DeadInternetStudios/100x-engineer-skill",
+      "source": "https://github.com/DeadInternetStudios/100x-engineer-skill/tree/8b43a726e3114882061f4b0b5dc1887bb96cefa3/skills/100x-solo",
+      "path": "skills/100x-solo",
+      "ref": "8b43a726e3114882061f4b0b5dc1887bb96cefa3",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/DeadInternetStudios/100x-engineer-skill/blob/8b43a726e3114882061f4b0b5dc1887bb96cefa3/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-28",
+        "licenseChecked": "2026-11-28",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [
+        "100x"
+      ],
+      "tags": [
+        "100x",
+        "solo",
+        "self-review",
+        "formal-verification",
+        "development"
+      ]
+    },
+    {
+      "id": "100x-status",
+      "name": "100x Run Status",
+      "description": "Use for /100x-status to get a concise six-line summary of a 100x run: current stage, completed asks, next step, open risks and any pending decision.",
+      "category": "productivity",
+      "author": "DeadInternetStudios",
+      "repository": "https://github.com/DeadInternetStudios/100x-engineer-skill",
+      "source": "https://github.com/DeadInternetStudios/100x-engineer-skill/tree/8b43a726e3114882061f4b0b5dc1887bb96cefa3/skills/100x-status",
+      "path": "skills/100x-status",
+      "ref": "8b43a726e3114882061f4b0b5dc1887bb96cefa3",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/DeadInternetStudios/100x-engineer-skill/blob/8b43a726e3114882061f4b0b5dc1887bb96cefa3/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-28",
+        "licenseChecked": "2026-11-28",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [
+        "100x"
+      ],
+      "tags": [
+        "100x",
+        "status",
+        "checkpoints",
+        "productivity"
+      ]
+    },
+    {
+      "id": "100x-wrapup",
+      "name": "100x Deadline Wrap-up",
+      "description": "Use for /100x-wrapup when a deadline is near and the primary path must run cleanly from a fresh start while unfinished work is cleanly hidden or deferred.",
+      "category": "development",
+      "author": "DeadInternetStudios",
+      "repository": "https://github.com/DeadInternetStudios/100x-engineer-skill",
+      "source": "https://github.com/DeadInternetStudios/100x-engineer-skill/tree/8b43a726e3114882061f4b0b5dc1887bb96cefa3/skills/100x-wrapup",
+      "path": "skills/100x-wrapup",
+      "ref": "8b43a726e3114882061f4b0b5dc1887bb96cefa3",
+      "license": "MIT",
+      "licenseEvidence": "https://github.com/DeadInternetStudios/100x-engineer-skill/blob/8b43a726e3114882061f4b0b5dc1887bb96cefa3/LICENSE",
+      "review": {
+        "sourceChecked": "2026-11-28",
+        "licenseChecked": "2026-11-28",
+        "scope": "source-and-license-only"
+      },
+      "dependencies": [
+        "100x"
+      ],
+      "tags": [
+        "100x",
+        "wrapup",
+        "deadline",
+        "development"
+      ]
+    },
     {
       "id": "3dviz-pro-max",
       "name": "3dviz Pro Max",

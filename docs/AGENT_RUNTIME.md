@@ -30,7 +30,7 @@ Les scripts du dépôt (`npm test` / `npm run typecheck`) sont du **code arbitra
 
 ## Exécution bornée, preuves et reprises
 
-États : `queued`, `planning`, `running`, `verifying`, `paused`, `needs_approval`, `partial`, `blocked`, `failed`, `cancelled`, `completed`. Plan local limité à 5 étapes ; le texte du modèle n'est pas une preuve. Checkpoints dans `~/.agents/missions/` et liaison à l'identité canonique du checkout. Limites par défaut : 30 étapes, 24 outils, 24 000 tokens **signalés**, 20 minutes par exécution, 2 conseils cloud maximum. Le comptage tokens dépend de l'API ; aucun plafond financier garanti.
+États : `queued`, `planning`, `running`, `verifying`, `paused`, `needs_approval`, `partial`, `blocked`, `failed`, `cancelled`, `completed`. Plan local limité à 5 étapes ; le texte du modèle n'est pas une preuve. Checkpoints dans `~/.agents/missions/` et liaison à l'identité canonique du checkout. Trois profils d'exécution (`--profile lite|standard|deep`, `lite` par défaut) adaptent dynamiquement le budget d'étapes et de polish tout en maintenant `maxCloudCalls = 0` sans autorisation explicite (`--allow-paid-review`, `--cloud` ou `--delegate`) ; les limites par défaut de `standard` correspondent à 30 étapes, 24 outils et 24 000 tokens **signalés**, et celles de `lite` à 18 étapes, 14 outils et 12 000 tokens. Le comptage tokens dépend de l'API ; aucun plafond financier garanti. Voir [100x Engineer](100X_ENGINEER.md).
 
 L'anti-boucle bloque l'action répétée sans progression et l'oscillation de contenu. Pour déclarer `completed` après modification, le runner exige une inspection vérifiée et un `npm test` réussi ; un résultat de tests ne prouve pas l'absence d'autres défauts. Les intentions d'écriture, de test ou d'appel MCP pouvant produire un effet sont checkpointées **avant** exécution. Si l'état final est incertain : `needs_approval`, aucune répétition automatique.
 
@@ -57,7 +57,7 @@ node dist/runtime/cli.js --worker --once
 
 La file `~/.agents/queue.sqlite` persiste permissions, objectifs et modèle ; un seul worker détient le bail. Sur crash, un job à effet incertain bascule en revue humaine (`needs_review`) plutôt qu'être rejoué. Commandes `--queue-requeue ID_JOB` et `--queue-cancel ID_JOB` avec `--workspace`. Les scripts de démarrage Windows utilisateur et systemd utilisateur sont optionnels, non une garantie 24/7. Les tâches de la file n'activent pas automatiquement le cloud ni une URL distante. Les événements structurés sont dans `queue-events.jsonl` sans sortie brute du modèle.
 
-`agent-commons web` affiche **Mission Control** sur `127.0.0.1` : état réel du worker/queue et checkpoints, plan et compteurs, enqueue, pause, annulation, remise en file avec approbations. L'interface n'exécute pas un worker en arrière-plan et **n'est pas authentifiée pour le LAN**.
+`agent-commons web` affiche **Mission Control** sur `127.0.0.1` : état réel du worker/queue et checkpoints, profil (`lite`/`standard`/`deep`), plan et compteurs, état 100x (étape, verdict, invariants `holds`/`stale`/`broken`/`unproven`, contrôles *must-not-break*, relecture, anomalies et aperçu sécurisé des captures via `/api/mission-artifact`), enqueue, pause, annulation, remise en file avec approbations. L'interface n'exécute pas un worker en arrière-plan et **n'est pas authentifiée pour le LAN**.
 
 ## Autres IA : consultation ≠ délégation de travail
 

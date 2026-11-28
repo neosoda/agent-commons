@@ -81,3 +81,35 @@ export { MissionRunner, MissionStore, DEFAULT_LIMITS } from './runtime/mission.j
 export type { MissionState, MissionStatus, ModelClient, ModelTurn, ToolExecutor, ToolRequest, ToolResult, Limits } from './runtime/mission.js';
 export { WorkspaceTools } from './runtime/workspace.js';
 export { OpenAICompatibleModel } from './runtime/provider.js';
+export {
+  HUNDREDX_EXTENSION,
+  HUNDREDX_MODES,
+  HUNDREDX_SKILL_IDS,
+  EXECUTION_PROFILES,
+  isExecutionProfile,
+  adaptExecutionProfile,
+  extractVerifiedTgz,
+  inspectHundredX,
+  previewHundredX,
+  applyHundredX,
+  previewConfigureHundredX,
+  applyConfigureHundredX,
+  syncHundredXSkills,
+  diagnoseHundredX,
+  inspectWorkspaceHundredX,
+  runHundredXCli
+} from './extensions/hundredx.js';
+export type {
+  ExecutionProfileName,
+  ExecutionProfileSpec,
+  AdaptedExecutionPlan,
+  HundredXModeInfo,
+  HundredXStatus,
+  HundredXOperation,
+  HundredXPreview,
+  HundredXConfigureOptions,
+  HundredXConfigPreview,
+  HundredXDiagnosticReport,
+  WorkspaceHundredXReport,
+  WorkspaceInvariantRow
+} from './extensions/hundredx.js';

@@ -15,6 +15,7 @@ Cette page contient **uniquement les lacunes non soldées**. Les étapes P1–P6
 - [ ] Requalifier et traiter [issue #18](https://github.com/neosoda/agent-commons/issues/18) : édition avancée des arguments/URL MCP existants avec secrets *replace-only* et tests de non-divulgation.
 - [ ] Suivre [issue #19](https://github.com/neosoda/agent-commons/issues/19) : qualification matérielle/accessibilité et éventuelle publication npm ; ne pas en faire un blocage de fonctionnalités déjà fusionnées.
 - [ ] Mesurer les plafonds réels des tokens/contextes avec différents modèles : les estimations ne sont pas une facturation garantie.
+- [ ] Qualifier l'intégration optionnelle 100x Engineer (`v0.1.1`) sur Linux/macOS, `web-visual-smoke` Chromium sur PR, et lors d'une vraie session multi-modèles avec captures Playwright.
 
 ## P2 — intégration future (aucun déploiement prétendu)
 

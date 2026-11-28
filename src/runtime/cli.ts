@@ -5,6 +5,13 @@ import { PersistentMissionMemory } from './memory.js';
 import { DelegatedCliAdvisor, loadDelegate, type DelegateName } from './delegate.js';
 import { MissionQueue } from './queue.js';
 import { LocalQueueWorker, serveQueue, workerEventFile } from './worker.js';
+import {
+  adaptExecutionProfile,
+  inspectHundredX,
+  inspectWorkspaceHundredX,
+  isExecutionProfile,
+  type ExecutionProfileName
+} from '../extensions/hundredx.js';
 import { MissionToolsWithMcp, prepareApprovedMcp, selectMissionSkills } from './extensions.js';
 import { MissionRunner, MissionStore, DEFAULT_LIMITS, type ExecutionControl, type Limits } from './mission.js';
 import { WorkspaceTools } from './workspace.js';
@@ -13,8 +20,8 @@ import { OpenAICompatibleModel } from './provider.js';
 function getOptions(argv: string[]): {args:Record<string,string>; flags:Set<string>} {
   const args:Record<string,string> = {};
   const flags = new Set<string>();
-  const values = new Set(['task','workspace','resume','model','url','max-steps','max-tokens','max-tool-calls','max-minutes','max-cloud-calls','allow-mcp-tool','pause','cancel','acknowledge-pending','remember','memory-kind','memory-search','queue-requeue','queue-cancel','priority','delay-minutes','delegate','delegate-test']);
-  const booleans = new Set(['allow-write','allow-tests','cloud','allow-cloud-source','help','worker','once','enqueue','queue-list']);
+  const values = new Set(['task','workspace','resume','model','url','profile','max-steps','max-tokens','max-tool-calls','max-minutes','max-cloud-calls','allow-mcp-tool','pause','cancel','acknowledge-pending','remember','memory-kind','memory-search','queue-requeue','queue-cancel','priority','delay-minutes','delegate','delegate-test']);
+  const booleans = new Set(['allow-write','allow-tests','allow-paid-review','cloud','allow-cloud-source','help','worker','once','enqueue','queue-list']);
   for (let i=0; i<argv.length; i++) {
     const item=argv[i]; if (!item?.startsWith('--')) throw new Error(`Unknown parameter ${item}`);
     const name=item.slice(2);
@@ -29,7 +36,8 @@ Usage:
   agent-commons-agent --workspace A:\\PROJETS\\MYREPO --task "Inspect and fix a bug" --model <local LM Studio ID> [--allow-write] [--allow-tests]
   agent-commons-agent --workspace <repo> --resume <mission-id> --model <id>
 Optional --cloud --allow-cloud-source (explicit approval for sharing code) uses AGENT_COMMONS_CLOUD_URL, AGENT_COMMONS_CLOUD_MODEL and AGENT_COMMONS_CLOUD_API_KEY (API billing may apply).
-Budgets: --max-steps 30 --max-tool-calls 24 --max-tokens 24000 --max-minutes 20 --max-cloud-calls 2.
+Profiles: --profile lite|standard|deep (default: lite). Paid review/cloud calls remain off unless --allow-paid-review / --cloud / --delegate is explicitly passed.
+Budgets: --max-steps 18..60 --max-tool-calls 14..48 --max-tokens 12000..64000 --max-minutes 10..45 --max-cloud-calls 0..2.
 Writes and project-script execution are disabled unless explicitly enabled. Never run project scripts from untrusted repos.
 Installed relevant skills are selected automatically. To authorize an MCP tool per mission, repeat --allow-mcp-tool server/tool (only trusted tools; may have side effects).
 Lifecycle: --workspace <repo> --pause <id> | --cancel <id> | --acknowledge-pending <id> (reconcile side effects manually before acknowledgement).
@@ -66,6 +74,7 @@ export async function main(argv = process.argv.slice(2), control?: ExecutionCont
         const workspace = new WorkspaceTools(job.workspace, job.allowWrite, job.allowTests);
         if (workspace.workspaceId !== job.workspaceId) throw new Error('Workspace identity has changed');
         const options = ['--workspace', job.workspace, '--resume', job.missionId, '--model', job.model];
+        if (job.profile) options.push('--profile', job.profile);
         if (job.allowWrite) options.push('--allow-write');
         if (job.allowTests) options.push('--allow-tests');
         for (const name of job.allowMcp) options.push('--allow-mcp-tool', name);
@@ -166,24 +175,50 @@ export async function main(argv = process.argv.slice(2), control?: ExecutionCont
           !Number.isSafeInteger(delay) || delay < 0 || delay > 43200) {
         throw new Error('Invalid queue priority or delay');
       }
+      const profileArg = args['profile'] ?? 'lite';
+      if (!isExecutionProfile(profileArg)) throw new Error('Profile must be lite, standard or deep');
       if (args['delegate']) loadDelegate(ctx, args['delegate']);
       const state = store.create(args['task']!, workspace.workspaceId);
+      state.profile = profileArg;
+      store.save(state);
       const queue = new MissionQueue(ctx.commonsDir);
       try {
         const id = queue.add({
           missionId: state.id, workspace: path.resolve(args['workspace']), workspaceId: workspace.workspaceId,
           model, allowWrite: flags.has('allow-write'), allowTests: flags.has('allow-tests'),
           allowMcp: (args['allow-mcp-tool'] ?? '').split(',').filter(Boolean),
+          profile: profileArg,
           delegate: args['delegate'], allowCloudSource: flags.has('allow-cloud-source'),
           priority, runAt: Date.now() + delay * 60000
         });
-        console.log('Queued: ' + id + ' | mission: ' + state.id);
+        console.log('Queued: ' + id + ' | mission: ' + state.id + ' | profile: ' + profileArg);
       } finally { queue.close(); }
       return 0;
     }
     if (args['priority'] || args['delay-minutes']) throw new Error('Priority/delay apply only to --enqueue');
     const state = args['resume'] ? store.load(args['resume'], workspace.workspaceId) : store.create(args['task']!, workspace.workspaceId);
+    const requestedProfile: ExecutionProfileName = args['profile']
+      ? (isExecutionProfile(args['profile']) ? args['profile'] : (() => { throw new Error('Profile must be lite, standard or deep'); })())
+      : (state.profile && isExecutionProfile(state.profile) ? state.profile : 'lite');
+    state.profile = requestedProfile;
+    const allowPaidReview = flags.has('allow-paid-review') || flags.has('cloud') || Boolean(args['delegate']);
+    const adapted = adaptExecutionProfile(requestedProfile, {
+      allowWrite: flags.has('allow-write'),
+      allowTests: flags.has('allow-tests'),
+      allowPaidReview
+    });
     const skills = selectMissionSkills(ctx, state.goal);
+    const hundredxInfo = inspectHundredX(ctx);
+    const workspace100x = inspectWorkspaceHundredX(path.resolve(args['workspace']));
+    const hundredxGuidance = (hundredxInfo.managed && hundredxInfo.healthy) || workspace100x.present
+      ? [
+          '100x VERIFICATION CONTEXT (metadata only, no automatic privilege escalation):',
+          `Profile=${requestedProfile} (maxTokens=${adapted.limits.maxTokens}, maxSteps=${adapted.limits.maxSteps}, paidReview=${adapted.paidConsumptionAuthorized}).`,
+          workspace100x.present
+            ? `Workspace 100x state: stage=${workspace100x.stage ?? 'none'}, invariants(holds=${workspace100x.invariantCounts.holds}, stale=${workspace100x.invariantCounts.stale}, broken=${workspace100x.invariantCounts.broken}).`
+            : 'Workspace has no .100x/ or verify/ledger.tsv yet.'
+        ].join(' ')
+      : '';
     const memory = new PersistentMissionMemory(ctx.commonsDir, workspace.workspaceId);
     let memoryGuidance = '';
     try {
@@ -195,7 +230,15 @@ export async function main(argv = process.argv.slice(2), control?: ExecutionCont
     const permissions = (args['allow-mcp-tool'] ?? '').split(',').map(x => x.trim()).filter(Boolean);
     const approved = await prepareApprovedMcp(ctx, permissions);
     const executor = new MissionToolsWithMcp(workspace, approved);
-    const limits:Limits={...DEFAULT_LIMITS};
+    const limits: Limits = {
+      ...DEFAULT_LIMITS,
+      maxSteps: adapted.limits.maxSteps,
+      maxToolCalls: adapted.limits.maxToolCalls,
+      maxTokens: adapted.limits.maxTokens,
+      maxDurationMs: adapted.limits.maxDurationMs,
+      maxIdleSteps: adapted.limits.maxIdleSteps,
+      maxCloudCalls: adapted.limits.maxCloudCalls
+    };
     const budgets:[string,keyof Limits,number][]=[['max-steps','maxSteps',1],['max-tool-calls','maxToolCalls',1],['max-tokens','maxTokens',1],['max-minutes','maxDurationMs',60000],['max-cloud-calls','maxCloudCalls',1]];
     for (const [option,key,mult] of budgets) if(args[option] !== undefined) {
       const n=Number(args[option]);if(!Number.isSafeInteger(n)||n<1||n>100000) throw new Error(`Invalid --${option}`);
@@ -208,11 +251,11 @@ export async function main(argv = process.argv.slice(2), control?: ExecutionCont
       flags.has('cloud') ? new OpenAICompatibleModel({
         url:process.env['AGENT_COMMONS_CLOUD_URL']??'',model:process.env['AGENT_COMMONS_CLOUD_MODEL']??'',apiKey:process.env['AGENT_COMMONS_CLOUD_API_KEY'],allowRemote:true
       }):undefined;
-    console.log(`Mission: ${state.id} | workspace: ${path.resolve(args['workspace'])}`);
+    console.log(`Mission: ${state.id} | profile: ${requestedProfile} | workspace: ${path.resolve(args['workspace'])}`);
     console.log('Selected skills: ' + (skills.ids.join(', ') || 'none') +
       ' | approved MCP tools: ' + approved.allowed.length);
     const result=await new MissionRunner(store,local,executor,limits,cloud,flags.has('allow-cloud-source'),{
-      guidance:[skills.instructions, memoryGuidance].filter(Boolean).join('\n\n'), skillIds:skills.ids, mcpTools:approved.allowed, plan:true, control
+      guidance:[skills.instructions, hundredxGuidance, memoryGuidance].filter(Boolean).join('\n\n'), skillIds:skills.ids, mcpTools:approved.allowed, plan:true, control
     }).run(state);
     const outcomeMemory = new PersistentMissionMemory(ctx.commonsDir, workspace.workspaceId);
     try { outcomeMemory.recordOutcome(result); } finally { outcomeMemory.close(); }

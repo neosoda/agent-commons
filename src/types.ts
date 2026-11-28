@@ -112,7 +112,7 @@ export interface McpSyncResultItem {
 
 export interface BackupEntry {
   agentId: string;
-  kind: 'mcp-config' | 'mcp-profile' | 'xerj-roots' | 'skill-entry' | 'central-skill';
+  kind: 'mcp-config' | 'mcp-profile' | 'xerj-roots' | 'skill-entry' | 'central-skill' | 'extension-package' | 'extension-config';
   originalPath: string;
   stateBefore: 'missing' | 'file' | 'directory' | 'link';
   backupRelativePath?: string;

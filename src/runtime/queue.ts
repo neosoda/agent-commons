@@ -2,6 +2,7 @@ import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
+import { isExecutionProfile, type ExecutionProfileName } from '../extensions/hundredx.js';
 
 export type QueueStatus = 'queued' | 'running' | 'paused' | 'completed' | 'blocked' |
   'partial' | 'failed' | 'cancelled' | 'needs_review' | 'waiting_for_model';
@@ -14,6 +15,7 @@ export interface QueueEntry {
   allowWrite: boolean;
   allowTests: boolean;
   allowMcp: string[];
+  profile?: ExecutionProfileName;
   /** Optional explicitly authorized cloud CLI adviser, never a coding worker. */
   delegate?: string;
   allowCloudSource?: boolean;
@@ -32,11 +34,15 @@ interface SqlEntry {
 const idPattern = /^[a-f0-9]{24}$/;
 const workspacePattern = /^[a-f0-9]{64}$/;
 const fromRow = (row: SqlEntry): QueueEntry => {
-  const opts = JSON.parse(row.permissions) as { allowWrite: boolean; allowTests: boolean; allowMcp: string[]; delegate?: string; allowCloudSource?: boolean };
+  const opts = JSON.parse(row.permissions) as {
+    allowWrite: boolean; allowTests: boolean; allowMcp: string[];
+    profile?: ExecutionProfileName; delegate?: string; allowCloudSource?: boolean;
+  };
   return {
     id: row.id, missionId: row.mission_id, workspace: row.workspace,
     workspaceId: row.workspace_id, model: row.model,
     allowWrite: opts.allowWrite, allowTests: opts.allowTests, allowMcp: opts.allowMcp,
+    profile: isExecutionProfile(opts.profile) ? opts.profile : 'lite',
     delegate: opts.delegate, allowCloudSource: opts.allowCloudSource,
     priority: row.priority, runAt: row.run_at, status: row.status, attempts: row.attempts,
     leaseUntil: row.lease_until, owner: row.owner
@@ -87,6 +93,7 @@ export class MissionQueue {
         !Number.isSafeInteger(entry.priority) || entry.priority < 0 || entry.priority > 9 ||
         !Number.isSafeInteger(entry.runAt) || entry.runAt < 0 ||
         entry.allowMcp.length > 8 || entry.allowMcp.some(v => !/^[\w.-]+\/[\w.-]+$/.test(v)) ||
+        (entry.profile !== undefined && !isExecutionProfile(entry.profile)) ||
         (entry.delegate !== undefined && !['codex','claude','gemini','opencode','orchestrator'].includes(entry.delegate)) ||
         (entry.allowCloudSource === true && !entry.delegate)) {
       throw new Error('Invalid durable mission queue entry');
@@ -94,6 +101,7 @@ export class MissionQueue {
     const id = crypto.randomBytes(12).toString('hex');
     const permissions = JSON.stringify({
       allowWrite: entry.allowWrite, allowTests: entry.allowTests, allowMcp: entry.allowMcp,
+      profile: entry.profile ?? 'lite',
       delegate: entry.delegate, allowCloudSource: entry.allowCloudSource === true
     });
     this.db.prepare(

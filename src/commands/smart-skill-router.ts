@@ -87,7 +87,25 @@ const ALIASES: Record<string, string[]> = {
   graphique: ['design', 'ui'], ergonomie: ['ux', 'design'], orchestrer: ['orchestration'],
   coordonne: ['orchestration', 'agent'], agents: ['agent'],
   protocole: ['protocol'], animation: ['visualization', 'interactive'],
-  explique: ['documentation'], marketing: ['marketing'], psychologie: ['psychology']
+  explique: ['documentation'], marketing: ['marketing'], psychologie: ['psychology'],
+  formel: ['100x', 'formal', 'verification', 'invariants'],
+  formelle: ['100x', 'formal', 'verification', 'invariants'],
+  verification: ['100x', 'verify', 'invariants', 'testing'],
+  verifier: ['100x', 'verify', 'testing'],
+  invariant: ['100x', 'invariants', 'formal', 'verification'],
+  invariants: ['100x', 'invariant', 'formal', 'verification'],
+  contrat: ['100x', 'invariants', 'verification'],
+  contrats: ['100x', 'invariants', 'verification'],
+  preuve: ['100x', 'verify', 'evidence'],
+  preuves: ['100x', 'verify', 'evidence'],
+  regression: ['100x', 'testing', 'verify'],
+  relecture: ['100x-judge', 'review', 'judge'],
+  capture: ['100x', 'shots', 'playwright', 'ui'],
+  captures: ['100x', 'shots', 'playwright', 'ui'],
+  reprise: ['100x-continue', 'resume', 'checkpoints'],
+  reprendre: ['100x-continue', 'resume', 'checkpoints'],
+  prototype: ['100x', '100x-mockup'],
+  maquette: ['100x-mockup', '100x']
 };
 const MAX_FILE_BYTES = 256 * 1024;
 const HEADER_BYTES = 8192;
