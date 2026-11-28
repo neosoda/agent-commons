@@ -1,7 +1,7 @@
 import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
-import type { MissionStatus } from './mission.js';
+import type { ExecutionControl, MissionStatus } from './mission.js';
 import { MissionQueue, type QueueEntry, type QueueStatus } from './queue.js';
 
 export interface WorkerEvent {
@@ -18,8 +18,9 @@ export interface WorkerEvent {
 export class LocalQueueWorker {
   readonly owner = crypto.randomBytes(12).toString('hex');
   private active = false;
-  constructor(readonly queue: MissionQueue, readonly execute: (job: QueueEntry) => Promise<MissionStatus>,
-    readonly eventFile?: string) {}
+  constructor(readonly queue: MissionQueue,
+    readonly execute: (job: QueueEntry, lease: ExecutionControl) => Promise<MissionStatus>,
+    readonly eventFile?: string, readonly heartbeatMs = 5000) {}
   private log(event: WorkerEvent): void {
     if (!this.eventFile) return;
     if (fs.existsSync(this.eventFile) && fs.lstatSync(this.eventFile).isSymbolicLink()) {
@@ -33,24 +34,28 @@ export class LocalQueueWorker {
     const job = this.queue.claim(this.owner, 30000, now);
     if (!job) { this.queue.release(this.owner); return false; }
     this.active = true;
-    let lostLease = false;
-    const heartbeat = setInterval(() => {
-      try {
-        if (!this.queue.heartbeat(this.owner, job.id)) lostLease = true;
-      } catch { lostLease = true; }
-    }, 5000);
+    const revoked = new AbortController();
+    // Renewing is also the check: a lease that expired or changed owner is never revived.
+    const renew = (): boolean => {
+      if (revoked.signal.aborted) return false;
+      let held = false;
+      try { held = this.queue.heartbeat(this.owner, job.id); } catch { held = false; }
+      if (!held) revoked.abort();
+      return held;
+    };
+    const heartbeat = setInterval(renew, this.heartbeatMs);
     heartbeat.unref();
     this.log({ time: new Date().toISOString(), event: 'started', jobId: job.id });
     try {
       let status: MissionStatus;
       try {
-        status = await this.execute(job);
+        status = await this.execute(job, { signal: revoked.signal, authorize: renew });
       } catch {
         // Unknown effects require a human review before the same job can be resumed.
         status = 'blocked';
         this.log({ time: new Date().toISOString(), event: 'error', jobId: job.id });
       }
-      if (lostLease) {
+      if (revoked.signal.aborted) {
         this.log({ time: new Date().toISOString(), event: 'lease_lost', jobId: job.id });
         throw new Error('Worker heartbeat lease lost; operator review is required');
       }

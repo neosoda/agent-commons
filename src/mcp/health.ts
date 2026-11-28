@@ -9,10 +9,11 @@
  *
  * Environment values, arguments and server output are never returned verbatim.
  */
-import { spawn, spawnSync } from 'node:child_process';
+import { spawn } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { inspectPath } from '../core/links.js';
+import { OWN_PROCESS_GROUP, terminateProcessTree } from '../core/process-tree.js';
 import { redactSecrets } from '../security/scrubber.js';
 import { parseCodexTomlMcpServers, parseJsoncObject } from '../sync/parsers.js';
 import type { DetectedAgent } from '../types.js';
@@ -145,6 +146,8 @@ export interface ProbeOptions {
   toolArguments?: Record<string, unknown>;
   env?: NodeJS.ProcessEnv;
   platform?: NodeJS.Platform;
+  /** Aborting stops the server process tree; the outcome of a sent call stays unknown. */
+  signal?: AbortSignal;
 }
 
 export interface ProbeResult {
@@ -183,14 +186,6 @@ export function buildInvocation(resolved: string, args: string[], platform: Node
   return { file: resolved, args, verbatim: false };
 }
 
-function killTree(pid: number | undefined, platform: NodeJS.Platform): void {
-  if (!pid) return;
-  try {
-    if (platform === 'win32') spawnSync('taskkill', ['/pid', String(pid), '/T', '/F'], { windowsHide: true, stdio: 'ignore' });
-    else process.kill(pid, 'SIGTERM');
-  } catch { /* already exited */ }
-}
-
 function summarizeToolResult(result: unknown): string {
   const content = (result as { content?: Array<{ type?: string; text?: string }> } | undefined)?.content;
   const text = Array.isArray(content) ? content.filter(c => c?.type === 'text').map(c => c.text ?? '').join('\n') : '';
@@ -214,10 +209,17 @@ export async function probeMcpServer(spec: McpLaunchSpec, options: ProbeOptions 
   try { invocation = buildInvocation(resolved, spec.args ?? [], platform); }
   catch (err) { return done({ ok: false, stage: 'spawn', error: (err as Error).message }); }
 
+  if (options.signal?.aborted) return done({ ok: false, stage: 'spawn', error: 'Interrupted before start.' });
+
   const child = spawn(invocation.file, invocation.args, {
     env, shell: false, windowsHide: true, windowsVerbatimArguments: invocation.verbatim,
-    stdio: ['pipe', 'pipe', 'pipe']
+    detached: OWN_PROCESS_GROUP, stdio: ['pipe', 'pipe', 'pipe']
   });
+  let stopping: Promise<void> | undefined;
+  const stop = () => stopping ??= terminateProcessTree(child, exitPromise);
+  let interrupt: (error: Error) => void = () => undefined;
+  const interrupted = new Promise<never>((_, reject) => { interrupt = reject; });
+  interrupted.catch(() => undefined);
   let stderrTail = '';
   child.stderr.on('data', (d: Buffer) => { stderrTail = (stderrTail + d.toString('utf8')).slice(-4000); });
 
@@ -259,7 +261,9 @@ export async function probeMcpServer(spec: McpLaunchSpec, options: ProbeOptions 
     t.unref();
   });
   const exitedEarly = exitPromise.then(() => { throw new Error(`Server stopped before answering (${exited}).`); });
-  const step = <T>(p: Promise<T>) => Promise.race([p, deadline, exitedEarly]);
+  const step = <T>(p: Promise<T>) => Promise.race([p, interrupted, deadline, exitedEarly]);
+  const onAbort = () => { interrupt(new Error('Interrupted.')); void stop(); };
+  options.signal?.addEventListener('abort', onAbort, { once: true });
 
   let stage: ProbeResult['stage'] = 'initialize';
   try {
@@ -294,8 +298,10 @@ export async function probeMcpServer(spec: McpLaunchSpec, options: ProbeOptions 
     const hint = key ? ' Server stderr: ' + key.slice(0, 240) : '';
     return done({ ok: false, stage, error: redactSecrets(((err as Error).message + hint).slice(0, 800)) });
   } finally {
+    options.signal?.removeEventListener('abort', onAbort);
+    // Stop the tree before closing stdin: on Windows an exited parent hides its children.
+    await stop();
     try { child.stdin.end(); } catch { /* ignore */ }
-    if (exited === null) killTree(child.pid, platform);
   }
 }
 
@@ -321,8 +327,9 @@ async function probeHttpServer(url: string, options: ProbeOptions, started: numb
   let session: string | null = null;
   let stage: ProbeResult['stage'] = 'initialize';
   const post = (body: unknown, extra: Record<string, string> = {}) =>
-    fetch(url, { method: 'POST', headers: { ...headers, ...extra },
-      body: JSON.stringify(body), signal: AbortSignal.timeout(timeoutMs) });
+    fetch(url, { method: 'POST', headers: { ...headers, ...extra }, body: JSON.stringify(body),
+      signal: options.signal ? AbortSignal.any([options.signal, AbortSignal.timeout(timeoutMs)])
+        : AbortSignal.timeout(timeoutMs) });
   try {
     const res = await post({ jsonrpc: '2.0', id: 1, method: 'initialize',
       params: { protocolVersion: PROTOCOL_VERSION, capabilities: {}, clientInfo: CLIENT_INFO } });

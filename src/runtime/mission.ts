@@ -17,7 +17,14 @@ export interface ModelClient {
   /** Advisory-only fallback; never grants the cloud permission to execute workspace tools. */
   advise?(input: { goal: string; observations: string[] }): Promise<{ text: string; tokens?: number }>;
 }
-export interface ToolExecutor { execute(request: ToolRequest): Promise<ToolResult> }
+export interface ToolExecutor { execute(request: ToolRequest, signal?: AbortSignal): Promise<ToolResult> }
+/** Authority granted to one execution, for example a queue lease. */
+export interface ExecutionControl {
+  /** Aborted when the authority is withdrawn while the mission runs. */
+  signal?: AbortSignal;
+  /** Rechecked immediately before a tool is dispatched. */
+  authorize?: () => boolean;
+}
 export interface Limits {
   maxSteps: number;
   maxToolCalls: number;
@@ -177,7 +184,8 @@ export class MissionStore {
 export class MissionRunner {
   constructor(readonly store: MissionStore, readonly local: ModelClient, readonly tools: ToolExecutor,
     readonly limits: Limits = DEFAULT_LIMITS, readonly cloud?: ModelClient, readonly allowCloudSource = false,
-    readonly extensions: { guidance?: string; mcpTools?: string[]; skillIds?: string[]; plan?: boolean } = {}) {
+    readonly extensions: { guidance?: string; mcpTools?: string[]; skillIds?: string[]; plan?: boolean;
+      control?: ExecutionControl; controlPollMs?: number } = {}) {
     for (const value of Object.values(limits)) if (!Number.isSafeInteger(value) || value < 0) throw new Error('Invalid execution limit');
   }
   async run(state: MissionState): Promise<MissionState> {
@@ -201,6 +209,11 @@ export class MissionRunner {
     };
     const earlyControl = processControl();
     if (earlyControl) return earlyControl;
+    const authority = this.extensions.control;
+    const authorized = (): boolean => {
+      if (authority?.signal?.aborted) return false;
+      try { return authority?.authorize?.() ?? true; } catch { return false; }
+    };
     if (state.pendingAction) {
       return stop('needs_approval', 'Previous side-effecting operation has uncertain outcome; reconcile before resuming');
     }
@@ -233,6 +246,7 @@ export class MissionRunner {
     while (true) {
       const signal = processControl();
       if (signal) return signal;
+      if (authority?.signal?.aborted) return stop('blocked', 'Execution authority withdrawn');
       if (Date.now() - runStartedAt >= this.limits.maxDurationMs) return stop('blocked', 'Elapsed time budget exhausted');
       if (state.steps >= this.limits.maxSteps) return stop('blocked', 'Step budget exhausted');
       if (state.calls >= this.limits.maxToolCalls) return stop('blocked', 'Tool-call budget exhausted');
@@ -328,6 +342,7 @@ export class MissionRunner {
           if (!escalate('identical action repeated without workspace change')) return stop('blocked', 'Repeated identical action detected');
           continue;
         }
+        if (!authorized()) return stop('blocked', 'Execution authority lost before tool dispatch');
         state.calls++;
         const uncertain = name === 'write_file' || name === 'mcp_call' ||
           (name === 'verify' && args?.['check'] !== 'diff');
@@ -340,11 +355,41 @@ export class MissionRunner {
           state.status = 'verifying';
           this.store.save(state);
         }
+        // An operator command or a lost authority interrupts the running tool, not just the next step.
+        const abort = new AbortController();
+        const withdrawn = () => abort.abort();
+        authority?.signal?.addEventListener('abort', withdrawn, { once: true });
+        if (authority?.signal?.aborted) abort.abort();
+        const watch = setInterval(() => {
+          try { if (this.store.readControl(state.id)) abort.abort(); } catch { abort.abort(); }
+        }, this.extensions.controlPollMs ?? 500);
         let result: ToolResult;
-        try { result = await this.tools.execute(turn.call); }
+        let threw = false;
+        try { result = await this.tools.execute(turn.call, abort.signal); }
         catch {
-          if (uncertain) return stop('needs_approval', 'Tool threw during a potentially effectful action; outcome must be reconciled');
+          threw = true;
           result = { ok: false, progress: false, output: 'Tool execution failed' };
+        } finally {
+          clearInterval(watch);
+          authority?.signal?.removeEventListener('abort', withdrawn);
+        }
+        if (abort.signal.aborted) {
+          // The effect may already have happened: keep pendingAction so nothing replays it.
+          if (!authority?.signal?.aborted) {
+            const command = this.store.readControl(state.id);
+            if (command === 'cancel') {
+              this.store.clearControl(state.id);
+              return stop('cancelled', uncertain ? 'Cancelled during a tool call; its outcome must be reconciled'
+                : 'Cancelled by operator');
+            }
+            if (command === 'pause') this.store.clearControl(state.id);
+            if (!uncertain) return stop('paused', 'Paused by operator');
+          }
+          return stop(uncertain ? 'needs_approval' : 'blocked',
+            uncertain ? 'Tool interrupted; its outcome must be reconciled' : 'Execution authority withdrawn');
+        }
+        if (threw && uncertain) {
+          return stop('needs_approval', 'Tool threw during a potentially effectful action; outcome must be reconciled');
         }
         if (uncertain && !result.ok) {
           return stop('needs_approval', 'Side-effecting tool failed with an uncertain outcome; reconcile before retrying');

@@ -61,7 +61,9 @@ describe('P1 mission skills and real MCP execution', () => {
 
   it('starts MCP servers without the runtime provider credentials', async () => {
     const f = fixture();
-    const secrets = ['AGENT_COMMONS_LOCAL_API_KEY', 'AGENT_COMMONS_CLOUD_API_KEY', 'CREDENTIALS_DIRECTORY'];
+    // Provider credentials, but also anything else the runtime happens to hold.
+    const secrets = ['AGENT_COMMONS_LOCAL_API_KEY', 'AGENT_COMMONS_CLOUD_API_KEY', 'CREDENTIALS_DIRECTORY',
+      'OPENAI_API_KEY', 'GITHUB_TOKEN', 'SSH_AUTH_SOCK', 'NODE_EXTRA_CA_CERTS', 'HTTPS_PROXY', 'UNRELATED_SETTING'];
     const previous = secrets.map(name => [name, process.env[name]] as const);
     try {
       for (const name of secrets) process.env[name] = 'synthetic-value';
@@ -73,8 +75,9 @@ describe('P1 mission skills and real MCP execution', () => {
           const message = JSON.parse(line);
           if (message.id === undefined) return;
           const seen = ${JSON.stringify(secrets)}.filter(name => process.env[name]);
+          const path = Object.keys(process.env).some(name => name.toUpperCase() === 'PATH');
           const result = message.method === 'tools/list' ? { tools: [{ name: 'seen' }] }
-            : message.method === 'tools/call' ? { content: [{ type: 'text', text: 'visible=' + seen.length + ' declared=' + process.env.DECLARED }] }
+            : message.method === 'tools/call' ? { content: [{ type: 'text', text: 'visible=' + seen.length + ' path=' + path + ' declared=' + process.env.DECLARED }] }
             : { protocolVersion: '2025-06-18', capabilities: {}, serverInfo: { name: 'env', version: '1' } };
           process.stdout.write(JSON.stringify({ jsonrpc: '2.0', id: message.id, result }) + '\\n');
         });`);
@@ -83,7 +86,7 @@ describe('P1 mission skills and real MCP execution', () => {
       const approved = await prepareApprovedMcp(f.ctx, ['env/seen']);
       const result = await new MissionToolsWithMcp(new WorkspaceTools(f.project, false, false), approved)
         .execute(call('mcp_call', { server: 'env', tool: 'seen', args: {} }).call);
-      assert.equal(result.output, 'visible=0 declared=kept');
+      assert.equal(result.output, 'visible=0 path=true declared=kept');
     } finally {
       for (const [name, value] of previous) {
         if (value === undefined) delete process.env[name]; else process.env[name] = value;

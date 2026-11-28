@@ -32,13 +32,21 @@ export function selectMissionSkills(ctx: EnvironmentContext, goal: string): Miss
   };
 }
 
+/** What a program needs to start and find its own files. Nothing here authenticates anything. */
+const MCP_INHERITED = new Set([
+  'PATH', 'PATHEXT', 'COMSPEC', 'SYSTEMROOT', 'SYSTEMDRIVE', 'WINDIR', 'PROGRAMDATA', 'PROGRAMFILES',
+  'PROGRAMFILES(X86)', 'APPDATA', 'LOCALAPPDATA', 'HOME', 'HOMEDRIVE', 'HOMEPATH', 'USERPROFILE', 'USER',
+  'USERNAME', 'LOGNAME', 'TMP', 'TEMP', 'TMPDIR', 'LANG', 'LC_ALL', 'LC_CTYPE', 'XDG_CONFIG_HOME',
+  'XDG_DATA_HOME', 'XDG_CACHE_HOME'
+]);
+
 /**
- * MCP servers are separate programs: they never receive the model or cloud provider
- * credentials the runtime holds. A server that needs a key declares it in its own `env`.
+ * MCP servers are separate programs: their environment is built from an allowlist, never
+ * copied from the runtime. Anything else a server needs (key, proxy, extra CA) must be
+ * declared in its own `env` entry.
  */
 function mcpEnvironment(env: NodeJS.ProcessEnv = process.env): NodeJS.ProcessEnv {
-  return Object.fromEntries(Object.entries(env)
-    .filter(([key]) => !/^(?:AGENT_COMMONS_.*(?:KEY|TOKEN|SECRET)|CREDENTIALS_DIRECTORY)$/i.test(key)));
+  return Object.fromEntries(Object.entries(env).filter(([key]) => MCP_INHERITED.has(key.toUpperCase())));
 }
 
 export interface ApprovedMcp {
@@ -87,8 +95,8 @@ export async function prepareApprovedMcp(ctx: EnvironmentContext, permissions: s
 /** Explicit tool permission boundary; the workspace executor never sees MCP arguments. */
 export class MissionToolsWithMcp implements ToolExecutor {
   constructor(private readonly workspace: ToolExecutor, private readonly approved: ApprovedMcp) {}
-  async execute(call: ToolRequest): Promise<ToolResult> {
-    if (call.name !== 'mcp_call') return this.workspace.execute(call);
+  async execute(call: ToolRequest, signal?: AbortSignal): Promise<ToolResult> {
+    if (call.name !== 'mcp_call') return this.workspace.execute(call, signal);
     const args = call.arguments;
     if (!args || Object.keys(args).some(k => !['server', 'tool', 'args'].includes(k)) ||
         typeof args['server'] !== 'string' || typeof args['tool'] !== 'string' ||
@@ -105,7 +113,7 @@ export class MissionToolsWithMcp implements ToolExecutor {
     }
     const report = await probeMcpServer(spec, {
       timeoutMs: 20000, callTool: tool, toolArguments: args['args'] as Record<string, unknown>,
-      env: mcpEnvironment()
+      env: mcpEnvironment(), signal
     });
     if (!report.ok || report.stage !== 'done' || report.toolResult === undefined) {
       return { ok: false, progress: false, output: 'MCP call failed or was not verified: ' + report.stage };
