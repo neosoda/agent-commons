@@ -1,6 +1,6 @@
-# Roadmap vérifiable — après le 22 novembre 2026
+# Roadmap vérifiable — après le 28 novembre 2026
 
-Cette page contient **uniquement les lacunes non soldées**. Les étapes P1–P6 du moteur agentique sont fusionnées dans `main` (`#106–#111`), mais restent **expérimentales**, non une recette du produit complet. État des faits : [capacités](CAPABILITIES.md).
+Cette page contient **uniquement les lacunes non soldées**. Les étapes P1–P6 du moteur agentique sont fusionnées dans `main` (`#106–#111`) et publiées dans `v0.6.1`, mais restent **expérimentales**, non une recette du produit complet. État des faits : [capacités](CAPABILITIES.md).
 
 ## P0 — qualifications avant confiance élargie
 

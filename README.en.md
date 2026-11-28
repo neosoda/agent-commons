@@ -15,9 +15,9 @@
 
 Agent Commons centralizes your **skills**, **MCP** servers and synchronization for Codex, Claude Code, Gemini CLI, Antigravity, OpenCode and other clients. A local interface, discoverable catalog, previewed operations and backups make repetitive setup unnecessary.
 
-**Verified baseline, November 22, 2026:** 21 recognized AI environments, 210 skill **references**, 9 MCP **references** on Nov 22 (10 including the new XERJ integration). Catalog entries are not installed packages. Multi-OS CI, Chromium and Windows portable checks succeeded on `main` `ab19b475`.
+**Verified baseline, November 28, 2026:** 21 recognized AI environments, 212 skill **references**, 11 MCP **references** (including XERJ and Sellbird). Catalog entries are not installed packages. All 11 required GitHub checks (6 OS/Node, 3 live XERJ, Chromium and Windows portable) succeeded on `main` `2570fabf`, published as [v0.6.1](https://github.com/neosoda/agent-commons/releases/tag/v0.6.1).
 
-> **Do not confuse two states:** [v0.6.0](https://github.com/neosoda/agent-commons/releases/tag/v0.6.0) is the latest published release. Since then, PRs #105–#111 added a more capable **experimental mission runtime** to `main`; those additions are **not in the published release**. See [capabilities and evidence](docs/CAPABILITIES.md).
+> **Release status:** [v0.6.1](https://github.com/neosoda/agent-commons/releases/tag/v0.6.1) ships the Windows 8.3 security fix and the **experimental mission runtime** from `main` (`2570fabf`). The mission runtime remains **experimental** (no strong OS sandbox and no completed LM Studio/RTX hardware acceptance); the Windows portable ZIP is **unsigned**, and no npm publication is claimed. See [capabilities and evidence](docs/CAPABILITIES.md).
 
 ## Install
 

@@ -4,14 +4,13 @@
 
 ## Versions
 
-| Version | Statut au 22/11/2026 |
+| Version | Statut au 28/11/2026 |
 |---|---|
-| `v0.6.0` | **Dernière release GitHub publiée** (20/11/2026), support courant publié |
-| `main` post-v0.6.0 | Développement actif, runtime P1–P6 fusionné mais non publié comme nouvelle release |
-| `v0.5.x` | Anciennes versions ; mettre à niveau vers `v0.6.0` |
-| `v0.4.x` et antérieures | Historiques, non recommandées |
+| `v0.6.1` | **Dernière release GitHub publiée** (28/11/2026), support courant publié (inclut le correctif Windows 8.3 et le runtime expérimental jusqu'à `2570fabf`) |
+| `main` post-v0.6.1 | Développement actif |
+| `v0.6.0` et antérieures | Anciennes versions ; mettre à niveau vers `v0.6.1` |
 
-Une nouvelle fonctionnalité sur `main` n'est pas automatiquement un correctif livré aux installations `v0.6.0`. Vérifier [release](https://github.com/neosoda/agent-commons/releases) et [changelog](CHANGELOG.md) avant toute assertion.
+Une nouvelle fonctionnalité sur `main` n'est pas automatiquement un correctif livré aux installations publiées. Vérifier [release](https://github.com/neosoda/agent-commons/releases) et [changelog](CHANGELOG.md) avant toute assertion.
 
 ## Frontières effectives
 

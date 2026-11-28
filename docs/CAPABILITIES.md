@@ -1,6 +1,6 @@
 # Capacités, preuves et limites
 
-**Périmètre :** code `main` au 28/11/2026 (PR jusqu'à #127 fusionnées) ; release GitHub actuelle `v0.6.0` (20/11/2026), qui ne contient pas les ajouts listés dans `[Unreleased]` du [CHANGELOG](../CHANGELOG.md). Chaque fusion exige les 11 contrôles requis (6 OS/Node, 3 XERJ réels, Chromium, ZIP Windows). **Vert en CI n'équivaut pas à validé sur matériel.**
+**Périmètre :** code `main` au 28/11/2026 ; release GitHub actuelle [`v0.6.1`](releases/v0.6.1.md) (`2570fabf`, PR #129), qui publie le correctif Windows 8.3 et le moteur de missions expérimental. Chaque fusion exige les 11 contrôles requis (6 OS/Node, 3 XERJ réels, Chromium, ZIP Windows). **Vert en CI n'équivaut pas à validé sur matériel.**
 
 ## Vocabulaire obligatoire
 
