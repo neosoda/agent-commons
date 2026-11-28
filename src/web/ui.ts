@@ -18,30 +18,20 @@ const HTML = String.raw`<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#0b1221"><meta name="csrf-token" content="__CSRF__">
+<meta name="theme-color" content="#111312"><meta name="csrf-token" content="__CSRF__">
+<link rel="icon" href="data:,">
 <title>Agent Commons · Skill Hub</title>
 <style nonce="__NONCE__">
-:root{color-scheme:dark;--bg:#0b1020;--panel:#111b2d;--panel2:#18253a;--stroke:#293850;--muted:#97a9c4;--ink:#f3f7ff;--accent:#8b9bff;--mint:#68e0c2;--warn:#ffc17c;--bad:#ff8f9e;--radius:18px;font:15px/1.5 Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Arial,sans-serif}
-*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 70% -20%,#223053 0%,transparent 47%),var(--bg);color:var(--ink);min-height:100vh}button,input,select{font:inherit}button{cursor:pointer}a{color:#b8c3ff}a:hover{text-decoration:underline}button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,a:focus-visible{outline:2px solid var(--mint);outline-offset:2px}
-.layout{display:grid;grid-template-columns:238px minmax(0,1fr);min-height:100vh}.sidebar{background:#0b1424e8;border-right:1px solid var(--stroke);padding:28px 16px;position:sticky;top:0;height:100vh;display:flex;flex-direction:column}.brand{display:flex;align-items:center;gap:12px;padding:5px 12px 30px;font-weight:800;font-size:18px;letter-spacing:-.6px}.brand-mark{display:grid;place-items:center;width:40px;height:40px;background:linear-gradient(140deg,var(--accent),var(--mint));color:#0b1424;border-radius:12px;font-size:21px;font-weight:900;box-shadow:0 10px 30px #8b9bff3b}
-.side-label{color:#7287a8;font-size:10px;letter-spacing:2px;text-transform:uppercase;font-weight:800;padding:10px 15px}.nav{display:grid;gap:6px}.nav button{border:0;text-align:left;color:#adbed6;background:transparent;padding:12px 16px;border-radius:12px;font-weight:650;transition:.18s}.nav button:hover{background:#202e44;color:#fff}.nav button.active{background:#293455;color:#e5e8ff;box-shadow:inset 3px 0 var(--accent)}.sidebar-bottom{margin-top:auto;padding:15px;border:1px solid var(--stroke);background:#111e31;border-radius:14px;color:var(--muted);font-size:12px}.status-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--mint);box-shadow:0 0 0 4px #68e0c21a;margin-right:9px}
-.main{padding:32px clamp(20px,4vw,64px) 65px;max-width:1650px;width:100%;margin:auto}.top{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:36px}.eyebrow{font-size:12px;color:var(--mint);text-transform:uppercase;letter-spacing:2.4px;font-weight:800}.top-right{display:flex;gap:12px;align-items:center}.pill{white-space:nowrap;border:1px solid var(--stroke);color:var(--muted);border-radius:50px;padding:6px 12px;font-size:12px}.hero{border:1px solid #435071;background:linear-gradient(115deg,#222a49,#14293a 70%,#113b3c);border-radius:24px;padding:36px 38px;position:relative;overflow:hidden;box-shadow:0 26px 70px #060b1660}h1{font-size:clamp(27px,3.3vw,43px);letter-spacing:-1.6px;line-height:1.12;margin:10px 0 14px}.hero p{color:#c2d1e5;max-width:640px;margin:0 0 25px;font-size:15px}.actions{display:flex;gap:11px;flex-wrap:wrap}.btn{border:1px solid #7189ab;color:#e4edff;background:#22304a;padding:10px 17px;border-radius:11px;font-weight:700;transition:.18s}.btn:hover:not(:disabled){transform:translateY(-1px);border-color:#7786af;background:#2a3c5a}.btn.primary{background:linear-gradient(110deg,#a4aaff,#6fbad3);color:#12162c;border:0}.btn.danger{border-color:#d98591;color:#ffd4dc;background:#462431}.btn.ghost{background:transparent}.btn.small{font-size:12px;padding:7px 11px}.btn:disabled{opacity:.42;cursor:not-allowed}.metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin:20px 0 28px}.metric{background:var(--panel);border:1px solid var(--stroke);padding:21px 23px;border-radius:var(--radius)}.metric .value{font-weight:850;font-size:32px;letter-spacing:-1.3px}.metric .label{color:var(--muted);font-size:12px}.panel{background:var(--panel);border:1px solid var(--stroke);border-radius:var(--radius);padding:23px;margin-bottom:20px}.panel h3{font-size:16px;letter-spacing:-.3px;margin:0 0 10px}.panel p,.dim{color:var(--muted)}.panel p{margin:3px 0 15px}.page{display:none}.page.active{display:block}.section-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:26px 0 16px}.section-head h2{font-size:21px;letter-spacing:-.6px;margin:0}.split{display:grid;grid-template-columns:1.25fr 1fr;gap:20px}.filter-row{display:flex;gap:12px;flex-wrap:wrap;margin:0 0 18px}.field{background:#0b1527;border:1px solid #7189ab;color:var(--ink);padding:11px 13px;border-radius:10px;min-width:180px}.field.search{flex:1;min-width:230px}.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}.skill-card{border:1px solid var(--stroke);background:var(--panel);border-radius:15px;padding:19px;display:flex;flex-direction:column;gap:11px}.skill-card h3{margin:0;font-size:16px}.skill-card p{margin:0;color:var(--muted);font-size:12px;min-height:36px}.catalog-switch{display:flex;gap:7px;flex-wrap:wrap;width:fit-content;max-width:100%;padding:5px;margin:17px 0 19px;border:1px solid var(--stroke);border-radius:13px;background:#142138}.catalog-switch button{border:0;background:transparent;color:var(--muted);font-weight:750;padding:9px 17px;border-radius:10px}.catalog-switch button.active{background:#34466a;color:#fff}.catalog-usage{margin:18px 0;padding:15px;border:1px solid var(--stroke);border-radius:12px;background:#0d1729}.catalog-usage h3{font-size:15px;margin:0 0 9px}.catalog-usage p{white-space:pre-wrap;font-size:13px;color:#c4d2e8}.catalog-command{white-space:pre-wrap;overflow-wrap:anywhere;font:12px/1.65 ui-monospace,monospace;color:#cae4ff;background:#091222;padding:12px;border:1px solid var(--stroke);border-radius:9px}.catalog-prompt{padding:12px;border:1px solid #38506a;border-radius:11px;margin-top:9px}.catalog-prompt p{white-space:pre-wrap;color:#e7f2ff;font-size:13px}.skill-card .bottom{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:auto}.tag{display:inline-block;border:1px solid #394963;border-radius:7px;padding:3px 8px;color:#b9c8e1;font-size:11px}.tag.good{color:var(--mint);border-color:#3a746a}.tag.bad{color:var(--bad);border-color:#734151}.tag.warn{color:var(--warn);border-color:#866747}.row-item{border-bottom:1px solid var(--stroke);padding:14px 0;display:flex;justify-content:space-between;align-items:center;gap:12px}.row-item:last-child{border-bottom:0}.row-item strong{font-size:13px}.row-item small{display:block;color:var(--muted);font-size:12px;margin-top:4px}.agents-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.agent-card{background:#15233a;border:1px solid #2f415d;border-radius:14px;padding:16px}.agent-card .head{display:flex;gap:9px;align-items:center;justify-content:space-between}.agent-card h3{margin:0;font-size:15px}.agent-card p{font-size:12px;color:var(--muted);margin:8px 0 0}.checkbox-list{max-height:255px;overflow:auto;border:1px solid #7189ab;border-radius:12px;padding:10px 14px;background:#0d1729;display:grid;gap:7px}.check{display:flex;gap:11px;align-items:center;font-size:13px;padding:5px}.check input{accent-color:var(--accent)}.subtle{font-size:12px;color:var(--muted)}.result-box{white-space:pre-wrap;overflow-wrap:anywhere;max-height:350px;overflow:auto;background:#0a1221;border:1px solid #293952;color:#b6d6ee;padding:16px;border-radius:12px;font:12px/1.6 ui-monospace,SFMono-Regular,Consolas,monospace}.toast{position:fixed;bottom:25px;right:25px;background:#214b48;border:1px solid #5dcfb4;color:#e5fff8;border-radius:13px;padding:12px 18px;box-shadow:0 15px 50px #0008;z-index:20;max-width:400px}.toast.error{background:#4b2530;border-color:#ee8797}.hidden{display:none!important}.modal-backdrop{position:fixed;inset:0;background:#040913bd;z-index:30;display:grid;place-items:center;padding:16px}.modal{background:#141e31;border:1px solid #7189ab;width:min(610px,100%);max-height:88vh;overflow:auto;border-radius:20px;padding:26px;box-shadow:0 20px 100px #000b}.modal h2{margin:0 0 12px;font-size:22px}.modal .copy{color:var(--muted);font-size:13px}.modal-buttons{display:flex;justify-content:flex-end;gap:10px;margin-top:22px}.links{display:flex;gap:12px;flex-wrap:wrap}.links a{font-size:12px}.footer{font-size:12px;color:#798ca8;margin-top:28px}.empty{padding:36px;text-align:center;border:1px dashed #43506a;border-radius:14px;color:var(--muted)}.spinner{display:inline-block;border:2px solid #43546c;border-top-color:var(--mint);border-radius:50%;width:14px;height:14px;animation:spin .7s linear infinite;margin-right:8px}@keyframes spin{to{transform:rotate(360deg)}}
-.sr-only{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}.lang-select{color:var(--ink);background:var(--panel);border:1px solid #7189ab;border-radius:10px;padding:6px 8px;font:inherit;font-size:12px;min-width:0}.top-right{flex-wrap:wrap}@media(max-width:730px){.top{align-items:flex-start;flex-wrap:wrap}}.skip-link{position:absolute;left:16px;top:-100px;z-index:100;padding:12px 16px;background:var(--panel);border:2px solid var(--mint);border-radius:10px;color:var(--ink)}.skip-link:focus{top:12px}.mt-14{margin-top:14px}.mt-15{margin-top:15px}.mt-16{margin-top:16px}.mt-18{margin-top:18px}.mt-19{margin-top:19px}.modal .copy{white-space:pre-line}
-@media(max-width:1050px){.split{grid-template-columns:1fr}.metrics{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:730px){.layout{display:block}.sidebar{position:static;height:auto;border-right:0;border-bottom:1px solid var(--stroke);padding:10px}.brand{padding:6px 10px}.nav{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;overflow:visible}.nav button{white-space:normal;text-align:center;padding:10px 4px;font-size:12px;min-width:0}.side-label,.sidebar-bottom{display:none}.main{padding:24px 14px}.top{margin-bottom:22px}.hero{padding:24px}.cards,.agents-grid{grid-template-columns:1fr}.metrics{gap:10px}.metric{padding:16px}.metric .value{font-size:25px}}
-@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important}}
-.catalog-guide{display:flex;align-items:center;gap:12px 24px;flex-wrap:wrap;border-left:3px solid var(--mint);padding:8px 0 8px 18px;margin:24px 0}.catalog-guide strong{font-size:14px}.catalog-guide span{color:var(--muted);font-size:13px;flex:1;min-width:180px}.catalog-toolbar{margin-bottom:20px}.catalog-results{display:flex;gap:12px;align-items:center;justify-content:space-between;margin:18px 0}.catalog-results .subtle{margin:0}.skill-card .card-tags{display:flex;gap:6px;flex-wrap:wrap}.skill-card .card-meta{min-height:0;font-size:12px}.skill-card .bottom{flex-wrap:wrap;border-top:1px solid var(--stroke);padding-top:14px;gap:12px}.card-actions{display:flex;gap:8px;flex-wrap:wrap;margin-left:auto}.catalog-empty{grid-column:1/-1;padding:44px 20px}.catalog-empty h3{color:var(--ink);margin:0 0 8px}.catalog-empty p{margin:0 0 20px}.extension-actions{display:flex;flex-wrap:wrap;gap:10px;margin:20px 0}.extension-steps{list-style:none;margin:20px 0;padding:0;display:grid;border-top:1px solid var(--stroke)}.extension-steps li{padding:12px 0;border-bottom:1px solid var(--stroke);display:flex;gap:14px;align-items:baseline;justify-content:space-between}.extension-steps strong{font-size:13px}.extension-steps span{font-size:12px;color:var(--muted);text-align:right}.extension-steps .step-complete{color:var(--mint)}.preview-loading{display:flex;align-items:center;gap:8px;padding:18px 0}.preview-loading .spinner{flex-shrink:0}.preview-summary{white-space:pre-line}.modal-buttons{flex-wrap:wrap}.check:has(input[type="checkbox"]){min-height:44px}.btn{min-height:40px}.btn.small{min-height:36px}.catalog-switch button{min-height:40px}#catalog-cards[aria-busy="true"]{min-height:120px}::selection{background:#8b9bff55;color:var(--ink)}input,textarea{caret-color:var(--mint)}
-@media(max-width:1000px){.skill-card .bottom{align-items:flex-start}.card-actions{margin-left:0;width:100%}.catalog-guide .btn{margin-left:0}}
-@media(max-width:420px){.catalog-results{flex-wrap:wrap}.catalog-results .btn{flex:1}.catalog-results .subtle{flex-basis:100%}.catalog-switch{width:100%}.catalog-switch button{padding:9px 11px;flex:1}.extension-steps li{flex-direction:column;gap:2px}.extension-steps span{text-align:left}.extension-actions .btn{flex:1}.card-actions .btn{flex:1}}
-@media(max-width:730px){#page-catalog .section-head{margin-top:8px}#page-catalog h1{font-size:28px;letter-spacing:-.6px;margin:0 0 12px}#page-catalog .section-head .dim{font-size:13px}.catalog-guide{display:none}#page-catalog .filter-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}#catalog-search{grid-column:1/-1}#page-catalog .field{min-width:0;width:100%;padding:9px 11px;font-size:13px}.catalog-results{flex-wrap:wrap;margin:12px 0;gap:8px}.catalog-results #catalog-count{flex-basis:100%}#extension-summary{font-size:11px}.catalog-switch{margin:12px 0}}
 __DESIGN_CSS__
 __MISSION_CSS__
 </style></head>
 <body><a class="skip-link" href="#main-content">Skip to main content</a><div class="layout">
 <aside class="sidebar">
-<div class="brand"><span class="brand-mark" aria-hidden="true">A/</span><span class="brand-lockup">Agent Commons<small>Local agent control plane</small></span></div>
+<div class="topbar"><div class="brand"><span class="brand-mark" aria-hidden="true">A/</span><span class="brand-lockup">Agent Commons<small>Local agent control plane</small></span></div>
+<div class="top-right"><button id="global-search-toggle" type="button" aria-haspopup="dialog" aria-controls="quick-switcher" aria-keyshortcuts="Control+K Meta+K"><span class="search-glyph" aria-hidden="true">⌕</span><span class="search-label">Find anything</span><span class="keycap" aria-hidden="true">Ctrl K</span></button><span class="pill">● Local-first</span><button class="btn small ghost" id="theme-toggle" type="button" aria-label="Switch to light theme" aria-pressed="false" title="Switch theme">◑</button><select id="language-select" aria-label="Interface language" class="lang-select"><option value="en">English</option><option value="fr">Français</option></select><button class="btn small ghost" id="refresh">↻ Refresh</button></div></div>
 <div class="side-label">Workspace</div>
 <nav class="nav" aria-label="Dashboard sections">
+<span class="nav-ind" id="nav-ind" aria-hidden="true"></span>
 <button data-page="overview" aria-controls="page-overview" class="active" aria-current="page"><span aria-hidden="true">01</span> <span>Overview</span></button>
 <button data-page="catalog" aria-controls="page-catalog"><span aria-hidden="true">02</span> <span>Skills & MCP</span></button>
 <button data-page="agents" aria-controls="page-agents"><span aria-hidden="true">03</span> <span>My agents</span></button>
@@ -52,13 +42,26 @@ __MISSION_CSS__
 </nav>
 <div class="sidebar-bottom"><span class="status-dot"></span>Local workspace<br><span class="subtle">127.0.0.1 only · no cloud account</span></div>
 </aside>
+<aside class="rail" id="rail" aria-label="Quick actions">
+<button type="button" data-rail-action="search" aria-label="Search (Ctrl+K)"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><span class="rail-tip">Search · Ctrl K</span></button>
+<button type="button" data-rail-go="overview" aria-label="Overview" class="on"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg><span class="rail-tip">Overview</span></button>
+<button type="button" data-rail-go="catalog" aria-label="Skills & MCP"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7a2 2 0 0 1 2-2h4l2 2h6a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/></svg><span class="rail-tip">Skills & MCP</span></button>
+<button type="button" data-rail-go="agents" aria-label="My agents"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7M18 14.5a6.5 6.5 0 0 1 3.5 5.5"/></svg><span class="rail-tip">My agents</span></button>
+<button type="button" data-rail-go="mcp-center" aria-label="MCP Control Center"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 14a4.5 4.5 0 0 0 6.4 0l3-3a4.5 4.5 0 0 0-6.4-6.4l-1 1"/><path d="M14 10a4.5 4.5 0 0 0-6.4 0l-3 3a4.5 4.5 0 0 0 6.4 6.4l1-1"/></svg><span class="rail-tip">MCP Control Center</span></button>
+<button type="button" data-rail-go="integrity" aria-label="Integrity"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7"/></svg><span class="rail-tip">Integrity</span></button>
+<button type="button" data-rail-go="backups" aria-label="Backups"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span class="rail-tip">Backups</span></button>
+<button type="button" data-rail-go="missions" aria-label="Missions"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 17 6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg><span class="rail-tip">Missions</span></button>
+<hr>
+<button type="button" data-rail-action="refresh" aria-label="Refresh workspace"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.3-5.6"/><path d="M20 4v5h-5"/></svg><span class="rail-tip">Refresh</span></button>
+<button type="button" data-rail-action="theme" aria-label="Toggle theme"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg><span class="rail-tip">Theme</span></button>
+</aside>
 <main class="main" id="main-content" tabindex="-1">
-<div class="top"><div class="eyebrow">WORKSPACE / <span id="current-view">Overview</span></div><div class="top-right"><button id="global-search-toggle" type="button" aria-haspopup="dialog" aria-controls="quick-switcher" aria-keyshortcuts="Control+K Meta+K"><span class="search-glyph" aria-hidden="true">⌕</span><span class="search-label">Find anything</span><span class="keycap" aria-hidden="true">Ctrl K</span></button><span class="pill">● Local-first</span><button class="btn small ghost" id="theme-toggle" type="button" aria-label="Switch to light theme" aria-pressed="false" title="Switch theme">◑</button><select id="language-select" aria-label="Interface language" class="lang-select"><option value="en">English</option><option value="fr">Français</option></select><button class="btn small ghost" id="refresh">↻ Refresh</button></div></div>
+<div class="top"><div class="eyebrow">WORKSPACE / <span id="current-view">Overview</span></div></div>
 <section class="page active" id="page-overview">
 <div class="hero"><div class="eyebrow">THE LOCAL AGENT CONTROL PLANE</div><h1>Your local agent workspace</h1><p>Skills, MCP servers and snapshots for the AI agents detected on this machine. Nothing is installed or synchronized without a preview and your confirmation.</p><div class="actions"><button class="btn primary" data-go="catalog">Explore tools</button><button class="btn" data-go="agents">Manage agents</button></div></div>
 <div class="metrics" id="metrics"></div>
 <div class="overview-signal" id="overview-signal" role="status" aria-live="polite"><div><span class="eyebrow">CURRENT WORKSPACE SIGNAL</span><strong id="overview-signal-title">Loading local state…</strong><p id="overview-signal-detail" class="subtle"></p></div><button class="btn small ghost" data-go="integrity">Inspect integrity</button></div>
-<div class="split"><div class="panel"><h3>Detected agents</h3><p>Installed environments detected on this machine.</p><div id="overview-agents"></div></div><div class="panel"><h3>Workspace health</h3><p>Quick read of locally managed skills.</p><div id="overview-health"></div><button class="btn small" data-go="integrity">View integrity report</button></div></div>
+<div class="split"><div class="panel"><h3>Detected agents</h3><p>Installed environments detected on this machine.</p><div id="overview-agents"></div></div><div class="panel panel-health"><h3>Workspace health</h3><p>Quick read of locally managed skills.</p><div id="overview-health"></div><div id="overview-mix" class="mix-wrap"></div><button class="btn small" data-go="integrity">View integrity report</button></div></div>
 </section>
 <section class="page" id="page-catalog"><div class="section-head"><div><h1>Skills & MCP catalog</h1><div class="dim">Install and manage reviewed Skills and MCP packages, inspect versions, and choose which agents to synchronize. Every change requires your approval.</div></div></div>
 <div class="catalog-guide"><strong>From your library to your agents</strong><span>Install a reviewed tool, choose its agents, then preview and confirm the changes.</span><button type="button" class="btn small ghost" data-go="agents">Manage agents</button></div>
@@ -158,7 +161,9 @@ __MISSION_CSS__
 </div>
 </section>
 <div class="footer">Agent Commons · Local web UI · No telemetry · No background sync · Source/license review ≠ code security audit</div>
-</main></div>
+</main>
+<div class="dock" id="dock" role="region" aria-label="Workspace summary"><span class="pulse" aria-hidden="true"></span><span class="dock-txt" id="dock-txt">Local workspace ready</span><button type="button" id="dock-btn" data-dock-target="catalog">Explore</button></div>
+</div>
 <div id="quick-switcher" class="quick-switcher hidden"><section class="quick-switcher-dialog" role="dialog" aria-modal="true" aria-labelledby="quick-switcher-heading"><h2 class="sr-only" id="quick-switcher-heading">Search all sections and local skills</h2><div class="quick-switcher-header"><span class="quick-switcher-icon" aria-hidden="true">⌕</span><input id="quick-switcher-input" type="search" autocomplete="off" spellcheck="false" role="combobox" aria-expanded="true" aria-autocomplete="list" aria-controls="quick-switcher-results" aria-label="Search navigation and skills" placeholder="Type a page, skill or agent…" /><button class="btn small ghost" type="button" id="quick-switcher-close" aria-label="Close search">Esc</button></div><div id="quick-switcher-results" class="quick-switcher-results" role="listbox" aria-label="Search results"></div><div class="quick-switcher-footer"><span><kbd>↑</kbd> <kbd>↓</kbd> Navigate</span><span><kbd>↵</kbd> Open</span><span><kbd>Esc</kbd> Close</span></div></section></div>
 <div id="workspace-status" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></div><div id="modal-root"></div><div id="toast" class="toast hidden" role="status" aria-live="polite" aria-atomic="true"></div>
 <script nonce="__NONCE__">
@@ -431,10 +436,25 @@ Object.assign(FR,{
   'View contact sheet':'Voir la planche contact',
   'View hero screenshot':'Voir la capture principale',
   'Hero screenshot':'Capture principale',
-  'Checking…':'Vérification…'
+  'Checking…':'Vérification…',
+  'Theme':'Thème',
+  'Toggle theme':'Changer de thème',
+  'Refresh workspace':'Actualiser l’espace',
+  'Search (Ctrl+K)':'Rechercher (Ctrl+K)',
+  'Search · Ctrl K':'Rechercher · Ctrl K',
+  'Local workspace ready':'Espace local prêt',
+  'Explore':'Explorer',
+  'Inspect':'Inspecter',
+  'Library mix':'Répartition locale',
+  'Shared':'Partagés',
+  'Catalog':'Catalogue',
+  'Warnings':'Alertes',
+  'MCP':'MCP'
 });
 const FR_PATTERNS=[
-  [/^(\\d+) skill integrity warnings require review$/,n=>n+' alertes d’intégrité à examiner'],
+  [/^(\d+) agents · (\d+) shared skills$/,(a,s)=>a+' agents · '+s+' skills partagés'],
+  [/^(\d+) integrity warnings$/,n=>n+' alertes d’intégrité'],
+  [/^(\d+) skill integrity warnings require review$/,n=>n+' alertes d’intégrité à examiner'],
   [/^(\\d+) managed skill installations checked$/,n=>n+' installations gérées vérifiées'],
   [/^Install MCP · (.+)$/,id=>'Installer le MCP · '+id],
   [/^Update MCP · (.+)$/,id=>'Mettre à jour le MCP · '+id],
@@ -587,7 +607,43 @@ function renderOverview(){
   $('overview-signal-detail').textContent=issues>0?
     'Review flagged installations before further changes.':
     scanned>0?scanned+' managed skill installations checked':'Install reviewed skills to enable integrity checks.';
-  clear($('overview-agents'));const agents=state.inventory.agents.filter(a=>a.installed);if(!agents.length)$('overview-agents').append(node('p','No supported agents detected on this machine.','dim'));agents.slice(0,8).forEach(a=>{const element=row(a.name,a.linkedSkills.length+' linked skills · '+a.mcpServers.length+' MCP servers',labelStatus('installed'));element.querySelector('strong').dataset.noI18n='true';$('overview-agents').append(element)});clear($('overview-health'));const bad=state.integrity.results.filter(s=>s.status!=='intact');const checked=state.integrity.scanned>0;$('overview-health').append(row('Managed skills checked',state.integrity.scanned+' reviewed-catalog installations',labelStatus(!checked?'not checked':bad.length?'attention':'intact')));$('overview-health').append(row('Integrity warnings',bad.length+' items needing attention',labelStatus(!checked?'not checked':bad.length?'untracked':'intact')));$('overview-health').append(row('Local backups',state.inventory.backups.length+' available snapshots',null))}
+  clear($('overview-agents'));const agents=state.inventory.agents.filter(a=>a.installed);if(!agents.length)$('overview-agents').append(node('p','No supported agents detected on this machine.','dim'));agents.slice(0,8).forEach(a=>{const element=row(a.name,a.linkedSkills.length+' linked skills · '+a.mcpServers.length+' MCP servers',labelStatus('installed'));element.querySelector('strong').dataset.noI18n='true';$('overview-agents').append(element)});clear($('overview-health'));const bad=state.integrity.results.filter(s=>s.status!=='intact');const checked=state.integrity.scanned>0;$('overview-health').append(row('Managed skills checked',state.integrity.scanned+' reviewed-catalog installations',labelStatus(!checked?'not checked':bad.length?'attention':'intact')));$('overview-health').append(row('Integrity warnings',bad.length+' items needing attention',labelStatus(!checked?'not checked':bad.length?'untracked':'intact')));$('overview-health').append(row('Local backups',state.inventory.backups.length+' available snapshots',null));
+  const mixHost=$('overview-mix');
+  if(mixHost){
+    clear(mixHost);
+    const sharedCount=state.inventory.centralSkills.length;
+    const availCount=Math.max(0,state.catalog.filter(s=>!s.installed).length);
+    const mcpCount=state.inventory.centralMcpServers.length;
+    const segments=[
+      ['Shared',sharedCount,'mix-y'],
+      ['Catalog',availCount,'mix-l'],
+      ['Warnings',bad.length,'mix-r'],
+      ['MCP',mcpCount,'mix-k']
+    ].filter(([,v])=>v>0);
+    if(segments.length){
+      mixHost.append(node('span','Library mix','mix-title'));
+      const bar=node('div',null,'mixbar'),leg=node('div',null,'mixleg');
+      for(const [lbl,val,cls] of segments){
+        const seg=node('span',null,cls);seg.style.flexGrow=String(val);seg.title=lbl+': '+val;bar.append(seg);
+        const item=node('span'),dot=node('i',null,cls);item.append(dot,node('span',lbl),rawNode('b',String(val)));leg.append(item);
+      }
+      mixHost.append(bar,leg);
+    }
+  }
+  const dock=$('dock'),dockTxt=$('dock-txt'),dockBtn=$('dock-btn');
+  if(dock&&dockTxt&&dockBtn){
+    dock.classList.toggle('has-alert',issues>0);
+    if(issues>0){
+      dockTxt.textContent=issues+' integrity warnings';
+      dockBtn.textContent='Inspect';
+      dockBtn.dataset.dockTarget='integrity';
+    }else{
+      dockTxt.textContent=agents.length+' agents · '+state.inventory.centralSkills.length+' shared skills';
+      dockBtn.textContent='Explore';
+      dockBtn.dataset.dockTarget='catalog';
+    }
+  }
+}
 function discoveredTools(){
   const tools=state.catalog.map(s=>({kind:'skill',id:s.id,name:s.name,description:s.description,category:s.category,
     categoryName:state.categories.find(c=>c.id===s.category)?.label||s.category,installed:s.installed,skill:s,tags:s.tags,author:s.author}));

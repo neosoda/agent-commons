@@ -1,6 +1,6 @@
-/** Lightweight browser-only keyboard and appearance enhancement. */
+/** Lightweight browser-only keyboard, navigation indicator, rail and appearance enhancement. */
 export const OPERATING_SURFACE_CONTROLS = String.raw`/**
- * Keyboard command palette and appearance controls.
+ * Keyboard command palette, sliding nav capsule, floating rail and appearance controls.
  * Pure presentation: real navigation and catalog filters only. No network
  * requests, no autonomous mutations, and no unreviewed installation actions.
  */
@@ -12,9 +12,40 @@ export const OPERATING_SURFACE_CONTROLS = String.raw`/**
   const closeButton = $('quick-switcher-close');
   const themeButton = $('theme-toggle');
   const themeMeta = document.querySelector('meta[name="theme-color"]');
+  const navBar = document.querySelector('.nav');
+  const navInd = $('nav-ind');
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
   let previousFocus = null;
   let entries = [];
   let selected = 0;
+  let lastInd = null;
+
+  function moveNavIndicator(animate) {
+    if (!navBar || !navInd) return;
+    const active = navBar.querySelector('[aria-current="page"]');
+    if (!active || active.offsetWidth === 0) {
+      navBar.classList.add('no-ind');
+      return;
+    }
+    navBar.classList.remove('no-ind');
+    const to = { left: active.offsetLeft, width: active.offsetWidth };
+    if (animate && lastInd && !reducedMotion.matches && lastInd.left !== to.left && navInd.animate) {
+      const mn = Math.min(lastInd.left, to.left);
+      const mx = Math.max(lastInd.left + lastInd.width, to.left + to.width);
+      navInd.animate(
+        [
+          { left: lastInd.left + 'px', width: lastInd.width + 'px' },
+          { left: (to.left > lastInd.left ? lastInd.left : mn) + 'px', width: (mx - mn) * 0.92 + 'px', offset: 0.45 },
+          { left: to.left + 'px', width: to.width + 'px' }
+        ],
+        { duration: 560, easing: 'cubic-bezier(.3,.75,.2,1)' }
+      );
+    }
+    navInd.style.left = to.left + 'px';
+    navInd.style.width = to.width + 'px';
+    lastInd = to;
+    active.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: animate && !reducedMotion.matches ? 'smooth' : 'auto' });
+  }
 
   function readableSection(button) {
     return button.querySelector('span:last-child')?.textContent.trim() || button.dataset.page;
@@ -155,23 +186,60 @@ export const OPERATING_SURFACE_CONTROLS = String.raw`/**
     }
   }, true);
 
-  function updateViewTitle() {
+  function syncRailActive() {
+    const active = document.querySelector('.nav [aria-current="page"]')?.dataset.page;
+    document.querySelectorAll('#rail [data-rail-go]').forEach(btn => {
+      btn.classList.toggle('on', btn.dataset.railGo === active);
+    });
+  }
+
+  function updateViewTitle(animate = true) {
     const active = document.querySelector('.nav [aria-current="page"]');
     const label = active ? readableSection(active) : 'Overview';
     $('current-view').textContent = label;
     document.title = label + ' · Agent Commons';
+    syncRailActive();
+    moveNavIndicator(animate);
   }
   document.querySelectorAll('[data-page],[data-go]').forEach(button =>
-    button.addEventListener('click', updateViewTitle));
+    button.addEventListener('click', () => updateViewTitle(true)));
   $('language-select').addEventListener('change', () => {
-    updateViewTitle();
+    updateViewTitle(false);
     refreshAppearanceLabel();
   });
+  if (navBar && typeof MutationObserver !== 'undefined') {
+    new MutationObserver(() => updateViewTitle(true)).observe(navBar, {
+      subtree: true,
+      attributes: true,
+      attributeFilter: ['aria-current']
+    });
+  }
+  window.addEventListener('resize', () => moveNavIndicator(false));
+
+  const rail = $('rail');
+  if (rail) {
+    rail.addEventListener('click', event => {
+      const btn = event.target.closest('button');
+      if (!btn) return;
+      if (btn.dataset.railAction === 'search') openPalette();
+      else if (btn.dataset.railAction === 'refresh') refresh(true);
+      else if (btn.dataset.railAction === 'theme') themeButton.click();
+      else if (btn.dataset.railGo) go(btn.dataset.railGo);
+    });
+  }
+
+  const dockBtn = $('dock-btn');
+  if (dockBtn) {
+    dockBtn.addEventListener('click', () => {
+      const target = dockBtn.dataset.dockTarget || 'catalog';
+      go(target);
+    });
+  }
 
   function setTheme(next) {
     const theme = next === 'light' ? 'light' : 'dark';
     document.documentElement.dataset.theme = theme;
-    if (themeMeta) themeMeta.content = theme === 'dark' ? '#101214' : '#e9e9e3';
+    if (themeMeta) themeMeta.content = theme === 'dark' ? '#111312' : '#ece6dc';
     try { localStorage.setItem('agent-commons-ui-theme', theme); } catch {}
     refreshAppearanceLabel();
   }
@@ -190,5 +258,6 @@ export const OPERATING_SURFACE_CONTROLS = String.raw`/**
   try { savedTheme = localStorage.getItem('agent-commons-ui-theme') || ''; } catch {}
   setTheme(savedTheme === 'light' || savedTheme === 'dark' ? savedTheme :
     (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'));
-  updateViewTitle();
+  updateViewTitle(false);
+  requestAnimationFrame(() => moveNavIndicator(false));
 })();`;
