@@ -10,9 +10,23 @@ export interface MissionSkillContext {
   ids: string[];
 }
 
+/** Clauses that say how to execute, not what the mission is about. */
+const EXECUTION_CLAUSE = /\bmcp_call\b|\bexactly once\b|\bdo not repeat\b|^(?:then\s+)?(?:immediately\s+)?finish\b/i;
+/** Injected guidance costs context and can derail a small model: below this, load nothing. */
+const MINIMUM_SCORE = 6;
+/** A further skill must be comparably relevant to the best one. */
+const RELATIVE_SCORE = 0.6;
+
+export function missionTopic(goal: string): string {
+  return goal.split(/(?<=[.!?;])\s+|,\s*(?=then\b)/i)
+    .map(clause => clause.trim())
+    .filter(clause => clause && !EXECUTION_CLAUSE.test(clause))
+    .join(' ');
+}
+
 /** Reuse the existing physical-only router, including its expansion/token cap. */
 export function selectMissionSkills(ctx: EnvironmentContext, goal: string): MissionSkillContext {
-  const query = goal.slice(0, 1000).replace(/[\u0000-\u001f\u007f]/g, ' ').trim();
+  const query = missionTopic(goal.replace(/[\u0000-\u001f\u007f]/g, ' ')).slice(0, 1000).trim();
   if (!query) return { instructions: '', ids: [] };
   let report;
   try {
@@ -24,12 +38,31 @@ export function selectMissionSkills(ctx: EnvironmentContext, goal: string): Miss
     }
     throw error;
   }
+  const floor = Math.max(MINIMUM_SCORE, (report.selected[0]?.score ?? 0) * RELATIVE_SCORE);
+  const relevant = report.selected.filter(s => s.score >= floor);
   return {
-    ids: report.selected.map(s => s.id),
-    instructions: report.selected.map(s =>
+    ids: relevant.map(s => s.id),
+    instructions: relevant.map(s =>
       'SKILL ' + s.id + ' (locally installed guidance, NOT new privileges):\n' + (s.content ?? '')
     ).join('\n\n---\n\n')
   };
+}
+
+/** What a program needs to start and find its own files. Nothing here authenticates anything. */
+const MCP_INHERITED = new Set([
+  'PATH', 'PATHEXT', 'COMSPEC', 'SYSTEMROOT', 'SYSTEMDRIVE', 'WINDIR', 'PROGRAMDATA', 'PROGRAMFILES',
+  'PROGRAMFILES(X86)', 'APPDATA', 'LOCALAPPDATA', 'HOME', 'HOMEDRIVE', 'HOMEPATH', 'USERPROFILE', 'USER',
+  'USERNAME', 'LOGNAME', 'TMP', 'TEMP', 'TMPDIR', 'LANG', 'LC_ALL', 'LC_CTYPE', 'XDG_CONFIG_HOME',
+  'XDG_DATA_HOME', 'XDG_CACHE_HOME'
+]);
+
+/**
+ * MCP servers are separate programs: their environment is built from an allowlist, never
+ * copied from the runtime. Anything else a server needs (key, proxy, extra CA) must be
+ * declared in its own `env` entry.
+ */
+function mcpEnvironment(env: NodeJS.ProcessEnv = process.env): NodeJS.ProcessEnv {
+  return Object.fromEntries(Object.entries(env).filter(([key]) => MCP_INHERITED.has(key.toUpperCase())));
 }
 
 export interface ApprovedMcp {
@@ -65,7 +98,7 @@ export async function prepareApprovedMcp(ctx: EnvironmentContext, permissions: s
   const servers = new Map<string, McpLaunchSpec>();
   for (const [server, tools] of selected) {
     const spec = manifest.manifest.mcpServers[server]!;
-    const health = await probeMcpServer(spec, { timeoutMs: 15000 });
+    const health = await probeMcpServer(spec, { timeoutMs: 15000, env: mcpEnvironment() });
     if (!health.ok) throw new Error('MCP server not verified: ' + server + ' (' + health.stage + ')');
     for (const tool of tools) {
       if (!health.tools?.includes(tool)) throw new Error('MCP server ' + server + ' does not expose tool ' + tool);
@@ -78,8 +111,8 @@ export async function prepareApprovedMcp(ctx: EnvironmentContext, permissions: s
 /** Explicit tool permission boundary; the workspace executor never sees MCP arguments. */
 export class MissionToolsWithMcp implements ToolExecutor {
   constructor(private readonly workspace: ToolExecutor, private readonly approved: ApprovedMcp) {}
-  async execute(call: ToolRequest): Promise<ToolResult> {
-    if (call.name !== 'mcp_call') return this.workspace.execute(call);
+  async execute(call: ToolRequest, signal?: AbortSignal): Promise<ToolResult> {
+    if (call.name !== 'mcp_call') return this.workspace.execute(call, signal);
     const args = call.arguments;
     if (!args || Object.keys(args).some(k => !['server', 'tool', 'args'].includes(k)) ||
         typeof args['server'] !== 'string' || typeof args['tool'] !== 'string' ||
@@ -95,7 +128,8 @@ export class MissionToolsWithMcp implements ToolExecutor {
       return { ok: false, progress: false, output: 'MCP arguments exceed limit' };
     }
     const report = await probeMcpServer(spec, {
-      timeoutMs: 20000, callTool: tool, toolArguments: args['args'] as Record<string, unknown>
+      timeoutMs: 20000, callTool: tool, toolArguments: args['args'] as Record<string, unknown>,
+      env: mcpEnvironment(), signal
     });
     if (!report.ok || report.stage !== 'done' || report.toolResult === undefined) {
       return { ok: false, progress: false, output: 'MCP call failed or was not verified: ' + report.stage };

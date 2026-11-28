@@ -6,7 +6,7 @@ import { DelegatedCliAdvisor, loadDelegate, type DelegateName } from './delegate
 import { MissionQueue } from './queue.js';
 import { LocalQueueWorker, serveQueue, workerEventFile } from './worker.js';
 import { MissionToolsWithMcp, prepareApprovedMcp, selectMissionSkills } from './extensions.js';
-import { MissionRunner, MissionStore, DEFAULT_LIMITS, type Limits } from './mission.js';
+import { MissionRunner, MissionStore, DEFAULT_LIMITS, type ExecutionControl, type Limits } from './mission.js';
 import { WorkspaceTools } from './workspace.js';
 import { OpenAICompatibleModel } from './provider.js';
 
@@ -41,7 +41,7 @@ Optional cloud CLI advice: --delegate codex|claude|gemini|opencode|orchestrator,
 The default remains one local agent. Consultation occurs only after stagnation and local execution resumes.
 Explicit physical CLI smoke test: --delegate-test codex (may consume provider quota; no project data shared).
 `;
-export async function main(argv = process.argv.slice(2)): Promise<number> {
+export async function main(argv = process.argv.slice(2), control?: ExecutionControl): Promise<number> {
   try {
     const {args,flags}=getOptions(argv);
     if (flags.has('help')) {console.log(help);return 0;}
@@ -62,7 +62,7 @@ export async function main(argv = process.argv.slice(2)): Promise<number> {
         throw new Error('Worker cannot also run or enqueue a mission');
       }
       const queue = new MissionQueue(ctx.commonsDir);
-      const worker = new LocalQueueWorker(queue, async (job) => {
+      const worker = new LocalQueueWorker(queue, async (job, lease) => {
         const workspace = new WorkspaceTools(job.workspace, job.allowWrite, job.allowTests);
         if (workspace.workspaceId !== job.workspaceId) throw new Error('Workspace identity has changed');
         const options = ['--workspace', job.workspace, '--resume', job.missionId, '--model', job.model];
@@ -71,7 +71,7 @@ export async function main(argv = process.argv.slice(2)): Promise<number> {
         for (const name of job.allowMcp) options.push('--allow-mcp-tool', name);
         if (job.delegate) options.push('--delegate', job.delegate);
         if (job.allowCloudSource) options.push('--allow-cloud-source');
-        await main(options);
+        await main(options, lease);
         const state = new MissionStore(path.join(ctx.commonsDir, 'missions')).load(job.missionId, job.workspaceId);
         return state.status;
       }, workerEventFile(ctx.commonsDir));
@@ -201,18 +201,18 @@ export async function main(argv = process.argv.slice(2)): Promise<number> {
       const n=Number(args[option]);if(!Number.isSafeInteger(n)||n<1||n>100000) throw new Error(`Invalid --${option}`);
       limits[key]=n*mult;
     }
-    const local=new OpenAICompatibleModel({url:args['url']??process.env['AGENT_COMMONS_LOCAL_URL']??'http://127.0.0.1:1234/v1/chat/completions',model});
+    const local=new OpenAICompatibleModel({url:args['url']??process.env['AGENT_COMMONS_LOCAL_URL']??'http://127.0.0.1:1234/v1/chat/completions',model,apiKey:process.env['AGENT_COMMONS_LOCAL_API_KEY']});
     const cloud = args['delegate'] ?
       new DelegatedCliAdvisor(args['delegate'] as DelegateName,
         loadDelegate(ctx, args['delegate']), flags.has('allow-cloud-source')) :
       flags.has('cloud') ? new OpenAICompatibleModel({
-        url:process.env['AGENT_COMMONS_CLOUD_URL']??'',model:process.env['AGENT_COMMONS_CLOUD_MODEL']??'',apiKey:process.env['AGENT_COMMONS_CLOUD_API_KEY']
+        url:process.env['AGENT_COMMONS_CLOUD_URL']??'',model:process.env['AGENT_COMMONS_CLOUD_MODEL']??'',apiKey:process.env['AGENT_COMMONS_CLOUD_API_KEY'],allowRemote:true
       }):undefined;
     console.log(`Mission: ${state.id} | workspace: ${path.resolve(args['workspace'])}`);
     console.log('Selected skills: ' + (skills.ids.join(', ') || 'none') +
       ' | approved MCP tools: ' + approved.allowed.length);
     const result=await new MissionRunner(store,local,executor,limits,cloud,flags.has('allow-cloud-source'),{
-      guidance:[skills.instructions, memoryGuidance].filter(Boolean).join('\n\n'), skillIds:skills.ids, mcpTools:approved.allowed, plan:true
+      guidance:[skills.instructions, memoryGuidance].filter(Boolean).join('\n\n'), skillIds:skills.ids, mcpTools:approved.allowed, plan:true, control
     }).run(state);
     const outcomeMemory = new PersistentMissionMemory(ctx.commonsDir, workspace.workspaceId);
     try { outcomeMemory.recordOutcome(result); } finally { outcomeMemory.close(); }
