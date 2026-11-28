@@ -106,8 +106,7 @@ export class MissionStore {
     if (workspaceId !== undefined && state.workspaceId !== workspaceId) {
       throw new Error('Mission checkpoint belongs to another workspace or predates workspace binding');
     }
-    // Re-reading after interruption is legitimate; retain budgets and evidence.
-    state.fingerprints = {}; state.idleSteps = 0;
+    // Preserve stagnation and repeated-action detection across interruptions.
     if (!state.writeHistory || typeof state.writeHistory !== 'object' || Array.isArray(state.writeHistory)) state.writeHistory = {};
     return state;
   }

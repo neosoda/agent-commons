@@ -58,4 +58,6 @@ Sur `codex/sentinelbrain-platform`, le worker remet en attente une mission dont 
 
 Le renouvellement du bail et la clôture refusent désormais un propriétaire expiré. Les outils déjà lancés ne sont pas interrompus par cette vérification.
 
-Prochaine action : qualifier la reprise après arrêt réel du processus et l’isolation des outils avant toute intégration distribuée.
+Un test tue le processus entre deux tours et reprend le checkpoint ; les protections contre les actions répétées et la stagnation survivent au rechargement.
+
+Prochaine action : qualifier l’isolation et l’interruption des outils avant toute intégration distribuée.

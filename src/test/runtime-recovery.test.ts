@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { spawn } from 'node:child_process';
 import fs from 'node:fs';
 import http from 'node:http';
 import os from 'node:os';
@@ -71,4 +72,54 @@ it('requires authenticated TLS for remote providers and rejects credentials in U
   assert.throws(() => new OpenAICompatibleModel({ url: 'http://192.0.2.1/v1/chat/completions', model: 'x', apiKey: 'x' }), /HTTPS/);
   assert.throws(() => new OpenAICompatibleModel({ url: 'https://192.0.2.1/v1/chat/completions', model: 'x' }), /authentication/);
   assert.throws(() => new OpenAICompatibleModel({ url: 'https://user:pass@example.test/v1/chat/completions', model: 'x', apiKey: 'x' }), /Invalid/);
+});
+
+
+it('resumes a checkpoint after the runner process is killed between model turns', async () => {
+  const base = fs.mkdtempSync(path.join(os.tmpdir(), 'mission-process-'));
+  const root = path.join(base, 'project');
+  fs.mkdirSync(root); fs.mkdirSync(path.join(root, '.git'));
+  fs.writeFileSync(path.join(root, 'file.txt'), 'evidence');
+  const workspace = new WorkspaceTools(root, false, false);
+  const store = new MissionStore(path.join(base, 'missions'));
+  const state = store.create('Inspect and report', workspace.workspaceId);
+  const missionModule = new URL('../runtime/mission.js', import.meta.url).href;
+  const workspaceModule = new URL('../runtime/workspace.js', import.meta.url).href;
+  const program = `
+    import { MissionStore, MissionRunner } from ${JSON.stringify(missionModule)};
+    import { WorkspaceTools } from ${JSON.stringify(workspaceModule)};
+    const [base, root, id, mode] = process.argv.slice(1);
+    const tools = new WorkspaceTools(root, false, false);
+    const store = new MissionStore(base);
+    let turns = 0;
+    const model = { next: async () => {
+      if (mode === 'resume') return { finish: 'Inspection completed' };
+      if (++turns === 1) return { call: { name: 'read_file', arguments: { path: 'file.txt' } } };
+      process.send('checkpointed');
+      return await new Promise(() => {});
+    }};
+    const result = await new MissionRunner(store, model, tools).run(store.load(id, tools.workspaceId));
+    process.send({ status: result.status });
+  `;
+  try {
+    const first = spawn(process.execPath, ['--input-type=module', '-e', program, store.base, root, state.id, 'first'],
+      { stdio: ['ignore', 'ignore', 'pipe', 'ipc'] });
+    const event = await new Promise<unknown>((resolve, reject) => {
+      first.once('message', resolve); first.once('error', reject);
+      first.once('exit', () => reject(new Error('Runner exited before checkpoint')));
+    });
+    assert.equal(event, 'checkpointed');
+    const stopped = new Promise<void>(resolve => first.once('exit', () => resolve()));
+    first.kill(); await stopped;
+    assert.equal(store.load(state.id, workspace.workspaceId).calls, 1);
+    const second = spawn(process.execPath, ['--input-type=module', '-e', program, store.base, root, state.id, 'resume'],
+      { stdio: ['ignore', 'ignore', 'pipe', 'ipc'] });
+    const resumed = await new Promise<unknown>((resolve, reject) => {
+      second.once('message', resolve); second.once('error', reject);
+      second.once('exit', () => reject(new Error('Runner exited before resume')));
+    });
+    assert.deepEqual(resumed, { status: 'completed' });
+    await new Promise<void>(resolve => second.once('exit', () => resolve()));
+    assert.equal(store.load(state.id).calls, 1);
+  } finally { fs.rmSync(base, { recursive: true, force: true }); }
 });

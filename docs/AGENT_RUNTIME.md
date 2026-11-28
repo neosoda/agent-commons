@@ -73,3 +73,5 @@ Le worker met en attente une mission lorsque le fournisseur est inaccessible, ex
 Pour un fournisseur distant, configurer `AGENT_COMMONS_LOCAL_URL` avec HTTPS et fournir `AGENT_COMMONS_LOCAL_API_KEY` dans l'environnement du service, sans enregistrer le secret dans Git. Le certificat doit être approuvé par Node.js. Les redirections sont refusées. Le fournisseur distant, son modèle et le réseau restent à qualifier sur les machines réelles ; aucun service n'est déployé par cette modification.
 
 Le renouvellement du bail est transactionnel : le verrou et la mission doivent encore appartenir au worker et ne pas être expirés. Un ancien propriétaire ne peut pas enregistrer une fin après expiration. Cette protection ne termine pas un outil déjà lancé : une isolation et une interruption au niveau système restent nécessaires avant toute exécution distribuée fiable.
+
+Les empreintes des actions répétées et le compteur de stagnation restent présents après rechargement du checkpoint. Un test interrompt réellement un processus entre deux tours ; la reprise automatique après perte du bail reste volontairement soumise à réconciliation.
