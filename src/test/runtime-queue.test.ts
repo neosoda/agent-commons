@@ -4,6 +4,7 @@ import os from 'node:os';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import { describe, it } from 'node:test';
+import { DatabaseSync } from 'node:sqlite';
 import { MissionQueue } from '../runtime/queue.js';
 import { LocalQueueWorker } from '../runtime/worker.js';
 import { MissionStore } from '../runtime/mission.js';
@@ -30,6 +31,26 @@ function fixture() {
     close: () => { queue.close(); fs.rmSync(base, { recursive: true, force: true }); } };
 }
 describe('P4 persistent queue and worker', () => {
+  it('drains worker claims transactionally while allowing new missions and existing leases', () => {
+    const f = fixture();
+    const admin = new DatabaseSync(path.join(f.dir, 'queue.sqlite'));
+    try {
+      const first = f.add(8, 0);
+      assert.equal(f.queue.claim(owner)?.id, first.id);
+      admin.exec('BEGIN IMMEDIATE');
+      admin.prepare("INSERT INTO worker_maintenance(name,enabled) VALUES('default',1) ON CONFLICT(name) DO UPDATE SET enabled=excluded.enabled").run();
+      admin.exec('COMMIT');
+      assert.equal(f.queue.heartbeat(owner, first.id), true, 'active mission remains healthy during drain');
+      const later = f.add(5, 0);
+      f.queue.finish(owner, first.id, 'completed');
+      f.queue.release(owner);
+      assert.equal(f.queue.claim('b'.repeat(24)), null, 'drain prevents new claims');
+      assert.equal(f.queue.get(later.id).status, 'queued', 'producers continue to enqueue during drain');
+      admin.prepare("UPDATE worker_maintenance SET enabled=0 WHERE name='default'").run();
+      assert.equal(f.queue.claim('b'.repeat(24))?.id, later.id, 'processing resumes after drain');
+    } finally { admin.close(); f.close(); }
+  });
+
   it('persists durable queue and selects only due jobs by priority', () => {
     const f = fixture(); try {
       const later = f.add(9, Date.now() + 60000);
