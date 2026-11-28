@@ -44,7 +44,9 @@ export const OPERATING_SURFACE_CONTROLS = String.raw`/**
     navInd.style.left = to.left + 'px';
     navInd.style.width = to.width + 'px';
     lastInd = to;
-    active.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: animate && !reducedMotion.matches ? 'smooth' : 'auto' });
+    if (animate) {
+      active.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: reducedMotion.matches ? 'auto' : 'smooth' });
+    }
   }
 
   function readableSection(button) {
