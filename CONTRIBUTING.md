@@ -30,3 +30,11 @@ npm test
 2. If the agent supports file-based MCP configuration, specify its `mcpConfig` path and format (`standard-json`, `opencode-jsonc`, or `codex-toml`). If it only supports a `skills/` folder, omit `mcpConfig`.
 3. Add detection and synchronization tests in `src/test/`.
 4. Update the compatibility matrix in `README.md`.
+
+## `main` and automated consumers
+
+Operators may deploy `main` automatically, and only for a commit whose push workflows all succeeded.
+
+- Treat every merge into `main` as releasable.
+- Workflow file names and job names are part of that contract: renaming or removing one stops such deployments until their required list is updated. Say so in the pull request.
+- A change to the mission queue or memory database schema needs an explicit migration note: an automated deployment may refuse it.
