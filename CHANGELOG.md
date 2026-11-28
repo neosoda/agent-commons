@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed (mission skill selection)
+- Missions no longer load skills matched only by execution vocabulary (`mcp_call`, "read once", "finish"…): such clauses are ignored for routing, a weak match loads nothing and a second skill must be comparably relevant. `skills route` is unchanged. The router remains lexical.
+
 ### Security
 - Mission runtime: a lost queue lease, or `--cancel` / `--pause` sent during a tool, now interrupts the running tool and stops its local process tree; the lease is rechecked before every dispatch. Timeouts of MCP servers and project scripts also stop their descendants. An interrupted effect stays pending and is never replayed. This is not an OS sandbox.
 - Mission runtime: the MCP server environment is now built from an allowlist. Declare any other variable a server needs (key, proxy, extra CA) in its `env` entry.

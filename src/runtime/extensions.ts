@@ -10,9 +10,23 @@ export interface MissionSkillContext {
   ids: string[];
 }
 
+/** Clauses that say how to execute, not what the mission is about. */
+const EXECUTION_CLAUSE = /\bmcp_call\b|\bexactly once\b|\bdo not repeat\b|^(?:then\s+)?(?:immediately\s+)?finish\b/i;
+/** Injected guidance costs context and can derail a small model: below this, load nothing. */
+const MINIMUM_SCORE = 6;
+/** A further skill must be comparably relevant to the best one. */
+const RELATIVE_SCORE = 0.6;
+
+export function missionTopic(goal: string): string {
+  return goal.split(/(?<=[.!?;])\s+|,\s*(?=then\b)/i)
+    .map(clause => clause.trim())
+    .filter(clause => clause && !EXECUTION_CLAUSE.test(clause))
+    .join(' ');
+}
+
 /** Reuse the existing physical-only router, including its expansion/token cap. */
 export function selectMissionSkills(ctx: EnvironmentContext, goal: string): MissionSkillContext {
-  const query = goal.slice(0, 1000).replace(/[\u0000-\u001f\u007f]/g, ' ').trim();
+  const query = missionTopic(goal.replace(/[\u0000-\u001f\u007f]/g, ' ')).slice(0, 1000).trim();
   if (!query) return { instructions: '', ids: [] };
   let report;
   try {
@@ -24,9 +38,11 @@ export function selectMissionSkills(ctx: EnvironmentContext, goal: string): Miss
     }
     throw error;
   }
+  const floor = Math.max(MINIMUM_SCORE, (report.selected[0]?.score ?? 0) * RELATIVE_SCORE);
+  const relevant = report.selected.filter(s => s.score >= floor);
   return {
-    ids: report.selected.map(s => s.id),
-    instructions: report.selected.map(s =>
+    ids: relevant.map(s => s.id),
+    instructions: relevant.map(s =>
       'SKILL ' + s.id + ' (locally installed guidance, NOT new privileges):\n' + (s.content ?? '')
     ).join('\n\n---\n\n')
   };
