@@ -64,4 +64,4 @@ Prochaine action : qualifier l’isolation et l’interruption des outils avant 
 
 ## Environnement des MCP de mission (28 novembre 2026)
 
-La branche `fix/mission-mcp-env` retire les identifiants des fournisseurs (`AGENT_COMMONS_*KEY/TOKEN/SECRET`, `CREDENTIALS_DIRECTORY`) de l’environnement des serveurs MCP lancés par une mission ; les variables déclarées dans le manifeste restent transmises. Validation locale Windows. PR, CI, fusion et déploiement **non réalisés**.
+La branche `fix/mission-mcp-env` retire les identifiants des fournisseurs (`AGENT_COMMONS_*KEY/TOKEN/SECRET`, `CREDENTIALS_DIRECTORY`) de l’environnement des serveurs MCP lancés par une mission ; les variables déclarées dans le manifeste restent transmises. Validation locale Windows. Vérifier la PR et ses contrôles réels avant de déclarer le correctif disponible sur `main` ; aucun déploiement à la rédaction.
