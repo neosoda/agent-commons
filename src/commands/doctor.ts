@@ -13,6 +13,7 @@ import {
   removePhysicalDirectorySafe
 } from '../core/links.js';
 import { estimateSkillMetadataTokens, lintSkillsDirectory, readSkillName } from '../core/skill-lint.js';
+import { inspectHundredX } from '../extensions/hundredx.js';
 import { inspectLaunchTarget, readAgentMcpServers, resolveCommand } from '../mcp/health.js';
 import { redactSecrets } from '../security/scrubber.js';
 import { isValidIdentifier } from '../security/validator.js';
@@ -307,6 +308,11 @@ export function runDoctor(ctx: EnvironmentContext, agentFilter?: string[]): Doct
     invalidCentralLinks > 0 ||
     loadedMcp.status === 'corrupted' ||
     agentStatuses.some((a) => a.brokenLinksCount > 0 || a.mcpStatus === 'corrupted');
+
+  const hx = inspectHundredX(ctx);
+  if (hx.managed && !hx.healthy) {
+    warnings.push('[100x Engineer] Managed CLI integrity check failed; run "agent-commons 100x repair --yes".');
+  }
 
   return {
     healthy: !hasCriticalIssues,

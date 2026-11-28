@@ -274,7 +274,7 @@ function preflightRestore(
   for (const entry of manifest.entries) {
     if (!entry || typeof entry.originalPath !== 'string' ||
         typeof entry.agentId !== 'string' ||
-        !['central-skill', 'skill-entry', 'mcp-config', 'mcp-profile', 'xerj-roots'].includes(entry.kind) ||
+        !['central-skill', 'skill-entry', 'mcp-config', 'mcp-profile', 'xerj-roots', 'extension-package', 'extension-config'].includes(entry.kind) ||
         !['missing', 'link', 'file', 'directory'].includes(entry.stateBefore)) {
       throw new Error('Invalid backup entry in snapshot manifest.');
     }
@@ -295,6 +295,11 @@ function preflightRestore(
         arePathsEqual(targetPath, path.join(ctx.commonsDir, 'mcp-profiles.json'), ctx.platform)) ||
       (entry.kind === 'xerj-roots' && entry.agentId === 'commons' &&
         arePathsEqual(targetPath, path.join(ctx.commonsDir, 'xerj-roots.json'), ctx.platform)) ||
+      (entry.kind === 'extension-package' && entry.agentId === 'commons' &&
+        (arePathsEqual(targetPath, path.join(ctx.commonsDir, 'extensions', '100x'), ctx.platform) ||
+          arePathsEqual(targetPath, path.join(ctx.commonsDir, 'extensions', '100x-installation.json'), ctx.platform))) ||
+      (entry.kind === 'extension-config' && entry.agentId === 'commons' &&
+        arePathsEqual(targetPath, path.join(ctx.homeDir, '.100x', 'config.json'), ctx.platform)) ||
       (entry.kind === 'mcp-config' &&
         ((entry.agentId === 'commons' &&
           arePathsEqual(targetPath, ctx.centralMcpPath, ctx.platform)) ||
