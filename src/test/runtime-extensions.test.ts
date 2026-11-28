@@ -59,6 +59,39 @@ describe('P1 mission skills and real MCP execution', () => {
     } finally { f.cleanup(); }
   });
 
+  it('starts MCP servers without the runtime provider credentials', async () => {
+    const f = fixture();
+    const secrets = ['AGENT_COMMONS_LOCAL_API_KEY', 'AGENT_COMMONS_CLOUD_API_KEY', 'CREDENTIALS_DIRECTORY'];
+    const previous = secrets.map(name => [name, process.env[name]] as const);
+    try {
+      for (const name of secrets) process.env[name] = 'synthetic-value';
+      // Reports which names it can see; the runtime must have removed all of them.
+      const script = path.join(f.home, 'env-server.mjs');
+      fs.writeFileSync(script, `
+        import readline from 'node:readline';
+        readline.createInterface({ input: process.stdin }).on('line', line => {
+          const message = JSON.parse(line);
+          if (message.id === undefined) return;
+          const seen = ${JSON.stringify(secrets)}.filter(name => process.env[name]);
+          const result = message.method === 'tools/list' ? { tools: [{ name: 'seen' }] }
+            : message.method === 'tools/call' ? { content: [{ type: 'text', text: 'visible=' + seen.length + ' declared=' + process.env.DECLARED }] }
+            : { protocolVersion: '2025-06-18', capabilities: {}, serverInfo: { name: 'env', version: '1' } };
+          process.stdout.write(JSON.stringify({ jsonrpc: '2.0', id: message.id, result }) + '\\n');
+        });`);
+      fs.writeFileSync(f.ctx.centralMcpPath, JSON.stringify({ mcpServers: {
+        env: { command: process.execPath, args: [script], env: { DECLARED: 'kept' } } } }));
+      const approved = await prepareApprovedMcp(f.ctx, ['env/seen']);
+      const result = await new MissionToolsWithMcp(new WorkspaceTools(f.project, false, false), approved)
+        .execute(call('mcp_call', { server: 'env', tool: 'seen', args: {} }).call);
+      assert.equal(result.output, 'visible=0 declared=kept');
+    } finally {
+      for (const [name, value] of previous) {
+        if (value === undefined) delete process.env[name]; else process.env[name] = value;
+      }
+      f.cleanup();
+    }
+  });
+
   it('refuses unconfigured or unavailable MCP tools before running a mission', async () => {
     const f = fixture(); try {
       await assert.rejects(prepareApprovedMcp(f.ctx, ['missing/echo']), /Unknown or disabled/);
