@@ -2,9 +2,10 @@ import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import { redactSecrets } from '../security/scrubber.js';
+import { ModelUnavailableError } from './provider.js';
 
 export type MissionStatus = 'queued' | 'planning' | 'running' | 'verifying' | 'paused' |
-  'completed' | 'partial' | 'blocked' | 'needs_approval' | 'failed' | 'cancelled' | 'needs-approval';
+  'waiting_for_model' | 'completed' | 'partial' | 'blocked' | 'needs_approval' | 'failed' | 'cancelled' | 'needs-approval';
 export type ToolName = 'list_files' | 'read_file' | 'write_file' | 'verify' | 'mcp_call';
 export interface ToolRequest { name: ToolName; arguments: Record<string, unknown> }
 export interface ToolResult { ok: boolean; output: string; progress: boolean; changed?: boolean; tested?: boolean }
@@ -40,6 +41,8 @@ export interface MissionState {
   calls: number;
   tokens: number;
   cloudCalls: number;
+  /** Model requests with no response; retained separately from completed model turns. */
+  modelUnavailableCount?: number;
   idleSteps: number;
   changed: boolean;
   tested: boolean;
@@ -103,8 +106,7 @@ export class MissionStore {
     if (workspaceId !== undefined && state.workspaceId !== workspaceId) {
       throw new Error('Mission checkpoint belongs to another workspace or predates workspace binding');
     }
-    // Re-reading after interruption is legitimate; retain budgets and evidence.
-    state.fingerprints = {}; state.idleSteps = 0;
+    // Preserve stagnation and repeated-action detection across interruptions.
     if (!state.writeHistory || typeof state.writeHistory !== 'object' || Array.isArray(state.writeHistory)) state.writeHistory = {};
     return state;
   }
@@ -273,7 +275,14 @@ export class MissionRunner {
         guidance: [this.extensions.guidance ?? '', state.plan?.length ?
           'LOCAL PLAN (unverified, adapt based on tool evidence):\n' + state.plan.join('\n') : '']
           .filter(Boolean).join('\n\n'), mcpTools: this.extensions.mcpTools }); }
-      catch {
+      catch (error) {
+        if (error instanceof ModelUnavailableError) {
+          state.steps--;
+          state.modelUnavailableCount = (state.modelUnavailableCount ?? 0) + 1;
+          state.observations.push('Model unavailable; no tool dispatched');
+          state.observations = state.observations.slice(-12);
+          return stop('waiting_for_model', 'Model unavailable; awaiting retry');
+        }
         state.idleSteps++;
         state.observations.push('Model request failed; no action performed');
         liveObservations.push('Model request failed; no action performed');

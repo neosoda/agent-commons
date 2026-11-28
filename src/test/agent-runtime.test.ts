@@ -108,6 +108,30 @@ describe('bounded local agent runtime',()=>{
       assert.ok(!saved.includes('export const x = 1'));
     }finally{f.cleanup();}
   });
+  it('retains repeated-action protection after checkpoint reload',async()=>{
+    const f=fixture();try{
+      const state=f.store.create('Read the code');
+      const first=await new MissionRunner(f.store,sequence([request('read_file',{path:'a.ts'})]),
+        new WorkspaceTools(f.root,false,false),{...shortLimits,maxSteps:1}).run(state);
+      assert.equal(first.calls,1);
+      const second=await new MissionRunner(f.store,sequence([request('read_file',{path:'a.ts'})]),
+        new WorkspaceTools(f.root,false,false),shortLimits).run(f.store.load(state.id));
+      assert.equal(second.status,'blocked');
+      assert.match(second.reason,/Repeated identical/);
+      assert.equal(second.calls,1);
+    }finally{f.cleanup();}
+  });
+  it('retains the stagnation counter when reloading a checkpoint',async()=>{
+    const f=fixture();try{
+      const state=f.store.create('Inspect safely');
+      state.idleSteps=2;f.store.save(state);
+      const resumed=f.store.load(state.id);
+      assert.equal(resumed.idleSteps,2);
+      const result=await new MissionRunner(f.store,sequence([{text:'No action'}]),
+        new WorkspaceTools(f.root,false,false),shortLimits).run(resumed);
+      assert.equal(result.status,'blocked');assert.match(result.reason,/No measurable progress/);
+    }finally{f.cleanup();}
+  });
   it('escalates once on observable repetition, then stops',async()=>{
     const f=fixture();try{
       let calls=0;

@@ -78,6 +78,36 @@ describe('P4 persistent queue and worker', () => {
       f.queue.release(owner);
     } finally { f.close(); }
   });
+  it('refuses to renew an expired lease and quarantines it at the deadline', () => {
+    const f = fixture(); try {
+      const job = f.add(5, 0);
+      const now = 2_000_000;
+      assert.ok(f.queue.claim(owner, 10000, now));
+      assert.equal(f.queue.heartbeat(owner, job.id, now + 10000, 10000), false);
+      assert.equal(f.queue.get(job.id).leaseUntil, now + 10000);
+      assert.equal(f.queue.claim('b'.repeat(24), 10000, now + 10000), null);
+      assert.equal(f.queue.get(job.id).status, 'needs_review');
+    } finally { f.close(); }
+  });
+  it('rejects completion by an expired owner before another worker claims it', () => {
+    const f = fixture(); try {
+      const job = f.add(5, 0);
+      assert.ok(f.queue.claim(owner, 10000, Date.now() - 20000));
+      assert.throws(() => f.queue.finish(owner, job.id, 'completed'), /ownership lost/);
+      assert.throws(() => f.queue.waitForModel(owner, job.id), /ownership lost/);
+      assert.equal(f.queue.get(job.id).status, 'running');
+    } finally { f.close(); }
+  });
+  it('does not renew the global lock for the wrong job', () => {
+    const f = fixture(); try {
+      const job = f.add(5, 0);
+      assert.ok(f.queue.claim(owner, 10000, 2_000_000));
+      assert.equal(f.queue.heartbeat(owner, 'f'.repeat(24), 2_005_000, 10000), false);
+      assert.equal(f.queue.get(job.id).leaseUntil, 2_010_000);
+      assert.equal(f.queue.claim('b'.repeat(24), 10000, 2_010_000), null);
+      assert.equal(f.queue.get(job.id).status, 'needs_review');
+    } finally { f.close(); }
+  });
   it('quarantines stale running jobs instead of replaying unknown side effects', () => {
     const f = fixture(); try {
       const job = f.add();

@@ -54,6 +54,11 @@ export class LocalQueueWorker {
         this.log({ time: new Date().toISOString(), event: 'lease_lost', jobId: job.id });
         throw new Error('Worker heartbeat lease lost; operator review is required');
       }
+      if (status === 'waiting_for_model') {
+        this.queue.waitForModel(this.owner, job.id);
+        this.log({ time: new Date().toISOString(), event: 'finished', jobId: job.id, status });
+        return true;
+      }
       const final: Exclude<QueueStatus, 'queued' | 'running' | 'needs_review'> =
         status === 'completed' || status === 'partial' || status === 'paused' ||
         status === 'cancelled' || status === 'failed' ? status : 'blocked';

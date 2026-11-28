@@ -201,12 +201,12 @@ export async function main(argv = process.argv.slice(2)): Promise<number> {
       const n=Number(args[option]);if(!Number.isSafeInteger(n)||n<1||n>100000) throw new Error(`Invalid --${option}`);
       limits[key]=n*mult;
     }
-    const local=new OpenAICompatibleModel({url:args['url']??process.env['AGENT_COMMONS_LOCAL_URL']??'http://127.0.0.1:1234/v1/chat/completions',model});
+    const local=new OpenAICompatibleModel({url:args['url']??process.env['AGENT_COMMONS_LOCAL_URL']??'http://127.0.0.1:1234/v1/chat/completions',model,apiKey:process.env['AGENT_COMMONS_LOCAL_API_KEY']});
     const cloud = args['delegate'] ?
       new DelegatedCliAdvisor(args['delegate'] as DelegateName,
         loadDelegate(ctx, args['delegate']), flags.has('allow-cloud-source')) :
       flags.has('cloud') ? new OpenAICompatibleModel({
-        url:process.env['AGENT_COMMONS_CLOUD_URL']??'',model:process.env['AGENT_COMMONS_CLOUD_MODEL']??'',apiKey:process.env['AGENT_COMMONS_CLOUD_API_KEY']
+        url:process.env['AGENT_COMMONS_CLOUD_URL']??'',model:process.env['AGENT_COMMONS_CLOUD_MODEL']??'',apiKey:process.env['AGENT_COMMONS_CLOUD_API_KEY'],allowRemote:true
       }):undefined;
     console.log(`Mission: ${state.id} | workspace: ${path.resolve(args['workspace'])}`);
     console.log('Selected skills: ' + (skills.ids.join(', ') || 'none') +

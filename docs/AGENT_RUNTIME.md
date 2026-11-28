@@ -64,3 +64,14 @@ La file `~/.agents/queue.sqlite` persiste permissions, objectifs et modèle ; un
 Par défaut un seul modèle local reste exécutant. `--cloud` (API et quota séparés) ou `--delegate codex|claude|gemini|opencode|orchestrator` apporte, sur stagnation, **un avis textuel sans outils** ; le modèle local reprend la main. Une CLI doit être installée, authentifiée et déclarée dans le fichier privé `~/.agents/delegates.json` avec commande, arguments et `readOnlyAdvice: true` ; cette déclaration n'est **pas** une sandbox garantie. `--delegate-test codex` vérifie un appel ponctuel éventuellement facturé, sans source projet. Timeout maximal : 90 s par avis, entrée/sortie bornées, environnement filtré, pas de shell. Transfert d'observations de code uniquement avec `--allow-cloud-source`, décision explicite. Ni sous-agents concurrents, ni distribution automatisée de tâches, ni merge/push distant délégué.
 
 **Limites restantes :** vrais modèles LM Studio/RTX, clients CLI et authentifications spécifiques, isolation OS, isolation réseau/sandbox MCP, coût réel et mesures GPU, interruption immédiate des outils, exposition LAN avec identité et contrôle d'accès. [Priorités](ROADMAP.md).
+
+
+## Indisponibilité du fournisseur
+
+Le worker met en attente une mission lorsque le fournisseur est inaccessible, expire ou répond 502, 503 ou 504. La file SQLite réessaie après 30 secondes, puis augmente ce délai jusqu'à cinq minutes. Les checkpoints, permissions et budgets restent conservés. Les requêtes sans réponse sont comptées séparément dans `modelUnavailableCount` ; leur consommation éventuelle de tokens côté fournisseur est inconnue. Les réponses d'authentification et les erreurs de protocole ne déclenchent pas ce mécanisme. Un bail expiré ou une action à effet incertain exige toujours une revue humaine.
+
+Pour un fournisseur distant, configurer `AGENT_COMMONS_LOCAL_URL` avec HTTPS et fournir `AGENT_COMMONS_LOCAL_API_KEY` dans l'environnement du service, sans enregistrer le secret dans Git. Le certificat doit être approuvé par Node.js. Les redirections sont refusées. Le fournisseur distant, son modèle et le réseau restent à qualifier sur les machines réelles ; aucun service n'est déployé par cette modification.
+
+Le renouvellement du bail est transactionnel : le verrou et la mission doivent encore appartenir au worker et ne pas être expirés. Un ancien propriétaire ne peut pas enregistrer une fin après expiration. Cette protection ne termine pas un outil déjà lancé : une isolation et une interruption au niveau système restent nécessaires avant toute exécution distribuée fiable.
+
+Les empreintes des actions répétées et le compteur de stagnation restent présents après rechargement du checkpoint. Un test interrompt réellement un processus entre deux tours ; la reprise automatique après perte du bail reste volontairement soumise à réconciliation.
