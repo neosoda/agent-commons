@@ -56,4 +56,6 @@ La branche `feat/claude-seo-integration` ajoute un pack de références épingl�
 
 Sur `codex/sentinelbrain-platform`, le worker remet en attente une mission dont le modèle est indisponible et conserve le checkpoint avant de la reprendre. Un test utilise un serveur HTTP simulé et rouvre la base SQLite ; il ne constitue pas une recette matérielle ni une validation de déploiement. Les fournisseurs distants exigent HTTPS et une authentification par variable d'environnement.
 
-Prochaine action : qualifier la reprise après arrêt réel du processus, puis vérifier les baux et les budgets avant toute intégration distribuée.
+Le renouvellement du bail et la clôture refusent désormais un propriétaire expiré. Les outils déjà lancés ne sont pas interrompus par cette vérification.
+
+Prochaine action : qualifier la reprise après arrêt réel du processus et l’isolation des outils avant toute intégration distribuée.

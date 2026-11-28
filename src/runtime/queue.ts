@@ -129,7 +129,7 @@ export class MissionQueue {
         'INSERT INTO worker_lock(name,owner,lease_until) VALUES (?,?,?) ON CONFLICT(name) DO UPDATE SET owner=excluded.owner,lease_until=excluded.lease_until'
       ).run('default', owner, now + leaseMs);
       this.db.prepare(
-        "UPDATE jobs SET status='needs_review',owner=NULL,lease_until=NULL,updated_at=? WHERE status='running' AND lease_until < ?"
+        "UPDATE jobs SET status='needs_review',owner=NULL,lease_until=NULL,updated_at=? WHERE status='running' AND lease_until <= ?"
       ).run(now, now);
       // Never run a second job while any active lease still belongs to an earlier worker.
       const running = this.db.prepare("SELECT id FROM jobs WHERE status='running' LIMIT 1").get();
@@ -150,19 +150,32 @@ export class MissionQueue {
     }
   }
   heartbeat(owner: string, jobId: string, now = Date.now(), leaseMs = 30000): boolean {
-    const lock = this.db.prepare('UPDATE worker_lock SET lease_until=? WHERE name=? AND owner=?')
-      .run(now + leaseMs, 'default', owner);
-    if (lock.changes !== 1) return false;
-    this.markWorkerSeen(now);
-    const job = this.db.prepare(
-      "UPDATE jobs SET lease_until=?,updated_at=? WHERE id=? AND status='running' AND owner=?"
-    ).run(now + leaseMs, now, jobId, owner);
-    return job.changes === 1;
+    if (!idPattern.test(owner) || !idPattern.test(jobId) || !Number.isSafeInteger(now) ||
+        !Number.isSafeInteger(leaseMs) || leaseMs < 10000 || leaseMs > 120000) throw new Error('Invalid worker lease');
+    this.db.exec('BEGIN IMMEDIATE');
+    try {
+      const lock = this.db.prepare('UPDATE worker_lock SET lease_until=? WHERE name=? AND owner=? AND lease_until>?')
+        .run(now + leaseMs, 'default', owner, now);
+      const job = this.db.prepare(
+        "UPDATE jobs SET lease_until=?,updated_at=? WHERE id=? AND status='running' AND owner=? AND lease_until>?"
+      ).run(now + leaseMs, now, jobId, owner, now);
+      if (lock.changes !== 1 || job.changes !== 1) {
+        this.db.exec('ROLLBACK');
+        return false;
+      }
+      this.markWorkerSeen(now);
+      this.db.exec('COMMIT');
+      return true;
+    } catch (error) {
+      this.db.exec('ROLLBACK');
+      throw error;
+    }
   }
   finish(owner: string, jobId: string, status: Exclude<QueueStatus,'queued'|'running'|'needs_review'>): void {
+    const now = Date.now();
     const updated = this.db.prepare(
-      "UPDATE jobs SET status=?,owner=NULL,lease_until=NULL,updated_at=? WHERE id=? AND owner=? AND status='running'"
-    ).run(status, Date.now(), jobId, owner);
+      "UPDATE jobs SET status=?,owner=NULL,lease_until=NULL,updated_at=? WHERE id=? AND owner=? AND status='running' AND lease_until>? AND EXISTS (SELECT 1 FROM worker_lock WHERE name='default' AND owner=? AND lease_until>?)"
+    ).run(status, now, jobId, owner, now, owner, now);
     if (updated.changes !== 1) throw new Error('Queue ownership lost; result not recorded');
   }
   /** Retry only a mission that returned before dispatching a tool. */
@@ -170,8 +183,8 @@ export class MissionQueue {
     const job = this.get(jobId);
     const delay = Math.min(300000, 30000 * 2 ** Math.min(Math.max(job.attempts - 1, 0), 4));
     const updated = this.db.prepare(
-      "UPDATE jobs SET status='waiting_for_model',run_at=?,owner=NULL,lease_until=NULL,updated_at=? WHERE id=? AND owner=? AND status='running'"
-    ).run(now + delay, now, jobId, owner);
+      "UPDATE jobs SET status='waiting_for_model',run_at=?,owner=NULL,lease_until=NULL,updated_at=? WHERE id=? AND owner=? AND status='running' AND lease_until>? AND EXISTS (SELECT 1 FROM worker_lock WHERE name='default' AND owner=? AND lease_until>?)"
+    ).run(now + delay, now, jobId, owner, now, owner, now);
     if (updated.changes !== 1) throw new Error('Queue ownership lost; result not recorded');
   }
   release(owner: string): void {
