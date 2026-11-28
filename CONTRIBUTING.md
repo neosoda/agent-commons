@@ -38,3 +38,5 @@ Operators may deploy `main` automatically, and only for a commit whose push work
 - Treat every merge into `main` as releasable.
 - Workflow file names and job names are part of that contract: renaming or removing one stops such deployments until their required list is updated. Say so in the pull request.
 - A change to the mission queue or memory database schema needs an explicit migration note: an automated deployment may refuse it.
+
+`main` is protected: changes arrive through a pull request whose required checks all succeeded.
