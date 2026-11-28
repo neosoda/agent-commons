@@ -63,7 +63,9 @@ export class MissionQueue {
       "CREATE INDEX IF NOT EXISTS idx_queue_due ON jobs(status,run_at,priority DESC);",
       "CREATE TABLE IF NOT EXISTS worker_lock (name TEXT PRIMARY KEY, owner TEXT NOT NULL, lease_until INTEGER NOT NULL);",
       // Liveness only (no owner id): an idle worker holds no lease, so Mission Control needs a separate signal.
-      "CREATE TABLE IF NOT EXISTS worker_presence (name TEXT PRIMARY KEY, seen_at INTEGER NOT NULL);"
+      "CREATE TABLE IF NOT EXISTS worker_presence (name TEXT PRIMARY KEY, seen_at INTEGER NOT NULL);",
+      // Deployment drain gate: keep producers online while preventing new claims.
+      "CREATE TABLE IF NOT EXISTS worker_maintenance (name TEXT PRIMARY KEY, enabled INTEGER NOT NULL CHECK (enabled IN (0,1)));"
     ].join('\n'));
   }
   close(): void { this.db.close(); }
@@ -120,6 +122,11 @@ export class MissionQueue {
     if (!idPattern.test(owner) || leaseMs < 10000 || leaseMs > 120000) throw new Error('Invalid worker lease');
     this.db.exec('BEGIN IMMEDIATE');
     try {
+      // The deployment gate shares the claim transaction, eliminating the idle-check race.
+      // It never blocks enqueue, heartbeats or completion of an already running mission.
+      const maintenance = this.db.prepare('SELECT enabled FROM worker_maintenance WHERE name=?').get('default') as
+        { enabled: number } | undefined;
+      if (maintenance?.enabled === 1) { this.db.exec('COMMIT'); return null; }
       const active = this.db.prepare('SELECT owner,lease_until FROM worker_lock WHERE name=?').get('default') as
         { owner: string; lease_until: number } | undefined;
       if (active && active.owner !== owner && active.lease_until > now) {
