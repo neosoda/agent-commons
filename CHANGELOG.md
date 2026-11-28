@@ -7,7 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-Everything below is on `main` since the v0.6.0 release and is **not** in any published release yet.
+## [0.6.1] - 2026-11-28
+
+Release notes: docs/releases/v0.6.1-release-notes.md
 
 ### Security
 - Mission runtime: on Windows volumes with 8.3 short names, `GIT~1` / `ENV~1` aliases bypassed the protected-path check, so a mission with `--allow-write` could create `.git/hooks/pre-commit` or read `.env`. Paths are now re-checked in their OS-canonical form, names ending in a dot or space are refused, and tool errors no longer forward absolute private paths.
