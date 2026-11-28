@@ -65,3 +65,7 @@ Prochaine action : qualifier l’isolation et l’interruption des outils avant 
 ## Environnement des MCP de mission (28 novembre 2026)
 
 La branche `fix/mission-mcp-env` retire les identifiants des fournisseurs (`AGENT_COMMONS_*KEY/TOKEN/SECRET`, `CREDENTIALS_DIRECTORY`) de l’environnement des serveurs MCP lancés par une mission ; les variables déclarées dans le manifeste restent transmises. Validation locale Windows. Vérifier la PR et ses contrôles réels avant de déclarer le correctif disponible sur `main` ; aucun déploiement à la rédaction.
+
+## Confinement des outils de mission (28 novembre 2026)
+
+La branche `fix/mission-tool-containment` construit l'environnement MCP par liste blanche et interrompt un outil actif quand le bail est perdu ou qu'une annulation est demandée ([garanties et limites](docs/AGENT_RUNTIME.md)). Vérifier la PR, ses contrôles et le SHA réellement déployé. Prochaine action : fusion, puis déploiement sur AGENTS01 sans missions en cours. La permission d'écriture reste désactivée.

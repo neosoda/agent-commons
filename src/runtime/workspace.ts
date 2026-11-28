@@ -2,6 +2,7 @@ import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import { spawn } from 'node:child_process';
+import { OWN_PROCESS_GROUP, terminateProcessTree } from '../core/process-tree.js';
 import { redactSecrets } from '../security/scrubber.js';
 import type { ToolExecutor, ToolRequest, ToolResult } from './mission.js';
 
@@ -25,20 +26,40 @@ function toolError(err: unknown): string {
   return err instanceof Error ? redactSecrets(err.message).slice(0, 200) : 'Operation failed';
 }
 
-function runFixed(command: string, args: string[], cwd: string, timeout: number): Promise<{ code: number; output: string }> {
+function runFixed(command: string, args: string[], cwd: string, timeout: number,
+  signal?: AbortSignal): Promise<{ code: number; output: string }> {
   return new Promise(resolve => {
+    if (signal?.aborted) return resolve({ code: -1, output: 'Interrupted before start' });
     let output = '';
     let done = false;
     const child = spawn(command, args, {
-      cwd, shell: process.platform === 'win32' && command === 'npm', windowsHide: true,
+      cwd, shell: process.platform === 'win32' && command === 'npm', windowsHide: true, detached: OWN_PROCESS_GROUP,
       env: Object.fromEntries(['PATH','Path','SystemRoot','WINDIR','TEMP','TMP','HOME','USERPROFILE','APPDATA','LOCALAPPDATA','PATHEXT'].filter(k => process.env[k]).map(k => [k, process.env[k]])),
       stdio: ['ignore', 'pipe', 'pipe']
     });
-    const timer = setTimeout(() => child.kill(), timeout);
+    let stopped: string | undefined;
+    const exited = new Promise<void>(exit => { child.once('exit', () => exit()); child.once('error', () => exit()); });
+    // A project script can start its own children: stop the whole tree, then stop waiting for its pipes.
+    const stop = (reason: string) => {
+      if (stopped) return;
+      stopped = reason;
+      void terminateProcessTree(child, exited).then(() => {
+        child.stdout.destroy(); child.stderr.destroy();
+        finish(-1, reason);
+      });
+    };
+    const finish = (code: number, text: string) => {
+      if (done) return;
+      done = true; clearTimeout(timer); signal?.removeEventListener('abort', onAbort);
+      resolve({ code, output: text });
+    };
+    const onAbort = () => stop('Interrupted');
+    const timer = setTimeout(() => stop('Timed out'), timeout);
+    signal?.addEventListener('abort', onAbort, { once: true });
     const append = (chunk: Buffer) => { if (output.length < MAX_OUTPUT) output += chunk.toString('utf8').slice(0, MAX_OUTPUT - output.length); };
     child.stdout.on('data', append); child.stderr.on('data', append);
-    child.on('error', () => { if (!done) { done = true; clearTimeout(timer); resolve({code:-1, output:'Executable unavailable'}); } });
-    child.on('close', (code) => { if (!done) { done = true; clearTimeout(timer); resolve({code:code ?? -1, output:redactSecrets(output)}); } });
+    child.on('error', () => finish(-1, 'Executable unavailable'));
+    child.on('close', (code) => { if (!stopped) finish(code ?? -1, redactSecrets(output)); });
   });
 }
 
@@ -90,10 +111,11 @@ export class WorkspaceTools implements ToolExecutor {
     if (relative.split(path.sep).some(p => p && isProtectedPart(p))) throw new Error('Protected path');
     return canonical;
   }
-  async execute(call: ToolRequest): Promise<ToolResult> {
+  async execute(call: ToolRequest, signal?: AbortSignal): Promise<ToolResult> {
     const a = call.arguments;
     if (!a || typeof a !== 'object' || Array.isArray(a)) return {ok:false,progress:false,output:'Invalid tool arguments'};
     try {
+      if (signal?.aborted) return { ok: false, progress: false, output: 'Interrupted before dispatch' };
       if (call.name === 'list_files') {
         if (Object.keys(a).some(k => k !== 'path')) throw new Error('Unexpected argument');
         const dir = this.safe(a['path'] ?? '');
@@ -140,7 +162,7 @@ export class WorkspaceTools implements ToolExecutor {
         if (check !== 'diff' && !this.allowTests) return {ok:false,progress:false,output:'Project scripts require --allow-tests'};
         const command = check === 'diff' ? 'git' : 'npm';
         const args = check === 'diff' ? ['diff','--check'] : ['run', check === 'test' ? 'test' : 'typecheck'];
-        const result = await runFixed(command,args,this.root,check === 'diff' ? 15000 : 120000);
+        const result = await runFixed(command,args,this.root,check === 'diff' ? 15000 : 120000,signal);
         const key = `verify:${check}:${this.revision}`; const progress = result.code === 0 && !this.seen.has(key); this.seen.add(key);
         return {ok:result.code===0,progress,tested:result.code===0 && check==='test',output:result.code === 0 ? `${check}: passed` : `${check}: failed; ${result.output.slice(0,2000)}`};
       }
