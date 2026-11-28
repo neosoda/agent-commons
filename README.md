@@ -15,7 +15,7 @@
 
 Agent Commons centralise vos **skills**, vos serveurs **MCP** et leur synchronisation pour Codex, Claude Code, Gemini CLI, Antigravity, OpenCode et d'autres outils. Une interface locale, un catalogue consultable, des opérations prévisualisées et des sauvegardes : plus besoin de tout reconfigurer à la main.
 
-**État vérifié le 28 novembre 2026 :** 21 environnements IA reconnus, 212 **références** de skills, 11 **références** MCP (dont XERJ et Sellbird). Les références ne sont pas des packages installés. Les 11 contrôles GitHub (6 OS/Node, 3 XERJ réels, Chromium et Windows portable) sont passés sur `main` `2570fabf`, publié en [v0.6.1](https://github.com/neosoda/agent-commons/releases/tag/v0.6.1).
+**État vérifié le 28 novembre 2026 :** 21 environnements IA reconnus, 225 **références** de skills (34 dépôts, dont 13 compétences [100x Engineer](docs/100X_ENGINEER.md) v0.1.1 épinglées), 11 **rérences** MCP (dont XERJ et Sellbird). Les références ne sont pas des packages installés. Référence baseline : les 11 contrôles GitHub (6 OS/Node, 3 XERJ réels, Chromium et Windows portable) sont passés sur `main` `2570fabf`, publié en [v0.6.1](https://github.com/neosoda/agent-commons/releases/tag/v0.6.1) (recontrôler les PR en cours sur GitHub pour tout commit ultérieur).
 
 > **État de la release :** [v0.6.1](https://github.com/neosoda/agent-commons/releases/tag/v0.6.1) livre le correctif de sécurité Windows 8.3 et le **moteur de missions expérimental** depuis `main` (`2570fabf`). Ce moteur reste **expérimental** (sans sandbox OS ni recette matérielle LM Studio/RTX complète) ; l'archive Windows portable est **non signée** et aucune publication npm n'est effectuée. Voir [capacités et preuves](docs/CAPABILITIES.md).
 
@@ -72,6 +72,10 @@ node dist/runtime/cli.js --workspace "/chemin/vers/un-depot" --task "Analyse ce 
 
 Le skill original [Universal Product Engineering](skills/universal-product-engineering/SKILL.md) (V2) orchestre des cycles bornés de développement, tests, enrichissement et critique UX/UI anti-slop avec baseline, scorecard, hiérarchie de preuves et checkpoints. Après installation explicite et synchronisation vers le client choisi, demander : « Exécute le skill universal-product-engineering sur le projet courant. » Voir le [guide d'exploitation](docs/SKILLS_AND_MCP.md#loop-engineering-universel).
 
+## 100x Engineer (optionnel)
+
+[100x Engineer](https://github.com/DeadInternetStudios/100x-engineer-skill) **v0.1.1** (MIT) est intégré de façon optionnelle dans l'Extension Manager (`agent-commons 100x ...` et Skill Hub), avec vérification SHA-256 du `.tgz`, 13 skills épinglés, trois profils d'exécution (`lite` par défaut, `standard`, `deep`), plafonds stricts (0 appel cloud/payant implicite), synergie optionnelle avec `universal-product-engineering` et affichage des invariants/captures dans Mission Control. Une vérification bornée ou échantillonnée ne vaut pas preuve exhaustive. **[Guide 100x Engineer](docs/100X_ENGINEER.md).**
+
 ## Documentation : un chemin court vers la bonne source
 
 | Besoin | Document |
@@ -92,7 +96,7 @@ Agent Commons est **indépendant de SentinelBrain** : modèle sur un autre PC, d
 Le code Agent Commons est sous [licence MIT](LICENSE). Le catalogue référence des projets tiers **sans en absorber la licence ni présumer leur innocuité**. Tous les auteurs, sources et licences déclarées restent crédités dans l'[index détaillé](docs/skills/README.md). Les intégrations propres à un projet ont aussi leurs guides sous `docs/`.
 
 <!-- BEGIN GENERATED SKILL REPOSITORY CREDITS -->
-Le catalogue public référence **212 skills provenant de 33 dépôts sources**. Il s'agit **uniquement de métadonnées** : Agent Commons ne regroupe pas et n'installe pas automatiquement ces skills. Les licences sont indiquées pour chaque skill épinglé dans [l'index complet](docs/skills/README.md) ; si plusieurs licences figurent pour un dépôt, vérifiez celle applicable à chaque skill.
+Le catalogue public référence **225 skills provenant de 34 dépôts sources**. Il s'agit **uniquement de métadonnées** : Agent Commons ne regroupe pas et n'installe pas automatiquement ces skills. Les licences sont indiquées pour chaque skill épinglé dans [l'index complet](docs/skills/README.md) ; si plusieurs licences figurent pour un dépôt, vérifiez celle applicable à chaque skill.
 
 | Dépôt source | Auteur / responsable | Skills référencés | Licence(s) déclarée(s) |
 |:--|:--|--:|:--|
@@ -102,6 +106,7 @@ Le catalogue public référence **212 skills provenant de 33 dépôts sources**.
 | [cathrynlavery/diagram-design](https://github.com/cathrynlavery/diagram-design) | Cathryn Lavery | 1 | MIT |
 | [cloudflare/security-audit-skill](https://github.com/cloudflare/security-audit-skill) | Cloudflare | 1 | MIT |
 | [coreyhaines31/marketingskills](https://github.com/coreyhaines31/marketingskills) | Corey Haines | 1 | MIT |
+| [DeadInternetStudios/100x-engineer-skill](https://github.com/DeadInternetStudios/100x-engineer-skill) | DeadInternetStudios | 13 | MIT |
 | [DojoCodingLabs/remotion-superpowers](https://github.com/DojoCodingLabs/remotion-superpowers) | Dojo Coding Labs | 15 | MIT |
 | [ecapri-dev/simulab-skill](https://github.com/ecapri-dev/simulab-skill) | ecapri-dev (@0xKapri) | 1 | MIT (bundled fonts: OFL-1.1) |
 | [frankxai/awesome-hermes-agent-skills](https://github.com/frankxai/awesome-hermes-agent-skills) | Frank Riemer / GenCreator | 1 | MIT |
