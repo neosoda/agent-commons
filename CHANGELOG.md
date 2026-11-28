@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Added a manual external Sellbird v0.5.0 MCP catalog reference and dedicated `outreach` preset, with explicit-sync tests and a security/setup guide. No AGPL code is bundled; no automatic sending or installation.
+
 ### Fixed (mission skill selection)
 - Missions no longer load skills matched only by execution vocabulary (`mcp_call`, "read once", "finish"…): such clauses are ignored for routing, a weak match loads nothing and a second skill must be comparably relevant. `skills route` is unchanged. The router remains lexical.
 

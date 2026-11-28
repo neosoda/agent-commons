@@ -88,6 +88,14 @@ export const MCP_CATALOG: readonly McpCatalogEntry[] = [
     packageName:'xerj',example:{command:'xerj',args:['mcp']}
   },
   {
+    id:'sellbird',name:'Sellbird',description:'Optional local sales workspace MCP for campaign status, drafts and review; contains personal data and mutation-capable tools.',
+    repository:'https://github.com/ethanplusai/sellbird',maintainer:'ethanplusai',license:'AGPL-3.0-only (external process)',
+    version:'0.5.0',checkedAt:'2026-11-26',
+    requirements:['Separately reviewed Python >=3.11 environment','Local Sellbird dashboard and dedicated agent key','Explicit SELLBIRD_HOME and human approval; no autopilot'],
+    platforms:allPlatforms,transport:'stdio',risk:'critical',installation:'manual',
+    example:{command:'<absolute-sellbird-venv-python>',args:['-P','-m','sellbird','mcp']}
+  },
+  {
     id:'agent-desktop',name:'Agent Desktop',description:'OS accessibility-tree desktop computer use; may read private UI and act as the logged-in user.',
     repository:'https://github.com/vercel-labs/agent-desktop',maintainer:'Vercel Labs',
     version:null,checkedAt:'2026-11-15',
@@ -101,5 +109,6 @@ export const MCP_PRESETS: Readonly<Record<string,readonly string[]>> = {
   development:['filesystem','git','github','playwright'],
   infrastructure:['docker-mcp-gateway','filesystem'],
   'desktop-control':['agent-desktop'],
-  knowledge:['xerj']
+  knowledge:['xerj'],
+  outreach:['sellbird']
 };

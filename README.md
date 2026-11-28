@@ -41,6 +41,10 @@ node dist/cli/index.js web
 
 Un premier essai sans modifier votre compte est possible avec `--home <dossier-de-test>`. `doctor` ne lance pas les serveurs MCP ; `mcp probe` les teste **activement** sur demande. L'installation npm du paquet `@neosoda/agent-commons` **n'est pas attestée publiée** : préférer GitHub et les sources tant que la fiche npm n'est pas vérifiée.
 
+## Sellbird (optionnel)
+
+[Sellbird](https://github.com/ethanplusai/sellbird) v0.5.0 est référencé comme MCP externe manuel (AGPL-3.0), avec profil `outreach` dédié. Installation indépendante, synchronisation explicite, consultation et préparation de brouillons ; aucun envoi ni autopilot activé par Agent Commons. [Configuration et sécurité](docs/SELLBIRD.md).
+
 ## Recherche locale XERJ (optionnelle)
 
 **XERJ v1.0.0-rc.104** est intégré à l’Extension Manager et au MCP Control Center : installation officielle SHA-256, détection d’exécutable existant, nœud local, autorisation de dossiers, indexation/recherche, synchronisation MCP ciblée. Pas de téléchargement depuis le catalogue ni d’activation automatique. La mémoire SQLite reste inchangée ; Query-1 et Reader-1 ne sont pas déployés. **[Guide XERJ et exemple Codex/Claude](docs/XERJ.md).**

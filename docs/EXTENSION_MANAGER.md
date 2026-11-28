@@ -19,7 +19,7 @@ Le catalogue Skills & MCP du Skill Hub local devient un gestionnaire d'extension
 | Fetch | uv (version épinglée) | uv, Python compatible |
 | Git | uv (version épinglée) | uv, Git, dépôt choisi explicitement |
 | XERJ | Archive officielle v1.0.0-rc.104 vérifiée par SHA-256 | Windows/Linux/macOS, instance locale et roots autorisés explicitement ; [guide](XERJ.md) |
-| GitHub, Docker Gateway, Agent Desktop | Manuel | Revue des permissions et des prérequis |
+| GitHub, Docker Gateway, Agent Desktop, Sellbird | Manuel | Revue des permissions et des prérequis |
 | Web Search et OSINT génériques | Indisponible | Aucun package fiable retenu |
 
 L'archive Windows portable d'Agent Commons n'intègre pas nécessairement npm, uv ou Python. Le gestionnaire peut réclamer leur installation locale.

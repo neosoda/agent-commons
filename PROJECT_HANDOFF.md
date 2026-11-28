@@ -34,6 +34,10 @@ Branche `fix/runtime-path-guard-audit-20261126`, partie de `main` `1fe87d8` (8 c
 
 **Backlog restant :** P1 `--allow-write` + `--allow-tests` = exécution de code arbitraire (documenté dans SECURITY, seule une sandbox OS le résout) ; P2 les phrases de déclenchement « Use when… » tronquées ne sont pas restaurées depuis l'amont épinglé (impact possible sur le routage) ; P3 `doctor` ne vérifie pas les fichiers passés en arguments aux commandes MCP.
 
+## Sellbird (26 novembre 2026)
+
+La référence MCP externe manuelle `sellbird` v0.5.0 et le profil `outreach` sont proposés sur la branche `feat/sellbird-mcp` ; voir [guide](docs/SELLBIRD.md). Aucun code AGPL incorporé, aucune installation ou recette live revendiquée. Vérifier la PR et ses checks avant de déclarer la disponibilité sur main.
+
 ## Claude SEO (26 novembre 2026)
 
 La branche `feat/claude-seo-integration` ajoute un pack de références épinglé Claude SEO (23 workflows, MIT), un point d'entrée portable et une recette de validation simulée. Voir [docs/CLAUDE_SEO.md](docs/CLAUDE_SEO.md). Aucun script, hook, sous-agent, MCP ou runtime Python n'est installé par le pack. Vérifier la PR et ses checks avant de déclarer la disponibilité sur main.

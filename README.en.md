@@ -41,6 +41,10 @@ node dist/cli/index.js web
 
 Try with `--home <test-directory>` first to avoid affecting your regular profile. `doctor` does not start MCP servers; `mcp probe` performs an **explicit live** test. The `@neosoda/agent-commons` npm publication is **not independently verified**: use source or GitHub releases until its registry listing is confirmed.
 
+## Optional Sellbird integration
+
+[Sellbird](https://github.com/ethanplusai/sellbird) v0.5.0 is a manual external MCP reference (AGPL-3.0), with a dedicated `outreach` profile. Separate installation, explicit sync, status and draft preparation; Agent Commons does not enable sending or autopilot. [Setup and security](docs/SELLBIRD.md).
+
 ## Optional local XERJ search
 
 **XERJ v1.0.0-rc.104** is available through the existing Extension Manager and MCP Control Center: official SHA-256 verified installation, existing executable detection, local node controls, explicit indexed roots, search and per-client MCP sync. Browsing does not install or run anything; SQLite memory is not replaced. Query-1 and Reader-1 are **not** bundled. **[XERJ setup and Codex/Claude workflow](docs/XERJ.md).**

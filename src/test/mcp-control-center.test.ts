@@ -113,12 +113,33 @@ describe('MCP Control Center synthetic-only regression',()=>{
       prepare(home,{playwright:{command:'secret-executable',env:{TOKEN:'sensitive-123'}}},
         '{"mcpServers":{"foreign":{"command":"hidden-command","env":{"PASS":"hidden-value"}}}}');
       const overview=inspectMcpControlCenter(ctx);
-      assert.equal(overview.catalog.length,10);
+      assert.equal(overview.catalog.length,11);
       assert.equal(overview.clients.find(a=>a.id==='lm-studio')?.status,'valid');
       const output=JSON.stringify(overview);
       for(const value of [home,'secret-executable','sensitive-123','hidden-command','hidden-value']){
         assert.equal(output.includes(value),false);
       }
+    });
+  });
+  it('lists Sellbird as manual-only and syncs only its explicitly selected profile',()=>{
+    fixture(home=>{
+      const ctx=createEnvironmentContext({homeDir:home});
+      const sellbird={command:'isolated-python',args:['-P','-m','sellbird','mcp']};
+      prepare(home,{sellbird,filesystem:server('node')},'{"mcpServers":{}}');
+      const overview=inspectMcpControlCenter(ctx);
+      const entry=overview.catalog.find(item=>item.id==='sellbird');
+      assert.equal(entry?.installation,'manual');
+      assert.equal(entry?.risk,'critical');
+      assert.equal(entry?.version,'0.5.0');
+      assert.deepEqual(overview.presets.outreach,['sellbird']);
+      const preview=runMcpProfileSync(ctx,'outreach',['lm-studio'],true);
+      assert.equal(preview.errors.length,0);
+      assert.deepEqual(JSON.parse(fs.readFileSync(path.join(home,'.lmstudio','mcp.json'),'utf8')),{mcpServers:{}});
+      const applied=runMcpProfileSync(ctx,'outreach',['lm-studio'],false);
+      assert.equal(applied.errors.length,0);
+      const native=JSON.parse(fs.readFileSync(path.join(home,'.lmstudio','mcp.json'),'utf8'));
+      assert.deepEqual(native.mcpServers.sellbird.args,sellbird.args);
+      assert.equal(native.mcpServers.filesystem,undefined);
     });
   });
   it('does not create LM Studio skills during full synchronization',()=>{

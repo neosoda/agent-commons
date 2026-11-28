@@ -19,9 +19,13 @@ Une nouvelle fonctionnalité sur `main` n'est pas automatiquement un correctif l
 - **Écritures et backups :** aperçu et consentement explicites dans l'UI, contrôle de révision et snapshots avant les mutations gérées ; les profils, liens Windows et configurations clientes non gérées doivent être préservés. Ce ne sont ni des transactions atomiques à toute épreuve ni des garanties de rollback après crash.
 - **Secrets :** ne pas les enregistrer dans Git, prompts, logs, interface, catalogues ou rapports publics. Les réponses web omettent commandes/arguments/env/URLs privés ; les fichiers natifs et archives peuvent toujours contenir des credentials. Les contrôles de redaction ne garantissent pas zéro fuite.
 - **Réseau :** les opérations ordinaires restent locales, sans télémétrie applicative ; l'installation approuvée d'un skill GitHub ou d'un package MCP utilise le réseau et exécuter un MCP tiers dépend de sa configuration. N'affirmez pas un mode « toujours hors ligne ».
-- **Installation de tiers :** catalogue épinglé et licences documentées ne constituent **pas** un audit du code externe. Extension Manager utilise des versions approuvées, phases indépendantes install/config/sync et prévisualisations ; les MCP manuels (Docker Gateway, desktop, GitHub) restent hors installation automatique.
+- **Installation de tiers :** catalogue épinglé et licences documentées ne constituent **pas** un audit du code externe. Extension Manager utilise des versions approuvées, phases indépendantes install/config/sync et prévisualisations ; les MCP manuels (Docker Gateway, desktop, GitHub, Sellbird) restent hors installation automatique.
 - **Diagnostics :** `doctor` inspecte en lecture seule les commandes/chemins ; `mcp probe` exécute **explicitement** le serveur choisi, handshake MCP et appel d'outil seulement s'il est demandé. Un endpoint à auth non disponible peut rester non vérifié. Les launchers Windows à syntaxe dangereuse sont refusés.
 - **Profils MCP :** ils contrôlent les **ajouts synchronisés** et non l'accès réel aux serveurs déjà natifs chez les clients. Ne jamais confondre profil, isolation système et autorisation de l'outil lors d'une mission.
+
+## Sellbird : frontière spécifique
+
+[Sellbird](docs/SELLBIRD.md) est un processus externe manuel, à risque critique. Ses outils peuvent lire des données de contacts et modifier des brouillons ou des états. Utiliser uniquement les outils nécessaires, garder l'approbation humaine et l'autopilot désactivé. Ne jamais donner au modèle un accès au navigateur déjà authentifié : une session ouverte par `dashboard_open` peut approuver des actions. Le profil `outreach` ne constitue pas un contrôle d'accès. Ne pas transférer les données de contacts, les tokens ou les sorties sensibles vers les mémoires et logs partagés.
 
 ## Runtime expérimental : menaces résiduelles
 

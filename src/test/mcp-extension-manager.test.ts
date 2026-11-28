@@ -102,6 +102,7 @@ describe('reviewed MCP extension lifecycle',()=>{
     assert.throws(()=>previewManagedMcp(ctx,'playwright','install'),/already exists/);
     assert.equal(fs.existsSync(folder),true);
     assert.throws(()=>previewManagedMcp(ctx,'osint','install'),/manual installation/);
+    assert.throws(()=>previewManagedMcp(ctx,'sellbird','install'),/manual installation/);
   });
   it('rejects malformed receipts and linked installation directories',()=>{
     fs.mkdirSync(ctx.commonsDir,{recursive:true});
