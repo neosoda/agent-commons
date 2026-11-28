@@ -14,7 +14,7 @@ import {
 } from '../extensions/hundredx.js';
 import { MissionToolsWithMcp, prepareApprovedMcp, selectMissionSkills } from './extensions.js';
 import { MissionRunner, MissionStore, DEFAULT_LIMITS, type ExecutionControl, type Limits } from './mission.js';
-import { WorkspaceTools } from './workspace.js';
+import { openWorkspace } from './remote-workspace.js';
 import { OpenAICompatibleModel } from './provider.js';
 
 function getOptions(argv: string[]): {args:Record<string,string>; flags:Set<string>} {
@@ -71,7 +71,7 @@ export async function main(argv = process.argv.slice(2), control?: ExecutionCont
       }
       const queue = new MissionQueue(ctx.commonsDir);
       const worker = new LocalQueueWorker(queue, async (job, lease) => {
-        const workspace = new WorkspaceTools(job.workspace, job.allowWrite, job.allowTests);
+        const workspace = openWorkspace(ctx, job.workspace, job.allowWrite, job.allowTests).tools;
         if (workspace.workspaceId !== job.workspaceId) throw new Error('Workspace identity has changed');
         const options = ['--workspace', job.workspace, '--resume', job.missionId, '--model', job.model];
         if (job.profile) options.push('--profile', job.profile);
@@ -111,7 +111,8 @@ export async function main(argv = process.argv.slice(2), control?: ExecutionCont
     if (controls.length > 1 || (controls.length && (args['task'] || args['resume'])) || (args['memory-kind'] && !args['remember'])) {
       throw new Error('Use one lifecycle command at a time');
     }
-    const workspace = new WorkspaceTools(path.resolve(args['workspace']),flags.has('allow-write'),flags.has('allow-tests'));
+    const opened = openWorkspace(ctx, args['workspace'], flags.has('allow-write'), flags.has('allow-tests'));
+    const workspace = opened.tools;
     const store = new MissionStore(path.join(ctx.commonsDir, 'missions'));
     if (controls[0] === 'queue-requeue' || controls[0] === 'queue-cancel') {
       const queue = new MissionQueue(ctx.commonsDir);
@@ -184,7 +185,7 @@ export async function main(argv = process.argv.slice(2), control?: ExecutionCont
       const queue = new MissionQueue(ctx.commonsDir);
       try {
         const id = queue.add({
-          missionId: state.id, workspace: path.resolve(args['workspace']), workspaceId: workspace.workspaceId,
+          missionId: state.id, workspace: opened.label, workspaceId: workspace.workspaceId,
           model, allowWrite: flags.has('allow-write'), allowTests: flags.has('allow-tests'),
           allowMcp: (args['allow-mcp-tool'] ?? '').split(',').filter(Boolean),
           profile: profileArg,
@@ -209,7 +210,9 @@ export async function main(argv = process.argv.slice(2), control?: ExecutionCont
     });
     const skills = selectMissionSkills(ctx, state.goal);
     const hundredxInfo = inspectHundredX(ctx);
-    const workspace100x = inspectWorkspaceHundredX(path.resolve(args['workspace']));
+    // A remote workspace has no local files to inspect.
+    const workspace100x = opened.remote ? { present: false } as ReturnType<typeof inspectWorkspaceHundredX>
+      : inspectWorkspaceHundredX(opened.label);
     const hundredxGuidance = (hundredxInfo.managed && hundredxInfo.healthy) || workspace100x.present
       ? [
           '100x VERIFICATION CONTEXT (metadata only, no automatic privilege escalation):',
@@ -251,7 +254,7 @@ export async function main(argv = process.argv.slice(2), control?: ExecutionCont
       flags.has('cloud') ? new OpenAICompatibleModel({
         url:process.env['AGENT_COMMONS_CLOUD_URL']??'',model:process.env['AGENT_COMMONS_CLOUD_MODEL']??'',apiKey:process.env['AGENT_COMMONS_CLOUD_API_KEY'],allowRemote:true
       }):undefined;
-    console.log(`Mission: ${state.id} | profile: ${requestedProfile} | workspace: ${path.resolve(args['workspace'])}`);
+    console.log(`Mission: ${state.id} | profile: ${requestedProfile} | workspace: ${opened.label}`);
     console.log('Selected skills: ' + (skills.ids.join(', ') || 'none') +
       ' | approved MCP tools: ' + approved.allowed.length);
     const result=await new MissionRunner(store,local,executor,limits,cloud,flags.has('allow-cloud-source'),{

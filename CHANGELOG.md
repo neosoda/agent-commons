@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Mission runtime: remote workspaces. `--workspace mcp:<server>/w-<12 hex>` runs the four workspace tools (`list_files`, `read_file`, `write_file`, `verify`) on an executor declared in the central MCP manifest, such as a sandboxed DEV01 host, while the loop, budgets, the changed-then-tested gate, checkpoints and permission checks stay local. The executor is told the workspace by the runtime only; a tool argument named `workspace` is refused. Results keep up to 12,000 characters (`probeMcpServer` gains `resultLimit`, default unchanged at 500). The queue accepts such labels without a schema change.
 - Optional [100x Engineer](docs/100X_ENGINEER.md) `v0.1.1` (MIT) integration: catalog metadata for all 13 `100x*` skills, SHA-256 verified `.tgz` install/update/repair/uninstall (`src/extensions/hundredx.ts`, CLI `agent-commons 100x ...`, `doctor` diagnostics, Web UI `#hundredx-panel`), snapshots and client skill sync.
 - Three execution profiles (`lite` default, `standard`, `deep`) with dynamic scope adaptation and strict caps (`0` paid/cloud calls unless explicitly authorized), wired into `agent-commons-agent`, `MissionQueue`, and Mission Control.
 - Optional specialist synergy in `universal-product-engineering` (`### 2.1`) for invariant verification, `stale`/`unproven` detection, seeded red proofs, bounded review rounds, and resume without nested loops.

@@ -148,6 +148,8 @@ export interface ProbeOptions {
   platform?: NodeJS.Platform;
   /** Aborting stops the server process tree; the outcome of a sent call stays unknown. */
   signal?: AbortSignal;
+  /** Characters of the tool result kept (default 500, at most 20000). */
+  resultLimit?: number;
 }
 
 export interface ProbeResult {
@@ -186,10 +188,10 @@ export function buildInvocation(resolved: string, args: string[], platform: Node
   return { file: resolved, args, verbatim: false };
 }
 
-function summarizeToolResult(result: unknown): string {
+function summarizeToolResult(result: unknown, limit = 500): string {
   const content = (result as { content?: Array<{ type?: string; text?: string }> } | undefined)?.content;
   const text = Array.isArray(content) ? content.filter(c => c?.type === 'text').map(c => c.text ?? '').join('\n') : '';
-  return redactSecrets((text || JSON.stringify(result ?? null)).slice(0, 500));
+  return redactSecrets((text || JSON.stringify(result ?? null)).slice(0, Math.min(Math.max(limit, 1), 20000)));
 }
 
 /** Starts one stdio MCP server, completes the MCP handshake, lists tools and stops it. */
@@ -285,7 +287,7 @@ export async function probeMcpServer(spec: McpLaunchSpec, options: ProbeOptions 
       const call = await step(request('tools/call', { name: options.callTool, arguments: options.toolArguments ?? {} }));
       if (call['error']) throw new Error('tools/call rejected: ' + JSON.stringify(call['error']).slice(0, 200));
       const callResult = call['result'] as { isError?: boolean } | undefined;
-      toolResult = summarizeToolResult(callResult);
+      toolResult = summarizeToolResult(callResult, options.resultLimit);
       if (callResult?.isError) throw new Error('Tool reported an error: ' + toolResult);
     }
     return done({
