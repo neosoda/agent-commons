@@ -45,6 +45,31 @@ describe('P1 mission skills and real MCP execution', () => {
     } finally { f.cleanup(); }
   });
 
+  it('does not load skills that only share execution vocabulary with the mission', () => {
+    const f = fixture(); try {
+      const add = (name: string, description: string) => {
+        const dir = path.join(f.ctx.centralSkillsDir, name);
+        fs.mkdirSync(dir, { recursive: true });
+        fs.writeFileSync(path.join(dir, 'SKILL.md'),
+          '---\nname: ' + name + '\ndescription: ' + description + '\n---\n# Guide\n');
+      };
+      add('mcp-server-patterns', 'Build an MCP server with tools and resources');
+      add('backend-api', 'Server routes, request handling and tool endpoints');
+      add('release-notes', 'Summarize code changes for readers');
+      const mechanics = 'Read README.md exactly once, then call mcp_call with server knowledgesentinel, tool ' +
+        'coolify_list_apps, args {}. Then finish, naming each application and the request_id of the answer. ' +
+        'Do not repeat any tool.';
+      assert.deepEqual(selectMissionSkills(f.ctx, mechanics).ids, []);
+      assert.deepEqual(selectMissionSkills(f.ctx,
+        'Review code security vulnerabilities. Read a.ts exactly once, then immediately finish. Do not repeat any tool.').ids,
+        ['security-review']);
+      assert.ok(selectMissionSkills(f.ctx, 'Design a new MCP server with tools and resources').ids
+        .includes('mcp-server-patterns'), 'a real topic is still routed');
+      assert.deepEqual(selectMissionSkills(f.ctx, 'Prepare holiday pictures for readers').ids, [],
+        'one incidental word is not enough to inject guidance');
+    } finally { f.cleanup(); }
+  });
+
   it('requires explicit per-tool approval and a successful real MCP handshake', async () => {
     const f = fixture(); try {
       const approved = await prepareApprovedMcp(f.ctx, ['demo/echo']);
