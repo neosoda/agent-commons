@@ -32,6 +32,15 @@ export function selectMissionSkills(ctx: EnvironmentContext, goal: string): Miss
   };
 }
 
+/**
+ * MCP servers are separate programs: they never receive the model or cloud provider
+ * credentials the runtime holds. A server that needs a key declares it in its own `env`.
+ */
+function mcpEnvironment(env: NodeJS.ProcessEnv = process.env): NodeJS.ProcessEnv {
+  return Object.fromEntries(Object.entries(env)
+    .filter(([key]) => !/^(?:AGENT_COMMONS_.*(?:KEY|TOKEN|SECRET)|CREDENTIALS_DIRECTORY)$/i.test(key)));
+}
+
 export interface ApprovedMcp {
   allowed: string[];
   servers: ReadonlyMap<string, McpLaunchSpec>;
@@ -65,7 +74,7 @@ export async function prepareApprovedMcp(ctx: EnvironmentContext, permissions: s
   const servers = new Map<string, McpLaunchSpec>();
   for (const [server, tools] of selected) {
     const spec = manifest.manifest.mcpServers[server]!;
-    const health = await probeMcpServer(spec, { timeoutMs: 15000 });
+    const health = await probeMcpServer(spec, { timeoutMs: 15000, env: mcpEnvironment() });
     if (!health.ok) throw new Error('MCP server not verified: ' + server + ' (' + health.stage + ')');
     for (const tool of tools) {
       if (!health.tools?.includes(tool)) throw new Error('MCP server ' + server + ' does not expose tool ' + tool);
@@ -95,7 +104,8 @@ export class MissionToolsWithMcp implements ToolExecutor {
       return { ok: false, progress: false, output: 'MCP arguments exceed limit' };
     }
     const report = await probeMcpServer(spec, {
-      timeoutMs: 20000, callTool: tool, toolArguments: args['args'] as Record<string, unknown>
+      timeoutMs: 20000, callTool: tool, toolArguments: args['args'] as Record<string, unknown>,
+      env: mcpEnvironment()
     });
     if (!report.ok || report.stage !== 'done' || report.toolResult === undefined) {
       return { ok: false, progress: false, output: 'MCP call failed or was not verified: ' + report.stage };

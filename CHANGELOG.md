@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Security
+- Mission runtime: MCP servers no longer inherit `AGENT_COMMONS_*` provider keys, tokens or secrets, nor `CREDENTIALS_DIRECTORY`. A server that relied on one of these must declare the value in its own `env` entry.
 - Mission runtime: on Windows volumes with 8.3 short names, `GIT~1` / `ENV~1` aliases bypassed the protected-path check, so a mission with `--allow-write` could create `.git/hooks/pre-commit` or read `.env`. Paths are now re-checked in their OS-canonical form, names ending in a dot or space are refused, and tool errors no longer forward absolute private paths.
 - XERJ indexing roots: protected home/`.agents`/backup directories are compared in canonical, case-folded form on Windows.
 
